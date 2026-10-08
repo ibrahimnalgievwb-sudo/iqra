@@ -300,6 +300,15 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .learned-item .li-check { color:var(--accent); font-size:18px; }
 
 .progress-section-title { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; font-weight:600; padding:14px 16px 8px; }
+
+.transcription-note {
+  display:flex; gap:12px; align-items:flex-start;
+  background: var(--card); border:1px dashed var(--border);
+  border-radius:14px; padding:14px 16px; margin-top:16px; margin-bottom:16px;
+  font-size:12px; color:var(--muted); line-height:1.6;
+}
+.transcription-note .tn-icon { font-size:15px; flex-shrink:0; line-height:1.4; opacity:.75; }
+.transcription-note b { color:var(--text); font-weight:600; }
 </style>
 </head>
 <body>
@@ -689,14 +698,12 @@ const DEFAULT_QURAN = [
     arabic:'تَبَّتْ يَدَا أَبِي لَهَبٍ وَتَبَّ\nمَا أَغْنَىٰ عَنْهُ مَالُهُ وَمَا كَسَبَ\nسَيَصْلَىٰ نَارًا ذَاتَ لَهَبٍ\nوَامْرَأَتُهُ حَمَّالَةَ الْحَطَبِ\nفِي جِيدِهَا حَبْلٌ مِّن مَّسَدٍ',
     transcription:'Таббат йада аби ляхабин ва табб.\nМа агна ‘анху малюху ва ма касаб.\nСайасля наран зата ляхаб.\nВамра’атуху хаммаляталь-хатаб.\nФи джидиха хаблюн мим-масад.',
     translation:'Да пропадут пропадом руки Абу Лахаба, и сам он пропал.\nНе спасли его ни богатство, ни то, что он приобрёл.\nОн войдёт в Огонь, объятый пламенем,\nи его жена, носившая дрова.\nНа её шее — верёвка из пальмовых волокон.',
-    note:'Ниспослана о дяде Пророка ﷺ Абу Лахабе.',
-    source:'Священный Коран, сура 111. Перевод: Эльмир Кулиев.', learned:false, learnedAt:'' },
+    note:'', source:'Священный Коран, сура 111. Перевод: Эльмир Кулиев.', learned:false, learnedAt:'' },
   { id:'q104', type:'surah', number:104, title:'Аль-Хумаза', subtitle:'Хулитель · Мекканская · 9 аятов',
     arabic:'وَيْلٌ لِّكُلِّ هُمَزَةٍ لُّمَزَةٍ\nالَّذِي جَمَعَ مَالًا وَعَدَّدَهُ\nيَحْسَبُ أَنَّ مَالَهُ أَخْلَدَهُ\nكَلَّا ۖ لَيُنبَذَنَّ فِي الْحُطَمَةِ\nوَمَا أَدْرَاكَ مَا الْحُطَمَةُ\nنَارُ اللَّهِ الْمُوقَدَةُ\nالَّتِي تَطَّلِعُ عَلَى الْأَفْئِدَةِ\nإِنَّهَا عَلَيْهِم مُّؤْصَدَةٌ\nفِي عَمَدٍ مُّمَدَّدَةٍ',
     transcription:'Вайлюн ликулли хумазатин люмаза.\nАллязи джама‘а малян ва ‘аддадах.\nЯхсабу анна маляху ахлядах.\nКалля ляюнбазанна филь-хутама.\nВа ма адрака маль-хутама.\nНаруллахиль-мукада.\nАлляти таттали‘у ‘аляль-аф’ида.\nИннаха ‘алайхим му’сада.\nФи ‘амадин мумаддада.',
     translation:'Горе всякому хулителю и обидчику,\nкоторый копит богатство и считает его.\nОн думает, что богатство сделает его бессмертным.\nНо нет! Он будет ввергнут в Огонь сокрушающий.\nОткуда ты знаешь, что такое Огонь сокрушающий?\nЭто разожжённый Огонь Аллаха,\nкоторый вздымается над сердцами.\nВоистину, он сомкнётся над ними\nв протяжённых столбах.',
-    note:'',
-    source:'Священный Коран, сура 104. Перевод: Эльмир Кулиев.', learned:false, learnedAt:'' },
+    note:'', source:'Священный Коран, сура 104. Перевод: Эльмир Кулиев.', learned:false, learnedAt:'' },
   { id:'q110', type:'surah', number:110, title:'Ан-Наср', subtitle:'Помощь · Мединская · 3 аята',
     arabic:'إِذَا جَاءَ نَصْرُ اللَّهِ وَالْفَتْحُ\nوَرَأَيْتَ النَّاسَ يَدْخُلُونَ فِي دِينِ اللَّهِ أَفْوَاجًا\nفَسَبِّحْ بِحَمْدِ رَبِّكَ وَاسْتَغْفِرْهُ ۚ إِنَّهُ كَانَ تَوَّابًا',
     transcription:'Иза джа’а насруллахи валь-фатх.\nВа ра’айтан-наса йадхулюна фи динилляхи афуаджа.\nФасаббих бихамди Раббика вастагфирх. Иннаху кана тавваба.',
@@ -829,6 +836,9 @@ function getHadithById(id){ return state.hadiths.find(h=>h.id===id); }
 function getQuranById(id){ return state.quran.find(q=>q.id===id); }
 function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function escNl(s){ return esc(s).replace(/\n/g,'<br>'); }
+function transcriptionNote() {
+  return `<div class="transcription-note"><span class="tn-icon">ℹ️</span><div>Транскрипция передаёт лишь <b>примерное произношение</b> и не отражает всех тонкостей арабского. Для правильного чтения следует изучить <b>таджвид</b>.</div></div>`;
+}
 function addToHistory(id, n) {
   const k = todayKey();
   if (!state.history[k]) state.history[k] = { total:0, byId:{} };
@@ -979,6 +989,7 @@ function openQuran(id) {
         <div class="read-ayah-trn">${esc(a.trn)}</div>
       </div>
     `).join('')}
+    ${transcriptionNote()}
     ${item.source ? `<div class="dh-section" style="margin-top:20px;"><div class="dh-label">Источник</div><div class="dh-text muted" style="font-size:13px;">${esc(item.source)}</div></div>` : ''}
   `;
   showScreen('screen-quran-detail');
@@ -1013,6 +1024,7 @@ function openRead(id) {
         <div class="read-ayah-trn">${esc(a.trn)}</div>
       </div>
     `).join('')}
+    ${transcriptionNote()}
   `;
   document.getElementById('read-mode').classList.add('active');
 }
@@ -1118,6 +1130,7 @@ function openNight(idx) {
       </div>
     `).join('')}
     ${item.note ? `<div class="note-box"><span class="note-icon">💡</span><div>${escNl(item.note)}</div></div>` : ''}
+    ${transcriptionNote()}
     ${item.source ? `<div class="dh-section" style="margin-top:20px;"><div class="dh-label">Источник</div><div class="dh-text muted" style="font-size:13px;">${esc(item.source)}</div></div>` : ''}
     <div class="detail-actions" style="margin-top:20px">
       <button class="btn secondary" onclick="openRead('${item.id}')">📖 Читать</button>
@@ -1158,6 +1171,7 @@ function openDua(id) {
       </div>
     </div>
     ${d.note ? `<div class="note-box"><span class="note-icon">💡</span><div>${escNl(d.note)}</div></div>` : ''}
+    ${transcriptionNote()}
     <div class="detail-actions">
       <button class="btn" onclick="openMemorizeFor(getDuaById('${d.id}'))">🧠 Заучить</button>
     </div>
@@ -1194,6 +1208,7 @@ function openHadith(id) {
       </div>
     </div>
     ${h.note ? `<div class="note-box"><span class="note-icon">💡</span><div>${escNl(h.note)}</div></div>` : ''}
+    ${transcriptionNote()}
     <div class="detail-actions">
       <button class="btn" onclick="openMemorizeFor(getHadithById('${h.id}'))">🧠 Заучить</button>
     </div>
