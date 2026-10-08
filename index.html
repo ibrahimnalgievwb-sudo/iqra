@@ -309,6 +309,20 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 }
 .transcription-note .tn-icon { font-size:15px; flex-shrink:0; line-height:1.4; opacity:.75; }
 .transcription-note b { color:var(--text); font-weight:600; }
+
+.counter .transcription-note {
+  position: absolute;
+  bottom: 14px;
+  left: 16px;
+  right: 16px;
+  margin: 0;
+  padding: 10px 14px;
+  font-size: 11px;
+  opacity: .65;
+}
+.counter .transcription-note .tn-icon { font-size: 13px; }
+
+.mem-body-note { margin-top: 20px; }
 </style>
 </head>
 <body>
@@ -352,6 +366,10 @@ input, textarea { -webkit-user-select:text; user-select:text; }
     </div>
     <div class="target-label" id="c-target">из 33</div>
     <div class="cycles" id="c-cycles">Циклов: 0</div>
+    <div class="transcription-note" onclick="event.stopPropagation()">
+      <span class="tn-icon">ℹ️</span>
+      <div>Транскрипция передаёт лишь <b>примерное произношение</b> и не отражает всех тонкостей арабского. Для правильного чтения следует изучить <b>таджвид</b>.</div>
+    </div>
   </div>
 </div>
 
@@ -1053,7 +1071,7 @@ function renderMemorize() {
   const stepInfo = `<div class="mem-step"><span>${phaseLabel} · Аят ${memorizeStep+1} из ${total}</span><span class="phase">${memorizePhase==='learn'?'изучаем':'проверяем'}</span></div>`;
   let body = '';
   if (memorizePhase === 'learn') {
-    body = `${stepInfo}<div class="mem-block"><div class="mb-label">Арабский</div><div class="mb-ar ar-font">${esc(a.ar)}</div></div><div class="mem-block"><div class="mb-label">Транскрипция</div><div class="mb-text">${esc(a.tr)}</div></div><div class="mem-block"><div class="mb-label">Перевод</div><div class="mb-text">${esc(a.trn)}</div></div>`;
+    body = `${stepInfo}<div class="mem-block"><div class="mb-label">Арабский</div><div class="mb-ar ar-font">${esc(a.ar)}</div></div><div class="mem-block"><div class="mb-label">Транскрипция</div><div class="mb-text">${esc(a.tr)}</div></div><div class="mem-block"><div class="mb-label">Перевод</div><div class="mb-text">${esc(a.trn)}</div></div><div class="mem-body-note">${transcriptionNote()}</div>`;
   } else {
     body = `${stepInfo}<div class="mem-block"><div class="mb-label">Перевод (подсказка)</div><div class="mb-text">${esc(a.trn)}</div></div><div class="mem-block"><div class="mb-label">Арабский ${memorizeRevealed ? '· открыт' : '· вспомни'}</div><div class="mb-ar ar-font ${memorizeRevealed ? '' : 'hidden'}">${esc(a.ar)}</div>${memorizeRevealed ? '' : `<button class="mem-reveal-btn" onclick="revealMemorize()">👁 Показать арабский</button>`}</div>`;
   }
