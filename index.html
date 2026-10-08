@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://api.dicebear.com https://placehold.co; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com https://api.dicebear.com https://placehold.co; object-src 'none'; base-uri 'none'; form-action 'none';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://api.dicebear.com https://placehold.co; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com https://api.dicebear.com https://placehold.co https://api.quran.com; object-src 'none'; base-uri 'none'; form-action 'none';">
 <meta name="referrer" content="no-referrer">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -27,7 +27,7 @@
 }
 [data-theme="dark"] {
   --bg:#0E1626; --card:#162032; --card2:#1E2B40; --accent:#6FB8C4; --accent2:#A8B2C1;
-  --text:#E6EAF2; --muted:#7A879B; --border:#22304A; --shadow:rgba(0,0,0,.35);
+  --text:#E6EAF2; --muted:#8A9BB5; --border:#22304A; --shadow:rgba(0,0,0,.35);
   --accent-rgb: 111, 184, 196; --ripple:rgba(111,184,196,.25);
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -44,8 +44,12 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .ar-font { font-family:"Amiri","Noto Naskh Arabic","SF Arabic","Geeza Pro",serif; font-feature-settings:"liga" 1, "calt" 1; }
 
 .screen { display:none; flex:1; flex-direction:column; min-height:0; }
-.screen.active { display:flex; animation:fadeIn .22s ease-out; }
-@keyframes fadeIn { from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;} }
+.screen.active { display:flex; animation:fadeIn .18s ease-out; }
+@keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
 
 .header { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; gap:12px; min-height:56px; }
 .header h1 { font-size:22px; font-weight:700; margin:0; letter-spacing:-.3px; }
@@ -91,9 +95,9 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .fab:active { transform:scale(.92); }
 
 .nav { position:fixed; bottom:0; left:0; right:0; display:flex; background:var(--card); border-top:1px solid var(--border); padding-bottom:env(safe-area-inset-bottom); z-index:9999; }
-.nav button { flex:1; padding:8px 0 10px; display:flex; flex-direction:column; align-items:center; gap:2px; color:var(--muted); font-size:9px; background:transparent; }
+.nav button { flex:1; padding:6px 0 8px; display:flex; flex-direction:column; align-items:center; gap:1px; color:var(--muted); font-size:8px; background:transparent; }
 .nav button.active { color:var(--accent); }
-.nav button .ico { font-size:19px; line-height:1; }
+.nav button .ico { font-size:18px; line-height:1; }
 
 .top-progress { position:fixed; top:0; left:0; right:0; height:3px; z-index:5; pointer-events:none; }
 .top-progress > div { height:100%; width:0%; background:var(--accent); transition: width .3s ease; }
@@ -625,8 +629,86 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 
 <script>
 "use strict";
-const STORAGE_KEY = 'tasbih_app_v9';
+const STORAGE_KEY = 'tasbih_app_v10';
 const LIMITS = { tasbihs:1000, history:10000, reminders:50, textLen:1000, idLen:100, targetMax:100000, cyclesMax:1000000 };
+
+// ============================================================
+// API ЗАГРУЗКА ПЕРЕВОДА КУЛИЕВА
+// ============================================================
+const QURAN_API_BASE = 'https://api.quran.com/api/v4';
+const KULIEV_RESOURCE_ID = 'ru-kuliev';
+const QURAN_CACHE_KEY = 'iqra_quran_cache_v1';
+const QURAN_CACHE_TTL = 30 * 24 * 60 * 60 * 1000;
+
+const SURAH_META = {
+  67: { name: 'Аль-Мульк', subtitle: 'Власть · Мекканская · 30 аятов' },
+  87: { name: 'Аль-Аля', subtitle: 'Всевышний · Мекканская · 19 аятов' },
+  89: { name: 'Аль-Фаджр', subtitle: 'Заря · Мекканская · 30 аятов' },
+  94: { name: 'Аш-Шарх', subtitle: 'Раскрытие · Мекканская · 8 аятов' },
+  97: { name: 'Аль-Кадр', subtitle: 'Предопределение · Мекканская · 5 аятов' },
+  103: { name: 'Аль-Аср', subtitle: 'Предвечернее время · Мекканская · 3 аята' },
+  104: { name: 'Аль-Хумаза', subtitle: 'Хулитель · Мекканская · 9 аятов' },
+  105: { name: 'Аль-Филь', subtitle: 'Слон · Мекканская · 5 аятов' },
+  106: { name: 'Курайш', subtitle: 'Курайшиты · Мекканская · 4 аята' },
+  107: { name: 'Аль-Маун', subtitle: 'Мелочь · Мекканская · 7 аятов' },
+  108: { name: 'Аль-Каусар', subtitle: 'Изобилие · Мекканская · 3 аята' },
+  109: { name: 'Аль-Кафирун', subtitle: 'Неверующие · Мекканская · 6 аятов' },
+  110: { name: 'Ан-Наср', subtitle: 'Помощь · Мединская · 3 аята' },
+  111: { name: 'Аль-Масад', subtitle: 'Пальмовые волокна · Мекканская · 5 аятов' },
+  112: { name: 'Аль-Ихлас', subtitle: 'Очищение веры · Мекканская · 4 аята' },
+  113: { name: 'Аль-Фаляк', subtitle: 'Рассвет · Мекканская · 5 аятов' },
+  114: { name: 'Ан-Нас', subtitle: 'Люди · Мекканская · 6 аятов' }
+};
+
+async function fetchKulievSurah(surahNumber) {
+  const cached = getCachedQuranSurah(surahNumber);
+  if (cached) return cached;
+  try {
+    const url = `${QURAN_API_BASE}/quran/translations/${KULIEV_RESOURCE_ID}?chapter_number=${surahNumber}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('API error');
+    const data = await res.json();
+    const meta = SURAH_META[surahNumber] || { name: `Сура ${surahNumber}`, subtitle: '' };
+    const ayahs = data.translations.map((t, i) => ({
+      num: i + 1,
+      ar: t.text_uthmani || '',
+      tr: t.text || '',
+      trn: ''
+    }));
+    const result = { number: surahNumber, title: meta.name, subtitle: meta.subtitle, ayahs };
+    setCachedQuranSurah(surahNumber, result);
+    return result;
+  } catch (e) {
+    console.warn(`API недоступен для суры ${surahNumber}, используем fallback`);
+    return null;
+  }
+}
+
+function getCachedQuranSurah(n) {
+  try {
+    const raw = localStorage.getItem(QURAN_CACHE_KEY);
+    if (!raw) return null;
+    const cache = JSON.parse(raw);
+    const entry = cache[n];
+    if (!entry || Date.now() - entry.ts > QURAN_CACHE_TTL) return null;
+    return entry.data;
+  } catch (e) { return null; }
+}
+
+function setCachedQuranSurah(n, data) {
+  try {
+    const raw = localStorage.getItem(QURAN_CACHE_KEY);
+    const cache = raw ? JSON.parse(raw) : {};
+    cache[n] = { ts: Date.now(), data };
+    localStorage.setItem(QURAN_CACHE_KEY, JSON.stringify(cache));
+  } catch (e) {}
+}
+
+async function getSurahWithFallback(n, localQuran) {
+  const fromApi = await fetchKulievSurah(n);
+  if (fromApi) return fromApi;
+  return localQuran.find(q => q.number === n) || null;
+}
 
 // ============================================================
 // ДАННЫЕ ПО УМОЛЧАНИЮ
@@ -784,7 +866,7 @@ const DEFAULT_QURAN = [
     bismillah: BISMILLAH,
     arabic: 'إِنَّا أَنزَلْنَاهُ فِي لَيْلَةِ الْقَدْرِ\nوَمَا أَدْرَاكَ مَا لَيْلَةُ الْقَدْرِ\nلَيْلَةُ الْقَدْرِ خَيْرٌ مِّنْ أَلْفِ شَهْرٍ\nتَنَزَّلُ الْمَلَائِكَةُ وَالرُّوحُ فِيهَا بِإِذْنِ رَبِّهِم مِّن كُلِّ أَمْرٍ\nسَلَامٌ هِيَ حَتَّىٰ مَطْلَعِ الْفَجْرِ',
     transcription: 'Инна анзальнаху фи ляйлятиль-кадр.\nВа ма адрака ма ляйлятуль-кадр.\nЛяйлятуль-кадри хайрун мин альфи шахр.\nТаназзалюль-маляикату вар-руху фиха би’изни Раббихим мин кулли амр.\nСалямун хия хатта матля‘иль-фаджр.',
-    translation: 'Воистину, Мы ниспослали его (Коран) в ночь предопределения.\nОткуда ты знаешь, что такое ночь предопределения?\nНочь предопределения лучше тысячи месяцев.\nВ эту ночь ангелы и Дух (Джибриль) нисходят с дозволения их Господа по всем Его повелениям.\nОна благополучна вплоть до наступления зари.',
+    translation: 'Воистину, Мы ниспослали его (Коран) в ночь предопределения (или величия).\nОткуда ты знаешь, что такое ночь предопределения (или величия)?\nНочь предопределения (или величия) лучше тысячи месяцев.\nВ эту ночь ангелы и Дух (Джибриль) нисходят с дозволения их Господа по всем Его повелениям.\nОна благополучна вплоть до наступления зари.',
     note: '', source: 'Священный Коран, сура 97. Перевод смыслов: Эльмир Кулиев.', learned: false, learnedAt: ''
   },
   // ============ Сура 103: Аль-Аср ============
@@ -794,7 +876,7 @@ const DEFAULT_QURAN = [
     bismillah: BISMILLAH,
     arabic: 'وَالْعَصْرِ\nإِنَّ الْإِنسَانَ لَفِي خُسْرٍ\nإِلَّا الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ وَتَوَاصَوْا بِالْحَقِّ وَتَوَاصَوْا بِالصَّبْرِ',
     transcription: 'Валь-‘аср.\nИнналь-инсана ляфи хуср.\nИлляль-лязина аману ва ‘амилюс-салихати ва тавасау биль-хакки ва тавасау бис-сабр.',
-    translation: 'Клянусь предвечерним временем,\nчто люди несут убытки,\nкроме тех, которые уверовали, совершали праведные деяния, заповедали друг другу истину и заповедали друг другу терпение!',
+    translation: 'Клянусь предвечерним временем (или временем)!\nВоистину, каждый человек в убытке,\nкроме тех, которые уверовали, совершали праведные деяния, заповедали друг другу истину и заповедали друг другу терпение!',
     note: '', source: 'Священный Коран, сура 103. Перевод смыслов: Эльмир Кулиев.', learned: false, learnedAt: ''
   },
   // ============ Сура 104: Аль-Хумаза ============
@@ -991,7 +1073,7 @@ function load() {
   if (!s.migrations.addedHadiths) { const ids=new Set(s.hadiths.map(h=>h.id)); for (const h of DEFAULT_HADITHS) if (!ids.has(h.id)) s.hadiths.push(JSON.parse(JSON.stringify(h))); s.migrations.addedHadiths = true; }
   
   // Миграция Корана — обновляем перевод и басмалу
-  if (!s.migrations.quran_v10) {
+  if (!s.migrations.quran_v11) {
     const byId = new Map(s.quran.map(q => [q.id, q]));
     for (const def of DEFAULT_QURAN) {
       if (byId.has(def.id)) {
@@ -1005,7 +1087,7 @@ function load() {
         s.quran.push(JSON.parse(JSON.stringify(def)));
       }
     }
-    s.migrations.quran_v10 = true;
+    s.migrations.quran_v11 = true;
   }
   return s;
 }
@@ -1149,7 +1231,7 @@ function deleteCurrent() { if (!editingId) return; if (!confirm('Удалить 
 // ============================================================
 // КОРАН
 // ============================================================
-function renderQuranList() {
+async function renderQuranList() {
   const el = document.getElementById('quran-list');
   if (!state.quran.length) { el.innerHTML = '<div class="empty">Пока нет текстов</div>'; return; }
   el.innerHTML = state.quran.map(item => {
@@ -1159,11 +1241,20 @@ function renderQuranList() {
     return `<div class="content-card${hasNum}" onclick="openQuran('${item.id}')">${numHtml}${badge}<div class="c-title">${esc(item.title)}</div><div class="c-sub">${esc(item.subtitle||'')}</div><div class="c-ar ar-font">${esc(item.arabic)}</div><div class="c-tr">${esc(item.translation)}</div></div>`;
   }).join('');
 }
-function openQuran(id) {
+async function openQuran(id) {
   activeQuranId = id;
   const item = getQuranById(id); if (!item) return;
   document.getElementById('quran-detail-title').textContent = item.title;
-  const ayahs = parseAyahs(item);
+  let ayahs = parseAyahs(item);
+  // Если аяты не загружены — пытаемся через API
+  if (!ayahs.length && item.number) {
+    const loaded = await getSurahWithFallback(item.number, state.quran);
+    if (loaded && loaded.ayahs) {
+      ayahs = loaded.ayahs;
+      Object.assign(item, loaded);
+      save();
+    }
+  }
   const el = document.getElementById('quran-detail-content');
   
   let bismillahHtml = '';
@@ -1226,10 +1317,14 @@ function goQuranList() { activeQuranId = null; renderQuranList(); showScreen('sc
 // ============================================================
 // РЕЖИМ ЧТЕНИЯ
 // ============================================================
-function openRead(id) {
+async function openRead(id) {
   const item = getQuranById(id); if (!item) return;
   document.getElementById('read-title').textContent = item.title;
-  const ayahs = parseAyahs(item);
+  let ayahs = parseAyahs(item);
+  if (!ayahs.length && item.number) {
+    const loaded = await getSurahWithFallback(item.number, state.quran);
+    if (loaded && loaded.ayahs) { ayahs = loaded.ayahs; Object.assign(item, loaded); save(); }
+  }
   
   let bismillahHtml = '';
   if (item.bismillah) {
@@ -1340,7 +1435,7 @@ function renderNightList() {
   });
   el.innerHTML = html;
 }
-function openNight(idx) {
+async function openNight(idx) {
   activeNightId = idx;
   const n = NIGHT_ORDER[idx]; if (!n) return;
   let item=null;
@@ -1349,7 +1444,11 @@ function openNight(idx) {
   else if (n.hadithId) item = getHadithById(n.hadithId);
   if (!item) return;
   document.getElementById('night-detail-title').textContent = item.title;
-  const ayahs = parseAyahs(item);
+  let ayahs = parseAyahs(item);
+  if (!ayahs.length && item.number) {
+    const loaded = await getSurahWithFallback(item.number, state.quran);
+    if (loaded && loaded.ayahs) { ayahs = loaded.ayahs; Object.assign(item, loaded); save(); }
+  }
   const el = document.getElementById('night-detail-content');
   el.innerHTML = `
     <div class="detail-hero">
@@ -1674,9 +1773,9 @@ function showScreen(id) {
   window.scrollTo(0,0);
 }
 function setNav(tab) { document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab)); }
-function switchTab(tab) {
+async function switchTab(tab) {
   if (tab==='home') { renderHome(); showScreen('screen-home'); }
-  else if (tab==='quran') { renderQuranList(); showScreen('screen-quran'); }
+  else if (tab==='quran') { await renderQuranList(); showScreen('screen-quran'); }
   else if (tab==='night') { renderNightList(); showScreen('screen-night'); }
   else if (tab==='dua') { renderDuaList(); showScreen('screen-dua'); }
   else if (tab==='hadith') { renderHadithList(); showScreen('screen-hadith'); }
