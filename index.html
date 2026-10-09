@@ -135,7 +135,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .top-progress { position:fixed; top:0; left:0; right:0; height:3px; z-index:5; pointer-events:none; }
 .top-progress > div { height:100%; width:0%; background:var(--accent); transition: width .3s ease; }
 
-.counter { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; text-align:center; position:relative; cursor:pointer; overflow:hidden; }
+.counter { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:16px 16px 24px; text-align:center; position:relative; cursor:pointer; overflow-x:hidden; overflow-y:auto; }
 .counter .ar { font-size:calc(36px * var(--ar-scale)); line-height:2; direction:rtl; margin-bottom:20px; max-width:90%; overflow-wrap: break-word; padding-top: 6px; }
 .counter .tr { font-size:17px; color:var(--muted); margin-bottom:4px; overflow-wrap: break-word; }
 .counter .trn { font-size:15px; color:var(--muted); margin-bottom:28px; overflow-wrap: break-word; }
@@ -365,16 +365,33 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .transcription-note b { color:var(--text); font-weight:600; }
 
 .counter .transcription-note {
-  position: absolute;
-  bottom: 14px;
-  left: 16px;
-  right: 16px;
-  margin: 0;
+  margin: 16px 0 0;
   padding: 10px 14px;
   font-size: 11px;
-  opacity: .65;
+  opacity: .7;
+  width: 100%;
+  max-width: 460px;
+  text-align: left;
 }
 .counter .transcription-note .tn-icon { font-size: 13px; }
+@media (max-height: 760px) {
+  .counter .ar { font-size: calc(28px * var(--ar-scale)); margin-bottom: 12px; }
+  .counter .tr { font-size: 15px; }
+  .counter .trn { font-size: 13px; margin-bottom: 16px; }
+  .counter .ring-wrap { width: 190px; height: 190px; margin: 4px 0; }
+  .counter .num { font-size: 58px; }
+  .counter .target-label { font-size: 13px; margin-top: 4px; }
+  .counter .cycles { margin-top: 10px; font-size: 13px; }
+}
+@media (max-height: 640px) {
+  .counter .ar { font-size: calc(22px * var(--ar-scale)); margin-bottom: 8px; }
+  .counter .tr { font-size: 14px; }
+  .counter .trn { font-size: 12px; margin-bottom: 10px; }
+  .counter .ring-wrap { width: 150px; height: 150px; }
+  .counter .num { font-size: 44px; letter-spacing: -1px; }
+  .counter .target-label { font-size: 12px; }
+  .counter .cycles { margin-top: 8px; font-size: 12px; }
+}
 
 .mem-body-note { margin-top: 20px; }
 </style>
