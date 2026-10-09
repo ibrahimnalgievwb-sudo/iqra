@@ -1560,8 +1560,27 @@ setInterval(checkReminders, 30000);
 function checkReminders() { const now=new Date(); const hh=pad(now.getHours())+':'+pad(now.getMinutes()); const k=todayKey(); state.reminders.forEach(r=>{ if (!r.on) return; if (r.time===hh && r.lastFired!==k) { r.lastFired=k; save(); if ('Notification' in window && Notification.permission === 'granted') { try { new Notification('Iqra | Читай', { body:'Время зикра 🕋' }); } catch(e){} } } }); }
 
 function exportData() { const data = JSON.stringify(state, null, 2); const blob = new Blob([data], { type:'application/json' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'iqra-backup-' + todayKey() + '.json'; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href), 1000); }
-function validateImport(d) { if (!d || typeof d !== 'object' || Array.isArray(d)) return null; if (!Array.isArray(d.tasbihs)) return null; return d; }
-function importData(e) { const f=e.target.files[0]; if (!f) return; if (f.size > 5*1024*1024) { alert('Файл слишком большой'); e.target.value=''; return; } const r=new FileReader(); r.onload=()=>{ let parsed; try { parsed=JSON.parse(r.result); } catch(err) { alert('Файл повреждён'); e.target.value=''; return; } const validated = validateImport(parsed); if (!validated) { alert('Файл не похож на резервную копию'); e.target.value=''; return; } if (!confirm('Импорт заменит все текущие данные. Продолжить?')) { e.target.value=''; return; } state = Object.assign({}, state, validated); save(); state = load(); save(); applyTheme(); setArSize(state.settings.arSize); renderHome(); renderDuaList(); renderHadithList(); renderQuranList(); renderNightList(); renderProgress(); showScreen('screen-home'); alert('Импортировано'); e.target.value=''; }; r.readAsText(f); }
+function validateImport(d) {
+  if (!d || typeof d !== 'object' || Array.isArray(d)) return null;
+  if (!Array.isArray(d.tasbihs)) return null;
+  const safe = {};
+  safe.tasbihs = d.tasbihs.filter(t => t && typeof t === 'object' && t.id && typeof t.target === 'number');
+  safe.settings = (d.settings && typeof d.settings === 'object' && !Array.isArray(d.settings)) ? d.settings : {};
+  safe.history = (d.history && typeof d.history === 'object' && !Array.isArray(d.history)) ? d.history : {};
+  safe.reminders = Array.isArray(d.reminders) ? d.reminders : [];
+  safe.duas = Array.isArray(d.duas) ? d.duas : [];
+  safe.hadiths = Array.isArray(d.hadiths) ? d.hadiths : [];
+  safe.migrations = (d.migrations && typeof d.migrations === 'object' && !Array.isArray(d.migrations)) ? d.migrations : {};
+  safe.draft = (d.draft && typeof d.draft === 'object') ? d.draft : null;
+  return safe;
+}
+function importData(e) { const f=e.target.files[0]; if (!f) return; if (f.size > 5*1024*1024) { alert('Файл слишком большой'); e.target.value=''; return; } const r=new FileReader(); r.onload=()=>{ let parsed; try { parsed=JSON.parse(r.result); } catch(err) { alert('Файл повреждён'); e.target.value=''; return; } const validated = validateImport(parsed); if (!validated) { alert('Файл не похож на резервную копию'); e.target.value=''; return; } if (!confirm('Импорт заменит все текущие данные. Продолжить?')) { e.target.value=''; return; } state = Object.assign({}, state, validated);
+state.quran = JSON.parse(JSON.stringify(DEFAULT_QURAN));
+state.migrations = state.migrations || {};
+state.migrations.quran_v15 = true;
+save();
+state = load();
+save(); applyTheme(); setArSize(state.settings.arSize); renderHome(); renderDuaList(); renderHadithList(); renderQuranList(); renderNightList(); renderProgress(); showScreen('screen-home'); alert('Импортировано'); e.target.value=''; }; r.readAsText(f); }
 function resetAll() { if (!confirm('Удалить ВСЕ данные? Это необратимо.')) return; if (!confirm('Точно? Резервную копию можно сделать в Настройках.')) return; localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(QURAN_CACHE_KEY); location.reload(); }
 
 function showScreen(id) {
