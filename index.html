@@ -668,7 +668,9 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 
 <script>
 "use strict";
-const STORAGE_KEY = 'tasbih_app_v13';
+// ⚠️  СТАБИЛЬНЫЙ КЛЮЧ — НЕ МЕНЯТЬ НИКОГДА.
+//    Смена ключа = потеря прогресса всех пользователей.
+const STORAGE_KEY = 'iqra_data';
 const LIMITS = { tasbihs:1000, history:10000, reminders:50, textLen:1000, idLen:100, targetMax:100000, cyclesMax:1000000 };
 
 // ============================================================
