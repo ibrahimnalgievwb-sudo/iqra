@@ -1068,20 +1068,20 @@ function parseAyahs(item) {
 }
 
 function isNightNow() { const h = new Date().getHours(); return (h >= 19 || h < 6); }
+function isNightNow() { const h = new Date().getHours(); return (h >= 19 || h < 6); }
 function applyTheme() {
   const t = state.settings.theme;
   let dark;
   if (t === 'dark') dark = true;
   else if (t === 'light') dark = false;
-  else if (t === 'night') dark = isNightNow();
-  else dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  else dark = isNightNow();
   document.documentElement.setAttribute('data-theme', dark?'dark':'light');
   document.querySelector('meta[name=theme-color]').setAttribute('content', dark?'#0E1626':'#E8EDE6');
   document.querySelectorAll('#theme-seg button').forEach(b=>b.classList.toggle('active', b.dataset.theme===t));
 }
 function setTheme(t){ state.settings.theme=t; save(); applyTheme(); }
 function setArSize(s) { state.settings.arSize=parseFloat(s); save(); document.documentElement.style.setProperty('--ar-scale',s); document.querySelectorAll('#size-seg button').forEach(b=>b.classList.toggle('active',parseFloat(b.dataset.size)===parseFloat(s))); const p=document.getElementById('ar-preview'); if (p) p.style.fontSize=(24*s)+'px'; }
-window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', ()=>{ if (state.settings.theme==='auto') applyTheme(); });
+setInterval(() => { if (state.settings.theme === 'auto') applyTheme(); }, 60000); document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && state.settings.theme === 'auto') applyTheme(); });
 setInterval(() => { if (state.settings.theme === 'night') applyTheme(); }, 60000);
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && state.settings.theme === 'night') applyTheme(); });
 
