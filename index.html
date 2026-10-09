@@ -64,7 +64,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   overflow-wrap: break-word;
   min-height: calc(64px * var(--ar-scale));
 }
-.counter .ar { line-height: 2; min-height: calc(64px * var(--ar-scale)); }
+.counter .ar { line-height: 2.6 !important; }
 .mem-block .mb-ar { line-height: 2; min-height: calc(64px * var(--ar-scale)); }
 .bismillah-card .b-ar { line-height: 2; min-height: calc(56px * var(--ar-scale)); }
 @supports (font-variation-settings: normal) {
@@ -136,7 +136,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .top-progress > div { height:100%; width:0%; background:var(--accent); transition: width .3s ease; }
 
 .counter { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:16px 16px 24px; text-align:center; position:relative; cursor:pointer; overflow-x:hidden; overflow-y:auto; }
-.counter .ar { font-size:calc(36px * var(--ar-scale)); direction:rtl; padding-bottom:60px; max-width:90%; overflow-wrap: break-word; padding-top: 6px; }
+.counter .ar { font-size:calc(36px * var(--ar-scale)); line-height:2.6 !important; direction:rtl; padding:6px 0 80px 0 !important; margin:0 !important; max-width:90%; overflow-wrap: break-word; }
 .counter .tr { font-size:17px; color:var(--muted); margin-bottom:4px; padding-top:12px; overflow-wrap: break-word; }
 .counter .trn { font-size:15px; color:var(--muted); margin-bottom:28px; overflow-wrap: break-word; }
 .counter .ring-wrap { position:relative; width:240px; height:240px; margin:8px 0; flex-shrink:0; }
@@ -375,7 +375,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 }
 .counter .transcription-note .tn-icon { font-size: 13px; }
 @media (max-height: 760px) {
-  .counter .ar { font-size: calc(26px * var(--ar-scale)); padding-bottom: 44px; }
+  .counter .ar { font-size: calc(26px * var(--ar-scale)); line-height: 2.6 !important; padding: 4px 0 60px 0 !important; }
   .counter .tr { font-size: 15px; }
   .counter .trn { font-size: 13px; margin-bottom: 16px; }
   .counter .ring-wrap { width: 190px; height: 190px; margin: 4px 0; }
@@ -384,7 +384,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   .counter .cycles { margin-top: 10px; font-size: 13px; }
 }
 @media (max-height: 640px) {
-  .counter .ar { font-size: calc(20px * var(--ar-scale)); padding-bottom: 32px; }
+  .counter .ar { font-size: calc(20px * var(--ar-scale)); line-height: 2.6 !important; padding: 4px 0 50px 0 !important; }
   .counter .tr { font-size: 14px; }
   .counter .trn { font-size: 12px; margin-bottom: 10px; }
   .counter .ring-wrap { width: 150px; height: 150px; }
