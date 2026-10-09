@@ -470,6 +470,9 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 <!-- QURAN LIST -->
 <div class="screen" id="screen-quran">
   <div class="header"><h1>Коран</h1><div style="width:42px"></div></div>
+  <div style="padding:0 16px 12px;">
+    <div class="search-wrap"><input id="quran-search" placeholder="Поиск по Корану..." oninput="renderQuranList()"></div>
+  </div>
   <div class="content-list" id="quran-list"></div>
 </div>
 
@@ -561,6 +564,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
           <button data-theme="light" onclick="setTheme('light')">Светлая</button>
           <button data-theme="dark" onclick="setTheme('dark')">Тёмная</button>
           <button data-theme="auto" onclick="setTheme('auto')">Авто</button>
+          <button data-theme="night" onclick="setTheme('night')">Ночь</button>
         </div>
       </div>
       <div class="setting-row" style="flex-direction:column; align-items:stretch; gap:10px;">
@@ -669,8 +673,6 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 <script>
 "use strict";
 
-// ⚠️  СТАБИЛЬНЫЙ КЛЮЧ — НЕ МЕНЯТЬ НИКОГДА.
-//    Смена ключа = потеря прогресса всех пользователей.
 const STORAGE_KEY = 'iqra_data';
 const LIMITS = { tasbihs:1000, history:10000, reminders:50, textLen:1000, idLen:100, targetMax:100000, cyclesMax:1000000 };
 
@@ -735,7 +737,7 @@ async function getSurahWithFallback(n, localQuran) {
   if (fromApi) return fromApi;
   return localQuran.find(q => q.number === n) || null;
 }
-
+  
 const TAWHID_TASBIH = { id: 'tawhid', arabic: 'لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ', transcription: 'Ля иляха илляллаху вахдаху ля шарика ляху, ляхуль-мульку ва ляхуль-хамду, ва хува ‘аля кулли шай’ин кадир', translation: '«Нет бога, кроме одного лишь Аллаха, у Которого нет сотоварища, Ему принадлежит власть, Ему хвала, и Он всё может»', target: 10, current: 0, cycles: 0 };
 const ISTIGHFAR_TASBIH = { id:'istighfar', arabic:'أَسْتَغْفِرُ اللَّهَ', transcription:'АстагфируЛлах', translation:'Прошу прощения у Аллаха', target:100, current:0, cycles:0 };
 const DEFAULT_TASBIHS = [TAWHID_TASBIH, ISTIGHFAR_TASBIH,
@@ -954,8 +956,6 @@ function defaultSettings() { return { theme:'auto', arSize:1, dailyGoal:100, aut
 function load() {
   let s = null;
   try { const raw = localStorage.getItem(STORAGE_KEY); if (raw) s = JSON.parse(raw); } catch(e) { s = null; }
-
-  // Миграция с прежних ключей — переносим прогресс в стабильный ключ
   if (!s) {
     const legacyKeys = ['tasbih_app_v13','tasbih_app_v12','tasbih_app_v11','tasbih_app_v10','tasbih_app_v9'];
     for (const k of legacyKeys) {
@@ -1034,9 +1034,14 @@ function parseAyahs(item) {
   return ar.map((line, i) => ({ num: isSurah ? (i+1) : (item.number || ''), ar: line, tr: tr[i] || '', trn: trn[i] || '' }));
 }
 
+function isNightNow() { const h = new Date().getHours(); return (h >= 19 || h < 6); }
 function applyTheme() {
   const t = state.settings.theme;
-  const dark = t==='dark' || (t==='auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  let dark;
+  if (t === 'dark') dark = true;
+  else if (t === 'light') dark = false;
+  else if (t === 'night') dark = isNightNow();
+  else dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
   document.documentElement.setAttribute('data-theme', dark?'dark':'light');
   document.querySelector('meta[name=theme-color]').setAttribute('content', dark?'#0E1626':'#E8EDE6');
   document.querySelectorAll('#theme-seg button').forEach(b=>b.classList.toggle('active', b.dataset.theme===t));
@@ -1044,6 +1049,8 @@ function applyTheme() {
 function setTheme(t){ state.settings.theme=t; save(); applyTheme(); }
 function setArSize(s) { state.settings.arSize=parseFloat(s); save(); document.documentElement.style.setProperty('--ar-scale',s); document.querySelectorAll('#size-seg button').forEach(b=>b.classList.toggle('active',parseFloat(b.dataset.size)===parseFloat(s))); const p=document.getElementById('ar-preview'); if (p) p.style.fontSize=(24*s)+'px'; }
 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', ()=>{ if (state.settings.theme==='auto') applyTheme(); });
+setInterval(() => { if (state.settings.theme === 'night') applyTheme(); }, 60000);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && state.settings.theme === 'night') applyTheme(); });
 
 function renderHome() {
   const today = state.history[todayKey()];
@@ -1124,8 +1131,17 @@ function deleteCurrent() { if (!editingId) return; if (!confirm('Удалить 
 
 async function renderQuranList() {
   const el = document.getElementById('quran-list');
-  if (!state.quran.length) { el.innerHTML = '<div class="empty">Пока нет текстов</div>'; return; }
-  el.innerHTML = state.quran.map(item => {
+  const qEl = document.getElementById('quran-search');
+  const q = qEl ? (qEl.value || '').toLowerCase().trim() : '';
+  let items = state.quran;
+  if (q) {
+    items = items.filter(item => {
+      const hay = [item.title, item.subtitle, item.arabic, item.transcription, item.translation, String(item.number || '')].filter(Boolean).join(' ').toLowerCase();
+      return hay.includes(q);
+    });
+  }
+  if (!items.length) { el.innerHTML = state.quran.length ? '<div class="empty">Ничего не найдено</div>' : '<div class="empty">Пока нет текстов</div>'; return; }
+  el.innerHTML = items.map(item => {
     const badge = item.learned ? `<div class="c-badge">✓ Выучено</div>` : '';
     const numHtml = item.type === 'surah' ? `<div class="c-num">${item.number}</div>` : '';
     const hasNum = item.type === 'surah' ? ' has-num' : '';
@@ -1148,7 +1164,6 @@ async function openQuran(id) {
     bismillahHtml = `<div class="bismillah-card"><div class="b-ar ar-font">${item.bismillah.arabic}</div><div class="b-tr">${item.bismillah.transcription}</div><div class="b-trn">${item.bismillah.translation}</div></div>`;
   }
   el.innerHTML = `
-    ${bismillahHtml}
     <div class="detail-hero">
       <div class="dh-title">${esc(item.title)}</div>
       <div class="dh-sub">${esc(item.subtitle||'')}</div>
@@ -1165,6 +1180,7 @@ async function openQuran(id) {
         <div class="lt-sub">${item.learned ? (item.learnedAt ? 'Выучено ' + item.learnedAt : 'Нажми, чтобы снять отметку') : 'Изучи текст и отметь'}</div>
       </div>
     </div>
+    ${bismillahHtml}
     <div style="height:16px"></div>
     ${ayahs.map((a) => `
       <div class="read-ayah ${item.type==='ayat'?'ayat-mode':''}">
@@ -1204,9 +1220,9 @@ async function openRead(id) {
     bismillahHtml = `<div class="bismillah-card" style="margin-bottom:20px;"><div class="b-ar ar-font">${item.bismillah.arabic}</div><div class="b-tr">${item.bismillah.transcription}</div><div class="b-trn">${item.bismillah.translation}</div></div>`;
   }
   document.getElementById('read-body').innerHTML = `
-    ${bismillahHtml}
     <div class="read-surah-title">${esc(item.title)}</div>
     <div class="read-surah-sub">${esc(item.subtitle||'')}</div>
+    ${bismillahHtml}
     ${ayahs.map(a => `
       <div class="read-ayah ${item.type==='ayat'?'ayat-mode':''}">
         <div class="read-ayah-num">${item.type==='surah' ? a.num : (item.number||'')}</div>
