@@ -486,7 +486,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 
 <!-- QURAN LIST -->
 <div class="screen" id="screen-quran">
-  <div class="header"><h1>Коран</h1><div style="width:42px"></div></div>
+  <div class="header"><h1>Коран</h1><button class="icon-btn ghost" onclick="openSearch()">🔍</button></div>
   <div style="padding:0 16px 12px;">
     <div class="search-wrap"><input id="quran-search" placeholder="Поиск по Корану..." oninput="renderQuranList()"></div>
   </div>
@@ -521,7 +521,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 
 <!-- DUAS LIST -->
 <div class="screen" id="screen-dua">
-  <div class="header"><h1>Дуа</h1><div style="width:42px"></div></div>
+  <div class="header"><h1>Дуа</h1><button class="icon-btn ghost" onclick="openSearch()">🔍</button></div>
   <div class="content-list" id="dua-list"></div>
 </div>
 
@@ -537,7 +537,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 
 <!-- HADITHS LIST -->
 <div class="screen" id="screen-hadith">
-  <div class="header"><h1>Хадисы</h1><div style="width:42px"></div></div>
+  <div class="header"><h1>Хадисы</h1><button class="icon-btn ghost" onclick="openSearch()">🔍</button></div>
   <div class="content-list" id="hadith-list"></div>
 </div>
 
@@ -1174,10 +1174,14 @@ async function renderQuranList() {
   }
   if (!items.length) { el.innerHTML = state.quran.length ? '<div class="empty">Ничего не найдено</div>' : '<div class="empty">Пока нет текстов</div>'; return; }
   el.innerHTML = items.map(item => {
+    const fav = isFavorite(item.id);
+     const fav = isFavorite(item.id);
+    const fav = isFavorite(item.id);
     const badge = item.learned ? `<div class="c-badge">✓ Выучено</div>` : '';
     const numHtml = item.type === 'surah' ? `<div class="c-num">${item.number}</div>` : '';
     const hasNum = item.type === 'surah' ? ' has-num' : '';
-    return `<div class="content-card${hasNum}" onclick="openQuran('${item.id}')">${numHtml}${badge}<div class="c-title">${esc(item.title)}</div><div class="c-sub">${esc(item.subtitle||'')}</div><div class="c-ar ar-font">${esc(item.arabic)}</div><div class="c-tr">${esc(item.translation)}</div></div>`;
+    const star = `<button class="star-btn ${fav?'active':''}" onclick="starClick(event,'${item.id}','quran')">${fav?'★':'☆'}</button>`;
+    return `<div class="content-card${hasNum}" onclick="openQuran('${item.id}')">${numHtml}${badge}${star}<div class="c-title">${esc(item.title)}</div><div class="c-sub">${esc(item.subtitle||'')}</div><div class="c-ar ar-font">${esc(item.arabic)}</div><div class="c-tr">${esc(item.translation)}</div></div>`;
   }).join('');
 }
 async function openQuran(id) {
@@ -1190,6 +1194,8 @@ async function openQuran(id) {
     const loaded = await getSurahWithFallback(item.number, state.quran);
     if (loaded && loaded.ayahs) { ayahs = loaded.ayahs; Object.assign(item, loaded); save(); }
   }
+  const st = document.getElementById('quran-detail-star');
+  if (st) { const fav=isFavorite(id); st.textContent=fav?'★':'☆'; st.classList.toggle('starred', fav); }
   const el = document.getElementById('quran-detail-content');
   let bismillahHtml = '';
   if (item.bismillah) {
@@ -1398,12 +1404,16 @@ function renderDuaList() {
   const el = document.getElementById('dua-list');
   if (!state.duas.length) { el.innerHTML = '<div class="empty">Пока нет дуа</div>'; return; }
   el.innerHTML = state.duas.map(d => {
+    const fav = isFavorite(d.id);
     const badge = d.learned ? `<div class="c-badge">✓ Выучено</div>` : '';
-    return `<div class="content-card" onclick="openDua('${d.id}')">${badge}<div class="c-title">${esc(d.title)}</div><div class="c-sub">${esc(d.subtitle||'')}</div><div class="c-ar ar-font">${esc(d.arabic)}</div><div class="c-tr">${esc(d.translation)}</div></div>`;
+    const star = `<button class="star-btn ${fav?'active':''}" onclick="starClick(event,'${d.id}','dua')">${fav?'★':'☆'}</button>`;
+    return `<div class="content-card" onclick="openDua('${d.id}')">${badge}${star}<div class="c-title">${esc(d.title)}</div><div class="c-sub">${esc(d.subtitle||'')}</div><div class="c-ar ar-font">${esc(d.arabic)}</div><div class="c-tr">${esc(d.translation)}</div></div>`;
   }).join('');
 }
 function openDua(id) {
   activeDuaId = id; const d = getDuaById(id); if (!d) return;
+  const st = document.getElementById('dua-detail-star');
+  if (st) { const fav=isFavorite(id); st.textContent=fav?'★':'☆'; st.classList.toggle('starred', fav); }
   const el = document.getElementById('dua-detail-content');
   el.innerHTML = `
     <div class="detail-hero">
@@ -1433,12 +1443,16 @@ function renderHadithList() {
   const el = document.getElementById('hadith-list');
   if (!state.hadiths.length) { el.innerHTML = '<div class="empty">Пока нет хадисов</div>'; return; }
   el.innerHTML = state.hadiths.map(h => {
+    const fav = isFavorite(h.id);
     const badge = h.learned ? `<div class="c-badge">✓ Изучено</div>` : '';
-    return `<div class="content-card" onclick="openHadith('${h.id}')">${badge}<div class="c-title">${esc(h.title)}</div><div class="c-sub">${esc(h.subtitle||'')}</div><div class="c-ar ar-font">${esc(h.arabic)}</div><div class="c-tr">${esc(h.translation)}</div></div>`;
+    const star = `<button class="star-btn ${fav?'active':''}" onclick="starClick(event,'${h.id}','hadith')">${fav?'★':'☆'}</button>`;
+    return `<div class="content-card" onclick="openHadith('${h.id}')">${badge}${star}<div class="c-title">${esc(h.title)}</div><div class="c-sub">${esc(h.subtitle||'')}</div><div class="c-ar ar-font">${esc(h.arabic)}</div><div class="c-tr">${esc(h.translation)}</div></div>`;
   }).join('');
 }
 function openHadith(id) {
   activeHadithId = id; const h = getHadithById(id); if (!h) return;
+  const st = document.getElementById('hadith-detail-star');
+  if (st) { const fav=isFavorite(id); st.textContent=fav?'★':'☆'; st.classList.toggle('starred', fav); }
   const el = document.getElementById('hadith-detail-content');
   el.innerHTML = `
     <div class="detail-hero">
@@ -1468,7 +1482,7 @@ const MONTHS = ['Январь','Февраль','Март','Апрель','Ма�
 const DOW = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
 
 function setProgTab(t) { progTab = t; document.querySelectorAll('.prog-tabs button').forEach(b=>b.classList.toggle('active', b.dataset.pt===t)); renderProgress(); }
-function renderProgress() { if (progTab === 'overview') renderProgressOverview(); else if (progTab === 'calendar') renderProgressCalendar(); else if (progTab === 'learned') renderProgressLearned(); }
+function renderProgress() { if (progTab === 'overview') renderProgressOverview(); else if (progTab === 'calendar') renderProgressCalendar(); else if (progTab === 'learned') renderProgressLearned(); else if (progTab === 'favorites') renderProgressFavorites(); } function renderProgressFavorites() {   const body = document.getElementById('prog-body');   const favQ = state.quran.filter(q=>isFavorite(q.id));   const favD = state.duas.filter(d=>isFavorite(d.id));   const favH = state.hadiths.filter(h=>isFavorite(h.id));   let html = '';   if (favQ.length) { html += `<div class="settings-group"><div class="progress-section-title">📖 Суры и аяты</div>`; favQ.forEach(q => { html += `<div class="learned-item" onclick="openQuran('${q.id}')" style="cursor:pointer"><div><div class="li-title">${esc(q.title)}</div><div class="li-sub">${esc(q.subtitle||'')}</div></div><div class="li-check">★</div></div>`; }); html += `</div>`; }   if (favD.length) { html += `<div class="settings-group"><div class="progress-section-title">🤲 Дуа</div>`; favD.forEach(d => { html += `<div class="learned-item" onclick="openDua('${d.id}')" style="cursor:pointer"><div><div class="li-title">${esc(d.title)}</div><div class="li-sub">${esc(d.subtitle||'')}</div></div><div class="li-check">★</div></div>`; }); html += `</div>`; }   if (favH.length) { html += `<div class="settings-group"><div class="progress-section-title">📜 Хадисы</div>`; favH.forEach(h => { html += `<div class="learned-item" onclick="openHadith('${h.id}')" style="cursor:pointer"><div><div class="li-title">${esc(h.title)}</div><div class="li-sub">${esc(h.subtitle||'')}</div></div><div class="li-check">★</div></div>`; }); html += `</div>`; }   if (!html) html = '<div class="empty">Пока пусто.<br>Нажмите ☆ на карточке текста.</div>';   body.innerHTML = html; }
 function renderProgressOverview() {
   const body = document.getElementById('prog-body');
   let totalAll = 0, daysWithDhikr = 0, bestDay = 0, bestDayKey = '';
@@ -1537,7 +1551,7 @@ function renderProgressCalendar() {
   let labels = '';
   for (let d=1; d<=daily.length; d++) { if (d===1 || d%5===0 || d===daily.length) labels += `<span>${d}</span>`; else labels += `<span></span>`; }
   body.innerHTML = `
-    <div class="cal-header"><div class="month">${MONTHS[m]} ${y}</div><div class="cal-nav"><button onclick="shiftMonth(-1)">‹</button><button onclick="shiftMonth(1)">›</button></div></div>
+    <div class="cal-header"><div><div class="month">${MONTHS[m]} ${y}</div><div style="font-size:12px;color:var(--muted);margin-top:2px">${formatHijri(new Date(y, m, 15))}</div></div><div class="cal-nav"><button onclick="shiftMonth(-1)">‹</button><button onclick="shiftMonth(1)">›</button></div></div>
     <div class="cal-grid">${html}</div>
     <div class="cal-summary">
       <div class="stat"><div class="label">Всего за месяц</div><div class="value">${monthTotal}</div></div>
@@ -1566,7 +1580,7 @@ function computeStreak() { let s = 0; const d = new Date(); for (let i=0; i<3650
 function openDay(key) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(key)) return;
   const entry = state.history[key]; const [y,m,d] = key.split('-');
-  let html = `<h2>${d}.${m}.${y}</h2>`;
+  let html = `<h2>${d}.${m}.${y}</h2><div style="font-size:13px;color:var(--muted);margin-bottom:16px">${formatHijri(new Date(+y, +m - 1, +d))}</div>`;
   if (!entry || !entry.total) html += `<div style="color:var(--muted);padding:20px 0;text-align:center">В этот день счёта не было</div>`;
   else { for (const [tid,cnt] of Object.entries(entry.byId)) { const t=getById(tid); const name=t?(t.transcription||t.arabic):'Удалённый тасбих'; html += `<div class="modal-row"><span>${esc(name)}</span><span class="num">${cnt}</span></div>`; } html += `<div class="modal-total"><span>Всего</span><span class="num">${entry.total}</span></div>`; }
   html += `<button class="btn secondary" style="margin-top:20px" onclick="closeModal()">Закрыть</button>`;
@@ -1590,13 +1604,13 @@ document.getElementById('opt-wake').addEventListener('change', e=>{ state.settin
 document.getElementById('opt-sound').addEventListener('change', e=>{ state.settings.sound = e.target.checked; save(); if (e.target.checked) playClick(); });
 document.getElementById('opt-vibrate').addEventListener('change', e=>{ state.settings.vibrate = e.target.checked; save(); });
 function setDailyGoal(v) { state.settings.dailyGoal = Math.max(0, Math.min(1000000, parseInt(v)||0)); save(); }
-function renderReminders() { const el=document.getElementById('reminders-list'); if (!state.reminders.length) { el.innerHTML=`<div style="padding:14px 16px;color:var(--muted);font-size:13px">Пока нет напоминаний</div>`; return; } el.innerHTML = state.reminders.map((r,i)=>`<div class="time-row"><input type="time" value="${r.time}" onchange="updateReminder(${i}, this.value)"><label class="toggle"><input type="checkbox" ${r.on?'checked':''} onchange="toggleReminder(${i}, this.checked)"><span class="slider"></span></label><button class="del" onclick="deleteReminder(${i})">×</button></div>`).join(''); }
-function addReminder() { if (state.reminders.length >= LIMITS.reminders) { alert('Максимум '+LIMITS.reminders+' напоминаний'); return; } const t=document.getElementById('new-reminder-time').value; if (!t || !/^\d{2}:\d{2}$/.test(t)) return; state.reminders.push({time:t,on:true,lastFired:''}); save(); renderReminders(); if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission(); }
-function updateReminder(i,v) { if (!/^\d{2}:\d{2}$/.test(v)) return; state.reminders[i].time = v; save(); }
+function renderReminders() { const el=document.getElementById('reminders-list'); if (!state.reminders.length) { el.innerHTML=`<div style="padding:14px 16px;color:var(--muted);font-size:13px">Пока нет напоминаний</div>`; return; } el.innerHTML = state.reminders.map((r,i)=>`<div class="reminder-row"><div class="rr-top"><input type="time" value="${r.time}" onchange="updateReminderField(${i},'time',this.value)"><label class="toggle"><input type="checkbox" ${r.on?'checked':''} onchange="toggleReminder(${i}, this.checked)"><span class="slider"></span></label><button class="del" onclick="deleteReminder(${i})">×</button></div><input type="text" value="${esc(r.message||'')}" placeholder="Сообщение (необязательно)" maxlength="200" onchange="updateReminderField(${i},'message',this.value)"></div>`).join(''); }
+function addReminder() { if (state.reminders.length >= LIMITS.reminders) { alert('Максимум '+LIMITS.reminders+' напоминаний'); return; } const t=document.getElementById('new-reminder-time').value; const mi=document.getElementById('new-reminder-msg'); const msg=(mi?mi.value:'').trim().slice(0,200); if (!t || !/^\d{2}:\d{2}$/.test(t)) return; state.reminders.push({time:t,on:true,lastFired:'',message:msg}); if (mi) mi.value=''; save(); renderReminders(); if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission(); }
+function updateReminderField(i, field, v) { if (field==='time') { if (!/^\d{2}:\d{2}$/.test(v)) return; state.reminders[i].time=v; } else if (field==='message') { state.reminders[i].message=String(v||'').trim().slice(0,200); } save(); }
 function toggleReminder(i,v) { state.reminders[i].on = v; save(); }
 function deleteReminder(i) { state.reminders.splice(i,1); save(); renderReminders(); }
 setInterval(checkReminders, 30000);
-function checkReminders() { const now=new Date(); const hh=pad(now.getHours())+':'+pad(now.getMinutes()); const k=todayKey(); state.reminders.forEach(r=>{ if (!r.on) return; if (r.time===hh && r.lastFired!==k) { r.lastFired=k; save(); if ('Notification' in window && Notification.permission === 'granted') { try { new Notification('Iqra | Читай', { body:'Время зикра 🕋' }); } catch(e){} } } }); }
+function checkReminders() { const now=new Date(); const hh=pad(now.getHours())+':'+pad(now.getMinutes()); const k=todayKey(); state.reminders.forEach(r=>{ if (!r.on) return; if (r.time===hh && r.lastFired!==k) { r.lastFired=k; save(); if ('Notification' in window && Notification.permission === 'granted') { try { new Notification('Iqra | Читай', { body: r.message || 'Время зикра 🕋' }); } catch(e){} } } }); }
 
 function exportData() { const data = JSON.stringify(state, null, 2); const blob = new Blob([data], { type:'application/json' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'iqra-backup-' + todayKey() + '.json'; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href), 1000); }
 function validateImport(d) {
@@ -1665,8 +1679,7 @@ document.addEventListener('keydown', (e) => {
   const mem = document.getElementById('memorize-mode');
   if (mem && mem.classList.contains('active')) { closeMemorize(); return; }
 });
-let lastTouch = 0;
-document.addEventListener('touchend', (e) => { const now = Date.now(); if (now - lastTouch < 300) e.preventDefault(); lastTouch = now; }, { passive: false });
+(function(){ const el=document.getElementById('read-body'); if (!el) return; let tx=0, ty=0, on=false; el.addEventListener('touchstart', (e)=>{ tx=e.touches[0].clientX; ty=e.touches[0].clientY; on=true; }, { passive:true }); el.addEventListener('touchend', (e)=>{ if (!on) return; on=false; const dx=e.changedTouches[0].clientX-tx; const dy=e.changedTouches[0].clientY-ty; if (Math.abs(dx)<80 || Math.abs(dy)>Math.abs(dx)) return; if (!activeReadId) return; const idx=state.quran.findIndex(q=>q.id===activeReadId); if (idx<0) return; if (dx<0 && idx<state.quran.length-1) openRead(state.quran[idx+1].id); else if (dx>0 && idx>0) openRead(state.quran[idx-1].id); }, { passive:true }); })();
 </script>
 </body>
 </html>
