@@ -132,7 +132,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .nav { position:fixed; bottom:0; left:0; right:0; display:flex; background:var(--card); border-top:1px solid var(--border); padding-bottom:env(safe-area-inset-bottom); z-index:9999; }
 .nav button { flex:1; padding:6px 0 8px; display:flex; flex-direction:column; align-items:center; gap:1px; color:var(--muted); font-size:8px; background:transparent; min-width:0; }
 .nav button.active { color:var(--accent); }
-.nav button .ico { font-size:18px; line-height:1; }
+.nav button .ico { width: 22px; height: 22px; display: block; }
 
 .top-progress { position:fixed; top:0; left:0; right:0; height:3px; z-index:5; pointer-events:none; }
 .top-progress > div { height:100%; width:0%; background:var(--accent); transition: width .3s ease; }
@@ -654,12 +654,30 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 
 <!-- NAV -->
 <div class="nav" id="nav">
-  <button class="active" data-tab="home" onclick="switchTab('home')"><div class="ico">📿</div><div>Тасбих</div></button>
-  <button data-tab="quran" onclick="switchTab('quran')"><div class="ico">📖</div><div>Коран</div></button>
-  <button data-tab="night" onclick="switchTab('night')"><div class="ico">🌙</div><div>Ночь</div></button>
-  <button data-tab="dua" onclick="switchTab('dua')"><div class="ico">🤲</div><div>Дуа</div></button>
-  <button data-tab="hadith" onclick="switchTab('hadith')"><div class="ico">📜</div><div>Хадис</div></button>
-  <button data-tab="cal" onclick="switchTab('cal')"><div class="ico">📊</div><div>Прогресс</div></button>
+  <button class="active" data-tab="home" onclick="switchTab('home')">
+    <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="4" r="1.6"/><circle cx="18.5" cy="7" r="1.6"/><circle cx="20.5" cy="13" r="1.6"/><circle cx="17" cy="18.5" r="1.6"/><circle cx="12" cy="20.5" r="1.6"/><circle cx="7" cy="18.5" r="1.6"/><circle cx="3.5" cy="13" r="1.6"/><circle cx="5.5" cy="7" r="1.6"/></svg>
+    <div>Тасбих</div>
+  </button>
+  <button data-tab="quran" onclick="switchTab('quran')">
+    <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5h7a3 3 0 0 1 3 3v12a2.5 2.5 0 0 0-2.5-2.5H2z"/><path d="M22 5h-7a3 3 0 0 0-3 3v12a2.5 2.5 0 0 1 2.5-2.5H22z"/></svg>
+    <div>Коран</div>
+  </button>
+  <button data-tab="night" onclick="switchTab('night')">
+    <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    <div>Ночь</div>
+  </button>
+  <button data-tab="dua" onclick="switchTab('dua')">
+    <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 0 0-4 0v5"/><path d="M14 10V4a2 2 0 0 0-4 0v6"/><path d="M10 10.5V6a2 2 0 0 0-4 0v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg>
+    <div>Дуа</div>
+  </button>
+  <button data-tab="hadith" onclick="switchTab('hadith')">
+    <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
+    <div>Хадис</div>
+  </button>
+  <button data-tab="cal" onclick="switchTab('cal')">
+    <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    <div>Прогресс</div>
+  </button>
 </div>
 
 <div class="modal-bg" id="modal-bg" onclick="if(event.target===this)closeModal()">
@@ -1108,6 +1126,24 @@ function defaultSettings() { return { theme:'auto', arSize:1, dailyGoal:100, aut
 function load() {
   let s = null;
   try { const raw = localStorage.getItem(STORAGE_KEY); if (raw) s = JSON.parse(raw); } catch(e) { s = null; }
+
+  // Миграция с прежних ключей — переносим прогресс в стабильный ключ
+  if (!s) {
+    const legacyKeys = ['tasbih_app_v13','tasbih_app_v12','tasbih_app_v11','tasbih_app_v10','tasbih_app_v9'];
+    for (const k of legacyKeys) {
+      try {
+        const raw = localStorage.getItem(k);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && typeof parsed === 'object') {
+            s = parsed;
+            try { localStorage.setItem(STORAGE_KEY, raw); } catch(e) {}
+            break;
+          }
+        }
+      } catch(e) {}
+    }
+  }
   if (!s) {
     s = {
       tasbihs: JSON.parse(JSON.stringify(DEFAULT_TASBIHS)), history:{}, settings:defaultSettings(),
@@ -1316,12 +1352,12 @@ async function openQuran(id) {
       </div>`;
   }
 
-  el.innerHTML = `
+    el.innerHTML = `
+    ${bismillahHtml}
     <div class="detail-hero">
       <div class="dh-title">${esc(item.title)}</div>
       <div class="dh-sub">${esc(item.subtitle||'')}</div>
     </div>
-    ${bismillahHtml}
     ${item.note ? `<div class="note-box"><span class="note-icon">💡</span><div>${escNl(item.note)}</div></div>` : ''}
     <div class="detail-actions">
       <button class="btn secondary" onclick="openRead('${item.id}')">📖 Читать</button>
@@ -1513,8 +1549,9 @@ async function openNight(idx) {
       </div>
     `).join('')}
     ${item.note ? `<div class="note-box"><span class="note-icon">💡</span><div>${escNl(item.note)}</div></div>` : ''}
+        ${item.source ? `<div class="dh-section" style="margin-top:20px;"><div class="dh-label">Источник</div><div class="dh-text muted" style="font-size:13px;">${esc(item.source)}</div></div>` : ''}
     ${transcriptionNote()}
-    ${item.source ? `<div class="dh-section" style="margin-top:20px;"><div class="dh-label">Источник</div><div class="dh-text muted" style="font-size:13px;">${esc(item.source)}</div></div>` : ''}
+  `;
     <div class="detail-actions" style="margin-top:20px">
       <button class="btn secondary" onclick="openRead('${item.id}')">📖 Читать</button>
       <button class="btn" onclick="memorizeFromNight(${idx})">🧠 Заучить</button>
