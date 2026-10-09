@@ -41,7 +41,42 @@ body { display:flex; flex-direction:column; padding-top:env(safe-area-inset-top)
 button, input, textarea, select { font-family:inherit; color:inherit; }
 button { cursor:pointer; border:none; background:none; }
 input, textarea { -webkit-user-select:text; user-select:text; }
-.ar-font { font-family:"Amiri","Noto Naskh Arabic","SF Arabic","Geeza Pro",serif; font-feature-settings:"liga" 1, "calt" 1; }
+
+/* ══════════════════════════════════════════════════════════════
+   АРАБСКИЙ ТЕКСТ — защита от наложения и обрезания диакритики
+   ══════════════════════════════════════════════════════════════ */
+.ar-font {
+  font-family:"Amiri","Noto Naskh Arabic","SF Arabic","Geeza Pro",serif;
+  font-feature-settings:"liga" 1, "calt" 1;
+  line-height: 2 !important;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
+  hyphens: none;
+  text-rendering: optimizeLegibility;
+}
+/* Арабский в карточках — резервируем высоту */
+.tasbih-card .ar,
+.content-card .c-ar,
+.preview-card .pv-ar { min-height: 1.8em; }
+/* Арабский в детальных экранах — больший line-height */
+.read-ayah-ar {
+  font-size:calc(30px * var(--ar-scale));
+  line-height: 2;
+  direction:rtl; text-align:right;
+  padding-bottom: 18px;
+  margin-bottom: 14px;
+  border-bottom: 1px dashed var(--border);
+  overflow-wrap: break-word;
+  min-height: calc(64px * var(--ar-scale));
+}
+.counter .ar { line-height: 2; min-height: calc(64px * var(--ar-scale)); }
+.mem-block .mb-ar { line-height: 2; min-height: calc(64px * var(--ar-scale)); }
+.bismillah-card .b-ar { line-height: 2; min-height: calc(56px * var(--ar-scale)); }
+/* Убираем возможное наслоение при загрузке шрифтов */
+@supports (font-variation-settings: normal) {
+  .ar-font { font-synthesis: none; }
+}
 
 .screen { display:none; flex:1; flex-direction:column; min-height:0; }
 .screen.active { display:flex; animation:fadeIn .18s ease-out; }
@@ -59,14 +94,14 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 
 .list, .form, .cal, .settings { flex:1; overflow-y:auto; padding:0 16px 120px; -webkit-overflow-scrolling:touch; }
 
-.home-controls { display:flex; gap:8px; margin-bottom:12px; }
-.search-wrap { flex:1; position:relative; }
+.home-controls { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
+.search-wrap { flex:1; min-width:160px; position:relative; }
 .search-wrap input { width:100%; background:var(--card); border:1px solid var(--border); border-radius:14px; padding:11px 14px 11px 38px; font-size:15px; outline:none; }
 .search-wrap::before { content:"🔍"; position:absolute; left:13px; top:50%; transform:translateY(-50%); font-size:13px; opacity:.6; pointer-events:none; }
 .sort-select { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:11px 12px; font-size:13px; outline:none; min-width:110px; -webkit-appearance:none; appearance:none; text-align:center; }
 
 .daily-goal { background:var(--card); border-radius:var(--radius); padding:16px; margin-bottom:16px; box-shadow:0 2px 8px var(--shadow); }
-.daily-goal .dg-top { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px; }
+.daily-goal .dg-top { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px; gap:10px; flex-wrap:wrap; }
 .daily-goal .dg-label { font-size:13px; color:var(--muted); }
 .daily-goal .dg-num { font-size:20px; font-weight:700; font-variant-numeric:tabular-nums; }
 .daily-goal .dg-num span { color:var(--muted); font-weight:400; font-size:14px; }
@@ -74,16 +109,16 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .dg-bar > div { height:100%; background:var(--accent); border-radius:4px; transition: width .4s ease; }
 
 #cards-container { min-height:20px; }
-.tasbih-card { background:var(--card); border-radius:var(--radius); padding:16px 18px; margin-bottom:12px; cursor:pointer; box-shadow:0 2px 8px var(--shadow); display:flex; align-items:center; gap:14px; position:relative; }
+.tasbih-card { background:var(--card); border-radius:var(--radius); padding:16px 18px; margin-bottom:12px; cursor:pointer; box-shadow:0 2px 8px var(--shadow); display:flex; align-items:flex-start; gap:14px; position:relative; }
 .tasbih-card:active { transform:scale(.98); }
-.tasbih-card .body { flex:1; min-width:0; }
-.tasbih-card .ar { font-size:26px; line-height:1.6; direction:rtl; text-align:right; margin-bottom:6px; }
-.tasbih-card .tr { font-size:14px; color:var(--muted); margin-bottom:1px; }
-.tasbih-card .trn { font-size:13px; color:var(--muted); margin-bottom:10px; }
-.tasbih-card .p-row { display:flex; justify-content:space-between; font-size:12px; color:var(--muted); margin-bottom:6px; }
+.tasbih-card .body { flex:1; min-width:0; overflow-wrap: break-word; }
+.tasbih-card .ar { font-size:26px; line-height:2; direction:rtl; text-align:right; margin-bottom:6px; padding-top: 4px; overflow-wrap: break-word; }
+.tasbih-card .tr { font-size:14px; color:var(--muted); margin-bottom:1px; overflow-wrap: break-word; }
+.tasbih-card .trn { font-size:13px; color:var(--muted); margin-bottom:10px; overflow-wrap: break-word; }
+.tasbih-card .p-row { display:flex; justify-content:space-between; font-size:12px; color:var(--muted); margin-bottom:6px; gap:8px; flex-wrap:wrap; }
 .tasbih-card .today-badge { position:absolute; top:12px; left:12px; background:var(--accent); color:var(--bg); font-size:10px; font-weight:700; padding:2px 7px; border-radius:8px; }
 .tasbih-card.dragging { opacity:.6; box-shadow:0 12px 32px var(--shadow); transform:scale(1.02); pointer-events:none; }
-.mini-ring { position:relative; width:52px; height:52px; flex-shrink:0; }
+.mini-ring { position:relative; width:52px; height:52px; flex-shrink:0; margin-top: 8px; }
 .mini-ring svg { transform:rotate(-90deg); }
 .mini-ring .ring-bg { stroke:var(--card2); }
 .mini-ring .ring-fg { stroke:var(--accent); }
@@ -95,7 +130,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .fab:active { transform:scale(.92); }
 
 .nav { position:fixed; bottom:0; left:0; right:0; display:flex; background:var(--card); border-top:1px solid var(--border); padding-bottom:env(safe-area-inset-bottom); z-index:9999; }
-.nav button { flex:1; padding:6px 0 8px; display:flex; flex-direction:column; align-items:center; gap:1px; color:var(--muted); font-size:8px; background:transparent; }
+.nav button { flex:1; padding:6px 0 8px; display:flex; flex-direction:column; align-items:center; gap:1px; color:var(--muted); font-size:8px; background:transparent; min-width:0; }
 .nav button.active { color:var(--accent); }
 .nav button .ico { font-size:18px; line-height:1; }
 
@@ -103,10 +138,10 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .top-progress > div { height:100%; width:0%; background:var(--accent); transition: width .3s ease; }
 
 .counter { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; text-align:center; position:relative; cursor:pointer; overflow:hidden; }
-.counter .ar { font-size:calc(36px * var(--ar-scale)); line-height:1.7; direction:rtl; margin-bottom:20px; max-width:90%; }
-.counter .tr { font-size:17px; color:var(--muted); margin-bottom:4px; }
-.counter .trn { font-size:15px; color:var(--muted); margin-bottom:28px; }
-.counter .ring-wrap { position:relative; width:240px; height:240px; margin:8px 0; }
+.counter .ar { font-size:calc(36px * var(--ar-scale)); line-height:2; direction:rtl; margin-bottom:20px; max-width:90%; overflow-wrap: break-word; padding-top: 6px; }
+.counter .tr { font-size:17px; color:var(--muted); margin-bottom:4px; overflow-wrap: break-word; }
+.counter .trn { font-size:15px; color:var(--muted); margin-bottom:28px; overflow-wrap: break-word; }
+.counter .ring-wrap { position:relative; width:240px; height:240px; margin:8px 0; flex-shrink:0; }
 .counter .ring-wrap svg { width:100%; height:100%; transform:rotate(-90deg); }
 .counter .ring-bg { stroke:var(--card2); }
 .counter .ring-fg { stroke:var(--accent); transition: stroke-dashoffset .35s ease; }
@@ -123,20 +158,20 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .next-toast.show { transform:translateY(0); pointer-events:auto; }
 .next-toast .nt-label { font-size:11px; color:var(--muted); margin-bottom:2px; }
 .next-toast .nt-name { font-size:15px; font-weight:600; }
-.next-toast .nt-ar { font-size:18px; direction:rtl; margin-left:auto; opacity:.7; }
+.next-toast .nt-ar { font-size:18px; direction:rtl; margin-left:auto; opacity:.7; overflow-wrap: break-word; }
 .next-toast .nt-btn { width:36px; height:36px; border-radius:50%; background:var(--accent); color:var(--bg); display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
 
 .field { margin-bottom:18px; }
 .field label { display:block; font-size:13px; color:var(--muted); margin-bottom:8px; padding-left:4px; }
 .field input, .field textarea, .field select { width:100%; background:var(--card); border:1px solid var(--border); border-radius:14px; padding:14px; font-size:16px; outline:none; }
 .field input:focus, .field textarea:focus { border-color:var(--accent); }
-.field textarea { resize:none; min-height:78px; direction:rtl; font-size:24px; line-height:1.7; }
+.field textarea { resize:none; min-height:78px; direction:rtl; font-size:24px; line-height:2; overflow-wrap: break-word; }
 
 .preview-card { background:var(--card); border-radius:var(--radius); padding:16px 18px; margin-bottom:16px; box-shadow:0 2px 8px var(--shadow); border:1px dashed var(--border); }
 .preview-card .pv-label { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:8px; }
-.preview-card .pv-ar { font-size:26px; line-height:1.6; direction:rtl; text-align:right; margin-bottom:6px; min-height:1.6em; }
-.preview-card .pv-tr { font-size:14px; color:var(--muted); min-height:1.2em; }
-.preview-card .pv-trn { font-size:13px; color:var(--muted); margin-top:2px; min-height:1.2em; }
+.preview-card .pv-ar { font-size:26px; line-height:2; direction:rtl; text-align:right; margin-bottom:6px; min-height:1.8em; overflow-wrap: break-word; }
+.preview-card .pv-tr { font-size:14px; color:var(--muted); min-height:1.2em; overflow-wrap: break-word; }
+.preview-card .pv-trn { font-size:13px; color:var(--muted); margin-top:2px; min-height:1.2em; overflow-wrap: break-word; }
 
 .presets { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:8px; }
 .preset-chip { padding:8px 14px; border-radius:20px; background:var(--card); border:1px solid var(--border); font-size:13px; }
@@ -148,16 +183,16 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .btn.danger { background:transparent; color:#c96a5a; border:1px solid rgba(201,106,90,.3); }
 
 .stepper { display:flex; align-items:center; background:var(--card); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
-.stepper button { width:56px; height:52px; font-size:22px; }
+.stepper button { width:56px; height:52px; font-size:22px; flex-shrink:0; }
 .stepper button:active { background:var(--card2); }
-.stepper input { flex:1; text-align:center; background:transparent; border:none; font-size:18px; font-weight:600; outline:none; -moz-appearance:textfield; }
+.stepper input { flex:1; text-align:center; background:transparent; border:none; font-size:18px; font-weight:600; outline:none; -moz-appearance:textfield; min-width:0; }
 .stepper input::-webkit-outer-spin-button, .stepper input::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
 
 .prog-tabs { display:flex; gap:4px; background:var(--card2); border-radius:12px; padding:3px; margin-bottom:14px; }
 .prog-tabs button { flex:1; padding:9px 6px; border-radius:9px; font-size:12px; color:var(--muted); font-weight:600; }
 .prog-tabs button.active { background:var(--card); color:var(--text); }
 
-.cal-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.cal-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; gap:10px; flex-wrap:wrap; }
 .cal-header .month { font-size:17px; font-weight:600; }
 .cal-nav { display:flex; gap:6px; }
 .cal-nav button { width:36px; height:36px; border-radius:50%; background:var(--card); color:var(--text); display:flex; align-items:center; justify-content:center; font-size:16px; border:1px solid var(--border); }
@@ -184,34 +219,33 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .stat .value { font-size:24px; font-weight:700; }
 
 .content-list { flex:1; overflow-y:auto; padding:0 16px 120px; -webkit-overflow-scrolling:touch; }
-.content-card { background:var(--card); border-radius:var(--radius); padding:18px 20px; margin-bottom:12px; cursor:pointer; box-shadow:0 2px 8px var(--shadow); position:relative; }
+.content-card { background:var(--card); border-radius:var(--radius); padding:18px 20px; margin-bottom:12px; cursor:pointer; box-shadow:0 2px 8px var(--shadow); position:relative; overflow-wrap: break-word; }
 .content-card:active { transform:scale(.98); }
 .content-card .c-badge { position:absolute; top:14px; right:14px; font-size:10px; font-weight:700; padding:3px 9px; border-radius:8px; background:rgba(var(--accent-rgb), .15); color:var(--accent); }
 .content-card .c-num { position:absolute; top:14px; left:14px; width:34px; height:34px; border-radius:50%; background:rgba(var(--accent-rgb), .15); color:var(--accent); font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center; }
-.content-card .c-title { font-size:17px; font-weight:700; margin-bottom:4px; padding-right:70px; }
+.content-card .c-title { font-size:17px; font-weight:700; margin-bottom:4px; padding-right:70px; overflow-wrap: break-word; }
 .content-card.has-num .c-title { margin-left:46px; }
-.content-card .c-sub { font-size:12px; color:var(--muted); margin-bottom:12px; }
+.content-card .c-sub { font-size:12px; color:var(--muted); margin-bottom:12px; overflow-wrap: break-word; }
 .content-card.has-num .c-sub { margin-left:46px; }
-.content-card .c-ar { font-size:24px; line-height:1.7; direction:rtl; text-align:right; margin-bottom:10px; opacity:.9; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
-.content-card .c-tr { font-size:13px; color:var(--muted); line-height:1.5; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.content-card .c-ar { font-size:24px; line-height:2; direction:rtl; text-align:right; margin-bottom:10px; opacity:.9; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; overflow-wrap: break-word; }
+.content-card .c-tr { font-size:13px; color:var(--muted); line-height:1.5; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; overflow-wrap: break-word; }
 
 .detail-body { padding:0 20px 120px; flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; }
-.detail-hero { background:var(--card); border-radius:var(--radius); padding:24px 20px; box-shadow:0 2px 8px var(--shadow); margin-bottom:16px; }
-.detail-hero .dh-title { font-size:20px; font-weight:700; margin-bottom:6px; line-height:1.3; }
-.detail-hero .dh-sub { font-size:13px; color:var(--muted); margin-bottom:20px; }
+.detail-hero { background:var(--card); border-radius:var(--radius); padding:24px 20px; box-shadow:0 2px 8px var(--shadow); margin-bottom:16px; overflow-wrap: break-word; }
+.detail-hero .dh-title { font-size:20px; font-weight:700; margin-bottom:6px; line-height:1.3; overflow-wrap: break-word; }
+.detail-hero .dh-sub { font-size:13px; color:var(--muted); margin-bottom:20px; overflow-wrap: break-word; }
 .detail-hero .dh-section { margin-bottom:18px; }
 .detail-hero .dh-section:last-child { margin-bottom:0; }
 .detail-hero .dh-label { font-size:11px; text-transform:uppercase; letter-spacing:.5px; color:var(--muted); font-weight:600; margin-bottom:6px; }
-.detail-hero .dh-text { font-size:15px; line-height:1.7; white-space:pre-line; }
+.detail-hero .dh-text { font-size:15px; line-height:1.7; white-space:pre-line; overflow-wrap: break-word; }
 .detail-hero .dh-text.muted { color:var(--muted); }
 
-.read-surah-title { font-size:24px; font-weight:700; margin-bottom:4px; text-align:center; }
-.read-surah-sub { font-size:13px; color:var(--muted); text-align:center; margin-bottom:24px; }
-.read-ayah { background:var(--card); border-radius:18px; padding:18px 20px; margin-bottom:14px; box-shadow:0 2px 8px var(--shadow); position:relative; }
+.read-surah-title { font-size:24px; font-weight:700; margin-bottom:4px; text-align:center; overflow-wrap: break-word; }
+.read-surah-sub { font-size:13px; color:var(--muted); text-align:center; margin-bottom:24px; overflow-wrap: break-word; }
+.read-ayah { background:var(--card); border-radius:18px; padding:18px 20px; margin-bottom:14px; box-shadow:0 2px 8px var(--shadow); position:relative; overflow-wrap: break-word; }
 .read-ayah-num { display:inline-flex; align-items:center; justify-content:center; min-width:32px; height:32px; padding:0 10px; border-radius:16px; background:rgba(var(--accent-rgb), .15); color:var(--accent); font-size:12px; font-weight:700; margin-bottom:12px; }
-.read-ayah-ar { font-size:calc(30px * var(--ar-scale)); line-height:1.9; direction:rtl; text-align:right; margin-bottom:14px; padding-bottom:14px; border-bottom:1px dashed var(--border); }
-.read-ayah-tr { font-size:14px; color:var(--muted); line-height:1.65; margin-bottom:8px; font-style:italic; }
-.read-ayah-trn { font-size:15px; line-height:1.7; }
+.read-ayah-tr { font-size:14px; color:var(--muted); line-height:1.65; margin-bottom:8px; font-style:italic; overflow-wrap: break-word; }
+.read-ayah-trn { font-size:15px; line-height:1.7; overflow-wrap: break-word; }
 .read-ayah.ayat-mode .read-ayah-num { background:var(--accent2); color:var(--bg); }
 
 .bismillah-card {
@@ -222,42 +256,46 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   text-align: center;
   box-shadow: 0 2px 8px var(--shadow);
   border: 1px dashed var(--border);
+  overflow-wrap: break-word;
 }
 .bismillah-card .b-ar {
   font-size: calc(28px * var(--ar-scale));
-  line-height: 1.6;
+  line-height: 2;
   direction: rtl;
   margin-bottom: 10px;
   color: var(--accent);
+  overflow-wrap: break-word;
 }
 .bismillah-card .b-tr {
   font-size: 14px;
   color: var(--muted);
   font-style: italic;
   margin-bottom: 6px;
+  overflow-wrap: break-word;
 }
 .bismillah-card .b-trn {
   font-size: 14px;
   color: var(--text);
+  overflow-wrap: break-word;
 }
 
-.note-box { display:flex; gap:12px; align-items:flex-start; background:rgba(139,111,78,.12); border-left:3px solid var(--accent2); border-radius:12px; padding:14px 16px; margin-bottom:16px; font-size:14px; line-height:1.6; }
+.note-box { display:flex; gap:12px; align-items:flex-start; background:rgba(139,111,78,.12); border-left:3px solid var(--accent2); border-radius:12px; padding:14px 16px; margin-bottom:16px; font-size:14px; line-height:1.6; overflow-wrap: break-word; }
 .note-box .note-icon { font-size:18px; flex-shrink:0; line-height:1.3; }
 
 .learned-toggle { display:flex; align-items:center; gap:12px; background:var(--card); border:1px solid var(--border); border-radius:14px; padding:14px 18px; cursor:pointer; margin-top:8px; }
 .learned-toggle.done { background:rgba(var(--accent-rgb), .12); border-color: var(--accent); }
 .learned-toggle .lt-icon { width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:var(--card2); font-size:18px; flex-shrink:0; }
 .learned-toggle.done .lt-icon { background:var(--accent); color:var(--bg); }
-.learned-toggle .lt-body { flex:1; }
+.learned-toggle .lt-body { flex:1; min-width:0; overflow-wrap: break-word; }
 .learned-toggle .lt-title { font-size:15px; font-weight:600; }
 .learned-toggle .lt-sub { font-size:12px; color:var(--muted); margin-top:2px; }
 
-.detail-actions { display:flex; gap:10px; margin-bottom:16px; }
-.detail-actions .btn { flex:1; margin:0; }
+.detail-actions { display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap; }
+.detail-actions .btn { flex:1; margin:0; min-width:120px; }
 
 .settings-group { background:var(--card); border-radius:16px; margin-bottom:14px; overflow:hidden; }
 .settings-group .sg-title { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; padding:14px 16px 6px; font-weight:600; }
-.setting-row { display:flex; align-items:center; justify-content:space-between; padding:14px 16px; border-top:1px solid var(--border); gap:12px; }
+.setting-row { display:flex; align-items:center; justify-content:space-between; padding:14px 16px; border-top:1px solid var(--border); gap:12px; flex-wrap:wrap; }
 .setting-row:first-of-type { border-top:none; }
 .setting-row .lbl { font-size:15px; }
 .setting-row .sub { font-size:12px; color:var(--muted); margin-top:2px; }
@@ -273,17 +311,17 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .seg button { padding:6px 12px; border-radius:8px; font-size:13px; color:var(--muted); }
 .seg button.active { background:var(--card); color:var(--text); font-weight:600; }
 
-.ar-size-preview { display:flex; justify-content:center; padding:4px 0 0; }
+.ar-size-preview { display:flex; justify-content:center; padding:4px 0 0; overflow-wrap: break-word; }
 .ar-size-preview .ar { color:var(--muted); }
 
-.security-note { display:flex; align-items:flex-start; gap:10px; background:rgba(var(--accent-rgb), .10); border-radius:14px; padding:12px 14px; margin-bottom:14px; font-size:12px; color:var(--muted); line-height:1.5; }
+.security-note { display:flex; align-items:flex-start; gap:10px; background:rgba(var(--accent-rgb), .10); border-radius:14px; padding:12px 14px; margin-bottom:14px; font-size:12px; color:var(--muted); line-height:1.5; overflow-wrap: break-word; }
 .security-note .icon { font-size:16px; flex-shrink:0; }
 
 .modal-bg { position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:100; display:none; align-items:center; justify-content:center; padding:20px; }
 .modal-bg.active { display:flex; animation:fadeIn .2s; }
-.modal { background:var(--card); border-radius:22px; width:100%; max-width:440px; max-height:80vh; overflow-y:auto; padding:26px 22px; }
+.modal { background:var(--card); border-radius:22px; width:100%; max-width:440px; max-height:80vh; overflow-y:auto; padding:26px 22px; overflow-wrap: break-word; }
 .modal h2 { margin:0 0 16px; font-size:18px; }
-.modal-row { display:flex; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--border); font-size:15px; }
+.modal-row { display:flex; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--border); font-size:15px; gap:10px; flex-wrap:wrap; }
 .modal-row:last-child { border-bottom:none; }
 .modal-row .num { font-weight:700; color:var(--accent); }
 .modal-total { display:flex; justify-content:space-between; padding:14px 0; font-size:17px; font-weight:700; border-top:1px solid var(--border); margin-top:8px; }
@@ -292,44 +330,44 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .congrats-modal .congrats-icon { font-size:64px; margin-bottom:14px; animation:bounceIn .6s ease; }
 @keyframes bounceIn { 0% { transform:scale(0); opacity:0; } 50% { transform:scale(1.15); } 100% { transform:scale(1); opacity:1; } }
 .congrats-modal h2 { font-size:22px; margin-bottom:10px; }
-.congrats-modal p { font-size:15px; color:var(--muted); line-height:1.6; margin-bottom:20px; }
+.congrats-modal p { font-size:15px; color:var(--muted); line-height:1.6; margin-bottom:20px; overflow-wrap: break-word; }
 
-.time-row { display:flex; gap:8px; align-items:center; padding:12px 16px; border-top:1px solid var(--border); }
-.time-row input[type="time"] { flex:1; background:var(--card2); border:none; border-radius:10px; padding:10px 12px; font-size:16px; outline:none; color:var(--text); }
-.time-row .del { width:36px; height:36px; border-radius:50%; background:var(--card2); color:#c96a5a; font-size:18px; }
+.time-row { display:flex; gap:8px; align-items:center; padding:12px 16px; border-top:1px solid var(--border); flex-wrap:wrap; }
+.time-row input[type="time"] { flex:1; min-width:120px; background:var(--card2); border:none; border-radius:10px; padding:10px 12px; font-size:16px; outline:none; color:var(--text); }
+.time-row .del { width:36px; height:36px; border-radius:50%; background:var(--card2); color:#c96a5a; font-size:18px; flex-shrink:0; }
 
 .fullscreen { position:fixed; inset:0; background:var(--bg); z-index:200; display:none; flex-direction:column; padding-top:env(safe-area-inset-top); padding-bottom:env(safe-area-inset-bottom); }
 .fullscreen.active { display:flex; }
-.fullscreen .fs-header { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-bottom:1px solid var(--border); }
-.fullscreen .fs-header h2 { font-size:16px; margin:0; font-weight:600; }
-.fullscreen .fs-body { flex:1; overflow-y:auto; padding:24px 20px; -webkit-overflow-scrolling:touch; }
+.fullscreen .fs-header { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-bottom:1px solid var(--border); gap:10px; }
+.fullscreen .fs-header h2 { font-size:16px; margin:0; font-weight:600; overflow-wrap: break-word; }
+.fullscreen .fs-body { flex:1; overflow-y:auto; padding:24px 20px; -webkit-overflow-scrolling:touch; overflow-wrap: break-word; }
 .fullscreen .fs-nav { display:flex; gap:10px; padding:12px 16px; border-top:1px solid var(--border); }
 .fullscreen .fs-nav .btn { margin:0; flex:1; }
 
-.mem-step { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:10px; font-weight:600; display:flex; justify-content:space-between; align-items:center; }
+.mem-step { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:10px; font-weight:600; display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; }
 .mem-step .phase { font-size:10px; padding:3px 8px; border-radius:8px; background:rgba(var(--accent-rgb), .15); color:var(--accent); }
-.mem-block { background:var(--card); border-radius:var(--radius); padding:20px; margin-bottom:16px; }
+.mem-block { background:var(--card); border-radius:var(--radius); padding:20px; margin-bottom:16px; overflow-wrap: break-word; }
 .mem-block .mb-label { font-size:11px; text-transform:uppercase; letter-spacing:.5px; color:var(--muted); font-weight:600; margin-bottom:8px; }
-.mem-block .mb-ar { font-size:calc(30px * var(--ar-scale)); line-height:1.9; direction:rtl; text-align:right; }
+.mem-block .mb-ar { font-size:calc(30px * var(--ar-scale)); line-height: 2; direction:rtl; text-align:right; overflow-wrap: break-word; }
 .mem-block .mb-ar.hidden { filter: blur(10px); user-select:none; transition: filter .3s; }
-.mem-block .mb-text { font-size:16px; line-height:1.75; white-space:pre-line; }
+.mem-block .mb-text { font-size:16px; line-height:1.75; white-space:pre-line; overflow-wrap: break-word; }
 .mem-reveal-btn { display:block; width:100%; padding:14px; border-radius:14px; background:var(--card2); color:var(--text); font-size:15px; font-weight:600; margin-top:12px; border:1px dashed var(--border); }
 .mem-reveal-btn:active { background:var(--card); }
 .mem-progress { height:4px; background:var(--card2); border-radius:2px; margin-bottom:16px; overflow:hidden; }
 .mem-progress > div { height:100%; background:var(--accent); transition: width .3s; }
 
-.night-note { background:linear-gradient(135deg, rgba(139,111,78,.18), rgba(139,111,78,.06)); border-radius:16px; padding:16px 18px; margin-bottom:16px; font-size:13px; line-height:1.6; color:var(--text); }
+.night-note { background:linear-gradient(135deg, rgba(139,111,78,.18), rgba(139,111,78,.06)); border-radius:16px; padding:16px 18px; margin-bottom:16px; font-size:13px; line-height:1.6; color:var(--text); overflow-wrap: break-word; }
 .night-note b { color:var(--accent2); }
 
 .stat-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px; }
-.stat-card { background:var(--card); border-radius:16px; padding:16px; box-shadow:0 2px 8px var(--shadow); }
+.stat-card { background:var(--card); border-radius:16px; padding:16px; box-shadow:0 2px 8px var(--shadow); overflow-wrap: break-word; }
 .stat-card .sc-label { font-size:11px; color:var(--muted); margin-bottom:6px; text-transform:uppercase; letter-spacing:.4px; }
 .stat-card .sc-value { font-size:26px; font-weight:800; letter-spacing:-1px; color:var(--accent); font-variant-numeric:tabular-nums; }
 .stat-card .sc-sub { font-size:11px; color:var(--muted); margin-top:4px; }
 
-.learned-item { display:flex; justify-content:space-between; align-items:center; padding:12px 16px; border-bottom:1px solid var(--border); }
+.learned-item { display:flex; justify-content:space-between; align-items:center; padding:12px 16px; border-bottom:1px solid var(--border); gap:10px; flex-wrap:wrap; }
 .learned-item:last-child { border-bottom:none; }
-.learned-item .li-title { font-size:14px; font-weight:500; }
+.learned-item .li-title { font-size:14px; font-weight:500; overflow-wrap: break-word; }
 .learned-item .li-sub { font-size:11px; color:var(--muted); margin-top:2px; }
 .learned-item .li-check { color:var(--accent); font-size:18px; }
 
@@ -340,6 +378,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   background: var(--card); border:1px dashed var(--border);
   border-radius:14px; padding:14px 16px; margin-top:16px; margin-bottom:16px;
   font-size:12px; color:var(--muted); line-height:1.6;
+  overflow-wrap: break-word;
 }
 .transcription-note .tn-icon { font-size:15px; flex-shrink:0; line-height:1.4; opacity:.75; }
 .transcription-note b { color:var(--text); font-weight:600; }
@@ -531,7 +570,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
     <div style="width:42px"></div>
   </div>
   <div class="settings">
-    <div class="security-note"><span class="icon">🛡</span><span>Приложение работает <b>полностью офлайн</b>. Данные хранятся только на этом устройстве.</span></div>
+    <div class="security-note"><span class="icon">🛡</span><span>Приложение работает <b>полностью офлайн</b>. Данные хранятся только на этом устройстве. Текст Корана <b>зафиксирован в коде</b> и не может быть изменён извне.</span></div>
     <div class="settings-group">
       <div class="sg-title">Внешний вид</div>
       <div class="setting-row">
@@ -629,16 +668,27 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 
 <script>
 "use strict";
-const STORAGE_KEY = 'tasbih_app_v11';
+const STORAGE_KEY = 'tasbih_app_v13';
 const LIMITS = { tasbihs:1000, history:10000, reminders:50, textLen:1000, idLen:100, targetMax:100000, cyclesMax:1000000 };
 
 // ============================================================
-// API ЗАГРУЗКА ПЕРЕВОДА КУЛИЕВА
+// КОРАН: ИСТОЧНИК ДАННЫХ
+//
+// ⚠️  ЕДИНСТВЕННЫЙ ИСТОЧНИК ИСТИНЫ — МАССИВ DEFAULT_QURAN.
+//
+//   • API отключён (QURAN_USE_API = false)
+//   • Перевод, арабский (Усмани) и транскрипция — всегда из кода
+//   • localStorage может хранить только флаг "заучено"
+//   • Никакая внешняя система НЕ МОЖЕТ изменить текст
+//   • Чтобы включить API на будущее — смените флаг на true
 // ============================================================
+const QURAN_USE_API = false;
+
 const QURAN_API_BASE = 'https://api.quran.com/api/v4';
 const KULIEV_RESOURCE_ID = 'ru-kuliev';
-const QURAN_CACHE_KEY = 'iqra_quran_cache_v2';
+const QURAN_CACHE_KEY = 'iqra_quran_cache_v4';
 const QURAN_CACHE_TTL = 30 * 24 * 60 * 60 * 1000;
+const QURAN_SCRIPT = 'text_uthmani';
 
 const SURAH_META = {
   67: { name: 'Аль-Мульк', subtitle: 'Власть · Мекканская · 30 аятов' },
@@ -661,25 +711,30 @@ const SURAH_META = {
 };
 
 async function fetchKulievSurah(surahNumber) {
+  if (!QURAN_USE_API) return null;
   const cached = getCachedQuranSurah(surahNumber);
   if (cached) return cached;
   try {
-    const url = `${QURAN_API_BASE}/quran/translations/${KULIEV_RESOURCE_ID}?chapter_number=${surahNumber}`;
+    const url = `${QURAN_API_BASE}/verses/by_chapter/${surahNumber}`
+              + `?fields=${QURAN_SCRIPT}`
+              + `&translations=${KULIEV_RESOURCE_ID}`
+              + `&per_page=all`;
     const res = await fetch(url);
-    if (!res.ok) throw new Error('API error');
+    if (!res.ok) throw new Error(`API ${res.status}`);
     const data = await res.json();
+    if (!Array.isArray(data.verses)) throw new Error('Invalid API response');
     const meta = SURAH_META[surahNumber] || { name: `Сура ${surahNumber}`, subtitle: '' };
-    const ayahs = data.translations.map((t, i) => ({
-      num: i + 1,
-      ar: t.text_uthmani || '',
-      tr: t.text || '',
-      trn: ''
+    const ayahs = data.verses.map((v, i) => ({
+      num: v.verse_number || i + 1,
+      ar: v[QURAN_SCRIPT] || v.text_uthmani || '',
+      tr: '',
+      trn: (Array.isArray(v.translations) && v.translations[0]?.text) || ''
     }));
     const result = { number: surahNumber, title: meta.name, subtitle: meta.subtitle, ayahs };
     setCachedQuranSurah(surahNumber, result);
     return result;
   } catch (e) {
-    console.warn(`API недоступен для суры ${surahNumber}, используем fallback`);
+    console.warn(`API недоступен для суры ${surahNumber}`);
     return null;
   }
 }
@@ -705,6 +760,9 @@ function setCachedQuranSurah(n, data) {
 }
 
 async function getSurahWithFallback(n, localQuran) {
+  if (!QURAN_USE_API) {
+    return localQuran.find(q => q.number === n) || null;
+  }
   const fromApi = await fetchKulievSurah(n);
   if (fromApi) return fromApi;
   return localQuran.find(q => q.number === n) || null;
@@ -829,7 +887,7 @@ const DEFAULT_QURAN = [
     note: 'Пророк ﷺ сказал: «В Коране есть сура из тридцати аятов, которая заступится за человека, пока ему не будет прощено: "Благословен Тот, в Чьей Руке власть…"» (ат-Тирмизи № 2891, Абу Дауд № 1400).',
     source: 'Священный Коран, сура 67. Перевод смыслов: Эльмир Кулиев.', learned: false, learnedAt: ''
   },
-// ============ Сура 87: Аль-Аля ============
+  // ============ Сура 87: Аль-Аля ============
   {
     id: 'q87', type: 'surah', number: 87,
     title: 'Аль-Аля', subtitle: 'Всевышний · Мекканская · 19 аятов',
@@ -856,7 +914,7 @@ const DEFAULT_QURAN = [
     bismillah: BISMILLAH,
     arabic: 'أَلَمْ نَشْرَحْ لَكَ صَدْرَكَ\nوَوَضَعْنَا عَنكَ وِزْرَكَ\nالَّذِي أَنقَضَ ظَهْرَكَ\nوَرَفَعْنَا لَكَ ذِكْرَكَ\nفَإِنَّ مَعَ الْعُسْرِ يُسْرًا\nإِنَّ مَعَ الْعُسْرِ يُسْرًا\nفَإِذَا فَرَغْتَ فَانصَبْ\nوَإِلَىٰ رَبِّكَ فَارْغَبْ',
     transcription: 'Алям нашрах ляка садрак.\nВа вада‘на ‘анка визрак.\nАллязи анкада захрак.\nВа рафа‘на ляка зикрак.\nФа инна ма‘аль-‘усри юсра.\nИнна ма‘аль-‘усри юсра.\nФа иза фарагта фансаб.\nВа иля Раббика фаргаб.',
-    translation: 'Разве Мы не раскрыли для тебя грудь твою?\nИ не сняли с тебя ношу твою,\nкоторая отягощала твою спину?\nИ не возвысили для тебя поминание твое?\nВоистину, за каждой тягостью наступает облегчение.\nЗа каждой тягостью наступает облегчение.\nПосему, как только освободишься, будь деятелен (как только освободишься от мирских дел, усердно поклоняйся Аллаху, или как только завершишь намаз, усердно взывай к Аллаху с молитвами)\nи к Господу своему стремись.',
+    translation: 'Разве Мы не раскрыли для тебя грудь твою?\nи не сняли с тебя ношу,\nкоторая отягощала твою спину?\nРазве Мы не возвеличили для тебя славу твою?\nВоистину, за каждой тягостью наступает облегчение.\nЗа каждой тягостью наступает облегчение.\nПосему, как только освободишься, будь деятелен (как только освободишься от мирских дел, усердно поклоняйся Аллаху, или как только завершишь намаз, усердно взывай к Аллаху с молитвами)\nи устремись к своему Господу.',
     note: '', source: 'Священный Коран, сура 94. Перевод смыслов: Эльмир Кулиев.', learned: false, learnedAt: ''
   },
   // ============ Сура 97: Аль-Кадр ============
@@ -866,7 +924,7 @@ const DEFAULT_QURAN = [
     bismillah: BISMILLAH,
     arabic: 'إِنَّا أَنزَلْنَاهُ فِي لَيْلَةِ الْقَدْرِ\nوَمَا أَدْرَاكَ مَا لَيْلَةُ الْقَدْرِ\nلَيْلَةُ الْقَدْرِ خَيْرٌ مِّنْ أَلْفِ شَهْرٍ\nتَنَزَّلُ الْمَلَائِكَةُ وَالرُّوحُ فِيهَا بِإِذْنِ رَبِّهِم مِّن كُلِّ أَمْرٍ\nسَلَامٌ هِيَ حَتَّىٰ مَطْلَعِ الْفَجْرِ',
     transcription: 'Инна анзальнаху фи ляйлятиль-кадр.\nВа ма адрака ма ляйлятуль-кадр.\nЛяйлятуль-кадри хайрун мин альфи шахр.\nТаназзалюль-маляикату вар-руху фиха би’изни Раббихим мин кулли амр.\nСалямун хия хатта матля‘иль-фаджр.',
-    translation: 'Воистину, Мы ниспослали его (Коран) в ночь предопределения (или величия).\nОткуда ты мог знать, что такое ночь предопределения (или величия)?\nНочь предопределения (или величия) лучше тысячи месяцев.\nВ эту ночь ангелы и Дух (Джибриль) нисходят с дозволения их Господа по всем Его повелениям.\nОна благополучна вплоть до наступления зари.',
+    translation: 'Воистину, Мы ниспослали его (Коран) в ночь предопределения (или величия).\nОткуда ты мог знать, что такое ночь предопределения (или величия)?\nНочь предопределения (или величия) лучше тысячи месяцев.\nВ эту ночь ангелы и Дух (Джибрил) нисходят с дозволения их Господа по всем Его повелениям.\nОна благополучна вплоть до наступления зари.',
     note: '', source: 'Священный Коран, сура 97. Перевод смыслов: Эльмир Кулиев.', learned: false, learnedAt: ''
   },
   // ============ Сура 103: Аль-Аср ============
@@ -886,7 +944,7 @@ const DEFAULT_QURAN = [
     bismillah: BISMILLAH,
     arabic: 'وَيْلٌ لِّكُلِّ هُمَزَةٍ لُّمَزَةٍ\nالَّذِي جَمَعَ مَالًا وَعَدَّدَهُ\nيَحْسَبُ أَنَّ مَالَهُ أَخْلَدَهُ\nكَلَّا ۖ لَيُنبَذَنَّ فِي الْحُطَمَةِ\nوَمَا أَدْرَاكَ مَا الْحُطَمَةُ\nنَارُ اللَّهِ الْمُوقَدَةُ\nالَّتِي تَطَّلِعُ عَلَى الْأَفْئِدَةِ\nإِنَّهَا عَلَيْهِم مُّؤْصَدَةٌ\nفِي عَمَدٍ مُّمَدَّدَةٍ',
     transcription: 'Вайлюн ликулли хумазатин люмаза.\nАллязи джама‘а малян ва ‘аддадах.\nЯхсабу анна маляху ахлядах.\nКалля ляюнбазанна филь-хутама.\nВа ма адрака маль-хутама.\nНаруллахиль-мукада.\nАлляти таттали‘у ‘аляль-аф’ида.\nИннаха ‘алайхим му’сада.\nФи ‘амадин мумаддада.',
-    translation: 'Горе всякому хулителю и обидчику,\nкоторый копит состояние и подсчитывает его,\nдумая, что богатство увековечит его.\nНо нет! Он будет ввергнут в Огонь сокрушающий.\nОткуда ты знаешь, что такое Огонь сокрушающий?\nЭто разожженный Огонь Аллаха,\nкоторый вздымается над сердцами.\nВоистину, он сомкнется над ними\nв протяженных столбах.',
+    translation: 'Горе всякому хулителю и обидчику,\nкоторый копит состояние и пересчитывает его,\nдумая, что богатство увековечит его.\nНо нет! Его непременно ввергнут в Огонь сокрушающий.\nОткуда ты мог знать, что такое Огонь сокрушающий?\nЭто — разожженный Огонь Аллаха,\nкоторый вздымается над сердцами.\nВоистину, он сомкнется над ними\nвысокими столбами (мученики будут прикованы к этим столбам или врата Ада будут заперты и закреплены этими столбами).',
     note: '', source: 'Священный Коран, сура 104. Перевод смыслов: Эльмир Кулиев.', learned: false, learnedAt: ''
   },
   // ============ Сура 105: Аль-Филь ============
@@ -896,7 +954,7 @@ const DEFAULT_QURAN = [
     bismillah: BISMILLAH,
     arabic: 'أَلَمْ تَرَ كَيْفَ فَعَلَ رَبُّكَ بِأَصْحَابِ الْفِيلِ\nأَلَمْ يَجْعَلْ كَيْدَهُمْ فِي تَضْلِيلٍ\nوَأَرْسَلَ عَلَيْهِمْ طَيْرًا أَبَابِيلَ\nتَرْمِيهِم بِحِجَارَةٍ مِّن سِجِّيلٍ\nفَجَعَلَهُمْ كَعَصْفٍ مَّأْكُولٍ',
     transcription: 'Алям тара кайфа фа‘аля Раббука би’асхабиль-фииль.\nАлям йадж‘аль кайдакум фи тадлиль.\nВа арсаля ‘алайхим тайран абабиль.\nТармихим бихиджаратин мин сиджиль.\nФа джа‘аляхум ка‘асфин ма’куль.',
-    translation: 'Разве ты не видел, что сделал твой Господь с владельцами слона?\nРазве Он не запутал их козни\nи не наслал на них птиц стаями,\nкоторые бросали в них камни из обожженной глины\nи превратили их в подобие изъеденных иссохших злаковых листьев?',
+    translation: 'Разве ты не видел, что сделал твой Господь с владельцами слона?\nРазве Он не запутал их козни\nи не наслал на них птиц стаями?\nОни бросали в них каменья из обожженной глины\nи превратили их в подобие изъеденных иссохших злаковых листьев.',
     note: '', source: 'Священный Коран, сура 105. Перевод смыслов: Эльмир Кулиев.', learned: false, learnedAt: ''
   },
   // ============ Сура 106: Курайш ============
@@ -916,7 +974,7 @@ const DEFAULT_QURAN = [
     bismillah: BISMILLAH,
     arabic: 'أَرَأَيْتَ الَّذِي يُكَذِّبُ بِالدِّينِ\nفَذَٰلِكَ الَّذِي يَدُعُّ الْيَتِيمَ\nوَلَا يَحُضُّ عَلَىٰ طَعَامِ الْمِسْكِينِ\nفَوَيْلٌ لِّلْمُصَلِّينَ\nالَّذِينَ هُمْ عَن صَلَاتِهِمْ سَاهُونَ\nالَّذِينَ هُمْ يُرَاءُونَ\nوَيَمْنَعُونَ الْمَاعُونَ',
     transcription: 'Ара’айталь-лязи йуказзибу бид-дин.\nФазаликаль-лязи йаду‘уль-ятим.\nВа ля яхудду ‘аля та‘амиль-мискин.\nФавайлюн лиль-мусаллин.\nАллязина хум ‘ан салятихим сахун.\nАллязина хум йура’ун.\nВа йамна‘уналь-ма‘ун.',
-    translation: 'Видел ли ты того, кто считает ложью воздаяние?\nЭто тот, кто гонит сироту\nи не побуждает накормить бедняка.\nГоре молящимся,\nкоторые небрежны к своим намазам,\nкоторые лицемерят\nи отказывают даже в мелочи!',
+    translation: 'Видел ли ты того, кто считает ложью воздаяние?\nЭто - тот, кто гонит сироту\nи не побуждает накормить бедняка.\nГоре молящимся,\nкоторые небрежны к своим намазам,\nкоторые лицемерят\nи отказывают даже в мелочи!',
     note: '', source: 'Священный Коран, сура 107. Перевод смыслов: Эльмир Кулиев.', learned: false, learnedAt: ''
   },
   // ============ Сура 108: Аль-Каусар ============
@@ -926,7 +984,7 @@ const DEFAULT_QURAN = [
     bismillah: BISMILLAH,
     arabic: 'إِنَّا أَعْطَيْنَاكَ الْكَوْثَرَ\nفَصَلِّ لِرَبِّكَ وَانْحَرْ\nإِنَّ شَانِئَكَ هُوَ الْأَبْتَرُ',
     transcription: 'Инна а‘тайнакаль-каусар.\nФасалли лираббика ванхар.\nИнна шани’ака хуваль-абтар.',
-    translation: 'Мы даровали тебе аль-Каусар (бесчисленные блага, в том числе одноименную реку в Раю).\nПосему совершай намаз ради своего Господа и закалывай жертву.\nВоистину, твой ненавистник сам окажется бездетным.',
+    translation: 'Мы даровали тебе аль-Каусар (бесчисленные блага, в том числе одноименную реку в Раю).\nПосему совершай намаз ради своего Господа и закалывай жертву.\nВоистину, твой ненавистник сам окажется безвестным.',
     note: '', source: 'Священный Коран, сура 108. Перевод смыслов: Эльмир Кулиев.', learned: false, learnedAt: ''
   },
   // ============ Сура 109: Аль-Кафирун ============
@@ -936,7 +994,7 @@ const DEFAULT_QURAN = [
     bismillah: BISMILLAH,
     arabic: 'قُلْ يَا أَيُّهَا الْكَافِرُونَ\nلَا أَعْبُدُ مَا تَعْبُدُونَ\nوَلَا أَنتُمْ عَابِدُونَ مَا أَعْبُدُ\nوَلَا أَنَا عَابِدٌ مَّا عَبَدتُّمْ\nوَلَا أَنتُمْ عَابِدُونَ مَا أَعْبُدُ\nلَكُمْ دِينُكُمْ وَلِيَ دِينِ',
     transcription: 'Куль я аййухаль-кафирун.\nЛя а‘буду ма та‘будун.\nВа ля антум ‘абидуна ма а‘буд.\nВа ля ана ‘абидун ма ‘абадтум.\nВа ля антум ‘абидуна ма а‘буд.\nЛякум динукум ва лия дин.',
-    translation: 'Скажи: «О неверующие!\nЯ не поклоняюсь тому, чему поклоняетесь вы,\nи вы не поклоняетесь Тому, Кому поклоняюсь я.\nЯ не поклоняюсь так, как поклоняетесь вы,\nи вы не поклоняетесь так, как поклоняюсь я.\nУ вас есть ваша религия, а у меня — моя!».',
+    translation: 'Скажи: «О неверующие!\nЯ не поклоняюсь тому, чему поклоняетесь вы,\nа вы не поклоняетесь Тому, Кому поклоняюсь я.\nЯ не поклоняюсь так, как поклоняетесь вы (или тому, чему поклоняетесь вы),\nа вы не поклоняетесь так, как поклоняюсь я (или Тому, Кому поклоняюсь я).\nУ вас есть ваша религия, а у меня - моя!».',
     note: '', source: 'Священный Коран, сура 109. Перевод смыслов: Эльмир Кулиев.', learned: false, learnedAt: ''
   },
   // ============ Сура 110: Ан-Наср ============
@@ -946,7 +1004,7 @@ const DEFAULT_QURAN = [
     bismillah: BISMILLAH,
     arabic: 'إِذَا جَاءَ نَصْرُ اللَّهِ وَالْفَتْحُ\nوَرَأَيْتَ النَّاسَ يَدْخُلُونَ فِي دِينِ اللَّهِ أَفْوَاجًا\nفَسَبِّحْ بِحَمْدِ رَبِّكَ وَاسْتَغْفِرْهُ ۚ إِنَّهُ كَانَ تَوَّابًا',
     transcription: 'Иза джа’а насруллахи валь-фатх.\nВа ра’айтан-наса йадхулюна фи динилляхи афуаджа.\nФасаббих бихамди Раббика вастагфирх. Иннаху кана тавваба.',
-    translation: 'Когда придет помощь Аллаха и настанет победа,\nкогда ты увидишь, как люди толпами обращаются в религию Аллаха,\nвосславь же хвалой Господа своего и попроси у Него прощения. Воистину, Он — Принимающий покаяния.',
+    translation: 'Когда придет помощь Аллаха и настанет победа,\nкогда ты увидишь, как люди толпами обращаются в религию Аллаха,\nвосславь же хвалой Господа своего и попроси у Него прощения. Воистину, Он - Принимающий покаяния.',
     note: '', source: 'Священный Коран, сура 110. Перевод смыслов: Эльмир Кулиев.', learned: false, learnedAt: ''
   },
   // ============ Сура 111: Аль-Масад ============
@@ -956,7 +1014,7 @@ const DEFAULT_QURAN = [
     bismillah: BISMILLAH,
     arabic: 'تَبَّتْ يَدَا أَبِي لَهَبٍ وَتَبَّ\nمَا أَغْنَىٰ عَنْهُ مَالُهُ وَمَا كَسَبَ\nسَيَصْلَىٰ نَارًا ذَاتَ لَهَبٍ\nوَامْرَأَتُهُ حَمَّالَةَ الْحَطَبِ\nفِي جِيدِهَا حَبْلٌ مِّن مَّسَدٍ',
     transcription: 'Таббат йада аби ляхабин ва табб.\nМа агна ‘анху малюху ва ма касаб.\nСайасля наран зата ляхаб.\nВамра’атуху хаммаляталь-хатаб.\nФи джидиха хаблюн мим-масад.',
-    translation: 'Да пропадут пропадом руки Абу Лахаба, и сам он пропал.\nНе спасло его богатство и то, что он приобрел (положение в обществе и дети).\nОн попадет в пламенный Огонь.\nИ его жена, носившая дрова,\nна шее у которой будет плетеная веревка из пальмовых волокон.',
+    translation: 'Да пропадут пропадом руки Абу Лахаба, и сам он пропал.\nНе спасло его богатство и то, что он приобрел (положение в обществе и дети).\nОн попадет в пламенный Огонь.\nЖена его будет носить дрова,\nа на шее у нее будет плетеная веревка из пальмовых волокон.',
     note: '', source: 'Священный Коран, сура 111. Перевод смыслов: Эльмир Кулиев.', learned: false, learnedAt: ''
   },
   // ============ Сура 112: Аль-Ихлас ============
@@ -966,7 +1024,7 @@ const DEFAULT_QURAN = [
     bismillah: BISMILLAH,
     arabic: 'قُلْ هُوَ اللَّهُ أَحَدٌ\nاللَّهُ الصَّمَدُ\nلَمْ يَلِدْ وَلَمْ يُولَدْ\nوَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ',
     transcription: 'Куль хуваЛлаху ахад.\nАллахус-самад.\nЛям ялид ва лям юлад.\nВа лям якул-ляху куфуван ахад.',
-    translation: 'Скажи: «Он — Аллах Единый,\nАллах Самодостаточный.\nОн не родил и не был рожден,\nи нет никого равного Ему».',
+    translation: 'Скажи: «Он - Аллах Единый,\nАллах Самодостаточный.\nОн не родил и не был рожден,\nи нет никого равного Ему».',
     note: 'Пророк ﷺ сказал: «Клянусь Тем, в Чьей Руке моя душа, поистине, она равна трети Корана» (аль-Бухари № 5013).',
     source: 'Священный Коран, сура 112. Перевод смыслов: Эльмир Кулиев.', learned: false, learnedAt: ''
   },
@@ -988,7 +1046,7 @@ const DEFAULT_QURAN = [
     bismillah: BISMILLAH,
     arabic: 'قُلْ أَعُوذُ بِرَبِّ النَّاسِ\nمَلِكِ النَّاسِ\nإِلَٰهِ النَّاسِ\nمِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ\nالَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ\nمِنَ الْجِنَّةِ وَالنَّاسِ',
     transcription: 'Куль а‘узу би раббин-наас.\nМаликин-наас.\nИляяхин-наас.\nМин шарриль-васвасиль-ханнаас.\nАллязи йувасвису фи судурин-наас.\nМиналь-джиннати ван-наас.',
-    translation: 'Скажи: «Прибегаю к защите Господа людей,\nЦаря людей,\nБога людей,\nот зла искусителя отступающего (или исчезающего) при поминании Аллаха,\nкоторый наущает в груди людей\nи бывает из джиннов и людей».',
+    translation: 'Скажи: «Прибегаю к защите Господа людей,\nЦаря людей,\nБога людей,\nот зла искусителя отступающего (или сжимающегося) при поминании Аллаха,\nкоторый наущает в груди людей\nи бывает из джиннов и людей».',
     note: 'Пророк ﷺ читал её вместе с «Аль-Фаляк» утром и вечером по три раза (хадис Укбы ибн Амира — Абу Дауд № 5082, ат-Тирмизи № 3575).',
     source: 'Священный Коран, сура 114. Перевод смыслов: Эльмир Кулиев.', learned: false, learnedAt: ''
   },
@@ -1065,27 +1123,23 @@ function load() {
   s.hadiths = Array.isArray(s.hadiths) ? s.hadiths : [];
   s.quran = Array.isArray(s.quran) ? s.quran : [];
   s.migrations = s.migrations && typeof s.migrations === 'object' ? s.migrations : {};
-  
+
   if (!s.migrations.addedTawhid) { if (!s.tasbihs.some(t=>t.id==='tawhid')) s.tasbihs.unshift(JSON.parse(JSON.stringify(TAWHID_TASBIH))); s.migrations.addedTawhid = true; }
   if (!s.migrations.addedIstighfar) { if (!s.tasbihs.some(t=>t.id==='istighfar')) s.tasbihs.splice(1,0,JSON.parse(JSON.stringify(ISTIGHFAR_TASBIH))); s.migrations.addedIstighfar = true; }
   if (!s.migrations.addedDuas) { const ids=new Set(s.duas.map(d=>d.id)); for (const d of DEFAULT_DUAS) if (!ids.has(d.id)) s.duas.push(JSON.parse(JSON.stringify(d))); s.migrations.addedDuas = true; }
   if (!s.migrations.addedHadiths) { const ids=new Set(s.hadiths.map(h=>h.id)); for (const h of DEFAULT_HADITHS) if (!ids.has(h.id)) s.hadiths.push(JSON.parse(JSON.stringify(h))); s.migrations.addedHadiths = true; }
-  
-  if (!s.migrations.quran_v12) {
-    const byId = new Map(s.quran.map(q => [q.id, q]));
-    for (const def of DEFAULT_QURAN) {
-      if (byId.has(def.id)) {
-        const ex = byId.get(def.id);
-        ex.arabic = def.arabic; ex.transcription = def.transcription; ex.translation = def.translation;
-        ex.note = def.note; ex.source = def.source; ex.subtitle = def.subtitle;
-        ex.bismillah = def.bismillah;
-        if (typeof ex.learned !== 'boolean') ex.learned = false;
-        if (typeof ex.learnedAt !== 'string') ex.learnedAt = '';
-      } else {
-        s.quran.push(JSON.parse(JSON.stringify(def)));
-      }
-    }
-    s.migrations.quran_v12 = true;
+
+  // Миграция quran_v15 — принудительная синхронизация с кодом.
+  // Арабский, транскрипция, перевод, примечания — берутся из DEFAULT_QURAN.
+  // От пользователя сохраняется только прогресс заучивания.
+  if (!s.migrations.quran_v15) {
+    const learnedMap = new Map(s.quran.map(q => [q.id, { learned: q.learned, learnedAt: q.learnedAt }]));
+    s.quran = JSON.parse(JSON.stringify(DEFAULT_QURAN));
+    s.quran.forEach(q => {
+      const prev = learnedMap.get(q.id);
+      if (prev) { q.learned = !!prev.learned; q.learnedAt = prev.learnedAt || ''; }
+    });
+    s.migrations.quran_v15 = true;
   }
   return s;
 }
@@ -1244,16 +1298,12 @@ async function openQuran(id) {
   const item = getQuranById(id); if (!item) return;
   document.getElementById('quran-detail-title').textContent = item.title;
   let ayahs = parseAyahs(item);
-  if (!ayahs.length && item.number) {
+  if (!ayahs.length && item.number && QURAN_USE_API) {
     const loaded = await getSurahWithFallback(item.number, state.quran);
-    if (loaded && loaded.ayahs) {
-      ayahs = loaded.ayahs;
-      Object.assign(item, loaded);
-      save();
-    }
+    if (loaded && loaded.ayahs) { ayahs = loaded.ayahs; Object.assign(item, loaded); save(); }
   }
   const el = document.getElementById('quran-detail-content');
-  
+
   let bismillahHtml = '';
   if (item.bismillah) {
     bismillahHtml = `
@@ -1263,7 +1313,7 @@ async function openQuran(id) {
         <div class="b-trn">${item.bismillah.translation}</div>
       </div>`;
   }
-  
+
   el.innerHTML = `
     <div class="detail-hero">
       <div class="dh-title">${esc(item.title)}</div>
@@ -1283,7 +1333,7 @@ async function openQuran(id) {
       </div>
     </div>
     <div style="height:16px"></div>
-    ${ayahs.map((a, i) => `
+    ${ayahs.map((a) => `
       <div class="read-ayah ${item.type==='ayat'?'ayat-mode':''}">
         <div class="read-ayah-num">${item.type==='surah' ? a.num : (item.number||'')}</div>
         <div class="read-ayah-ar ar-font">${esc(a.ar)}</div>
@@ -1318,11 +1368,11 @@ async function openRead(id) {
   const item = getQuranById(id); if (!item) return;
   document.getElementById('read-title').textContent = item.title;
   let ayahs = parseAyahs(item);
-  if (!ayahs.length && item.number) {
+  if (!ayahs.length && item.number && QURAN_USE_API) {
     const loaded = await getSurahWithFallback(item.number, state.quran);
     if (loaded && loaded.ayahs) { ayahs = loaded.ayahs; Object.assign(item, loaded); save(); }
   }
-  
+
   let bismillahHtml = '';
   if (item.bismillah) {
     bismillahHtml = `
@@ -1332,7 +1382,7 @@ async function openRead(id) {
         <div class="b-trn">${item.bismillah.translation}</div>
       </div>`;
   }
-  
+
   document.getElementById('read-body').innerHTML = `
     <div class="read-surah-title">${esc(item.title)}</div>
     <div class="read-surah-sub">${esc(item.subtitle||'')}</div>
@@ -1442,7 +1492,7 @@ async function openNight(idx) {
   if (!item) return;
   document.getElementById('night-detail-title').textContent = item.title;
   let ayahs = parseAyahs(item);
-  if (!ayahs.length && item.number) {
+  if (!ayahs.length && item.number && QURAN_USE_API) {
     const loaded = await getSurahWithFallback(item.number, state.quran);
     if (loaded && loaded.ayahs) { ayahs = loaded.ayahs; Object.assign(item, loaded); save(); }
   }
@@ -1604,7 +1654,7 @@ function renderProgressOverview() {
   body.innerHTML = `
     <div class="stat-card" style="grid-column: span 2; background:linear-gradient(135deg, rgba(var(--accent-rgb), .15), rgba(var(--accent-rgb), .05));">
       <div class="sc-label">Сегодня</div>
-      <div style="display:flex; align-items:baseline; gap:10px;">
+      <div style="display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;">
         <div class="sc-value" style="font-size:44px;">${todayTotal}</div>
         <div style="font-size:15px; color:var(--muted); font-weight:500;">/ ${goal} · ${goalPct}%</div>
       </div>
@@ -1750,7 +1800,7 @@ function checkReminders() { const now=new Date(); const hh=pad(now.getHours())+'
 function exportData() { const data = JSON.stringify(state, null, 2); const blob = new Blob([data], { type:'application/json' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'iqra-backup-' + todayKey() + '.json'; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href), 1000); }
 function validateImport(d) { if (!d || typeof d !== 'object' || Array.isArray(d)) return null; if (!Array.isArray(d.tasbihs)) return null; return d; }
 function importData(e) { const f=e.target.files[0]; if (!f) return; if (f.size > 5*1024*1024) { alert('Файл слишком большой'); e.target.value=''; return; } const r=new FileReader(); r.onload=()=>{ let parsed; try { parsed=JSON.parse(r.result); } catch(err) { alert('Файл повреждён'); e.target.value=''; return; } const validated = validateImport(parsed); if (!validated) { alert('Файл не похож на резервную копию'); e.target.value=''; return; } if (!confirm('Импорт заменит все текущие данные. Продолжить?')) { e.target.value=''; return; } state = Object.assign({}, state, validated); save(); state = load(); save(); applyTheme(); setArSize(state.settings.arSize); renderHome(); renderDuaList(); renderHadithList(); renderQuranList(); renderNightList(); renderProgress(); showScreen('screen-home'); alert('Импортировано'); e.target.value=''; }; r.readAsText(f); }
-function resetAll() { if (!confirm('Удалить ВСЕ данные? Это необратимо.')) return; if (!confirm('Точно? Резервную копию можно сделать в Настройках.')) return; localStorage.removeItem(STORAGE_KEY); location.reload(); }
+function resetAll() { if (!confirm('Удалить ВСЕ данные? Это необратимо.')) return; if (!confirm('Точно? Резервную копию можно сделать в Настройках.')) return; localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(QURAN_CACHE_KEY); location.reload(); }
 
 // ============================================================
 // НАВИГАЦИЯ
