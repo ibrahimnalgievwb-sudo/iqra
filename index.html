@@ -1003,7 +1003,23 @@ function load() {
   }
   return s;
 }
-function save() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e){} }
+let _saveTimer = null;
+function saveNow() {
+  if (_saveTimer) { clearTimeout(_saveTimer); _saveTimer = null; }
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+  catch(e) {
+    if (e && (e.name === 'QuotaExceededError' || e.code === 22)) {
+      alert('Хранилище заполнено. Сохраните бэкап и удалите старые данные.');
+    }
+  }
+}
+function save() {
+  if (_saveTimer) clearTimeout(_saveTimer);
+  _saveTimer = setTimeout(saveNow, 500);
+}
+window.addEventListener('beforeunload', saveNow);
+window.addEventListener('pagehide', saveNow);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveNow(); });
 
 function pad(n){ return n<10?'0'+n:''+n; }
 function todayKey(){ return dateKey(new Date()); }
@@ -1578,7 +1594,7 @@ function importData(e) { const f=e.target.files[0]; if (!f) return; if (f.size >
 state.quran = JSON.parse(JSON.stringify(DEFAULT_QURAN));
 state.migrations = state.migrations || {};
 state.migrations.quran_v15 = true;
-save();
+saveNow();
 state = load();
 save(); applyTheme(); setArSize(state.settings.arSize); renderHome(); renderDuaList(); renderHadithList(); renderQuranList(); renderNightList(); renderProgress(); showScreen('screen-home'); alert('Импортировано'); e.target.value=''; }; r.readAsText(f); }
 function resetAll() { if (!confirm('Удалить ВСЕ данные? Это необратимо.')) return; if (!confirm('Точно? Резервную копию можно сделать в Настройках.')) return; localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(QURAN_CACHE_KEY); location.reload(); }
