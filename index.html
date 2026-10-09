@@ -135,8 +135,8 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .top-progress { position:fixed; top:0; left:0; right:0; height:3px; z-index:5; pointer-events:none; }
 .top-progress > div { height:100%; width:0%; background:var(--accent); transition: width .3s ease; }
 
-.counter { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:16px 16px 24px; text-align:center; position:relative; cursor:pointer; overflow-x:hidden; overflow-y:auto; }
-.counter .ar { font-size:calc(36px * var(--ar-scale)); line-height:2.6 !important; direction:rtl; padding:6px 0 40px 0 !important; margin:0 !important; max-width:90%; overflow-wrap: break-word; }
+.counter { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; padding:30px 16px 24px; text-align:center; position:relative; cursor:pointer; overflow-x:hidden; overflow-y:auto; }
+.counter .ar { font-size:calc(36px * var(--ar-scale)); line-height: 2 !important; direction:rtl; padding:6px 0 16px 0 !important; margin:0 !important; max-width:90%; overflow-wrap: break-word; word-break: normal !important; }
 .counter .tr { font-size:17px; color:var(--muted); margin-bottom:4px; overflow-wrap: break-word; }
 .counter .trn { font-size:15px; color:var(--muted); margin-bottom:28px; overflow-wrap: break-word; }
 .counter .ring-wrap { position:relative; width:240px; height:240px; margin:8px 0; flex-shrink:0; }
@@ -375,7 +375,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 }
 .counter .transcription-note .tn-icon { font-size: 13px; }
 @media (max-height: 760px) {
-  .counter .ar { font-size: calc(26px * var(--ar-scale)); line-height: 2.6 !important; padding: 4px 0 32px 0 !important; }
+  .counter .ar { font-size: calc(26px * var(--ar-scale)); line-height: 2 !important; padding: 4px 0 14px 0 !important; }
   .counter .tr { font-size: 15px; }
   .counter .trn { font-size: 13px; margin-bottom: 16px; }
   .counter .ring-wrap { width: 190px; height: 190px; margin: 4px 0; }
@@ -384,7 +384,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   .counter .cycles { margin-top: 10px; font-size: 13px; }
 }
 @media (max-height: 640px) {
-  .counter .ar { font-size: calc(20px * var(--ar-scale)); line-height: 2.6 !important; padding: 4px 0 26px 0 !important; }
+  .counter .ar { font-size: calc(20px * var(--ar-scale)); line-height: 2 !important; padding: 4px 0 12px 0 !important; }
   .counter .tr { font-size: 14px; }
   .counter .trn { font-size: 12px; margin-bottom: 10px; }
   .counter .ring-wrap { width: 150px; height: 150px; }
