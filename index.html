@@ -1078,7 +1078,6 @@ function applyTheme() {
 }
 function setTheme(t){ state.settings.theme=t; save(); applyTheme(); }
 function setArSize(s) { state.settings.arSize=parseFloat(s); save(); document.documentElement.style.setProperty('--ar-scale',s); document.querySelectorAll('#size-seg button').forEach(b=>b.classList.toggle('active',parseFloat(b.dataset.size)===parseFloat(s))); const p=document.getElementById('ar-preview'); if (p) p.style.fontSize=(24*s)+'px'; }
-setInterval(() => { if (state.settings.theme === 'auto') applyTheme(); }, 60000); document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && state.settings.theme === 'auto') applyTheme(); });
 setInterval(() => { if (state.settings.theme === 'auto') applyTheme(); }, 60000);
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && state.settings.theme === 'auto') applyTheme(); });
 function renderHome() {
