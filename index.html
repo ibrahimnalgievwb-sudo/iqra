@@ -577,11 +577,10 @@ input, textarea { -webkit-user-select:text; user-select:text; }
       <div class="sg-title">Внешний вид</div>
       <div class="setting-row">
         <div><div class="lbl">Тема</div></div>
-        <div class="seg" id="theme-seg">
+             <div class="seg" id="theme-seg">
           <button data-theme="light" onclick="setTheme('light')">Светлая</button>
           <button data-theme="dark" onclick="setTheme('dark')">Тёмная</button>
           <button data-theme="auto" onclick="setTheme('auto')">Авто</button>
-          <button data-theme="night" onclick="setTheme('night')">Ночь</button>
         </div>
       </div>
       <div class="setting-row" style="flex-direction:column; align-items:stretch; gap:10px;">
@@ -997,7 +996,7 @@ function load() {
       migrations:{}
     };
   }
-  s.settings = Object.assign(defaultSettings(), s.settings || {});
+  s.settings = Object.assign(defaultSettings(), s.settings || {});   if (s.settings.theme === 'night') s.settings.theme = 'dark';
   s.reminders = Array.isArray(s.reminders) ? s.reminders : [];
   s.draft = s.draft && typeof s.draft === 'object' ? s.draft : null;
   s.tasbihs = Array.isArray(s.tasbihs) ? s.tasbihs : JSON.parse(JSON.stringify(DEFAULT_TASBIHS));
@@ -1066,8 +1065,6 @@ function parseAyahs(item) {
   const isSurah = item.type === 'surah';
   return ar.map((line, i) => ({ num: isSurah ? (i+1) : (item.number || ''), ar: line, tr: tr[i] || '', trn: trn[i] || '' }));
 }
-
-function isNightNow() { const h = new Date().getHours(); return (h >= 19 || h < 6); }
 function isNightNow() { const h = new Date().getHours(); return (h >= 19 || h < 6); }
 function applyTheme() {
   const t = state.settings.theme;
@@ -1082,9 +1079,8 @@ function applyTheme() {
 function setTheme(t){ state.settings.theme=t; save(); applyTheme(); }
 function setArSize(s) { state.settings.arSize=parseFloat(s); save(); document.documentElement.style.setProperty('--ar-scale',s); document.querySelectorAll('#size-seg button').forEach(b=>b.classList.toggle('active',parseFloat(b.dataset.size)===parseFloat(s))); const p=document.getElementById('ar-preview'); if (p) p.style.fontSize=(24*s)+'px'; }
 setInterval(() => { if (state.settings.theme === 'auto') applyTheme(); }, 60000); document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && state.settings.theme === 'auto') applyTheme(); });
-setInterval(() => { if (state.settings.theme === 'night') applyTheme(); }, 60000);
-document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && state.settings.theme === 'night') applyTheme(); });
-
+setInterval(() => { if (state.settings.theme === 'auto') applyTheme(); }, 60000);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && state.settings.theme === 'auto') applyTheme(); });
 function renderHome() {
   const today = state.history[todayKey()];
   const done = today ? today.total : 0;
