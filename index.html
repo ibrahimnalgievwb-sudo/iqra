@@ -72,7 +72,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 }
 
 .screen { display:none; flex:1; flex-direction:column; min-height:0; }
-.screen.active { display:flex; animation:fadeIn .18s ease-out; }
+.screen.active { display:flex; animation:slideIn .24s cubic-bezier(.16,1,.3,1); } @keyframes slideIn { from { transform: translateX(16px); opacity: 0; } to { transform: translateX(0); opacity: 1; } } @keyframes slideUp { from { transform: translateY(24px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
@@ -221,7 +221,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .content-card:active { transform:scale(.98); }
 .content-card .c-badge { position:absolute; top:14px; right:56px; font-size:10px; font-weight:700; padding:3px 9px; border-radius:8px; background:rgba(var(--accent-rgb), .15); color:var(--accent); } .content-card .star-btn { position:absolute; top:12px; right:12px; width:34px; height:34px; padding:0; border-radius:50%; background:rgba(var(--accent-rgb),.10); display:flex; align-items:center; justify-content:center; font-size:17px; color:var(--muted); cursor:pointer; z-index:2; } .content-card .star-btn.active { color:#e6b445; background:rgba(230,180,69,.15); } .icon-btn.starred { color:#e6b445; }
 .content-card .c-num { position:absolute; top:14px; left:14px; width:34px; height:34px; border-radius:50%; background:rgba(var(--accent-rgb), .15); color:var(--accent); font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center; }
-.content-card .c-title { font-size:17px; font-weight:700; margin-bottom:4px; padding-right:70px; overflow-wrap: break-word; }
+.content-card .c-title { font-size:17px; font-weight:700; margin-bottom:4px; padding-right:110px; overflow-wrap: break-word; }
 .content-card.has-num .c-title { margin-left:46px; }
 .content-card .c-sub { font-size:12px; color:var(--muted); margin-bottom:12px; overflow-wrap: break-word; }
 .content-card.has-num .c-sub { margin-left:46px; }
@@ -315,12 +315,12 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 
 .time-row { display:flex; gap:8px; align-items:center; padding:12px 16px; border-top:1px solid var(--border); flex-wrap:wrap; }
 .time-row input[type="time"] { flex:1; min-width:120px; background:var(--card2); border:none; border-radius:10px; padding:10px 12px; font-size:16px; outline:none; color:var(--text); }
-.time-row .del { width:36px; height:36px; border-radius:50%; background:var(--card2); color:#c96a5a; font-size:18px; flex-shrink:0; }
+.time-row .del { width:36px; height:36px; border-radius:50%; background:var(--card2); color:#c96a5a; font-size:18px; flex-shrink:0; } .reminder-row { padding:12px 16px; border-top:1px solid var(--border); display:flex; flex-direction:column; gap:8px; } .reminder-row > .rr-top { display:flex; gap:8px; align-items:center; } .reminder-row input[type="time"] { flex:1; background:var(--card2); border:none; border-radius:10px; padding:10px 12px; font-size:16px; outline:none; color:var(--text); } .reminder-row .del { width:36px; height:36px; border-radius:50%; background:var(--card2); color:#c96a5a; font-size:18px; flex-shrink:0; } .reminder-row input[type="text"] { background:var(--card2); border:none; border-radius:10px; padding:9px 12px; font-size:14px; outline:none; color:var(--text); width:100%; }
 
 .fullscreen { position:fixed; inset:0; background:var(--bg); z-index:200; display:none; flex-direction:column; padding-top:env(safe-area-inset-top); padding-bottom:env(safe-area-inset-bottom); }
-.fullscreen.active { display:flex; }
+.fullscreen.active { display:flex; animation: slideUp .26s cubic-bezier(.16,1,.3,1); }
 .fullscreen .fs-header { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-bottom:1px solid var(--border); gap:10px; }
-.fullscreen .fs-header h2 { font-size:16px; margin:0; font-weight:600; overflow-wrap: break-word; }
+.fullscreen .fs-header h2 { font-size:16px; margin:0; font-weight:600; overflow-wrap: break-word; } .fullscreen .fs-header input { flex:1; min-width:0; background:var(--card); border:1px solid var(--border); border-radius:12px; padding:10px 14px; font-size:15px; outline:none; color:var(--text); margin:0 8px; -webkit-user-select:text; user-select:text; }
 .fullscreen .fs-body { flex:1; overflow-y:auto; padding:24px 20px; -webkit-overflow-scrolling:touch; overflow-wrap: break-word; }
 .fullscreen .fs-nav { display:flex; gap:10px; padding:12px 16px; border-top:1px solid var(--border); }
 .fullscreen .fs-nav .btn { margin:0; flex:1; }
@@ -400,7 +400,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 
 <!-- HOME -->
 <div class="screen active" id="screen-home">
-  <div class="header"><h1>Iqra | Читай</h1><button class="icon-btn" onclick="openSettings()">⚙</button></div>
+  <div class="header"><h1>Iqra | Читай</h1><div style="display:flex;gap:6px"><button class="icon-btn ghost" onclick="openSearch()">🔍</button><button class="icon-btn" onclick="openSettings()">⚙</button></div></div>
   <div class="list" id="home-list">
     <div class="home-controls">
       <div class="search-wrap"><input id="search" placeholder="Поиск..." oninput="renderHome()"></div>
@@ -505,7 +505,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 
 <!-- NIGHT LIST -->
 <div class="screen" id="screen-night">
-  <div class="header"><h1>Ночное чтение</h1><div style="width:42px"></div></div>
+  <div class="header"><h1>Ночное чтение</h1><button class="icon-btn ghost" onclick="openSearch()">🔍</button></div>
   <div class="content-list" id="night-list"></div>
 </div>
 
@@ -528,9 +528,9 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 <!-- DUA DETAIL -->
 <div class="screen" id="screen-dua-detail">
   <div class="header">
-    <button class="icon-btn ghost" onclick="goDuaList()">←</button>
-<h1 style="font-size:16px">Хадис</h1>
-    <div style="width:42px"></div>
+       <button class="icon-btn ghost" onclick="goDuaList()">←</button>
+    <h1 style="font-size:16px">Дуа</h1>
+    <button class="icon-btn ghost" id="dua-detail-star" onclick="detailStarClick()">☆</button>
   </div>
   <div class="detail-body" id="dua-detail-content"></div>
 </div>
@@ -544,9 +544,9 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 <!-- HADITH DETAIL -->
 <div class="screen" id="screen-hadith-detail">
   <div class="header">
-    <button class="icon-btn ghost" onclick="goHadithList()">←</button>
+     <button class="icon-btn ghost" onclick="goHadithList()">←</button>
     <h1 style="font-size:16px">Хадис</h1>
-    <div style="width:42px"></div>
+    <button class="icon-btn ghost" id="hadith-detail-star" onclick="detailStarClick()">☆</button>
   </div>
   <div class="detail-body" id="hadith-detail-content"></div>
 </div>
@@ -558,7 +558,8 @@ input, textarea { -webkit-user-select:text; user-select:text; }
     <div class="prog-tabs">
       <button data-pt="overview" class="active" onclick="setProgTab('overview')">Обзор</button>
       <button data-pt="calendar" onclick="setProgTab('calendar')">Календарь</button>
-      <button data-pt="learned" onclick="setProgTab('learned')">Заучено</button>
+       <button data-pt="learned" onclick="setProgTab('learned')">Заучено</button>
+      <button data-pt="favorites" onclick="setProgTab('favorites')">Избранное</button>
     </div>
     <div id="prog-body"></div>
   </div>
@@ -611,9 +612,12 @@ input, textarea { -webkit-user-select:text; user-select:text; }
     <div class="settings-group">
       <div class="sg-title">Напоминания</div>
       <div id="reminders-list"></div>
-      <div class="time-row">
-        <input type="time" id="new-reminder-time" value="08:00">
-        <button class="btn secondary" style="width:auto;margin:0;padding:10px 16px;font-size:14px" onclick="addReminder()">Добавить</button>
+      <div style="padding:12px 16px; border-top:1px solid var(--border);">
+        <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
+          <input type="time" id="new-reminder-time" value="08:00" style="flex:1; background:var(--card2); border:none; border-radius:10px; padding:10px 12px; font-size:16px; outline:none; color:var(--text);">
+          <button class="btn secondary" style="width:auto;margin:0;padding:10px 16px;font-size:14px" onclick="addReminder()">Добавить</button>
+        </div>
+        <input type="text" id="new-reminder-msg" placeholder="Сообщение (необязательно)" maxlength="200" style="width:100%; background:var(--card2); border:none; border-radius:10px; padding:9px 12px; font-size:14px; outline:none; color:var(--text);">
       </div>
       <div class="setting-row"><div class="sub" style="line-height:1.5">Уведомления срабатывают, когда приложение открыто (ограничение iOS).</div></div>
     </div>
@@ -682,7 +686,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   </button>
 </div>
 
-<div class="modal-bg" id="modal-bg" onclick="if(event.target===this)closeModal()">
+<div class="fullscreen" id="search-overlay">   <div class="fs-header">     <button class="icon-btn ghost" onclick="closeSearch()">✕</button>     <input id="global-search-input" placeholder="Поиск по приложению..." oninput="renderGlobalSearch()" autocomplete="off">     <div style="width:42px"></div>   </div>   <div class="fs-body" id="search-results"></div> </div>  <div class="modal-bg" id="modal-bg" onclick="if(event.target===this)closeModal()">
   <div class="modal" id="modal-content"></div>
 </div>
 
@@ -965,7 +969,7 @@ let progTab = 'overview';
 let wakeLock = null, nextToastTimer = null, audioCtx = null;
 let dragEl = null, dragId = null, dragHoldTimer = null;
 let memorizeItem = null, memorizeAyahs = [], memorizeStep = 0;
-let memorizePhase = 'learn', memorizeRevealed = false;
+let memorizePhase = 'learn', memorizeRevealed = false; let activeReadId = null;
 
 function defaultSettings() { return { theme:'auto', arSize:1, dailyGoal:100, autoNext:true, wakeLock:true, sound:true, vibrate:true, lastRead:null }; }
 
@@ -1004,7 +1008,7 @@ function load() {
   s.duas = Array.isArray(s.duas) ? s.duas : [];
   s.hadiths = Array.isArray(s.hadiths) ? s.hadiths : [];
   s.quran = Array.isArray(s.quran) ? s.quran : [];
-  s.migrations = s.migrations && typeof s.migrations === 'object' ? s.migrations : {};
+  s.migrations = s.migrations && typeof s.migrations === 'object' ? s.migrations : {};   s.favorites = Array.isArray(s.favorites) ? s.favorites : [];   s.settings.readScrolls = (s.settings.readScrolls && typeof s.settings.readScrolls === 'object') ? s.settings.readScrolls : {};
 
   if (!s.migrations.addedTawhid) { if (!s.tasbihs.some(t=>t.id==='tawhid')) s.tasbihs.unshift(JSON.parse(JSON.stringify(TAWHID_TASBIH))); s.migrations.addedTawhid = true; }
   if (!s.migrations.addedIstighfar) { if (!s.tasbihs.some(t=>t.id==='istighfar')) s.tasbihs.splice(1,0,JSON.parse(JSON.stringify(ISTIGHFAR_TASBIH))); s.migrations.addedIstighfar = true; }
@@ -1034,7 +1038,7 @@ function save() {
   _saveTimer = setTimeout(saveNow, 500);
 }
 window.addEventListener('beforeunload', saveNow);
-window.addEventListener('pagehide', saveNow);
+window.addEventListener('pagehide', () => { if (activeReadId && state.settings.readScrolls) { const b=document.getElementById('read-body'); if (b) state.settings.readScrolls[activeReadId] = b.scrollTop||0; } saveNow(); });
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveNow(); });
 
 function pad(n){ return n<10?'0'+n:''+n; }
@@ -1043,7 +1047,7 @@ function dateKey(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.ge
 function getById(id){ return state.tasbihs.find(t=>t.id===id); }
 function getDuaById(id){ return state.duas.find(d=>d.id===id); }
 function getHadithById(id){ return state.hadiths.find(h=>h.id===id); }
-function getQuranById(id){ return state.quran.find(q=>q.id===id); }
+function isFavorite(id){ return Array.isArray(state.favorites) && state.favorites.includes(id); } function toggleFavorite(id){ if (!Array.isArray(state.favorites)) state.favorites=[]; const i=state.favorites.indexOf(id); if (i>=0) state.favorites.splice(i,1); else state.favorites.push(id); save(); } function starClick(event, id, list){ event.stopPropagation(); toggleFavorite(id); if (list==='quran') renderQuranList(); else if (list==='dua') renderDuaList(); else if (list==='hadith') renderHadithList(); else if (list==='favorites') renderProgressFavorites(); } function detailStarClick(){ if (document.getElementById('screen-quran-detail').classList.contains('active') && activeQuranId) { toggleFavorite(activeQuranId); openQuran(activeQuranId); } else if (document.getElementById('screen-dua-detail').classList.contains('active') && activeDuaId) { toggleFavorite(activeDuaId); openDua(activeDuaId); } else if (document.getElementById('screen-hadith-detail').classList.contains('active') && activeHadithId) { toggleFavorite(activeHadithId); openHadith(activeHadithId); } } function openSearch(){ document.getElementById('search-overlay').classList.add('active'); setTimeout(()=>{ const i=document.getElementById('global-search-input'); if (i) i.focus(); }, 120); renderGlobalSearch(); } function closeSearch(){ document.getElementById('search-overlay').classList.remove('active'); const i=document.getElementById('global-search-input'); if (i) i.value=''; } function searchOpen(type, id){ closeSearch(); if (type==='quran') openQuran(id); else if (type==='dua') openDua(id); else if (type==='hadith') openHadith(id); else if (type==='tasbih') openCounter(id); } function renderGlobalSearch(){   const q = (document.getElementById('global-search-input').value||'').toLowerCase().trim();   const el = document.getElementById('search-results');   if (!q) { el.innerHTML = '<div class="empty">Введите запрос — поиск по тасбихам, Корану, дуа и хадисам.</div>'; return; }   const m = (it) => { const h=[it.title,it.subtitle,it.arabic,it.transcription,it.translation,String(it.number||'')].filter(Boolean).join(' ').toLowerCase(); return h.includes(q); };   const grp = (title, items, type) => { if (!items.length) return ''; return `<div class="progress-section-title">${title}</div>` + items.map(it => { const t=it.title||it.transcription||it.arabic||'—'; const sub=it.subtitle?`<div class="c-sub">${esc(it.subtitle)}</div>`:''; const ar=it.arabic?`<div class="c-ar ar-font">${esc(it.arabic)}</div>`:''; const tr=it.translation?`<div class="c-tr">${esc(it.translation)}</div>`:''; return `<div class="content-card" onclick="searchOpen('${type}','${it.id}')"><div class="c-title">${esc(t)}</div>${sub}${ar}${tr}</div>`; }).join(''); };   let html = '';   html += grp('📿 Тасбихи', state.tasbihs.filter(m), 'tasbih');   html += grp('📖 Коран', state.quran.filter(m), 'quran');   html += grp('🤲 Дуа', state.duas.filter(m), 'dua');   html += grp('📜 Хадисы', state.hadiths.filter(m), 'hadith');   el.innerHTML = html || '<div class="empty">Ничего не найдено</div>'; }
 function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function escNl(s){ return esc(s).replace(/\n/g,'<br>'); }
 function transcriptionNote() { return `<div class="transcription-note"><span class="tn-icon">ℹ️</span><div>Транскрипция передаёт лишь <b>примерное произношение</b> и не отражает всех тонкостей арабского. Для правильного чтения следует изучить <b>таджвид</b>.</div></div>`; }
@@ -1261,9 +1265,16 @@ async function openRead(id) {
     `).join('')}
     ${transcriptionNote()}
   `;
+  activeReadId = id;
   document.getElementById('read-mode').classList.add('active');
+  const saved = (state.settings.readScrolls && state.settings.readScrolls[id]) || 0;
+  setTimeout(()=>{ const b=document.getElementById('read-body'); if (b) b.scrollTop=saved; }, 40);
 }
-function closeRead() { document.getElementById('read-mode').classList.remove('active'); }
+function closeRead() {
+  if (activeReadId && state.settings.readScrolls) { const b=document.getElementById('read-body'); state.settings.readScrolls[activeReadId] = b ? (b.scrollTop||0) : 0; save(); }
+  document.getElementById('read-mode').classList.remove('active');
+  activeReadId = null;
+}
 
 function openMemorizeFor(item) {
   memorizeItem = item;
@@ -1645,6 +1656,8 @@ document.addEventListener('keydown', (e) => {
   if (e.key !== 'Escape') return;
   const tag = (e.target && e.target.tagName) || '';
   if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+  const searchOv = document.getElementById('search-overlay');
+  if (searchOv && searchOv.classList.contains('active')) { closeSearch(); return; }
   const modal = document.getElementById('modal-bg');
   if (modal && modal.classList.contains('active')) { closeModal(); return; }
   const read = document.getElementById('read-mode');
