@@ -1145,7 +1145,7 @@ function showNextToast() { const idx=state.tasbihs.findIndex(x=>x.id===activeId)
 function goNext() { const idx=state.tasbihs.findIndex(x=>x.id===activeId); const next=state.tasbihs[idx+1]; document.getElementById('next-toast').classList.remove('show'); if (next) openCounter(next.id); }
 function resetCurrent(e) { if (e) e.stopPropagation(); if (!confirm('Сбросить текущий счёт?')) return; const t=getById(activeId); t.current=0; save(); updateCounterUI(); }
 function editCurrent(e) { if (e) e.stopPropagation(); openForm(activeId); }
-function goHome() { if (activeId) { const t=getById(activeId); if (t && t.current>0 && !confirm('Выйти из счётчика? Прогресс сохранён.')) return; } activeId=null; releaseWakeLock(); renderHome(); showScreen('screen-home'); }
+function goHome() { if (activeId) saveNow(); activeId=null; releaseWakeLock(); renderHome(); showScreen('screen-home'); }
 async function requestWakeLock() { try { if ('wakeLock' in navigator) { wakeLock=await navigator.wakeLock.request('screen'); wakeLock.addEventListener('release',()=>{wakeLock=null;}); } } catch(e){} }
 function releaseWakeLock() { try { if (wakeLock) { wakeLock.release(); wakeLock=null; } } catch(e){} }
 document.addEventListener('visibilitychange', ()=>{ if (document.visibilityState==='visible' && activeId && state.settings.wakeLock) requestWakeLock(); });
