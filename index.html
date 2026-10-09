@@ -1590,9 +1590,11 @@ function validateImport(d) {
   safe.draft = (d.draft && typeof d.draft === 'object') ? d.draft : null;
   return safe;
 }
-function importData(e) { const f=e.target.files[0]; if (!f) return; if (f.size > 5*1024*1024) { alert('Файл слишком большой'); e.target.value=''; return; } const r=new FileReader(); r.onload=()=>{ let parsed; try { parsed=JSON.parse(r.result); } catch(err) { alert('Файл повреждён'); e.target.value=''; return; } const validated = validateImport(parsed); if (!validated) { alert('Файл не похож на резервную копию'); e.target.value=''; return; } if (!confirm('Импорт заменит все текущие данные. Продолжить?')) { e.target.value=''; return; } state = Object.assign({}, state, validated);
+function importData(e) { const f=e.target.files[0]; if (!f) return; if (f.size > 5*1024*1024) { alert('Файл слишком большой'); e.target.value=''; return; } const r=new FileReader(); r.onload=()=>{ let parsed; try { parsed=JSON.parse(r.result); } catch(err) { alert('Файл повреждён'); e.target.value=''; return; } const validated = validateImport(parsed); if (!validated) { alert('Файл не похож на резервную копию'); e.target.value=''; return; } if (!confirm('Импорт заменит все текущие данные. Продолжить?')) { e.target.value=''; return; } const currentMigrations = state.migrations || {};
+const mergedMigrations = Object.assign({}, currentMigrations, validated.migrations || {});
+state = Object.assign({}, state, validated);
 state.quran = JSON.parse(JSON.stringify(DEFAULT_QURAN));
-state.migrations = state.migrations || {};
+state.migrations = mergedMigrations;
 state.migrations.quran_v15 = true;
 saveNow();
 state = load();
@@ -1627,7 +1629,17 @@ applyTheme();
 setArSize(state.settings.arSize);
 renderPresets(); renderHome(); renderDuaList(); renderHadithList(); renderQuranList(); renderNightList(); renderProgress();
 showScreen('screen-home');
-
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  const tag = (e.target && e.target.tagName) || '';
+  if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+  const modal = document.getElementById('modal-bg');
+  if (modal && modal.classList.contains('active')) { closeModal(); return; }
+  const read = document.getElementById('read-mode');
+  if (read && read.classList.contains('active')) { closeRead(); return; }
+  const mem = document.getElementById('memorize-mode');
+  if (mem && mem.classList.contains('active')) { closeMemorize(); return; }
+});
 let lastTouch = 0;
 document.addEventListener('touchend', (e) => { const now = Date.now(); if (now - lastTouch < 300) e.preventDefault(); lastTouch = now; }, { passive: false });
 </script>
