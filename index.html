@@ -128,9 +128,12 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .fab:active { transform:scale(.92); }
 
 .nav { position:fixed; bottom:0; left:0; right:0; display:flex; background:var(--card); border-top:1px solid var(--border); padding-bottom:env(safe-area-inset-bottom); z-index:9999; }
-.nav button { flex:1; padding:6px 0 8px; display:flex; flex-direction:column; align-items:center; gap:2px; color:var(--muted); font-size:8px; background:transparent; min-width:0; }
+.nav button { flex:1; height:60px; padding:6px 0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; color:var(--muted); background:transparent; min-width:0; transition:color .2s ease; }
 .nav button.active { color:var(--accent); }
-.nav button .ico { width: 22px; height: 22px; display: block; }
+.nav button .ico { width: 28px; height: 28px; display: block; transition: width .25s cubic-bezier(.16,1,.3,1), height .25s cubic-bezier(.16,1,.3,1); }
+.nav button.active .ico { width: 34px; height: 34px; }
+.nav button .nav-label { font-size: 10px; line-height: 1.1; font-weight: 600; white-space: nowrap; opacity: 0; transform: translateY(-2px); transition: opacity .2s ease, transform .2s ease; }
+.nav button.active .nav-label { opacity: 1; transform: translateY(0); }
 
 .top-progress { position:fixed; top:0; left:0; right:0; height:3px; z-index:5; pointer-events:none; }
 .top-progress > div { height:100%; width:0%; background:var(--accent); transition: width .3s ease; }
@@ -527,17 +530,150 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   transition: background .2s;
 }
 #onboarding .ob-dot.active { background: var(--accent); }
+
+.dash-greeting {
+  background: linear-gradient(135deg, rgba(var(--accent-rgb), .18), rgba(var(--accent-rgb), .05));
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+  margin-bottom: 14px;
+  overflow-wrap: break-word;
+}
+.dash-greeting .dg-hello {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -.3px;
+  margin-bottom: 6px;
+}
+.dash-greeting .dg-time {
+  font-size: 13px;
+  color: var(--accent);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  margin-bottom: 4px;
+}
+.dash-greeting .dg-hijri {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.dash-progress {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  margin-bottom: 14px;
+  box-shadow: 0 2px 8px var(--shadow);
+}
+.dash-progress .dp-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 10px;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.dash-progress .dp-label { font-size: 13px; color: var(--muted); }
+.dash-progress .dp-num { font-size: 20px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.dash-progress .dp-num span { color: var(--muted); font-weight: 400; font-size: 14px; }
+.dash-progress .dp-bar { height: 8px; background: var(--card2); border-radius: 4px; overflow: hidden; margin-bottom: 10px; }
+.dash-progress .dp-bar > div { height: 100%; background: var(--accent); border-radius: 4px; transition: width .4s ease; }
+.dash-progress .dp-streak { font-size: 13px; color: var(--muted); font-weight: 600; }
+
+.dash-quote {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  margin-bottom: 14px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px var(--shadow);
+  border: 1px dashed var(--border);
+  position: relative;
+  overflow-wrap: break-word;
+  transition: transform .15s ease;
+}
+.dash-quote:active { transform: scale(.98); }
+.dash-quote .dq-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.dash-quote .dq-badge {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: var(--accent);
+  font-weight: 700;
+}
+.dash-quote .dq-arrow { color: var(--muted); font-size: 18px; line-height: 1; }
+.dash-quote .dq-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+.dash-quote .dq-ar {
+  font-size: 22px;
+  line-height: 2;
+  direction: rtl;
+  text-align: right;
+  color: var(--text);
+  margin-bottom: 8px;
+  overflow-wrap: break-word;
+}
+.dash-quote .dq-tr {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.6;
+  overflow-wrap: break-word;
+}
+
+.dash-top {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  margin-bottom: 14px;
+  box-shadow: 0 2px 8px var(--shadow);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.dash-top .dt-icon { font-size: 22px; flex-shrink: 0; }
+.dash-top .dt-body { flex: 1; min-width: 0; overflow-wrap: break-word; }
+.dash-top .dt-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; font-weight: 700; margin-bottom: 2px; }
+.dash-top .dt-title { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+.dash-top .dt-sub { font-size: 12px; color: var(--muted); }
 </style>
 </head>
 <body>
 
 <!-- HOME -->
-<div class="screen active" id="screen-home">
-  <div class="header"><h1>Iqra | Читай</h1><div style="display:flex;gap:6px"><button class="icon-btn ghost" onclick="openSearch()">🔍</button><button class="icon-btn" onclick="openSettings()">⚙</button></div></div>
+<!-- DASHBOARD -->
+<div class="screen active" id="screen-dashboard">
+  <div class="header"><h1>Iqra | Читай</h1><div style="display:flex;gap:6px"><button class="icon-btn ghost" onclick="openSearch()" aria-label="Поиск">🔍</button><button class="icon-btn" onclick="openSettings()" aria-label="Настройки">⚙</button></div></div>
+  <div class="list" id="dashboard-list">
+    <div class="dash-greeting">
+      <div class="dg-hello">Ассаляму алейкум 👋</div>
+      <div class="dg-time" id="dash-time"></div>
+      <div class="dg-hijri" id="dash-hijri"></div>
+    </div>
+    <div class="dash-progress">
+      <div class="dp-top">
+        <div class="dp-label">Цель на сегодня</div>
+        <div class="dp-num" id="dash-goal-num">0 <span>/ 100</span></div>
+      </div>
+      <div class="dp-bar"><div id="dash-goal-bar" style="width:0%"></div></div>
+      <div class="dp-streak" id="dash-streak"></div>
+    </div>
+    <div class="dash-quote" id="dash-quote" onclick="dashQuoteTap()"></div>
+    <div class="dash-top" id="dash-top"></div>
+  </div>
+</div>
+
+<!-- TASBIH -->
+<div class="screen" id="screen-tasbih">
+  <div class="header"><h1>Тасбих</h1><div style="display:flex;gap:6px"><button class="icon-btn ghost" onclick="openSearch()">🔍</button><button class="icon-btn" onclick="openSettings()">⚙</button></div></div>
   <div class="list" id="home-list">
     <div class="home-controls">
-      <div class="search-wrap"><input id="search" placeholder="Поиск..." oninput="debouncedRenderHome()"></div>
       <select class="sort-select" id="sort" onchange="renderHome()">
+      <select class="sort-select" id="sort" onchange="renderTasbih()">
         <option value="manual">Порядок</option>
         <option value="alpha">А-Я</option>
         <option value="freq">Частота</option>
@@ -793,29 +929,33 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 
 <!-- NAV -->
 <div class="nav" id="nav">
-  <button class="active" data-tab="home" onclick="switchTab('home')">
-    <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="4" r="1.6"/><circle cx="18.5" cy="7" r="1.6"/><circle cx="20.5" cy="13" r="1.6"/><circle cx="17" cy="18.5" r="1.6"/><circle cx="12" cy="20.5" r="1.6"/><circle cx="7" cy="18.5" r="1.6"/><circle cx="3.5" cy="13" r="1.6"/><circle cx="5.5" cy="7" r="1.6"/></svg>
-    <div>Тасбих</div>
+  <button class="active" data-tab="dashboard" onclick="switchTab('dashboard')" aria-label="Главная">
+    <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.2 12 3.5 21 11.2"/><path d="M5.5 10v10.5a.5.5 0 0 0 .5.5h4v-6h4v6h4a.5.5 0 0 0 .5-.5V10"/></svg>
+    <div class="nav-label">Главная</div>
   </button>
-  <button data-tab="quran" onclick="switchTab('quran')">
+  <button data-tab="tasbih" onclick="switchTab('tasbih')" aria-label="Тасбих">
+    <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9.5" r="5.5"/><circle cx="12" cy="3.5" r="1" fill="currentColor" stroke="none"/><circle cx="16.9" cy="5.5" r="1" fill="currentColor" stroke="none"/><circle cx="18.9" cy="9.5" r="1" fill="currentColor" stroke="none"/><circle cx="16.9" cy="13.5" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="15.5" r="1" fill="currentColor" stroke="none"/><circle cx="7.1" cy="13.5" r="1" fill="currentColor" stroke="none"/><circle cx="5.1" cy="9.5" r="1" fill="currentColor" stroke="none"/><circle cx="7.1" cy="5.5" r="1" fill="currentColor" stroke="none"/><path d="M12 16v2.5"/><circle cx="12" cy="20.5" r="1.5"/></svg>
+    <div class="nav-label">Тасбих</div>
+  </button>
+  <button data-tab="quran" onclick="switchTab('quran')" aria-label="Коран">
     <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5h7a3 3 0 0 1 3 3v12a2.5 2.5 0 0 0-2.5-2.5H2z"/><path d="M22 5h-7a3 3 0 0 0-3 3v12a2.5 2.5 0 0 1 2.5-2.5H22z"/></svg>
-    <div>Коран</div>
+    <div class="nav-label">Коран</div>
   </button>
-  <button data-tab="night" onclick="switchTab('night')">
+  <button data-tab="night" onclick="switchTab('night')" aria-label="Ночное чтение">
     <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-    <div>Ночь</div>
+    <div class="nav-label">Ночь</div>
   </button>
-  <button data-tab="dua" onclick="switchTab('dua')">
+  <button data-tab="dua" onclick="switchTab('dua')" aria-label="Дуа">
     <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 0 0-4 0v5"/><path d="M14 10V4a2 2 0 0 0-4 0v6"/><path d="M10 10.5V6a2 2 0 0 0-4 0v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg>
-    <div>Дуа</div>
+    <div class="nav-label">Дуа</div>
   </button>
-  <button data-tab="hadith" onclick="switchTab('hadith')">
+  <button data-tab="hadith" onclick="switchTab('hadith')" aria-label="Хадисы">
     <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
-    <div>Хадис</div>
+    <div class="nav-label">Хадис</div>
   </button>
-  <button data-tab="cal" onclick="switchTab('cal')">
+  <button data-tab="cal" onclick="switchTab('cal')" aria-label="Прогресс">
     <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-    <div>Прогресс</div>
+    <div class="nav-label">Прогресс</div>
   </button>
 </div>
 
@@ -1230,7 +1370,7 @@ function setTheme(t){ state.settings.theme=t; save(); applyTheme(); }
 function setArSize(s) { state.settings.arSize=parseFloat(s); save(); document.documentElement.style.setProperty('--ar-scale',s); document.querySelectorAll('#size-seg button').forEach(b=>b.classList.toggle('active',parseFloat(b.dataset.size)===parseFloat(s))); const p=document.getElementById('ar-preview'); if (p) p.style.fontSize=(24*s)+'px'; }
 setInterval(() => { if (state.settings.theme === 'auto') applyTheme(); }, 60000);
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && state.settings.theme === 'auto') applyTheme(); });
-function renderHome() {
+function renderTasbih() {
   const today = state.history[todayKey()];
   const done = today ? today.total : 0;
   const goal = state.settings.dailyGoal;
@@ -1270,7 +1410,7 @@ function renderHome() {
 }
 function cardTouchStart(e) { const card=e.currentTarget; dragId=card.dataset.id; card._startY=e.touches[0].clientY; dragHoldTimer=setTimeout(()=>{dragEl=card; card.classList.add('dragging'); if (navigator.vibrate) navigator.vibrate(15);},450); }
 function cardTouchMove(e) { const card=e.currentTarget; if (!dragEl) { if (dragHoldTimer && Math.abs(e.touches[0].clientY-(card._startY||0))>8) { clearTimeout(dragHoldTimer); dragHoldTimer=null; } return; } e.preventDefault(); const y=e.touches[0].clientY; const container=document.getElementById('cards-container'); const cards=[...container.querySelectorAll('.tasbih-card:not(.dragging)')]; let before=null; for (const c of cards) { const r=c.getBoundingClientRect(); if (y<r.top+r.height/2) { before=c; break; } } if (before) container.insertBefore(dragEl,before); else container.appendChild(dragEl); }
-function cardTouchEnd() { if (dragHoldTimer) { clearTimeout(dragHoldTimer); dragHoldTimer=null; } if (!dragEl) { dragId=null; return; } dragEl.classList.remove('dragging'); const ids=[...document.querySelectorAll('#cards-container .tasbih-card')].map(c=>c.dataset.id); state.tasbihs.sort((a,b)=>ids.indexOf(a.id)-ids.indexOf(b.id)); save(); dragEl=null; dragId=null; setTimeout(()=>renderHome(),50); }
+function cardTouchEnd() { if (dragHoldTimer) { clearTimeout(dragHoldTimer); dragHoldTimer=null; } if (!dragEl) { dragId=null; return; } dragEl.classList.remove('dragging'); const ids=[...document.querySelectorAll('#cards-container .tasbih-card')].map(c=>c.dataset.id); state.tasbihs.sort((a,b)=>ids.indexOf(a.id)-ids.indexOf(b.id)); save(); dragEl=null; dragId=null; setTimeout(()=>renderTasbih(),50); }
 
 function openCounter(id) { activeId=id; const t=getById(id); if (!t) return; trackEvent('tasbih/' + id, 'Тасбих: ' + (t.transcription || t.arabic || id)); document.getElementById('c-ar').textContent=t.arabic; document.getElementById('c-tr').textContent=t.transcription; document.getElementById('c-trn').textContent=t.translation; document.getElementById('c-target').textContent='из '+t.target; updateCounterUI(); showScreen('screen-counter'); if (state.settings.wakeLock) requestWakeLock(); }
 function updateCounterUI() { const t=getById(activeId); if (!t) return; const numEl=document.getElementById('c-num'); numEl.textContent=t.current; const done=t.current>=t.target; numEl.classList.toggle('done', done); document.getElementById('c-cycles').textContent='Циклов: '+t.cycles; const R=44, C=2*Math.PI*R; const p=Math.min(1,t.current/t.target); document.getElementById('c-ring').setAttribute('stroke-dashoffset', C*(1-p)); document.getElementById('top-progress-bar').style.width=(p*100)+'%'; }
@@ -1290,7 +1430,7 @@ function showNextToast() { const idx=state.tasbihs.findIndex(x=>x.id===activeId)
 function goNext() { const idx=state.tasbihs.findIndex(x=>x.id===activeId); const next=state.tasbihs[idx+1]; document.getElementById('next-toast').classList.remove('show'); if (next) openCounter(next.id); }
 function resetCurrent(e) { if (e) e.stopPropagation(); if (!confirm('Сбросить текущий счёт?')) return; const t=getById(activeId); t.current=0; save(); updateCounterUI(); }
 function editCurrent(e) { if (e) e.stopPropagation(); openForm(activeId); }
-function goHome() { if (activeId) saveNow(); activeId=null; releaseWakeLock(); renderHome(); showScreen('screen-home'); }
+function goHome() { if (activeId) saveNow(); activeId=null; releaseWakeLock(); renderDashboard(); showScreen('screen-dashboard'); }
 async function requestWakeLock() { try { if ('wakeLock' in navigator) { wakeLock=await navigator.wakeLock.request('screen'); wakeLock.addEventListener('release',()=>{wakeLock=null;}); } } catch(e){} }
 function releaseWakeLock() { try { if (wakeLock) { wakeLock.release(); wakeLock=null; } } catch(e){} }
 document.addEventListener('visibilitychange', ()=>{ if (document.visibilityState==='visible' && activeId && state.settings.wakeLock) requestWakeLock(); });
@@ -1302,10 +1442,10 @@ function renderPresets() { document.getElementById('presets').innerHTML = PRESET
 function applyPreset(i) { const p=PRESETS[i]; document.getElementById('f-ar').value=p.ar; document.getElementById('f-tr').value=p.tr; document.getElementById('f-trn').value=p.trn; document.getElementById('f-target').value=p.target; updatePreview(); }
 function updatePreview() { document.getElementById('pv-ar').textContent=document.getElementById('f-ar').value; document.getElementById('pv-tr').textContent=document.getElementById('f-tr').value; document.getElementById('pv-trn').textContent=document.getElementById('f-trn').value; state.draft={ar:document.getElementById('f-ar').value.slice(0,LIMITS.textLen),tr:document.getElementById('f-tr').value.slice(0,LIMITS.textLen),trn:document.getElementById('f-trn').value.slice(0,LIMITS.textLen),target:document.getElementById('f-target').value}; save(); }
 function openForm(id) { editingId=id||null; const t=id?getById(id):null; document.getElementById('form-title').textContent=id?'Редактировать':'Новый Тасбих'; let ar='',tr='',trn='',target=33; if (t) { ar=t.arabic; tr=t.transcription; trn=t.translation; target=t.target; } else if (state.draft) { ar=state.draft.ar||''; tr=state.draft.tr||''; trn=state.draft.trn||''; target=state.draft.target||33; } document.getElementById('f-ar').value=ar; document.getElementById('f-tr').value=tr; document.getElementById('f-trn').value=trn; document.getElementById('f-target').value=target; document.getElementById('btn-delete').style.display=id?'block':'none'; updatePreview(); showScreen('screen-form'); }
-function cancelForm() { if (activeId) showScreen('screen-counter'); else { renderHome(); showScreen('screen-home'); } }
+function cancelForm() { if (activeId) showScreen('screen-counter'); else { renderTasbih(); showScreen('screen-tasbih'); } }
 function stepTarget(d){ const el=document.getElementById('f-target'); el.value=Math.max(1,(parseInt(el.value)||1)+d); updatePreview(); }
-function saveForm() { const arabic=document.getElementById('f-ar').value.trim().slice(0,LIMITS.textLen); const transcription=document.getElementById('f-tr').value.trim().slice(0,LIMITS.textLen); const translation=document.getElementById('f-trn').value.trim().slice(0,LIMITS.textLen); const target=Math.max(1,Math.min(LIMITS.targetMax,parseInt(document.getElementById('f-target').value)||33)); if (!arabic && !transcription && !translation) { alert('Заполните хотя бы одно поле'); return; } if (editingId) { const t=getById(editingId); t.arabic=arabic; t.transcription=transcription; t.translation=translation; t.target=target; if (t.current>target) t.current=0; } else { state.tasbihs.push({id:'u'+Date.now(),arabic,transcription,translation,target,current:0,cycles:0}); } state.draft=null; save(); if (activeId) openCounter(activeId); else { renderHome(); showScreen('screen-home'); } }
-function deleteCurrent() { if (!editingId) return; if (!confirm('Удалить этот тасбих?')) return; state.tasbihs=state.tasbihs.filter(t=>t.id!==editingId); save(); activeId=null; editingId=null; renderHome(); showScreen('screen-home'); }
+function saveForm() { const arabic=document.getElementById('f-ar').value.trim().slice(0,LIMITS.textLen); const transcription=document.getElementById('f-tr').value.trim().slice(0,LIMITS.textLen); const translation=document.getElementById('f-trn').value.trim().slice(0,LIMITS.textLen); const target=Math.max(1,Math.min(LIMITS.targetMax,parseInt(document.getElementById('f-target').value)||33)); if (!arabic && !transcription && !translation) { alert('Заполните хотя бы одно поле'); return; } if (editingId) { const t=getById(editingId); t.arabic=arabic; t.transcription=transcription; t.translation=translation; t.target=target; if (t.current>target) t.current=0; } else { state.tasbihs.push({id:'u'+Date.now(),arabic,transcription,translation,target,current:0,cycles:0}); } state.draft=null; save(); if (activeId) openCounter(activeId); else { renderTasbih(); showScreen('screen-home'); } }
+function deleteCurrent() { if (!editingId) return; if (!confirm('Удалить этот тасбих?')) return; state.tasbihs=state.tasbihs.filter(t=>t.id!==editingId); save(); activeId=null; editingId=null; renderTasbih(); showScreen('screen-tasbih'); }
 
 async function renderQuranList() {
   const el = document.getElementById('quran-list');
@@ -1775,7 +1915,7 @@ state.migrations = mergedMigrations;
 state.migrations.quran_v15 = true;
 saveNow();
 state = load();
-save(); applyTheme(); setArSize(state.settings.arSize); renderHome(); renderDuaList(); renderHadithList(); renderQuranList(); renderNightList(); renderProgress(); showScreen('screen-home'); alert('Импортировано'); e.target.value=''; }; r.readAsText(f); }
+save(); applyTheme(); setArSize(state.settings.arSize); renderDashboard(); renderTasbih(); renderDuaList(); renderHadithList(); renderQuranList(); renderNightList(); renderProgress(); showScreen('screen-dashboard'); alert('Импортировано'); e.target.value=''; }; r.readAsText(f); }
 function resetAll() { if (!confirm('Удалить ВСЕ данные? Это необратимо.')) return; if (!confirm('Точно? Резервную копию можно сделать в Настройках.')) return;localStorage.removeItem(STORAGE_KEY);
   location.reload(); }
 
@@ -1788,9 +1928,10 @@ function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   const nav = document.getElementById('nav');
-  const tabs = ['screen-home','screen-quran','screen-night','screen-dua','screen-hadith','screen-cal'];
+  const tabs = ['screen-dashboard','screen-tasbih','screen-quran','screen-night','screen-dua','screen-hadith','screen-cal'];
   nav.style.display = tabs.includes(id) ? 'flex' : 'none';
-  if (id==='screen-home') setNav('home');
+  if (id==='screen-dashboard') setNav('dashboard');
+  if (id==='screen-tasbih') setNav('tasbih');
   if (id==='screen-quran') setNav('quran');
   if (id==='screen-night') setNav('night');
   if (id==='screen-dua') setNav('dua');
@@ -1801,12 +1942,106 @@ function showScreen(id) {
 function setNav(tab) { document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab)); }
 async function switchTab(tab) {
   trackEvent('tab/' + tab, 'Вкладка: ' + tab);
-  if (tab==='home') { renderHome(); showScreen('screen-home'); }
+  if (tab==='dashboard') { renderDashboard(); showScreen('screen-dashboard'); }
+  else if (tab==='tasbih') { renderTasbih(); showScreen('screen-tasbih'); }
   else if (tab==='quran') { await renderQuranList(); showScreen('screen-quran'); }
   else if (tab==='night') { renderNightList(); showScreen('screen-night'); }
   else if (tab==='dua') { renderDuaList(); showScreen('screen-dua'); }
   else if (tab==='hadith') { renderHadithList(); showScreen('screen-hadith'); }
   else if (tab==='cal') { calDate = new Date(); renderProgress(); showScreen('screen-cal'); }
+}
+
+function getTimeOfDay() {
+  const h = new Date().getHours();
+  if (h >= 5 && h < 11) return 'Утро';
+  if (h >= 11 && h < 17) return 'День';
+  if (h >= 17 && h < 21) return 'Вечер';
+  return 'Ночь';
+}
+function getRandomQuote() {
+  const types = ['quran', 'hadith', 'dua', 'tasbih'];
+  const type = types[Math.floor(Math.random() * types.length)];
+  if (type === 'quran') {
+    const item = state.quran[Math.floor(Math.random() * state.quran.length)];
+    if (!item) return null;
+    const trLines = (item.translation || '').split('\n').filter(Boolean);
+    return { type: 'quran', id: item.id, badge: '📖 Коран', title: item.title, ar: (item.arabic || '').split('\n')[0], tr: (trLines[0] || '').slice(0, 140) };
+  }
+  if (type === 'hadith') {
+    const item = state.hadiths[Math.floor(Math.random() * state.hadiths.length)];
+    if (!item) return null;
+    return { type: 'hadith', id: item.id, badge: '📜 Хадис', title: item.title, ar: item.arabic || '', tr: (item.translation || '').slice(0, 140) };
+  }
+  if (type === 'dua') {
+    const item = state.duas[Math.floor(Math.random() * state.duas.length)];
+    if (!item) return null;
+    return { type: 'dua', id: item.id, badge: '🤲 Дуа', title: item.title, ar: item.arabic || '', tr: (item.translation || '').slice(0, 140) };
+  }
+  const item = state.tasbihs[Math.floor(Math.random() * state.tasbihs.length)];
+  if (!item) return null;
+  return { type: 'tasbih', id: item.id, badge: '📿 Тасбих', title: item.transcription || item.arabic || '—', ar: item.arabic || '', tr: (item.translation || '').slice(0, 140) };
+}
+let _dashQuote = null;
+function renderDashboard() {
+  const t = document.getElementById('dash-time');
+  const h = document.getElementById('dash-hijri');
+  if (t) t.textContent = getTimeOfDay();
+  if (h) h.textContent = formatHijri(new Date());
+
+  const today = state.history[todayKey()];
+  const done = today ? today.total : 0;
+  const goal = state.settings.dailyGoal;
+  const pct = goal > 0 ? Math.min(100, (done / goal) * 100) : 0;
+  const numEl = document.getElementById('dash-goal-num');
+  const barEl = document.getElementById('dash-goal-bar');
+  if (numEl) numEl.innerHTML = done + ' <span>/ ' + goal + '</span>';
+  if (barEl) barEl.style.width = pct + '%';
+
+  const streak = computeStreak();
+  const st = document.getElementById('dash-streak');
+  if (st) st.textContent = streak > 0 ? '🔥 ' + streak + ' ' + pluralDays(streak) + ' подряд' : 'Начни серию сегодня';
+
+  _dashQuote = getRandomQuote();
+  const qEl = document.getElementById('dash-quote');
+  if (qEl && _dashQuote) {
+    qEl.innerHTML =
+      '<div class="dq-head"><span class="dq-badge">' + esc(_dashQuote.badge) + '</span><span class="dq-arrow">→</span></div>' +
+      '<div class="dq-title">' + esc(_dashQuote.title) + '</div>' +
+      (_dashQuote.ar ? '<div class="dq-ar ar-font">' + esc(_dashQuote.ar) + '</div>' : '') +
+      (_dashQuote.tr ? '<div class="dq-tr">' + esc(_dashQuote.tr) + '</div>' : '');
+  }
+
+  const counts = {};
+  for (const k in state.history) for (const id in state.history[k].byId) counts[id] = (counts[id] || 0) + state.history[k].byId[id];
+  const topId = Object.keys(counts).sort((a, b) => counts[b] - counts[a])[0];
+  const topEl = document.getElementById('dash-top');
+  if (topEl) {
+    if (topId) {
+      const item = getById(topId);
+      const name = item ? (item.transcription || item.arabic || '—') : 'Тасбих';
+      topEl.innerHTML =
+        '<div class="dt-icon">🏆</div>' +
+        '<div class="dt-body"><div class="dt-label">Топ зикра</div>' +
+        '<div class="dt-title">' + esc(name) + '</div>' +
+        '<div class="dt-sub">' + counts[topId] + ' раз всего</div></div>';
+    } else {
+      topEl.innerHTML = '<div class="dt-icon">🏆</div><div class="dt-body"><div class="dt-label">Топ зикра</div><div class="dt-title">Пока пусто</div><div class="dt-sub">Начни считать тасбих</div></div>';
+    }
+  }
+}
+function pluralDays(n) {
+  const m = n % 10, h = Math.floor(n / 10) % 10;
+  if (h === 1) return 'дней';
+  if (m === 1) return 'день';
+  if (m >= 2 && m <= 4) return 'дня';
+  return 'дней';
+}
+function dashQuoteTap() {
+  if (!_dashQuote) return;
+  if (_dashQuote.type === 'quran') openQuran(_dashQuote.id);
+  else if (_dashQuote.type === 'hadith') openHadith(_dashQuote.id);
+  else if (_dashQuote.type === 'dua') openDua(_dashQuote.id);
+  else if (_dashQuote.type === 'tasbih') openCounter(_dashQuote.id);
 }
 
 function startOnboarding() {
@@ -1869,12 +2104,12 @@ function debounce(fn, wait) {
     t = setTimeout(function() { t = null; fn.apply(null, arguments); }, wait);
   };
 }
-var debouncedRenderHome = debounce(renderHome, 250);
+var debouncedRenderTasbih = debounce(renderTasbih, 250);
 var debouncedRenderQuranList = debounce(renderQuranList, 250);
 applyTheme();
 setArSize(state.settings.arSize);
-renderPresets(); renderHome(); renderDuaList(); renderHadithList(); renderQuranList(); renderNightList(); renderProgress();
-showScreen('screen-home');
+renderPresets(); renderDashboard(); renderTasbih(); renderDuaList(); renderHadithList(); renderQuranList(); renderNightList(); renderProgress();
+showScreen('screen-dashboard');
 if (!state.migrations.onboarded) setTimeout(startOnboarding, 200);
 document.addEventListener('keydown', (e) => {
   if (e.key !== 'Escape') return;
