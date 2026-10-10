@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'iqra-single';
+const CACHE_VERSION = 'iqra-v10';
 const CACHE_ASSETS = ['./', './index.html'];
 
 self.addEventListener('install', function(event) {
