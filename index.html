@@ -1,4 +1,4 @@
-по<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
@@ -713,7 +713,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
     <div id="continue-slot"></div>
     <div id="cards-container"></div>
   </div>
-  <button class="fab" onclick="openForm()">＋</button>
+  <button class="fab" onclick="openForm()" aria-label="Новый тасбих"><svg class="ico ico-lg"><use href="#i-plus"/></svg></button>
 </div>
 
 <!-- COUNTER -->
@@ -756,7 +756,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 <!-- FORM -->
 <div class="screen" id="screen-form">
   <div class="header">
-    <button class="icon-btn ghost" onclick="cancelForm()">←</button>
+    <button class="icon-btn ghost" onclick="cancelForm()" aria-label="Назад"><svg class="ico"><use href="#i-arrow-left"/></svg></button>
     <h1 id="form-title" style="font-size:18px">Новый Тасбих</h1>
     <div style="width:42px"></div>
   </div>
@@ -773,9 +773,9 @@ input, textarea { -webkit-user-select:text; user-select:text; }
     <div class="field"><label>Перевод</label><input id="f-trn" placeholder="Слава Аллаху" oninput="updatePreview()"></div>
     <div class="field"><label>Цель (сколько раз за цикл)</label>
       <div class="stepper">
-        <button type="button" onclick="stepTarget(-1)">−</button>
+        <button type="button" onclick="stepTarget(-1)" aria-label="Минус"><svg class="ico"><use href="#i-minus"/></svg></button>
         <input id="f-target" type="number" inputmode="numeric" value="33" min="1" max="100000">
-        <button type="button" onclick="stepTarget(1)">+</button>
+        <button type="button" onclick="stepTarget(1)" aria-label="Плюс"><svg class="ico"><use href="#i-plus"/></svg></button>
       </div>
     </div>
     <button class="btn" onclick="saveForm()">Сохранить</button>
@@ -785,7 +785,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 
 <!-- QURAN LIST -->
 <div class="screen" id="screen-quran">
-  <div class="header"><h1>Коран</h1><button class="icon-btn ghost" onclick="openSearch()">🔍</button></div>
+  <div class="header"><h1>Коран</h1><button class="icon-btn ghost" onclick="openSearch()" aria-label="Поиск"><svg class="ico"><use href="#i-search"/></svg></button></div>
   <div style="padding:0 16px 12px;">
     <div class="search-wrap"><input id="quran-search" placeholder="Поиск по Корану..." oninput="debouncedRenderQuranList()"></div>
   </div>
@@ -827,25 +827,25 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 <!-- DUA DETAIL -->
 <div class="screen" id="screen-dua-detail">
   <div class="header">
-       <button class="icon-btn ghost" onclick="goDuaList()">←</button>
+       <button class="icon-btn ghost" onclick="goDuaList()" aria-label="Назад"><svg class="ico"><use href="#i-arrow-left"/></svg></button>
     <h1 style="font-size:16px">Дуа</h1>
-    <button class="icon-btn ghost" id="dua-detail-star" onclick="detailStarClick()">☆</button>
+    <button class="icon-btn ghost" id="dua-detail-star" onclick="detailStarClick()" aria-label="Избранное"><svg class="ico"><use href="#i-star"/></svg></button>
   </div>
   <div class="detail-body" id="dua-detail-content"></div>
 </div>
 
 <!-- HADITHS LIST -->
 <div class="screen" id="screen-hadith">
-  <div class="header"><h1>Хадисы</h1><button class="icon-btn ghost" onclick="openSearch()">🔍</button></div>
+  <div class="header"><h1>Хадисы</h1><button class="icon-btn ghost" onclick="openSearch()" aria-label="Поиск"><svg class="ico"><use href="#i-search"/></svg></button></div>
   <div class="content-list" id="hadith-list"></div>
 </div>
 
 <!-- HADITH DETAIL -->
 <div class="screen" id="screen-hadith-detail">
   <div class="header">
-     <button class="icon-btn ghost" onclick="goHadithList()">←</button>
+     <button class="icon-btn ghost" onclick="goHadithList()" aria-label="Назад"><svg class="ico"><use href="#i-arrow-left"/></svg></button>
     <h1 style="font-size:16px">Хадис</h1>
-    <button class="icon-btn ghost" id="hadith-detail-star" onclick="detailStarClick()">☆</button>
+    <button class="icon-btn ghost" id="hadith-detail-star" onclick="detailStarClick()" aria-label="Избранное"><svg class="ico"><use href="#i-star"/></svg></button>
   </div>
   <div class="detail-body" id="hadith-detail-content"></div>
 </div>
@@ -867,12 +867,12 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 <!-- SETTINGS -->
 <div class="screen" id="screen-settings">
   <div class="header">
-    <button class="icon-btn ghost" onclick="goHome()">←</button>
+    <button class="icon-btn ghost" onclick="goHome()" aria-label="Назад"><svg class="ico"><use href="#i-arrow-left"/></svg></button>
     <h1 style="font-size:18px">Настройки</h1>
     <div style="width:42px"></div>
   </div>
   <div class="settings">
-    <div class="security-note"><span class="icon">🛡</span><span>Приложение работает <b>полностью офлайн</b>. Данные хранятся только на этом устройстве. Текст Корана <b>зафиксирован в коде</b> и не может быть изменён извне.</span></div>
+    <div class="security-note"><svg class="ico ico-sm" style="flex-shrink:0"><use href="#i-shield"/></svg><span>Приложение работает <b>полностью офлайн</b>. Данные хранятся только на этом устройстве. Текст Корана <b>зафиксирован в коде</b> и не может быть изменён извне.</span></div>
     <div class="settings-group">
       <div class="sg-title">Внешний вид</div>
       <div class="setting-row">
@@ -923,8 +923,8 @@ input, textarea { -webkit-user-select:text; user-select:text; }
     <div class="settings-group">
       <div class="sg-title">Данные</div>
       <div style="padding: 12px 16px;">
-        <button class="btn secondary" onclick="exportData()">💾 Сохранить в файл</button>
-        <button class="btn secondary" onclick="document.getElementById('import-file').click()">📥 Загрузить из файла</button>
+        <button class="btn secondary" onclick="exportData()"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:8px"><use href="#i-download"/></svg>Сохранить в файл</button>
+        <button class="btn secondary" onclick="document.getElementById('import-file').click()"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:8px"><use href="#i-upload"/></svg>Загрузить из файла</button>
         <input type="file" id="import-file" accept="application/json" style="display:none" onchange="importData(event)">
         <button class="btn danger" onclick="resetAll()">Сбросить всё</button>
       </div>
@@ -935,17 +935,15 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 <!-- READ MODE -->
 <div class="fullscreen" id="read-mode">
   <div class="fs-header">
-    <button class="icon-btn ghost" onclick="closeRead()">✕</button>
+    <button class="icon-btn ghost" onclick="closeRead()" aria-label="Закрыть"><svg class="ico"><use href="#i-x"/></svg></button>
     <h2 id="read-title"></h2>
     <div style="width:42px"></div>
   </div>
-  <div class="fs-body" id="read-body"></div>
-</div>
 
 <!-- MEMORIZE MODE -->
 <div class="fullscreen" id="memorize-mode">
   <div class="fs-header">
-    <button class="icon-btn ghost" onclick="closeMemorize()">✕</button>
+    <button class="icon-btn ghost" onclick="closeMemorize()" aria-label="Закрыть"><svg class="ico"><use href="#i-x"/></svg></button>
     <h2 id="mem-title">Заучивание</h2>
     <div style="width:42px"></div>
   </div>
@@ -960,36 +958,35 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 <!-- NAV -->
 <div class="nav" id="nav">
   <button class="active" data-tab="dashboard" onclick="switchTab('dashboard')" aria-label="Главная">
-    <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.2 12 3.5 21 11.2"/><path d="M5.5 10v10.5a.5.5 0 0 0 .5.5h4v-6h4v6h4a.5.5 0 0 0 .5-.5V10"/></svg>
+    <svg class="ico"><use href="#i-home"/></svg>
     <div class="nav-label">Главная</div>
   </button>
-    <button data-tab="tasbih" onclick="switchTab('tasbih')" aria-label="Тасбих">
-    <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="3.2" r="1.1" fill="currentColor" stroke="none"/><circle cx="16.8" cy="5" r="1.1" fill="currentColor" stroke="none"/><circle cx="18.6" cy="9" r="1.1" fill="currentColor" stroke="none"/><circle cx="16.8" cy="13" r="1.1" fill="currentColor" stroke="none"/><circle cx="12" cy="14.8" r="1.1" fill="currentColor" stroke="none"/><circle cx="7.2" cy="13" r="1.1" fill="currentColor" stroke="none"/><circle cx="5.4" cy="9" r="1.1" fill="currentColor" stroke="none"/><circle cx="7.2" cy="5" r="1.1" fill="currentColor" stroke="none"/><path d="M12 14.8v3.2"/><path d="M9.5 21.5c0-1.8 1.5-2.6 2.5-3 1 .4 2.5 1.2 2.5 3"/></svg>
+  <button data-tab="tasbih" onclick="switchTab('tasbih')" aria-label="Тасбих">
+    <svg class="ico"><use href="#i-misbaha"/></svg>
     <div class="nav-label">Тасбих</div>
   </button>
   <button data-tab="quran" onclick="switchTab('quran')" aria-label="Коран">
-    <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5h7a3 3 0 0 1 3 3v12a2.5 2.5 0 0 0-2.5-2.5H2z"/><path d="M22 5h-7a3 3 0 0 0-3 3v12a2.5 2.5 0 0 1 2.5-2.5H22z"/></svg>
+    <svg class="ico"><use href="#i-book"/></svg>
     <div class="nav-label">Коран</div>
   </button>
   <button data-tab="night" onclick="switchTab('night')" aria-label="Ночное чтение">
-    <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    <svg class="ico"><use href="#i-moon"/></svg>
     <div class="nav-label">Ночь</div>
   </button>
-   <button data-tab="dua" onclick="switchTab('dua')" aria-label="Дуа">
-    <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20v-3.5"/><path d="M11 16.5c-2.8 0-4.8-2-4.8-4.8V7.5"/><path d="M6.2 7.5V4.5"/><path d="M8.2 7.5V4"/><path d="M10 8V4.5"/><path d="M6.2 9.5 4 8.5"/><path d="M13 20v-3.5"/><path d="M13 16.5c2.8 0 4.8-2 4.8-4.8V7.5"/><path d="M17.8 7.5V4.5"/><path d="M15.8 7.5V4"/><path d="M14 8V4.5"/><path d="M17.8 9.5 20 8.5"/></svg>
+  <button data-tab="dua" onclick="switchTab('dua')" aria-label="Дуа">
+    <svg class="ico"><use href="#i-dua"/></svg>
     <div class="nav-label">Дуа</div>
   </button>
   <button data-tab="hadith" onclick="switchTab('hadith')" aria-label="Хадисы">
-    <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
+    <svg class="ico"><use href="#i-scroll"/></svg>
     <div class="nav-label">Хадис</div>
   </button>
   <button data-tab="cal" onclick="switchTab('cal')" aria-label="Прогресс">
-    <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    <svg class="ico"><use href="#i-chart"/></svg>
     <div class="nav-label">Прогресс</div>
   </button>
 </div>
-
-<div class="save-indicator" id="save-indicator" aria-hidden="true"></div>  <div class="fullscreen" id="search-overlay">   <div class="fs-header">     <button class="icon-btn ghost" onclick="closeSearch()">✕</button>     <input id="global-search-input" placeholder="Поиск по приложению..." oninput="renderGlobalSearch()" autocomplete="off">     <div style="width:42px"></div>   </div>   <div class="search-filters" id="search-filters">     <div class="filter-group" data-filter="type">       <button class="filter-chip active" data-value="all" onclick="setSearchFilter('type','all')">Все</button>       <button class="filter-chip" data-value="tasbih" onclick="setSearchFilter('type','tasbih')">📿 Тасбихи</button>       <button class="filter-chip" data-value="quran" onclick="setSearchFilter('type','quran')">📖 Коран</button>       <button class="filter-chip" data-value="dua" onclick="setSearchFilter('type','dua')">🤲 Дуа</button>       <button class="filter-chip" data-value="hadith" onclick="setSearchFilter('type','hadith')">📜 Хадисы</button>     </div>     <div class="filter-group" data-filter="status">       <button class="filter-chip active" data-value="all" onclick="setSearchFilter('status','all')">Все</button>       <button class="filter-chip" data-value="learned" onclick="setSearchFilter('status','learned')">✓ Выучено</button>       <button class="filter-chip" data-value="unlearned" onclick="setSearchFilter('status','unlearned')">Не выучено</button>     </div>     <div class="filter-group" data-filter="favorite">       <button class="filter-chip active" data-value="all" onclick="setSearchFilter('favorite','all')">Все</button>       <button class="filter-chip" data-value="only" onclick="setSearchFilter('favorite','only')">★ Избранное</button>     </div>   </div>   <div class="fs-body" id="search-results"></div> </div>  <div class="modal-bg" id="modal-bg" onclick="if(event.target===this)closeModal()">
+<div class="save-indicator" id="save-indicator" aria-hidden="true"></div>  <div class="fullscreen" id="search-overlay">   <div class="fs-header">     <button class="icon-btn ghost" onclick="closeSearch()" aria-label="Закрыть"><svg class="ico"><use href="#i-x"/></svg></button>     <input id="global-search-input" placeholder="Поиск по приложению..." oninput="renderGlobalSearch()" autocomplete="off">     <div style="width:42px"></div>   </div>   <div class="search-filters" id="search-filters">     <div class="filter-group" data-filter="type">       <button class="filter-chip active" data-value="all" onclick="setSearchFilter('type','all')">Все</button>       <button class="filter-chip" data-value="tasbih" onclick="setSearchFilter('type','tasbih')">📿 Тасбихи</button>       <button class="filter-chip" data-value="quran" onclick="setSearchFilter('type','quran')">📖 Коран</button>       <button class="filter-chip" data-value="dua" onclick="setSearchFilter('type','dua')">🤲 Дуа</button>       <button class="filter-chip" data-value="hadith" onclick="setSearchFilter('type','hadith')">📜 Хадисы</button>     </div>     <div class="filter-group" data-filter="status">       <button class="filter-chip active" data-value="all" onclick="setSearchFilter('status','all')">Все</button>       <button class="filter-chip" data-value="learned" onclick="setSearchFilter('status','learned')">✓ Выучено</button>       <button class="filter-chip" data-value="unlearned" onclick="setSearchFilter('status','unlearned')">Не выучено</button>     </div>     <div class="filter-group" data-filter="favorite">       <button class="filter-chip active" data-value="all" onclick="setSearchFilter('favorite','all')">Все</button>       <button class="filter-chip" data-value="only" onclick="setSearchFilter('favorite','only')">★ Избранное</button>     </div>   </div>   <div class="fs-body" id="search-results"></div> </div>  <div class="modal-bg" id="modal-bg" onclick="if(event.target===this)closeModal()">
   <div class="modal" id="modal-content"></div>
 </div>
 
@@ -1455,7 +1452,7 @@ function tap(e) {
   if (completed) { trackEvent('complete/' + t.id, 'Цель достигнута: ' + (t.transcription || t.arabic || t.id)); playChime(); if (state.settings.vibrate && navigator.vibrate) navigator.vibrate([30,40,30]); showCongrats(t); if (state.settings.autoNext) setTimeout(showNextToast, 800); }
   else { playClick(); if (state.settings.vibrate && navigator.vibrate) navigator.vibrate(8); }
 }
-function showCongrats(tasbih) { const el = document.getElementById('modal-content'); el.innerHTML = `<div class="congrats-modal"><div class="congrats-icon">🎉</div><h2>Цель достигнута!</h2><p><b>${esc(tasbih.transcription || tasbih.translation || 'Тасбих')}</b><br>${tasbih.target} раз · Цикл #${tasbih.cycles}</p><button class="btn" onclick="closeModal()">Продолжить</button></div>`; document.getElementById('modal-bg').classList.add('active'); }
+function showCongrats(tasbih) { const el = document.getElementById('modal-content'); el.innerHTML = `<div class="congrats-modal"><svg class="ico ico-xl" style="color:var(--accent);margin:0 auto 14px"><use href="#i-check"/></svg><h2>Цель достигнута!</h2><p><b>${esc(tasbih.transcription || tasbih.translation || 'Тасбих')}</b><br>${tasbih.target} раз · Цикл #${tasbih.cycles}</p><button class="btn" onclick="closeModal()">Продолжить</button></div>`; document.getElementById('modal-bg').classList.add('active'); }
 function showNextToast() { const idx=state.tasbihs.findIndex(x=>x.id===activeId); const next=state.tasbihs[idx+1]; if (!next) return; const toast=document.getElementById('next-toast'); document.getElementById('nt-name').textContent=next.transcription||next.translation||'—'; document.getElementById('nt-ar').textContent=next.arabic||''; toast.classList.add('show'); clearTimeout(nextToastTimer); nextToastTimer=setTimeout(()=>toast.classList.remove('show'),5000); }
 function goNext() { const idx=state.tasbihs.findIndex(x=>x.id===activeId); const next=state.tasbihs[idx+1]; document.getElementById('next-toast').classList.remove('show'); if (next) openCounter(next.id); }
 function resetCurrent(e) { if (e) e.stopPropagation(); if (!confirm('Сбросить текущий счёт?')) return; const t=getById(activeId); t.current=0; save(); updateCounterUI(); }
@@ -1496,7 +1493,7 @@ async function renderQuranList() {
     const badge = item.learned ? `<div class="c-badge">✓ Выучено</div>` : '';
     const numHtml = item.type === 'surah' ? `<div class="c-num">${item.number}</div>` : '';
     const hasNum = item.type === 'surah' ? ' has-num' : '';
-    const star = `<button class="star-btn ${fav?'active':''}" onclick="starClick(event,'${item.id}','quran')">${fav?'★':'☆'}</button>`;
+    const star = `<button class="star-btn ${fav?'active':''}" onclick="starClick(event,'${item.id}','quran')">${fav?'<svg class="ico"><use href="#i-star-filled"/></svg>':'<svg class="ico"><use href="#i-star"/></svg>'}</button>`;
     return `<div class="content-card${hasNum}" onclick="openQuran('${item.id}')">${numHtml}${badge}${star}<div class="c-title">${esc(item.title)}</div><div class="c-sub">${esc(item.subtitle||'')}</div><div class="c-ar ar-font">${esc(item.arabic)}</div><div class="c-tr">${esc(item.translation)}</div></div>`;
   }).join('');
 }
@@ -1508,7 +1505,7 @@ function openQuran(id) {
   document.getElementById('quran-detail-title').textContent = item.title;
   const ayahs = parseAyahs(item);
   const st = document.getElementById('quran-detail-star');
-  if (st) { const fav=isFavorite(id); st.textContent=fav?'★':'☆'; st.classList.toggle('starred', fav); }
+  if (st) { const fav=isFavorite(id); st.innerHTML=fav?'<svg class="ico"><use href="#i-star-filled"/></svg>':'<svg class="ico"><use href="#i-star"/></svg>'; st.classList.toggle('starred', fav); }
   const el = document.getElementById('quran-detail-content');
   let bismillahHtml = '';
   if (item.bismillah) {
@@ -1554,7 +1551,7 @@ function toggleQuranLearned(id) {
   if (item.learned) { playChime(); if (navigator.vibrate) navigator.vibrate([20,40,20]); showCongratsLearn(item.title); }
   openQuran(id);
 }
-function showCongratsLearn(title) { const el = document.getElementById('modal-content'); el.innerHTML = `<div class="congrats-modal"><div class="congrats-icon">🌟</div><h2>МашаАллах!</h2><p><b>${esc(title)}</b><br>отмечено как выученное</p><button class="btn" onclick="closeModal()">Амин</button></div>`; document.getElementById('modal-bg').classList.add('active'); }
+function showCongratsLearn(title) { const el = document.getElementById('modal-content'); el.innerHTML = `<div class="congrats-modal"><svg class="ico ico-xl" style="color:var(--accent);margin:0 auto 14px"><use href="#i-check"/></svg><h2>МашаАллах!</h2><p><b>${esc(title)}</b><br>отмечено как выученное</p><button class="btn" onclick="closeModal()">Амин</button></div>`; document.getElementById('modal-bg').classList.add('active'); }
 function goQuranList() { activeQuranId = null; renderQuranList(); showScreen('screen-quran'); }
 
 function openRead(id) {
@@ -1613,7 +1610,7 @@ function renderMemorize() {
   const stepInfo = `<div class="mem-step"><span>${phaseLabel} · Аят ${memorizeStep+1} из ${total}</span><span class="phase">${memorizePhase==='learn'?'изучаем':'проверяем'}</span></div>`;
   let body = '';
   if (memorizePhase === 'learn') { body = `${stepInfo}<div class="mem-block"><div class="mb-label">Арабский</div><div class="mb-ar ar-font">${esc(a.ar)}</div></div><div class="mem-block"><div class="mb-label">Транскрипция</div><div class="mb-text">${esc(a.tr)}</div></div><div class="mem-block"><div class="mb-label">Перевод</div><div class="mb-text">${esc(a.trn)}</div></div><div class="mem-body-note">${transcriptionNote()}</div>`; }
-  else { body = `${stepInfo}<div class="mem-block"><div class="mb-label">Перевод (подсказка)</div><div class="mb-text">${esc(a.trn)}</div></div><div class="mem-block"><div class="mb-label">Арабский ${memorizeRevealed ? '· открыт' : '· вспомни'}</div><div class="mb-ar ar-font ${memorizeRevealed ? '' : 'hidden'}">${esc(a.ar)}</div>${memorizeRevealed ? '' : `<button class="mem-reveal-btn" onclick="revealMemorize()">👁 Показать арабский</button>`}</div>`; }
+  else { body = `${stepInfo}<div class="mem-block"><div class="mb-label">Перевод (подсказка)</div><div class="mb-text">${esc(a.trn)}</div></div><div class="mem-block"><div class="mb-label">Арабский ${memorizeRevealed ? '· открыт' : '· вспомни'}</div><div class="mb-ar ar-font ${memorizeRevealed ? '' : 'hidden'}">${esc(a.ar)}</div>${memorizeRevealed ? '' : `<button class="mem-reveal-btn" onclick="revealMemorize()"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-eye"/></svg>Показать арабский</button>`}</div>`; }
   document.getElementById('mem-body').innerHTML = body;
   const nextBtn = document.getElementById('mem-next');
   const prevBtn = document.getElementById('mem-prev');
@@ -1713,7 +1710,7 @@ function renderDuaList() {
   el.innerHTML = state.duas.map(d => {
     const fav = isFavorite(d.id);
     const badge = d.learned ? `<div class="c-badge">✓ Выучено</div>` : '';
-    const star = `<button class="star-btn ${fav?'active':''}" onclick="starClick(event,'${d.id}','dua')">${fav?'★':'☆'}</button>`;
+    const star = `<button class="star-btn ${fav?'active':''}" onclick="starClick(event,'${d.id}','dua')">${fav?'<svg class="ico"><use href="#i-star-filled"/></svg>':'<svg class="ico"><use href="#i-star"/></svg>'}</button>`;
     return `<div class="content-card" onclick="openDua('${d.id}')">${badge}${star}<div class="c-title">${esc(d.title)}</div><div class="c-sub">${esc(d.subtitle||'')}</div><div class="c-ar ar-font">${esc(d.arabic)}</div><div class="c-tr">${esc(d.translation)}</div></div>`;
   }).join('');
 }
@@ -1721,7 +1718,7 @@ function openDua(id) {
   activeDuaId = id; const d = getDuaById(id); if (!d) return;
   trackEvent('dua/' + id, 'Дуа: ' + d.title);
   const st = document.getElementById('dua-detail-star');
-  if (st) { const fav=isFavorite(id); st.textContent=fav?'★':'☆'; st.classList.toggle('starred', fav); }
+  if (st) { const fav=isFavorite(id); st.innerHTML=fav?'<svg class="ico"><use href="#i-star-filled"/></svg>':'<svg class="ico"><use href="#i-star"/></svg>'; st.classList.toggle('starred', fav); }
   const el = document.getElementById('dua-detail-content');
   el.innerHTML = `
     <div class="detail-hero">
@@ -1753,7 +1750,7 @@ function renderHadithList() {
   el.innerHTML = state.hadiths.map(h => {
     const fav = isFavorite(h.id);
     const badge = h.learned ? `<div class="c-badge">✓ Изучено</div>` : '';
-    const star = `<button class="star-btn ${fav?'active':''}" onclick="starClick(event,'${h.id}','hadith')">${fav?'★':'☆'}</button>`;
+    const star = `<button class="star-btn ${fav?'active':''}" onclick="starClick(event,'${h.id}','hadith')">${fav?'<svg class="ico"><use href="#i-star-filled"/></svg>':'<svg class="ico"><use href="#i-star"/></svg>'}</button>`;
     return `<div class="content-card" onclick="openHadith('${h.id}')">${badge}${star}<div class="c-title">${esc(h.title)}</div><div class="c-sub">${esc(h.subtitle||'')}</div><div class="c-ar ar-font">${esc(h.arabic)}</div><div class="c-tr">${esc(h.translation)}</div></div>`;
   }).join('');
 }
@@ -1761,7 +1758,7 @@ function openHadith(id) {
   activeHadithId = id; const h = getHadithById(id); if (!h) return;
   trackEvent('hadith/' + id, 'Хадис: ' + h.title);
   const st = document.getElementById('hadith-detail-star');
-  if (st) { const fav=isFavorite(id); st.textContent=fav?'★':'☆'; st.classList.toggle('starred', fav); }
+  if (st) { const fav=isFavorite(id); st.innerHTML=fav?'<svg class="ico"><use href="#i-star-filled"/></svg>':'<svg class="ico"><use href="#i-star"/></svg>'; st.classList.toggle('starred', fav); }
   const el = document.getElementById('hadith-detail-content');
   el.innerHTML = `
     <div class="detail-hero">
