@@ -451,6 +451,82 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   border-color: var(--accent);
   font-weight: 600;
 }
+
+#onboarding {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 99999;
+  display: none;
+  flex-direction: column;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+#onboarding.active { display: flex; animation: fadeIn .3s ease; }
+#onboarding .ob-skip {
+  position: absolute;
+  top: calc(12px + env(safe-area-inset-top));
+  right: 16px;
+  font-size: 13px;
+  color: var(--muted);
+  padding: 8px 12px;
+  z-index: 2;
+}
+#onboarding .ob-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  text-align: center;
+  overflow-y: auto;
+}
+#onboarding .ob-slide { display: none; width: 100%; max-width: 420px; }
+#onboarding .ob-slide.active { display: block; animation: fadeIn .3s ease; }
+#onboarding .ob-icon { font-size: 72px; margin-bottom: 24px; line-height: 1; }
+#onboarding .ob-title { font-size: 26px; font-weight: 800; margin: 0 0 12px; letter-spacing: -.5px; }
+#onboarding .ob-text { font-size: 15px; color: var(--muted); line-height: 1.6; margin: 0 0 28px; }
+#onboarding .ob-options { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }
+#onboarding .ob-option {
+  padding: 12px 20px;
+  border-radius: 14px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+#onboarding .ob-option.active {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+  font-weight: 700;
+}
+#onboarding .ob-ar-preview { font-size: 28px; color: var(--text); margin: 12px 0 4px; }
+#onboarding .ob-nav {
+  display: flex;
+  gap: 10px;
+  padding: 16px 24px calc(24px + env(safe-area-inset-bottom));
+  max-width: 420px;
+  width: 100%;
+  margin: 0 auto;
+}
+#onboarding .ob-dots {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  padding: 0 0 12px;
+}
+#onboarding .ob-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border);
+  transition: background .2s;
+}
+#onboarding .ob-dot.active { background: var(--accent); }
 </style>
 </head>
 <body>
@@ -747,6 +823,54 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   <div class="modal" id="modal-content"></div>
 </div>
 
+<div id="onboarding" role="dialog" aria-label="Знакомство с приложением">
+  <button class="ob-skip" onclick="finishOnboarding()">Пропустить</button>
+  <div class="ob-body">
+    <div class="ob-slide active" data-slide="0">
+      <div class="ob-icon">🕌</div>
+      <h1 class="ob-title">Ассаляму алейкум!</h1>
+      <p class="ob-text">Это <b>Iqra</b> — ваше приложение для Корана, зикра и заучивания.</p>
+    </div>
+    <div class="ob-slide" data-slide="1">
+      <div class="ob-icon">📖</div>
+      <h1 class="ob-title">Всё под рукой</h1>
+      <p class="ob-text">Читайте Коран, считайте тасбих, заучивайте дуа и хадисы.<br>Всё работает <b>полностью офлайн</b>.</p>
+    </div>
+    <div class="ob-slide" data-slide="2">
+      <div class="ob-icon">🎨</div>
+      <h1 class="ob-title">Выберите тему</h1>
+      <p class="ob-text">Можно изменить в любой момент в настройках.</p>
+      <div class="ob-options">
+        <button class="ob-option" data-ob-theme="light" onclick="setOnboardingTheme('light')">Светлая</button>
+        <button class="ob-option" data-ob-theme="dark" onclick="setOnboardingTheme('dark')">Тёмная</button>
+        <button class="ob-option" data-ob-theme="auto" onclick="setOnboardingTheme('auto')">Авто</button>
+      </div>
+    </div>
+    <div class="ob-slide" data-slide="3">
+      <div class="ob-icon">🔤</div>
+      <h1 class="ob-title">Размер арабского текста</h1>
+      <p class="ob-text">Настройте удобный размер для чтения.</p>
+      <div class="ob-options">
+        <button class="ob-option" data-ob-size="0.85" onclick="setOnboardingSize(0.85)">S</button>
+        <button class="ob-option" data-ob-size="1" onclick="setOnboardingSize(1)">M</button>
+        <button class="ob-option" data-ob-size="1.2" onclick="setOnboardingSize(1.2)">L</button>
+        <button class="ob-option" data-ob-size="1.45" onclick="setOnboardingSize(1.45)">XL</button>
+      </div>
+      <div class="ob-ar-preview ar-font" id="ob-ar-preview">سُبْحَانَ اللَّهِ</div>
+    </div>
+  </div>
+  <div class="ob-dots" id="ob-dots">
+    <div class="ob-dot active"></div>
+    <div class="ob-dot"></div>
+    <div class="ob-dot"></div>
+    <div class="ob-dot"></div>
+  </div>
+  <div class="ob-nav">
+    <button class="btn secondary" id="ob-prev" onclick="prevOnboarding()" style="display:none">← Назад</button>
+    <button class="btn" id="ob-next" onclick="nextOnboarding()">Далее →</button>
+  </div>
+</div>
+
 <script>
 "use strict";
 
@@ -986,7 +1110,7 @@ let progTab = 'overview';
 let wakeLock = null, nextToastTimer = null, audioCtx = null;
 let dragEl = null, dragId = null, dragHoldTimer = null;
 let memorizeItem = null, memorizeAyahs = [], memorizeStep = 0;
-let memorizePhase = 'learn', memorizeRevealed = false; let activeReadId = null; let _lastScreenName = null, _lastScreenTs = null; let searchFilters = { type: 'all', status: 'all', favorite: 'all' };
+let memorizePhase = 'learn', memorizeRevealed = false; let activeReadId = null; let _lastScreenName = null, _lastScreenTs = null; let searchFilters = { type: 'all', status: 'all', favorite: 'all' }; let obStep = 0; const OB_TOTAL = 4;
 
 function defaultSettings() { return { theme:'auto', arSize:1, dailyGoal:100, autoNext:true, wakeLock:true, sound:true, vibrate:true, lastRead:null }; }
 
@@ -1685,6 +1809,59 @@ async function switchTab(tab) {
   else if (tab==='cal') { calDate = new Date(); renderProgress(); showScreen('screen-cal'); }
 }
 
+function startOnboarding() {
+  obStep = 0;
+  const ob = document.getElementById('onboarding');
+  if (!ob) return;
+  ob.classList.add('active');
+  renderOnboarding();
+  const themeBtn = ob.querySelector('[data-ob-theme="' + state.settings.theme + '"]');
+  if (themeBtn) themeBtn.classList.add('active');
+  const sizeBtn = ob.querySelector('[data-ob-size="' + state.settings.arSize + '"]');
+  if (sizeBtn) sizeBtn.classList.add('active');
+  const pv = document.getElementById('ob-ar-preview');
+  if (pv) pv.style.fontSize = (28 * state.settings.arSize) + 'px';
+}
+function renderOnboarding() {
+  document.querySelectorAll('#onboarding .ob-slide').forEach(function(s) {
+    s.classList.toggle('active', parseInt(s.dataset.slide) === obStep);
+  });
+  document.querySelectorAll('#onboarding .ob-dot').forEach(function(d, i) {
+    d.classList.toggle('active', i === obStep);
+  });
+  const prev = document.getElementById('ob-prev');
+  const next = document.getElementById('ob-next');
+  if (prev) prev.style.display = obStep === 0 ? 'none' : 'block';
+  if (next) next.textContent = obStep === OB_TOTAL - 1 ? 'Начать ✓' : 'Далее →';
+}
+function nextOnboarding() {
+  if (obStep < OB_TOTAL - 1) { obStep++; renderOnboarding(); }
+  else finishOnboarding();
+}
+function prevOnboarding() {
+  if (obStep > 0) { obStep--; renderOnboarding(); }
+}
+function setOnboardingTheme(t) {
+  setTheme(t);
+  document.querySelectorAll('#onboarding [data-ob-theme]').forEach(function(b) {
+    b.classList.toggle('active', b.dataset.obTheme === t);
+  });
+}
+function setOnboardingSize(s) {
+  setArSize(s);
+  document.querySelectorAll('#onboarding [data-ob-size]').forEach(function(b) {
+    b.classList.toggle('active', parseFloat(b.dataset.obSize) === parseFloat(s));
+  });
+  const pv = document.getElementById('ob-ar-preview');
+  if (pv) pv.style.fontSize = (28 * parseFloat(s)) + 'px';
+}
+function finishOnboarding() {
+  const ob = document.getElementById('onboarding');
+  if (ob) ob.classList.remove('active');
+  state.migrations.onboarded = true;
+  saveNow();
+}
+
 function debounce(fn, wait) {
   let t = null;
   return function() {
@@ -1698,6 +1875,7 @@ applyTheme();
 setArSize(state.settings.arSize);
 renderPresets(); renderHome(); renderDuaList(); renderHadithList(); renderQuranList(); renderNightList(); renderProgress();
 showScreen('screen-home');
+if (!state.migrations.onboarded) setTimeout(startOnboarding, 200);
 document.addEventListener('keydown', (e) => {
   if (e.key !== 'Escape') return;
   const tag = (e.target && e.target.tagName) || '';
