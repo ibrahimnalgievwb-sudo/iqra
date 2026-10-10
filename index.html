@@ -1591,7 +1591,7 @@ state.migrations.quran_v15 = true;
 saveNow();
 state = load();
 save(); applyTheme(); setArSize(state.settings.arSize); renderHome(); renderDuaList(); renderHadithList(); renderQuranList(); renderNightList(); renderProgress(); showScreen('screen-home'); alert('Импортировано'); e.target.value=''; }; r.readAsText(f); }
-function resetAll() { if (!confirm('Удалить ВСЕ данные? Это необратимо.')) return; if (!confirm('Точно? Резервную копию можно сделать в Настройках.')) return;   localStorage.removeItem(STORAGE_KEY);
+function resetAll() { if (!confirm('Удалить ВСЕ данные? Это необратимо.')) return; if (!confirm('Точно? Резервную копию можно сделать в Настройках.')) return;localStorage.removeItem(STORAGE_KEY);
   location.reload(); }
 
 function showScreen(id) {
