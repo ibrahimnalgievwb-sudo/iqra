@@ -394,6 +394,63 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 }
 
 .mem-body-note { margin-top: 20px; }
+
+.save-indicator {
+  position: fixed;
+  top: 8px;
+  right: 8px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0;
+  transition: opacity .3s ease;
+  z-index: 10000;
+  pointer-events: none;
+}
+.save-indicator.active {
+  opacity: 1;
+  animation: savePulse 1.2s ease-in-out infinite;
+}
+@keyframes savePulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: .35; transform: scale(.85); }
+}
+
+.search-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.search-filters .filter-group {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+}
+.search-filters .filter-group::-webkit-scrollbar { display: none; }
+.search-filters .filter-chip {
+  flex-shrink: 0;
+  padding: 5px 12px;
+  border-radius: 14px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+  cursor: pointer;
+}
+.search-filters .filter-chip.active {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+  font-weight: 600;
+}
 </style>
 </head>
 <body>
@@ -686,7 +743,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   </button>
 </div>
 
-<div class="fullscreen" id="search-overlay">   <div class="fs-header">     <button class="icon-btn ghost" onclick="closeSearch()">✕</button>     <input id="global-search-input" placeholder="Поиск по приложению..." oninput="renderGlobalSearch()" autocomplete="off">     <div style="width:42px"></div>   </div>   <div class="fs-body" id="search-results"></div> </div>  <div class="modal-bg" id="modal-bg" onclick="if(event.target===this)closeModal()">
+<div class="save-indicator" id="save-indicator" aria-hidden="true"></div>  <div class="fullscreen" id="search-overlay">   <div class="fs-header">     <button class="icon-btn ghost" onclick="closeSearch()">✕</button>     <input id="global-search-input" placeholder="Поиск по приложению..." oninput="renderGlobalSearch()" autocomplete="off">     <div style="width:42px"></div>   </div>   <div class="search-filters" id="search-filters">     <div class="filter-group" data-filter="type">       <button class="filter-chip active" data-value="all" onclick="setSearchFilter('type','all')">Все</button>       <button class="filter-chip" data-value="tasbih" onclick="setSearchFilter('type','tasbih')">📿 Тасбихи</button>       <button class="filter-chip" data-value="quran" onclick="setSearchFilter('type','quran')">📖 Коран</button>       <button class="filter-chip" data-value="dua" onclick="setSearchFilter('type','dua')">🤲 Дуа</button>       <button class="filter-chip" data-value="hadith" onclick="setSearchFilter('type','hadith')">📜 Хадисы</button>     </div>     <div class="filter-group" data-filter="status">       <button class="filter-chip active" data-value="all" onclick="setSearchFilter('status','all')">Все</button>       <button class="filter-chip" data-value="learned" onclick="setSearchFilter('status','learned')">✓ Выучено</button>       <button class="filter-chip" data-value="unlearned" onclick="setSearchFilter('status','unlearned')">Не выучено</button>     </div>     <div class="filter-group" data-filter="favorite">       <button class="filter-chip active" data-value="all" onclick="setSearchFilter('favorite','all')">Все</button>       <button class="filter-chip" data-value="only" onclick="setSearchFilter('favorite','only')">★ Избранное</button>     </div>   </div>   <div class="fs-body" id="search-results"></div> </div>  <div class="modal-bg" id="modal-bg" onclick="if(event.target===this)closeModal()">
   <div class="modal" id="modal-content"></div>
 </div>
 
@@ -929,7 +986,7 @@ let progTab = 'overview';
 let wakeLock = null, nextToastTimer = null, audioCtx = null;
 let dragEl = null, dragId = null, dragHoldTimer = null;
 let memorizeItem = null, memorizeAyahs = [], memorizeStep = 0;
-let memorizePhase = 'learn', memorizeRevealed = false; let activeReadId = null; let _lastScreenName = null, _lastScreenTs = null;
+let memorizePhase = 'learn', memorizeRevealed = false; let activeReadId = null; let _lastScreenName = null, _lastScreenTs = null; let searchFilters = { type: 'all', status: 'all', favorite: 'all' };
 
 function defaultSettings() { return { theme:'auto', arSize:1, dailyGoal:100, autoNext:true, wakeLock:true, sound:true, vibrate:true, lastRead:null }; }
 
@@ -992,10 +1049,14 @@ function saveNow() {
       alert('Хранилище заполнено. Сохраните бэкап и удалите старые данные.');
     }
   }
+  const ind = document.getElementById('save-indicator');
+  if (ind) ind.classList.remove('active');
 }
 function save() {
   if (_saveTimer) clearTimeout(_saveTimer);
   _saveTimer = setTimeout(saveNow, 500);
+  const ind = document.getElementById('save-indicator');
+  if (ind) ind.classList.add('active');
 }
 window.addEventListener('beforeunload', saveNow);
 window.addEventListener('pagehide', () => { if (activeReadId && state.settings.readScrolls) { const b=document.getElementById('read-body'); if (b) state.settings.readScrolls[activeReadId] = b.scrollTop||0; } saveNow(); });
@@ -1008,7 +1069,7 @@ function getById(id){ return state.tasbihs.find(t=>t.id===id); }
 function getDuaById(id){ return state.duas.find(d=>d.id===id); }
 function getHadithById(id){ return state.hadiths.find(h=>h.id===id); }
 function getQuranById(id){ return state.quran.find(q=>q.id===id); }
-function formatHijri(date){ try { return new Intl.DateTimeFormat('ru-RU-u-ca-islamic-umalqura', { day:'numeric', month:'long', year:'numeric' }).format(date); } catch(e){ return ''; } } function isFavorite(id){ return Array.isArray(state.favorites) && state.favorites.includes(id); } function toggleFavorite(id){ if (!Array.isArray(state.favorites)) state.favorites=[]; const i=state.favorites.indexOf(id); if (i>=0) { state.favorites.splice(i,1); trackEvent('fav_off/' + id, 'Убрано из избранного: ' + id); } else { state.favorites.push(id); trackEvent('fav_on/' + id, 'В избранное: ' + id); } save(); } function starClick(event, id, list){ event.stopPropagation(); toggleFavorite(id); if (list==='quran') renderQuranList(); else if (list==='dua') renderDuaList(); else if (list==='hadith') renderHadithList(); else if (list==='favorites') renderProgressFavorites(); } function detailStarClick(){ if (document.getElementById('screen-quran-detail').classList.contains('active') && activeQuranId) { toggleFavorite(activeQuranId); openQuran(activeQuranId); } else if (document.getElementById('screen-dua-detail').classList.contains('active') && activeDuaId) { toggleFavorite(activeDuaId); openDua(activeDuaId); } else if (document.getElementById('screen-hadith-detail').classList.contains('active') && activeHadithId) { toggleFavorite(activeHadithId); openHadith(activeHadithId); } } function openSearch(){ document.getElementById('search-overlay').classList.add('active'); setTimeout(()=>{ const i=document.getElementById('global-search-input'); if (i) i.focus(); }, 120); renderGlobalSearch(); } function closeSearch(){ document.getElementById('search-overlay').classList.remove('active'); const i=document.getElementById('global-search-input'); if (i) i.value=''; } function searchOpen(type, id){ closeSearch(); if (type==='quran') openQuran(id); else if (type==='dua') openDua(id); else if (type==='hadith') openHadith(id); else if (type==='tasbih') openCounter(id); } function renderGlobalSearch(){   const q = (document.getElementById('global-search-input').value||'').toLowerCase().trim();   const el = document.getElementById('search-results');   if (!q) { el.innerHTML = '<div class="empty">Введите запрос — поиск по тасбихам, Корану, дуа и хадисам.</div>'; return; }   const m = (it) => { const h=[it.title,it.subtitle,it.arabic,it.transcription,it.translation,String(it.number||'')].filter(Boolean).join(' ').toLowerCase(); return h.includes(q); };   const grp = (title, items, type) => { if (!items.length) return ''; return `<div class="progress-section-title">${title}</div>` + items.map(it => { const t=it.title||it.transcription||it.arabic||'—'; const sub=it.subtitle?`<div class="c-sub">${esc(it.subtitle)}</div>`:''; const ar=it.arabic?`<div class="c-ar ar-font">${esc(it.arabic)}</div>`:''; const tr=it.translation?`<div class="c-tr">${esc(it.translation)}</div>`:''; return `<div class="content-card" onclick="searchOpen('${type}','${it.id}')"><div class="c-title">${esc(t)}</div>${sub}${ar}${tr}</div>`; }).join(''); };   let html = '';   html += grp('📿 Тасбихи', state.tasbihs.filter(m), 'tasbih');   html += grp('📖 Коран', state.quran.filter(m), 'quran');   html += grp('🤲 Дуа', state.duas.filter(m), 'dua');   html += grp('📜 Хадисы', state.hadiths.filter(m), 'hadith');   el.innerHTML = html || '<div class="empty">Ничего не найдено</div>'; }
+function formatHijri(date){ try { return new Intl.DateTimeFormat('ru-RU-u-ca-islamic-umalqura', { day:'numeric', month:'long', year:'numeric' }).format(date); } catch(e){ return ''; } } function isFavorite(id){ return Array.isArray(state.favorites) && state.favorites.includes(id); } function toggleFavorite(id){ if (!Array.isArray(state.favorites)) state.favorites=[]; const i=state.favorites.indexOf(id); if (i>=0) { state.favorites.splice(i,1); trackEvent('fav_off/' + id, 'Убрано из избранного: ' + id); } else { state.favorites.push(id); trackEvent('fav_on/' + id, 'В избранное: ' + id); } save(); } function starClick(event, id, list){ event.stopPropagation(); toggleFavorite(id); if (list==='quran') renderQuranList(); else if (list==='dua') renderDuaList(); else if (list==='hadith') renderHadithList(); else if (list==='favorites') renderProgressFavorites(); } function detailStarClick(){ if (document.getElementById('screen-quran-detail').classList.contains('active') && activeQuranId) { toggleFavorite(activeQuranId); openQuran(activeQuranId); } else if (document.getElementById('screen-dua-detail').classList.contains('active') && activeDuaId) { toggleFavorite(activeDuaId); openDua(activeDuaId); } else if (document.getElementById('screen-hadith-detail').classList.contains('active') && activeHadithId) { toggleFavorite(activeHadithId); openHadith(activeHadithId); } } function openSearch(){ document.getElementById('search-overlay').classList.add('active'); setTimeout(()=>{ const i=document.getElementById('global-search-input'); if (i) i.focus(); }, 120); renderGlobalSearch(); } function closeSearch(){ document.getElementById('search-overlay').classList.remove('active'); const i=document.getElementById('global-search-input'); if (i) i.value=''; } function searchOpen(type, id){ closeSearch(); if (type==='quran') openQuran(id); else if (type==='dua') openDua(id); else if (type==='hadith') openHadith(id); else if (type==='tasbih') openCounter(id); } function setSearchFilter(key, value){ searchFilters[key] = value; document.querySelectorAll('#search-filters .filter-group[data-filter="' + key + '"] .filter-chip').forEach(function(b){ b.classList.toggle('active', b.dataset.value === value); }); renderGlobalSearch(); } function renderGlobalSearch(){   const q = (document.getElementById('global-search-input').value||'').toLowerCase().trim();   const el = document.getElementById('search-results');   if (!q) { el.innerHTML = '<div class="empty">Введите запрос — поиск по тасбихам, Корану, дуа и хадисам.</div>'; return; }   const m = (it) => { const h=[it.title,it.subtitle,it.arabic,it.transcription,it.translation,String(it.number||'')].filter(Boolean).join(' ').toLowerCase(); return h.includes(q); };   const statusOk = (it, type) => { if (type === 'tasbih') return true; return searchFilters.status === 'all' || (searchFilters.status === 'learned' && !!it.learned) || (searchFilters.status === 'unlearned' && !it.learned); };   const favOk = (it) => searchFilters.favorite === 'all' || (searchFilters.favorite === 'only' && isFavorite(it.id));   const showType = (t) => searchFilters.type === 'all' || searchFilters.type === t;   const grp = (title, items, type) => { if (!items.length) return ''; return `<div class="progress-section-title">${title}</div>` + items.map(it => { const t=it.title||it.transcription||it.arabic||'—'; const sub=it.subtitle?`<div class="c-sub">${esc(it.subtitle)}</div>`:''; const ar=it.arabic?`<div class="c-ar ar-font">${esc(it.arabic)}</div>`:''; const tr=it.translation?`<div class="c-tr">${esc(it.translation)}</div>`:''; return `<div class="content-card" onclick="searchOpen('${type}','${it.id}')"><div class="c-title">${esc(t)}</div>${sub}${ar}${tr}</div>`; }).join(''); };   let html = '';   if (showType('tasbih')) html += grp('📿 Тасбихи', state.tasbihs.filter(m).filter(it => statusOk(it, 'tasbih')).filter(favOk), 'tasbih');   if (showType('quran')) html += grp('📖 Коран', state.quran.filter(m).filter(it => statusOk(it, 'quran')).filter(favOk), 'quran');   if (showType('dua')) html += grp('🤲 Дуа', state.duas.filter(m).filter(it => statusOk(it, 'dua')).filter(favOk), 'dua');   if (showType('hadith')) html += grp('📜 Хадисы', state.hadiths.filter(m).filter(it => statusOk(it, 'hadith')).filter(favOk), 'hadith');   el.innerHTML = html || '<div class="empty">Ничего не найдено</div>'; }
 function trackEvent(name, title) {   var data = {     path: '/event/' + String(name).slice(0, 100),     title: String(title || name).slice(0, 200),     event: true   };   var tries = 0;   function attempt() {     try {       if (window.goatcounter && typeof window.goatcounter.count === 'function') {         window.goatcounter.count(data);       } else if (tries < 10) {         tries++;         setTimeout(attempt, 200);       }     } catch (e) {}   }   attempt(); } function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function escNl(s){ return esc(s).replace(/\n/g,'<br>'); }
 function transcriptionNote() { return `<div class="transcription-note"><span class="tn-icon">ℹ️</span><div>Транскрипция передаёт лишь <b>примерное произношение</b> и не отражает всех тонкостей арабского. Для правильного чтения следует изучить <b>таджвид</b>.</div></div>`; }
