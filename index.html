@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline' https://gc.zgo.at; img-src 'self' data: blob: https://api.dicebear.com https://placehold.co; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com https://api.dicebear.com https://placehold.co https://api.quran.com https://iqra-stats.goatcounter.com; object-src 'none'; base-uri 'none'; form-action 'none';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline' https://gc.zgo.at; worker-src 'self'; img-src 'self' data: blob: https://api.dicebear.com https://placehold.co; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com https://api.dicebear.com https://placehold.co https://api.quran.com https://iqra-stats.goatcounter.com; object-src 'none'; base-uri 'none'; form-action 'none';">
 <meta name="referrer" content="no-referrer">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-title" content="Iqra">
 <meta name="theme-color" content="#E8EDE6">
 <meta name="robots" content="noindex, nofollow">
-<title>Iqra | Читай</title>
+<title>Iqra | Читай</title> <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/png" href="https://api.dicebear.com/7.x/initials/png?seed=Iqra&size=180&backgroundColor=0e1626&textColor=6fb8c4&fontWeight=700&fontSize=45">
 <link rel="apple-touch-icon" href="https://api.dicebear.com/7.x/initials/png?seed=Iqra&size=180&backgroundColor=0e1626&textColor=6fb8c4&fontWeight=700&fontSize=45">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -403,7 +403,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   <div class="header"><h1>Iqra | Читай</h1><div style="display:flex;gap:6px"><button class="icon-btn ghost" onclick="openSearch()">🔍</button><button class="icon-btn" onclick="openSettings()">⚙</button></div></div>
   <div class="list" id="home-list">
     <div class="home-controls">
-      <div class="search-wrap"><input id="search" placeholder="Поиск..." oninput="renderHome()"></div>
+      <div class="search-wrap"><input id="search" placeholder="Поиск..." oninput="debouncedRenderHome()"></div>
       <select class="sort-select" id="sort" onchange="renderHome()">
         <option value="manual">Порядок</option>
         <option value="alpha">А-Я</option>
@@ -488,7 +488,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 <div class="screen" id="screen-quran">
   <div class="header"><h1>Коран</h1><button class="icon-btn ghost" onclick="openSearch()">🔍</button></div>
   <div style="padding:0 16px 12px;">
-    <div class="search-wrap"><input id="quran-search" placeholder="Поиск по Корану..." oninput="renderQuranList()"></div>
+    <div class="search-wrap"><input id="quran-search" placeholder="Поиск по Корану..." oninput="debouncedRenderQuranList()"></div>
   </div>
   <div class="content-list" id="quran-list"></div>
 </div>
@@ -969,7 +969,7 @@ let progTab = 'overview';
 let wakeLock = null, nextToastTimer = null, audioCtx = null;
 let dragEl = null, dragId = null, dragHoldTimer = null;
 let memorizeItem = null, memorizeAyahs = [], memorizeStep = 0;
-let memorizePhase = 'learn', memorizeRevealed = false; let activeReadId = null;
+let memorizePhase = 'learn', memorizeRevealed = false; let activeReadId = null; let _lastScreenName = null, _lastScreenTs = null;
 
 function defaultSettings() { return { theme:'auto', arSize:1, dailyGoal:100, autoNext:true, wakeLock:true, sound:true, vibrate:true, lastRead:null }; }
 
@@ -1048,7 +1048,7 @@ function getById(id){ return state.tasbihs.find(t=>t.id===id); }
 function getDuaById(id){ return state.duas.find(d=>d.id===id); }
 function getHadithById(id){ return state.hadiths.find(h=>h.id===id); }
 function getQuranById(id){ return state.quran.find(q=>q.id===id); }
-function formatHijri(date){ try { return new Intl.DateTimeFormat('ru-RU-u-ca-islamic-umalqura', { day:'numeric', month:'long', year:'numeric' }).format(date); } catch(e){ return ''; } } function isFavorite(id){ return Array.isArray(state.favorites) && state.favorites.includes(id); } function toggleFavorite(id){ if (!Array.isArray(state.favorites)) state.favorites=[]; const i=state.favorites.indexOf(id); if (i>=0) state.favorites.splice(i,1); else state.favorites.push(id); save(); } function starClick(event, id, list){ event.stopPropagation(); toggleFavorite(id); if (list==='quran') renderQuranList(); else if (list==='dua') renderDuaList(); else if (list==='hadith') renderHadithList(); else if (list==='favorites') renderProgressFavorites(); } function detailStarClick(){ if (document.getElementById('screen-quran-detail').classList.contains('active') && activeQuranId) { toggleFavorite(activeQuranId); openQuran(activeQuranId); } else if (document.getElementById('screen-dua-detail').classList.contains('active') && activeDuaId) { toggleFavorite(activeDuaId); openDua(activeDuaId); } else if (document.getElementById('screen-hadith-detail').classList.contains('active') && activeHadithId) { toggleFavorite(activeHadithId); openHadith(activeHadithId); } } function openSearch(){ document.getElementById('search-overlay').classList.add('active'); setTimeout(()=>{ const i=document.getElementById('global-search-input'); if (i) i.focus(); }, 120); renderGlobalSearch(); } function closeSearch(){ document.getElementById('search-overlay').classList.remove('active'); const i=document.getElementById('global-search-input'); if (i) i.value=''; } function searchOpen(type, id){ closeSearch(); if (type==='quran') openQuran(id); else if (type==='dua') openDua(id); else if (type==='hadith') openHadith(id); else if (type==='tasbih') openCounter(id); } function renderGlobalSearch(){   const q = (document.getElementById('global-search-input').value||'').toLowerCase().trim();   const el = document.getElementById('search-results');   if (!q) { el.innerHTML = '<div class="empty">Введите запрос — поиск по тасбихам, Корану, дуа и хадисам.</div>'; return; }   const m = (it) => { const h=[it.title,it.subtitle,it.arabic,it.transcription,it.translation,String(it.number||'')].filter(Boolean).join(' ').toLowerCase(); return h.includes(q); };   const grp = (title, items, type) => { if (!items.length) return ''; return `<div class="progress-section-title">${title}</div>` + items.map(it => { const t=it.title||it.transcription||it.arabic||'—'; const sub=it.subtitle?`<div class="c-sub">${esc(it.subtitle)}</div>`:''; const ar=it.arabic?`<div class="c-ar ar-font">${esc(it.arabic)}</div>`:''; const tr=it.translation?`<div class="c-tr">${esc(it.translation)}</div>`:''; return `<div class="content-card" onclick="searchOpen('${type}','${it.id}')"><div class="c-title">${esc(t)}</div>${sub}${ar}${tr}</div>`; }).join(''); };   let html = '';   html += grp('📿 Тасбихи', state.tasbihs.filter(m), 'tasbih');   html += grp('📖 Коран', state.quran.filter(m), 'quran');   html += grp('🤲 Дуа', state.duas.filter(m), 'dua');   html += grp('📜 Хадисы', state.hadiths.filter(m), 'hadith');   el.innerHTML = html || '<div class="empty">Ничего не найдено</div>'; }
+function formatHijri(date){ try { return new Intl.DateTimeFormat('ru-RU-u-ca-islamic-umalqura', { day:'numeric', month:'long', year:'numeric' }).format(date); } catch(e){ return ''; } } function isFavorite(id){ return Array.isArray(state.favorites) && state.favorites.includes(id); } function toggleFavorite(id){ if (!Array.isArray(state.favorites)) state.favorites=[]; const i=state.favorites.indexOf(id); if (i>=0) { state.favorites.splice(i,1); trackEvent('fav_off/' + id, 'Убрано из избранного: ' + id); } else { state.favorites.push(id); trackEvent('fav_on/' + id, 'В избранное: ' + id); } save(); } function starClick(event, id, list){ event.stopPropagation(); toggleFavorite(id); if (list==='quran') renderQuranList(); else if (list==='dua') renderDuaList(); else if (list==='hadith') renderHadithList(); else if (list==='favorites') renderProgressFavorites(); } function detailStarClick(){ if (document.getElementById('screen-quran-detail').classList.contains('active') && activeQuranId) { toggleFavorite(activeQuranId); openQuran(activeQuranId); } else if (document.getElementById('screen-dua-detail').classList.contains('active') && activeDuaId) { toggleFavorite(activeDuaId); openDua(activeDuaId); } else if (document.getElementById('screen-hadith-detail').classList.contains('active') && activeHadithId) { toggleFavorite(activeHadithId); openHadith(activeHadithId); } } function openSearch(){ document.getElementById('search-overlay').classList.add('active'); setTimeout(()=>{ const i=document.getElementById('global-search-input'); if (i) i.focus(); }, 120); renderGlobalSearch(); } function closeSearch(){ document.getElementById('search-overlay').classList.remove('active'); const i=document.getElementById('global-search-input'); if (i) i.value=''; } function searchOpen(type, id){ closeSearch(); if (type==='quran') openQuran(id); else if (type==='dua') openDua(id); else if (type==='hadith') openHadith(id); else if (type==='tasbih') openCounter(id); } function renderGlobalSearch(){   const q = (document.getElementById('global-search-input').value||'').toLowerCase().trim();   const el = document.getElementById('search-results');   if (!q) { el.innerHTML = '<div class="empty">Введите запрос — поиск по тасбихам, Корану, дуа и хадисам.</div>'; return; }   const m = (it) => { const h=[it.title,it.subtitle,it.arabic,it.transcription,it.translation,String(it.number||'')].filter(Boolean).join(' ').toLowerCase(); return h.includes(q); };   const grp = (title, items, type) => { if (!items.length) return ''; return `<div class="progress-section-title">${title}</div>` + items.map(it => { const t=it.title||it.transcription||it.arabic||'—'; const sub=it.subtitle?`<div class="c-sub">${esc(it.subtitle)}</div>`:''; const ar=it.arabic?`<div class="c-ar ar-font">${esc(it.arabic)}</div>`:''; const tr=it.translation?`<div class="c-tr">${esc(it.translation)}</div>`:''; return `<div class="content-card" onclick="searchOpen('${type}','${it.id}')"><div class="c-title">${esc(t)}</div>${sub}${ar}${tr}</div>`; }).join(''); };   let html = '';   html += grp('📿 Тасбихи', state.tasbihs.filter(m), 'tasbih');   html += grp('📖 Коран', state.quran.filter(m), 'quran');   html += grp('🤲 Дуа', state.duas.filter(m), 'dua');   html += grp('📜 Хадисы', state.hadiths.filter(m), 'hadith');   el.innerHTML = html || '<div class="empty">Ничего не найдено</div>'; }
 function trackEvent(name, title) {   var data = {     path: '/event/' + String(name).slice(0, 100),     title: String(title || name).slice(0, 200),     event: true   };   var tries = 0;   function attempt() {     try {       if (window.goatcounter && typeof window.goatcounter.count === 'function') {         window.goatcounter.count(data);       } else if (tries < 10) {         tries++;         setTimeout(attempt, 200);       }     } catch (e) {}   }   attempt(); } function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function escNl(s){ return esc(s).replace(/\n/g,'<br>'); }
 function transcriptionNote() { return `<div class="transcription-note"><span class="tn-icon">ℹ️</span><div>Транскрипция передаёт лишь <b>примерное произношение</b> и не отражает всех тонкостей арабского. Для правильного чтения следует изучить <b>таджвид</b>.</div></div>`; }
@@ -1137,7 +1137,7 @@ function tap(e) {
   if (t.current >= t.target) { t.cycles += 1; t.current = 1; } else { t.current += 1; }
   addToHistory(t.id, 1); updateCounterUI(); save();
   const numEl=document.getElementById('c-num'); numEl.classList.remove('pulse'); void numEl.offsetWidth; numEl.classList.add('pulse');
-  if (completed) { playChime(); if (state.settings.vibrate && navigator.vibrate) navigator.vibrate([30,40,30]); showCongrats(t); if (state.settings.autoNext) setTimeout(showNextToast, 800); }
+  if (completed) { trackEvent('complete/' + t.id, 'Цель достигнута: ' + (t.transcription || t.arabic || t.id)); playChime(); if (state.settings.vibrate && navigator.vibrate) navigator.vibrate([30,40,30]); showCongrats(t); if (state.settings.autoNext) setTimeout(showNextToast, 800); }
   else { playClick(); if (state.settings.vibrate && navigator.vibrate) navigator.vibrate(8); }
 }
 function showCongrats(tasbih) { const el = document.getElementById('modal-content'); el.innerHTML = `<div class="congrats-modal"><div class="congrats-icon">🎉</div><h2>Цель достигнута!</h2><p><b>${esc(tasbih.transcription || tasbih.translation || 'Тасбих')}</b><br>${tasbih.target} раз · Цикл #${tasbih.cycles}</p><button class="btn" onclick="closeModal()">Продолжить</button></div>`; document.getElementById('modal-bg').classList.add('active'); }
@@ -1165,7 +1165,9 @@ function deleteCurrent() { if (!editingId) return; if (!confirm('Удалить 
 async function renderQuranList() {
   const el = document.getElementById('quran-list');
   const qEl = document.getElementById('quran-search');
-  const q = qEl ? (qEl.value || '').toLowerCase().trim() : '';
+  let q = qEl ? (qEl.value || '').toLowerCase().trim() : '';
+  const ayahM = q.match(/^(\d+)\s*[:\-]\s*\d+$/);
+  if (ayahM) q = ayahM[1];
   let items = state.quran;
   if (q) {
     items = items.filter(item => {
@@ -1357,11 +1359,11 @@ async function openNight(idx) {
   activeNightId = idx;
   const n = NIGHT_ORDER[idx]; if (!n) return;
   let item=null;
-  trackEvent('night/' + idx, 'Ночное чтение: пункт ' + (idx+1));
   if (n.quranId) item = getQuranById(n.quranId);
   else if (n.duaId) item = getDuaById(n.duaId);
   else if (n.hadithId) item = getHadithById(n.hadithId);
   if (!item) return;
+  trackEvent('night/' + idx, 'Ночное чтение: пункт ' + (idx+1));
   document.getElementById('night-detail-title').textContent = item.title;
   let ayahs = parseAyahs(item);
   if (!ayahs.length && item.number && QURAN_USE_API) {
@@ -1640,10 +1642,15 @@ state.migrations = mergedMigrations;
 state.migrations.quran_v15 = true;
 saveNow();
 state = load();
-save(); applyTheme(); setArSize(state.settings.arSize); renderHome(); renderDuaList(); renderHadithList(); renderQuranList(); renderNightList(); renderProgress(); showScreen('screen-home'); alert('Импортировано'); e.target.value=''; }; r.readAsText(f); }
+save(); function debounce(fn, wait) {   let t = null;   return function() {     if (t) clearTimeout(t);     t = setTimeout(function() { t = null; fn.apply(null, arguments); }, wait);   }; } var debouncedRenderHome = debounce(renderHome, 250); var debouncedRenderQuranList = debounce(renderQuranList, 250); applyTheme(); setArSize(state.settings.arSize); renderHome(); renderDuaList(); renderHadithList(); renderQuranList(); renderNightList(); renderProgress(); showScreen('screen-home'); alert('Импортировано'); e.target.value=''; }; r.readAsText(f); }
 function resetAll() { if (!confirm('Удалить ВСЕ данные? Это необратимо.')) return; if (!confirm('Точно? Резервную копию можно сделать в Настройках.')) return; localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(QURAN_CACHE_KEY); location.reload(); }
 
 function showScreen(id) {
+  if (_lastScreenName && _lastScreenTs) {
+    const dur = Math.round((Date.now() - _lastScreenTs) / 1000);
+    if (dur >= 2) trackEvent('duration/' + _lastScreenName, 'Экран ' + _lastScreenName + ': ' + dur + ' сек');
+  }
+  _lastScreenName = id; _lastScreenTs = Date.now();
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   const nav = document.getElementById('nav');
@@ -1687,6 +1694,46 @@ document.addEventListener('keydown', (e) => {
 });
 (function(){ const el=document.getElementById('read-body'); if (!el) return; let tx=0, ty=0, on=false; el.addEventListener('touchstart', (e)=>{ tx=e.touches[0].clientX; ty=e.touches[0].clientY; on=true; }, { passive:true }); el.addEventListener('touchend', (e)=>{ if (!on) return; on=false; const dx=e.changedTouches[0].clientX-tx; const dy=e.changedTouches[0].clientY-ty; if (Math.abs(dx)<80 || Math.abs(dy)>Math.abs(dx)) return; if (!activeReadId) return; const idx=state.quran.findIndex(q=>q.id===activeReadId); if (idx<0) return; if (dx<0 && idx<state.quran.length-1) openRead(state.quran[idx+1].id); else if (dx>0 && idx>0) openRead(state.quran[idx-1].id); }, { passive:true }); })();
 </script>
-<script data-goatcounter="https://iqra-stats.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+<script data-goatcounter="https://iqra-stats.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script> <script> if ('serviceWorker' in navigator) {   window.addEventListener('load', function() {     navigator.serviceWorker.register('./sw.js').catch(function() {});   }); } </script>
 </body>
 </html>
+{
+  "name": "Iqra | Читай",
+  "short_name": "Iqra",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0E1626",
+  "theme_color": "#0E1626",
+  "icons": [
+    {
+      "src": "https://api.dicebear.com/7.x/initials/png?seed=Iqra&size=192&backgroundColor=0e1626&textColor=6fb8c4&fontWeight=700&fontSize=45",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://api.dicebear.com/7.x/initials/png?seed=Iqra&size=512&backgroundColor=0e1626&textColor=6fb8c4&fontWeight=700&fontSize=45",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
+const CACHE = 'iqra-v1';
+const ASSETS = ['./', './index.html'];
+self.addEventListener('install', (e) => {
+  self.skipWaiting();
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).catch(() => {}));
+});
+self.addEventListener('activate', (e) => { e.waitUntil(self.clients.claim()); });
+self.addEventListener('fetch', (e) => {
+  if (e.request.method !== 'GET') return;
+  const url = new URL(e.request.url);
+  if (url.origin !== location.origin) return;
+  e.respondWith(
+    fetch(e.request).then((r) => {
+      const copy = r.clone();
+      caches.open(CACHE).then(c => c.put(e.request, copy)).catch(() => {});
+      return r;
+    }).catch(() => caches.match(e.request))
+  );
+});
