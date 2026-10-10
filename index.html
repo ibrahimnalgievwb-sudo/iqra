@@ -650,7 +650,16 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 </style>
 </head>
 <body>
-
+<div id="js-err" style="display:none;position:fixed;top:0;left:0;right:0;z-index:999999;background:#c00;color:#fff;padding:10px;font:12px monospace;white-space:pre-wrap;word-break:break-all"></div>
+<script>
+window.addEventListener('error', function(e) {
+  var el = document.getElementById('js-err');
+  if (el) {
+    el.style.display = 'block';
+    el.textContent = 'JS ERR: ' + (e.message || '?') + ' | ' + (e.filename || '') + ':' + (e.lineno || 0) + ':' + (e.colno || 0);
+  }
+});
+</script>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <symbol id="i-arrow-left" viewBox="0 0 24 24"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></symbol>
   <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
