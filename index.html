@@ -2192,37 +2192,4 @@ document.addEventListener('keydown', (e) => {
 </script>
 <script data-goatcounter="https://iqra-stats.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </body>
-<script>
-fetch('/iqra/?t=' + Date.now()).then(function(r){ return r.text(); }).then(function(html){
-  var scripts = html.match(/<script>([\s\S]*?)<\/script>/g) || [];
-  console.log('Найдено script-блоков:', scripts.length);
-  scripts.forEach(function(raw, idx){
-    var code = raw.replace(/^<script>/, '').replace(/<\/script>$/, '');
-    var st = 0, ln = 1, stack = [], lastBtLn = -1;
-    for (var i = 0; i < code.length; i++) {
-      var ch = code[i], nx = code[i+1];
-      if (ch === '\n') ln++;
-      if (st === 1) { if (ch === '\\') { i++; continue; } if (ch === "'") st = 0; continue; }
-      if (st === 2) { if (ch === '\\') { i++; continue; } if (ch === '"') st = 0; continue; }
-      if (st === 3) { if (ch === '\\') { i++; continue; } if (ch === '`') st = 0; continue; }
-      if (st === 4) { if (ch === '\n') st = 0; continue; }
-      if (st === 5) { if (ch === '*' && nx === '/') { st = 0; i++; } continue; }
-      if (ch === '/' && nx === '/') { st = 4; i++; continue; }
-      if (ch === '/' && nx === '*') { st = 5; i++; continue; }
-      if (ch === "'") { st = 1; continue; }
-      if (ch === '"') { st = 2; continue; }
-      if (ch === '`') { st = 3; lastBtLn = ln; continue; }
-      if (ch === '{' || ch === '(' || ch === '[') stack.push({ch: ch, ln: ln});
-      if (ch === '}' || ch === ')' || ch === ']') stack.pop();
-    }
-    console.log('--- Скрипт #' + (idx+1) + ' (строк: ' + ln + ') ---');
-    if (st) console.log('  ❌ НЕЗАКРЫТАЯ КАВЫЧКА: state=' + st + ' (1=\', 2=", 3=`), последний backtick на строке ' + lastBtLn);
-    else if (stack.length) {
-      console.log('  ❌ НЕЗАКРЫТЫЕ СКОБКИ, осталось открытых: ' + stack.length);
-      stack.forEach(function(o){ console.log('    "' + o.ch + '" открыта на строке ' + o.ln); });
-    } else console.log('  ✅ Всё сбалансировано');
-  });
-});
-</script>
-</body>
 </html>
