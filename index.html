@@ -672,7 +672,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   <div class="header"><h1>Тасбих</h1><div style="display:flex;gap:6px"><button class="icon-btn ghost" onclick="openSearch()">🔍</button><button class="icon-btn" onclick="openSettings()">⚙</button></div></div>
   <div class="list" id="home-list">
     <div class="home-controls">
-      <select class="sort-select" id="sort" onchange="renderHome()">
+      <div class="search-wrap"><input id="search" placeholder="Поиск..." oninput="debouncedRenderTasbih()"></div>
       <select class="sort-select" id="sort" onchange="renderTasbih()">
         <option value="manual">Порядок</option>
         <option value="alpha">А-Я</option>
@@ -933,8 +933,8 @@ input, textarea { -webkit-user-select:text; user-select:text; }
     <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.2 12 3.5 21 11.2"/><path d="M5.5 10v10.5a.5.5 0 0 0 .5.5h4v-6h4v6h4a.5.5 0 0 0 .5-.5V10"/></svg>
     <div class="nav-label">Главная</div>
   </button>
-  <button data-tab="tasbih" onclick="switchTab('tasbih')" aria-label="Тасбих">
-    <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9.5" r="5.5"/><circle cx="12" cy="3.5" r="1" fill="currentColor" stroke="none"/><circle cx="16.9" cy="5.5" r="1" fill="currentColor" stroke="none"/><circle cx="18.9" cy="9.5" r="1" fill="currentColor" stroke="none"/><circle cx="16.9" cy="13.5" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="15.5" r="1" fill="currentColor" stroke="none"/><circle cx="7.1" cy="13.5" r="1" fill="currentColor" stroke="none"/><circle cx="5.1" cy="9.5" r="1" fill="currentColor" stroke="none"/><circle cx="7.1" cy="5.5" r="1" fill="currentColor" stroke="none"/><path d="M12 16v2.5"/><circle cx="12" cy="20.5" r="1.5"/></svg>
+    <button data-tab="tasbih" onclick="switchTab('tasbih')" aria-label="Тасбих">
+    <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="3.2" r="1.1" fill="currentColor" stroke="none"/><circle cx="16.8" cy="5" r="1.1" fill="currentColor" stroke="none"/><circle cx="18.6" cy="9" r="1.1" fill="currentColor" stroke="none"/><circle cx="16.8" cy="13" r="1.1" fill="currentColor" stroke="none"/><circle cx="12" cy="14.8" r="1.1" fill="currentColor" stroke="none"/><circle cx="7.2" cy="13" r="1.1" fill="currentColor" stroke="none"/><circle cx="5.4" cy="9" r="1.1" fill="currentColor" stroke="none"/><circle cx="7.2" cy="5" r="1.1" fill="currentColor" stroke="none"/><path d="M12 14.8v3.2"/><path d="M9.5 21.5c0-1.8 1.5-2.6 2.5-3 1 .4 2.5 1.2 2.5 3"/></svg>
     <div class="nav-label">Тасбих</div>
   </button>
   <button data-tab="quran" onclick="switchTab('quran')" aria-label="Коран">
@@ -945,8 +945,8 @@ input, textarea { -webkit-user-select:text; user-select:text; }
     <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
     <div class="nav-label">Ночь</div>
   </button>
-  <button data-tab="dua" onclick="switchTab('dua')" aria-label="Дуа">
-    <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 0 0-4 0v5"/><path d="M14 10V4a2 2 0 0 0-4 0v6"/><path d="M10 10.5V6a2 2 0 0 0-4 0v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg>
+   <button data-tab="dua" onclick="switchTab('dua')" aria-label="Дуа">
+    <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20v-3.5"/><path d="M11 16.5c-2.8 0-4.8-2-4.8-4.8V7.5"/><path d="M6.2 7.5V4.5"/><path d="M8.2 7.5V4"/><path d="M10 8V4.5"/><path d="M6.2 9.5 4 8.5"/><path d="M13 20v-3.5"/><path d="M13 16.5c2.8 0 4.8-2 4.8-4.8V7.5"/><path d="M17.8 7.5V4.5"/><path d="M15.8 7.5V4"/><path d="M14 8V4.5"/><path d="M17.8 9.5 20 8.5"/></svg>
     <div class="nav-label">Дуа</div>
   </button>
   <button data-tab="hadith" onclick="switchTab('hadith')" aria-label="Хадисы">
@@ -1444,7 +1444,7 @@ function updatePreview() { document.getElementById('pv-ar').textContent=document
 function openForm(id) { editingId=id||null; const t=id?getById(id):null; document.getElementById('form-title').textContent=id?'Редактировать':'Новый Тасбих'; let ar='',tr='',trn='',target=33; if (t) { ar=t.arabic; tr=t.transcription; trn=t.translation; target=t.target; } else if (state.draft) { ar=state.draft.ar||''; tr=state.draft.tr||''; trn=state.draft.trn||''; target=state.draft.target||33; } document.getElementById('f-ar').value=ar; document.getElementById('f-tr').value=tr; document.getElementById('f-trn').value=trn; document.getElementById('f-target').value=target; document.getElementById('btn-delete').style.display=id?'block':'none'; updatePreview(); showScreen('screen-form'); }
 function cancelForm() { if (activeId) showScreen('screen-counter'); else { renderTasbih(); showScreen('screen-tasbih'); } }
 function stepTarget(d){ const el=document.getElementById('f-target'); el.value=Math.max(1,(parseInt(el.value)||1)+d); updatePreview(); }
-function saveForm() { const arabic=document.getElementById('f-ar').value.trim().slice(0,LIMITS.textLen); const transcription=document.getElementById('f-tr').value.trim().slice(0,LIMITS.textLen); const translation=document.getElementById('f-trn').value.trim().slice(0,LIMITS.textLen); const target=Math.max(1,Math.min(LIMITS.targetMax,parseInt(document.getElementById('f-target').value)||33)); if (!arabic && !transcription && !translation) { alert('Заполните хотя бы одно поле'); return; } if (editingId) { const t=getById(editingId); t.arabic=arabic; t.transcription=transcription; t.translation=translation; t.target=target; if (t.current>target) t.current=0; } else { state.tasbihs.push({id:'u'+Date.now(),arabic,transcription,translation,target,current:0,cycles:0}); } state.draft=null; save(); if (activeId) openCounter(activeId); else { renderTasbih(); showScreen('screen-home'); } }
+function saveForm() { const arabic=document.getElementById('f-ar').value.trim().slice(0,LIMITS.textLen); const transcription=document.getElementById('f-tr').value.trim().slice(0,LIMITS.textLen); const translation=document.getElementById('f-trn').value.trim().slice(0,LIMITS.textLen); const target=Math.max(1,Math.min(LIMITS.targetMax,parseInt(document.getElementById('f-target').value)||33)); if (!arabic && !transcription && !translation) { alert('Заполните хотя бы одно поле'); return; } if (editingId) { const t=getById(editingId); t.arabic=arabic; t.transcription=transcription; t.translation=translation; t.target=target; if (t.current>target) t.current=0; } else { state.tasbihs.push({id:'u'+Date.now(),arabic,transcription,translation,target,current:0,cycles:0}); } state.draft=null; save(); if (activeId) openCounter(activeId); else { renderTasbih(); showScreen('screen-tasbih'); } }
 function deleteCurrent() { if (!editingId) return; if (!confirm('Удалить этот тасбих?')) return; state.tasbihs=state.tasbihs.filter(t=>t.id!==editingId); save(); activeId=null; editingId=null; renderTasbih(); showScreen('screen-tasbih'); }
 
 async function renderQuranList() {
