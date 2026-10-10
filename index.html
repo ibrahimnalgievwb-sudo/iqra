@@ -1049,7 +1049,7 @@ function getDuaById(id){ return state.duas.find(d=>d.id===id); }
 function getHadithById(id){ return state.hadiths.find(h=>h.id===id); }
 function getQuranById(id){ return state.quran.find(q=>q.id===id); }
 function formatHijri(date){ try { return new Intl.DateTimeFormat('ru-RU-u-ca-islamic-umalqura', { day:'numeric', month:'long', year:'numeric' }).format(date); } catch(e){ return ''; } } function isFavorite(id){ return Array.isArray(state.favorites) && state.favorites.includes(id); } function toggleFavorite(id){ if (!Array.isArray(state.favorites)) state.favorites=[]; const i=state.favorites.indexOf(id); if (i>=0) state.favorites.splice(i,1); else state.favorites.push(id); save(); } function starClick(event, id, list){ event.stopPropagation(); toggleFavorite(id); if (list==='quran') renderQuranList(); else if (list==='dua') renderDuaList(); else if (list==='hadith') renderHadithList(); else if (list==='favorites') renderProgressFavorites(); } function detailStarClick(){ if (document.getElementById('screen-quran-detail').classList.contains('active') && activeQuranId) { toggleFavorite(activeQuranId); openQuran(activeQuranId); } else if (document.getElementById('screen-dua-detail').classList.contains('active') && activeDuaId) { toggleFavorite(activeDuaId); openDua(activeDuaId); } else if (document.getElementById('screen-hadith-detail').classList.contains('active') && activeHadithId) { toggleFavorite(activeHadithId); openHadith(activeHadithId); } } function openSearch(){ document.getElementById('search-overlay').classList.add('active'); setTimeout(()=>{ const i=document.getElementById('global-search-input'); if (i) i.focus(); }, 120); renderGlobalSearch(); } function closeSearch(){ document.getElementById('search-overlay').classList.remove('active'); const i=document.getElementById('global-search-input'); if (i) i.value=''; } function searchOpen(type, id){ closeSearch(); if (type==='quran') openQuran(id); else if (type==='dua') openDua(id); else if (type==='hadith') openHadith(id); else if (type==='tasbih') openCounter(id); } function renderGlobalSearch(){   const q = (document.getElementById('global-search-input').value||'').toLowerCase().trim();   const el = document.getElementById('search-results');   if (!q) { el.innerHTML = '<div class="empty">Введите запрос — поиск по тасбихам, Корану, дуа и хадисам.</div>'; return; }   const m = (it) => { const h=[it.title,it.subtitle,it.arabic,it.transcription,it.translation,String(it.number||'')].filter(Boolean).join(' ').toLowerCase(); return h.includes(q); };   const grp = (title, items, type) => { if (!items.length) return ''; return `<div class="progress-section-title">${title}</div>` + items.map(it => { const t=it.title||it.transcription||it.arabic||'—'; const sub=it.subtitle?`<div class="c-sub">${esc(it.subtitle)}</div>`:''; const ar=it.arabic?`<div class="c-ar ar-font">${esc(it.arabic)}</div>`:''; const tr=it.translation?`<div class="c-tr">${esc(it.translation)}</div>`:''; return `<div class="content-card" onclick="searchOpen('${type}','${it.id}')"><div class="c-title">${esc(t)}</div>${sub}${ar}${tr}</div>`; }).join(''); };   let html = '';   html += grp('📿 Тасбихи', state.tasbihs.filter(m), 'tasbih');   html += grp('📖 Коран', state.quran.filter(m), 'quran');   html += grp('🤲 Дуа', state.duas.filter(m), 'dua');   html += grp('📜 Хадисы', state.hadiths.filter(m), 'hadith');   el.innerHTML = html || '<div class="empty">Ничего не найдено</div>'; }
-function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function trackEvent(name, title) {   var data = {     path: '/event/' + String(name).slice(0, 100),     title: String(title || name).slice(0, 200),     event: true   };   var tries = 0;   function attempt() {     try {       if (window.goatcounter && typeof window.goatcounter.count === 'function') {         window.goatcounter.count(data);       } else if (tries < 10) {         tries++;         setTimeout(attempt, 200);       }     } catch (e) {}   }   attempt(); } function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function escNl(s){ return esc(s).replace(/\n/g,'<br>'); }
 function transcriptionNote() { return `<div class="transcription-note"><span class="tn-icon">ℹ️</span><div>Транскрипция передаёт лишь <b>примерное произношение</b> и не отражает всех тонкостей арабского. Для правильного чтения следует изучить <b>таджвид</b>.</div></div>`; }
 function addToHistory(id, n) {
@@ -1127,7 +1127,7 @@ function cardTouchStart(e) { const card=e.currentTarget; dragId=card.dataset.id;
 function cardTouchMove(e) { const card=e.currentTarget; if (!dragEl) { if (dragHoldTimer && Math.abs(e.touches[0].clientY-(card._startY||0))>8) { clearTimeout(dragHoldTimer); dragHoldTimer=null; } return; } e.preventDefault(); const y=e.touches[0].clientY; const container=document.getElementById('cards-container'); const cards=[...container.querySelectorAll('.tasbih-card:not(.dragging)')]; let before=null; for (const c of cards) { const r=c.getBoundingClientRect(); if (y<r.top+r.height/2) { before=c; break; } } if (before) container.insertBefore(dragEl,before); else container.appendChild(dragEl); }
 function cardTouchEnd() { if (dragHoldTimer) { clearTimeout(dragHoldTimer); dragHoldTimer=null; } if (!dragEl) { dragId=null; return; } dragEl.classList.remove('dragging'); const ids=[...document.querySelectorAll('#cards-container .tasbih-card')].map(c=>c.dataset.id); state.tasbihs.sort((a,b)=>ids.indexOf(a.id)-ids.indexOf(b.id)); save(); dragEl=null; dragId=null; setTimeout(()=>renderHome(),50); }
 
-function openCounter(id) { activeId=id; const t=getById(id); if (!t) return; document.getElementById('c-ar').textContent=t.arabic; document.getElementById('c-tr').textContent=t.transcription; document.getElementById('c-trn').textContent=t.translation; document.getElementById('c-target').textContent='из '+t.target; updateCounterUI(); showScreen('screen-counter'); if (state.settings.wakeLock) requestWakeLock(); }
+function openCounter(id) { activeId=id; const t=getById(id); if (!t) return; trackEvent('tasbih/' + id, 'Тасбих: ' + (t.transcription || t.arabic || id)); document.getElementById('c-ar').textContent=t.arabic; document.getElementById('c-tr').textContent=t.transcription; document.getElementById('c-trn').textContent=t.translation; document.getElementById('c-target').textContent='из '+t.target; updateCounterUI(); showScreen('screen-counter'); if (state.settings.wakeLock) requestWakeLock(); }
 function updateCounterUI() { const t=getById(activeId); if (!t) return; const numEl=document.getElementById('c-num'); numEl.textContent=t.current; const done=t.current>=t.target; numEl.classList.toggle('done', done); document.getElementById('c-cycles').textContent='Циклов: '+t.cycles; const R=44, C=2*Math.PI*R; const p=Math.min(1,t.current/t.target); document.getElementById('c-ring').setAttribute('stroke-dashoffset', C*(1-p)); document.getElementById('top-progress-bar').style.width=(p*100)+'%'; }
 function tap(e) {
   const t=getById(activeId); if (!t) return;
@@ -1186,6 +1186,7 @@ async function renderQuranList() {
 async function openQuran(id) {
   activeQuranId = id;
   const item = getQuranById(id); if (!item) return;
+  trackEvent('quran/' + id, 'Сура/аят: ' + item.title);
   saveLastRead(id);
   document.getElementById('quran-detail-title').textContent = item.title;
   let ayahs = parseAyahs(item);
@@ -1245,6 +1246,7 @@ function goQuranList() { activeQuranId = null; renderQuranList(); showScreen('sc
 
 async function openRead(id) {
   const item = getQuranById(id); if (!item) return;
+  trackEvent('read/' + id, 'Чтение: ' + item.title);
   saveLastRead(id);
   document.getElementById('read-title').textContent = item.title;
   let ayahs = parseAyahs(item);
@@ -1289,7 +1291,7 @@ function openMemorizeFor(item) {
   renderMemorize();
   document.getElementById('memorize-mode').classList.add('active');
 }
-function openMemorize(id) { const item = getQuranById(id); if (!item) return; openMemorizeFor(item); }
+function openMemorize(id) { const item = getQuranById(id); if (!item) return; trackEvent('memorize/' + id, 'Заучивание: ' + item.title); openMemorizeFor(item); }
 function renderMemorize() {
   if (!memorizeItem) return;
   const total = memorizeAyahs.length;
@@ -1355,6 +1357,7 @@ async function openNight(idx) {
   activeNightId = idx;
   const n = NIGHT_ORDER[idx]; if (!n) return;
   let item=null;
+  trackEvent('night/' + idx, 'Ночное чтение: пункт ' + (idx+1));
   if (n.quranId) item = getQuranById(n.quranId);
   else if (n.duaId) item = getDuaById(n.duaId);
   else if (n.hadithId) item = getHadithById(n.hadithId);
@@ -1411,6 +1414,7 @@ function renderDuaList() {
 }
 function openDua(id) {
   activeDuaId = id; const d = getDuaById(id); if (!d) return;
+  trackEvent('dua/' + id, 'Дуа: ' + d.title);
   const st = document.getElementById('dua-detail-star');
   if (st) { const fav=isFavorite(id); st.textContent=fav?'★':'☆'; st.classList.toggle('starred', fav); }
   const el = document.getElementById('dua-detail-content');
@@ -1450,6 +1454,7 @@ function renderHadithList() {
 }
 function openHadith(id) {
   activeHadithId = id; const h = getHadithById(id); if (!h) return;
+  trackEvent('hadith/' + id, 'Хадис: ' + h.title);
   const st = document.getElementById('hadith-detail-star');
   if (st) { const fav=isFavorite(id); st.textContent=fav?'★':'☆'; st.classList.toggle('starred', fav); }
   const el = document.getElementById('hadith-detail-content');
@@ -1654,6 +1659,7 @@ function showScreen(id) {
 }
 function setNav(tab) { document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab)); }
 async function switchTab(tab) {
+  trackEvent('tab/' + tab, 'Вкладка: ' + tab);
   if (tab==='home') { renderHome(); showScreen('screen-home'); }
   else if (tab==='quran') { await renderQuranList(); showScreen('screen-quran'); }
   else if (tab==='night') { renderNightList(); showScreen('screen-night'); }
