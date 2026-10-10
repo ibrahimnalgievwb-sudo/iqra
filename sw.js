@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'iqra-v5';
+const CACHE_VERSION = 'iqra-v6';
 const CACHE_ASSETS = ['./', './index.html', './style.css', './app.js'];
 
 self.addEventListener('install', function(event) {
