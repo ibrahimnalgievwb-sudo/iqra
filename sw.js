@@ -1,13 +1,13 @@
-const CACHE_VERSION = 'iqra-v11';
+const CACHE_VERSION = 'iqra-v12';
 const CACHE_ASSETS = ['./', './index.html'];
 
 self.addEventListener('install', function(event) {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_VERSION).then(function(cache) {
       return cache.addAll(CACHE_ASSETS);
     }).catch(function() {})
   );
-  self.skipWaiting();
 });
 
 self.addEventListener('activate', function(event) {
@@ -17,9 +17,16 @@ self.addEventListener('activate', function(event) {
         keys.filter(function(k) { return k !== CACHE_VERSION; })
             .map(function(k) { return caches.delete(k); })
       );
+    }).then(function() {
+      return self.clients.claim();
+    }).then(function() {
+      return self.clients.matchAll({ type: 'window' });
+    }).then(function(clients) {
+      clients.forEach(function(client) {
+        try { client.postMessage({ type: 'sw-updated' }); } catch(e) {}
+      });
     })
   );
-  self.clients.claim();
 });
 
 self.addEventListener('fetch', function(event) {
