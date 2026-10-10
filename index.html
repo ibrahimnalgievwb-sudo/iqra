@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+по<!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
@@ -82,7 +82,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .header h1 { font-size:22px; font-weight:700; margin:0; letter-spacing:-.3px; }
 .icon-btn { width:42px; height:42px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:var(--card); color:var(--text); font-size:18px; }
 .icon-btn:active { background:var(--card2); transform:scale(.95); }
-.icon-btn.ghost { background:transparent; }
+.icon-btn.ghost { background:transparent; }  .ico {   display: inline-block;   width: 24px;   height: 24px;   fill: none;   stroke: currentColor;   stroke-width: 2;   stroke-linecap: round;   stroke-linejoin: round;   flex-shrink: 0;   vertical-align: middle;   transition: width .25s cubic-bezier(.16,1,.3,1), height .25s cubic-bezier(.16,1,.3,1); } .ico-sm { width: 18px; height: 18px; } .ico-md { width: 22px; height: 22px; } .ico-lg { width: 28px; height: 28px; } .ico-xl { width: 36px; height: 36px; }
 
 .list, .form, .cal, .settings { flex:1; overflow-y:auto; padding:0 16px 120px; -webkit-overflow-scrolling:touch; }
 
@@ -130,8 +130,8 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .nav { position:fixed; bottom:0; left:0; right:0; display:flex; background:var(--card); border-top:1px solid var(--border); padding-bottom:env(safe-area-inset-bottom); z-index:9999; }
 .nav button { flex:1; height:60px; padding:6px 0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; color:var(--muted); background:transparent; min-width:0; transition:color .2s ease; }
 .nav button.active { color:var(--accent); }
-.nav button .ico { width: 28px; height: 28px; display: block; transition: width .25s cubic-bezier(.16,1,.3,1), height .25s cubic-bezier(.16,1,.3,1); }
-.nav button.active .ico { width: 34px; height: 34px; }
+.nav button .ico { width: 30px; height: 30px; }
+.nav button.active .ico { width: 36px; height: 36px; }
 .nav button .nav-label { font-size: 10px; line-height: 1.1; font-weight: 600; white-space: nowrap; opacity: 0; transform: translateY(-2px); transition: opacity .2s ease, transform .2s ease; }
 .nav button.active .nav-label { opacity: 1; transform: translateY(0); }
 
@@ -644,10 +644,40 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 </head>
 <body>
 
-<!-- HOME -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-arrow-left" viewBox="0 0 24 24"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></symbol>
+  <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.5-4.5"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></symbol>
+  <symbol id="i-rotate-ccw" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 3v6h6"/></symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01Z"/></symbol>
+  <symbol id="i-star-filled" viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01Z" fill="currentColor"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h5v-6h4v6h5V9.5"/></symbol>
+  <symbol id="i-misbaha" viewBox="0 0 24 24"><path d="M3.5 11a8.5 8.5 0 0 1 17 0"/><circle cx="5" cy="10" r="1.1" fill="currentColor" stroke="none"/><circle cx="8" cy="5.5" r="1.1" fill="currentColor" stroke="none"/><circle cx="12" cy="4" r="1.1" fill="currentColor" stroke="none"/><circle cx="16" cy="5.5" r="1.1" fill="currentColor" stroke="none"/><circle cx="19" cy="10" r="1.1" fill="currentColor" stroke="none"/><path d="M12 12.5v5"/><circle cx="12" cy="19" r="1.5" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M2 5h7a3 3 0 0 1 3 3v12a2.5 2.5 0 0 0-2.5-2.5H2z"/><path d="M22 5h-7a3 3 0 0 0-3 3v12a2.5 2.5 0 0 1 2.5-2.5H22z"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></symbol>
+  <symbol id="i-dua" viewBox="0 0 24 24"><path d="M10.5 20v-3c-3 0-5-2-5-5V8"/><path d="M5.5 8V4"/><path d="M7.5 8V3"/><path d="M9.5 8V3.5"/><path d="M13.5 20v-3c3 0 5-2 5-5V8"/><path d="M18.5 8V4"/><path d="M16.5 8V3"/><path d="M14.5 8V3.5"/></symbol>
+  <symbol id="i-scroll" viewBox="0 0 24 24"><path d="M14 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7z"/><path d="M14 2v5h5"/><path d="M9 13h6"/><path d="M9 17h4"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 21h18"/><rect x="5" y="13" width="3.5" height="8" rx="1"/><rect x="10.5" y="8" width="3.5" height="13" rx="1"/><rect x="16" y="3" width="3.5" height="18" rx="1"/></symbol>
+  <symbol id="i-lightbulb" viewBox="0 0 24 24"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.3h6c0-1 .4-1.8 1-2.3A7 7 0 0 0 12 2z"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><circle cx="12" cy="8" r="0.9" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0z"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m17 8-5-5-5 5"/><path d="M12 3v12"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m8.5 12 2.5 2.5 4.5-5"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M5 12h14"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+  <symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+  <symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+</svg>
+
 <!-- DASHBOARD -->
 <div class="screen active" id="screen-dashboard">
-  <div class="header"><h1>Iqra | Читай</h1><div style="display:flex;gap:6px"><button class="icon-btn ghost" onclick="openSearch()" aria-label="Поиск">🔍</button><button class="icon-btn" onclick="openSettings()" aria-label="Настройки">⚙</button></div></div>
+  <div class="header"><h1>Iqra | Читай</h1><div style="display:flex;gap:6px"><button class="icon-btn ghost" onclick="openSearch()" aria-label="Поиск"><svg class="ico"><use href="#i-search"/></svg></button><button class="icon-btn" onclick="openSettings()" aria-label="Настройки"><svg class="ico"><use href="#i-settings"/></svg></button></div></div>
   <div class="list" id="dashboard-list">
     <div class="dash-greeting">
       <div class="dg-hello">Ассаляму алейкум 👋</div>
@@ -669,7 +699,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 
 <!-- TASBIH -->
 <div class="screen" id="screen-tasbih">
-  <div class="header"><h1>Тасбих</h1><div style="display:flex;gap:6px"><button class="icon-btn ghost" onclick="openSearch()">🔍</button><button class="icon-btn" onclick="openSettings()">⚙</button></div></div>
+  <div class="header"><h1>Тасбих</h1><div style="display:flex;gap:6px"><button class="icon-btn ghost" onclick="openSearch()" aria-label="Поиск"><svg class="ico"><use href="#i-search"/></svg></button><button class="icon-btn" onclick="openSettings()" aria-label="Настройки"><svg class="ico"><use href="#i-settings"/></svg></button></div></div>
   <div class="list" id="home-list">
     <div class="home-controls">
       <div class="search-wrap"><input id="search" placeholder="Поиск..." oninput="debouncedRenderTasbih()"></div>
@@ -690,10 +720,10 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 <div class="screen" id="screen-counter">
   <div class="top-progress"><div id="top-progress-bar"></div></div>
   <div class="header">
-    <button class="icon-btn ghost" onclick="goHome()">←</button>
+    <button class="icon-btn ghost" onclick="goHome()" aria-label="Назад"><svg class="ico"><use href="#i-arrow-left"/></svg></button>
     <div style="display:flex;gap:6px">
-      <button class="icon-btn ghost" onclick="resetCurrent(event)">↺</button>
-      <button class="icon-btn ghost" onclick="editCurrent(event)">✎</button>
+      <button class="icon-btn ghost" onclick="resetCurrent(event)" aria-label="Сбросить"><svg class="ico"><use href="#i-rotate-ccw"/></svg></button>
+      <button class="icon-btn ghost" onclick="editCurrent(event)" aria-label="Редактировать"><svg class="ico"><use href="#i-edit"/></svg></button>
     </div>
   </div>
   <div class="counter" id="counter-area" onclick="tap(event)">
@@ -765,23 +795,23 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 <!-- QURAN DETAIL -->
 <div class="screen" id="screen-quran-detail">
   <div class="header">
-    <button class="icon-btn ghost" onclick="goQuranList()">←</button>
+       <button class="icon-btn ghost" onclick="goQuranList()" aria-label="Назад"><svg class="ico"><use href="#i-arrow-left"/></svg></button>
 <h1 style="font-size:16px" id="quran-detail-title">Текст</h1>
-    <button class="icon-btn ghost" id="quran-detail-star" onclick="detailStarClick()">☆</button>
+    <button class="icon-btn ghost" id="quran-detail-star" onclick="detailStarClick()" aria-label="Избранное"><svg class="ico"><use href="#i-star"/></svg></button>
   </div>
   <div class="detail-body" id="quran-detail-content"></div>
 </div>
 
 <!-- NIGHT LIST -->
 <div class="screen" id="screen-night">
-  <div class="header"><h1>Ночное чтение</h1><button class="icon-btn ghost" onclick="openSearch()">🔍</button></div>
+  <div class="header"><h1>Ночное чтение</h1><button class="icon-btn ghost" onclick="openSearch()" aria-label="Поиск"><svg class="ico"><use href="#i-search"/></svg></button></div>
   <div class="content-list" id="night-list"></div>
 </div>
 
 <!-- NIGHT DETAIL -->
 <div class="screen" id="screen-night-detail">
   <div class="header">
-    <button class="icon-btn ghost" onclick="goNightList()">←</button>
+    <button class="icon-btn ghost" onclick="goNightList()" aria-label="Назад"><svg class="ico"><use href="#i-arrow-left"/></svg></button>
     <h1 style="font-size:16px" id="night-detail-title">Текст</h1>
     <div style="width:42px"></div>
   </div>
@@ -790,7 +820,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 
 <!-- DUAS LIST -->
 <div class="screen" id="screen-dua">
-  <div class="header"><h1>Дуа</h1><button class="icon-btn ghost" onclick="openSearch()">🔍</button></div>
+  <div class="header"><h1>Дуа</h1><button class="icon-btn ghost" onclick="openSearch()" aria-label="Поиск"><svg class="ico"><use href="#i-search"/></svg></button></div>
   <div class="content-list" id="dua-list"></div>
 </div>
 
