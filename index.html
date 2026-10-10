@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline' https://gc.zgo.at; img-src 'self' data: blob: https://api.dicebear.com; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com https://iqra-stats.goatcounter.com; object-src 'none'; base-uri 'none'; form-action 'none';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline' https://gc.zgo.at; worker-src 'self'; img-src 'self' data: blob: https://api.dicebear.com; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com https://iqra-stats.goatcounter.com; object-src 'none'; base-uri 'none'; form-action 'none';">
 <meta name="referrer" content="no-referrer">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -1711,7 +1711,7 @@ document.addEventListener('keydown', (e) => {
   const mem = document.getElementById('memorize-mode');
   if (mem && mem.classList.contains('active')) { closeMemorize(); return; }
 });
-(function(){ const el=document.getElementById('read-body'); if (!el) return; let tx=0, ty=0, on=false; el.addEventListener('touchstart', (e)=>{ tx=e.touches[0].clientX; ty=e.touches[0].clientY; on=true; }, { passive:true }); el.addEventListener('touchend', (e)=>{ if (!on) return; on=false; const dx=e.changedTouches[0].clientX-tx; const dy=e.changedTouches[0].clientY-ty; if (Math.abs(dx)<80 || Math.abs(dy)>Math.abs(dx)) return; if (!activeReadId) return; const idx=state.quran.findIndex(q=>q.id===activeReadId); if (idx<0) return; if (dx<0 && idx<state.quran.length-1) openRead(state.quran[idx+1].id); else if (dx>0 && idx>0) openRead(state.quran[idx-1].id); }, { passive:true }); })();
+(function(){ const el=document.getElementById('read-body'); if (!el) return; let tx=0, ty=0, on=false; el.addEventListener('touchstart', (e)=>{ tx=e.touches[0].clientX; ty=e.touches[0].clientY; on=true; }, { passive:true }); el.addEventListener('touchend', (e)=>{ if (!on) return; on=false; const dx=e.changedTouches[0].clientX-tx; const dy=e.changedTouches[0].clientY-ty; if (Math.abs(dx)<80 || Math.abs(dy)>Math.abs(dx)) return; if (!activeReadId) return; const idx=state.quran.findIndex(q=>q.id===activeReadId); if (idx<0) return; if (dx<0 && idx<state.quran.length-1) openRead(state.quran[idx+1].id); else if (dx>0 && idx>0) openRead(state.quran[idx-1].id); }, { passive:true }); })(); if ('serviceWorker' in navigator) {   window.addEventListener('load', function() {     navigator.serviceWorker.register('./sw.js').catch(function() {});   }); }
 </script>
 <script data-goatcounter="https://iqra-stats.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </body>
