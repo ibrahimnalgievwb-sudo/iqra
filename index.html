@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline' https://gc.zgo.at; worker-src 'self'; img-src 'self' data: blob: https://api.dicebear.com https://placehold.co; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com https://api.dicebear.com https://placehold.co https://api.quran.com https://iqra-stats.goatcounter.com; object-src 'none'; base-uri 'none'; form-action 'none';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline' https://gc.zgo.at; img-src 'self' data: blob: https://api.dicebear.com https://placehold.co; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com https://api.dicebear.com https://placehold.co https://api.quran.com https://iqra-stats.goatcounter.com; object-src 'none'; base-uri 'none'; form-action 'none';">
 <meta name="referrer" content="no-referrer">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-title" content="Iqra">
 <meta name="theme-color" content="#E8EDE6">
 <meta name="robots" content="noindex, nofollow">
-<title>Iqra | Читай</title> <link rel="manifest" href="manifest.json">
+<title>Iqra | Читай</title>
 <link rel="icon" type="image/png" href="https://api.dicebear.com/7.x/initials/png?seed=Iqra&size=180&backgroundColor=0e1626&textColor=6fb8c4&fontWeight=700&fontSize=45">
 <link rel="apple-touch-icon" href="https://api.dicebear.com/7.x/initials/png?seed=Iqra&size=180&backgroundColor=0e1626&textColor=6fb8c4&fontWeight=700&fontSize=45">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1703,46 +1703,6 @@ document.addEventListener('keydown', (e) => {
 });
 (function(){ const el=document.getElementById('read-body'); if (!el) return; let tx=0, ty=0, on=false; el.addEventListener('touchstart', (e)=>{ tx=e.touches[0].clientX; ty=e.touches[0].clientY; on=true; }, { passive:true }); el.addEventListener('touchend', (e)=>{ if (!on) return; on=false; const dx=e.changedTouches[0].clientX-tx; const dy=e.changedTouches[0].clientY-ty; if (Math.abs(dx)<80 || Math.abs(dy)>Math.abs(dx)) return; if (!activeReadId) return; const idx=state.quran.findIndex(q=>q.id===activeReadId); if (idx<0) return; if (dx<0 && idx<state.quran.length-1) openRead(state.quran[idx+1].id); else if (dx>0 && idx>0) openRead(state.quran[idx-1].id); }, { passive:true }); })();
 </script>
-<script data-goatcounter="https://iqra-stats.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script> <script> if ('serviceWorker' in navigator) {   window.addEventListener('load', function() {     navigator.serviceWorker.register('./sw.js').catch(function() {});   }); } </script>
+<script data-goatcounter="https://iqra-stats.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </body>
 </html>
-{
-  "name": "Iqra | Читай",
-  "short_name": "Iqra",
-  "start_url": "./",
-  "scope": "./",
-  "display": "standalone",
-  "background_color": "#0E1626",
-  "theme_color": "#0E1626",
-  "icons": [
-    {
-      "src": "https://api.dicebear.com/7.x/initials/png?seed=Iqra&size=192&backgroundColor=0e1626&textColor=6fb8c4&fontWeight=700&fontSize=45",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "https://api.dicebear.com/7.x/initials/png?seed=Iqra&size=512&backgroundColor=0e1626&textColor=6fb8c4&fontWeight=700&fontSize=45",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
-  ]
-}
-const CACHE = 'iqra-v1';
-const ASSETS = ['./', './index.html'];
-self.addEventListener('install', (e) => {
-  self.skipWaiting();
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).catch(() => {}));
-});
-self.addEventListener('activate', (e) => { e.waitUntil(self.clients.claim()); });
-self.addEventListener('fetch', (e) => {
-  if (e.request.method !== 'GET') return;
-  const url = new URL(e.request.url);
-  if (url.origin !== location.origin) return;
-  e.respondWith(
-    fetch(e.request).then((r) => {
-      const copy = r.clone();
-      caches.open(CACHE).then(c => c.put(e.request, copy)).catch(() => {});
-      return r;
-    }).catch(() => caches.match(e.request))
-  );
-});
