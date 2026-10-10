@@ -697,11 +697,6 @@ const STORAGE_KEY = 'iqra_data';
 const LIMITS = { tasbihs:1000, history:10000, reminders:50, textLen:1000, idLen:100, targetMax:100000, cyclesMax:1000000 };
 
 const QURAN_USE_API = false;
-const QURAN_API_BASE = 'https://api.quran.com/api/v4';
-const KULIEV_RESOURCE_ID = 'ru-kuliev';
-const QURAN_CACHE_KEY = 'iqra_quran_cache_v4';
-const QURAN_CACHE_TTL = 30 * 24 * 60 * 60 * 1000;
-const QURAN_SCRIPT = 'text_uthmani';
 
 const SURAH_META = {
   67: { name: 'Аль-Мульк', subtitle: 'Власть · Мекканская · 30 аятов' },
@@ -722,41 +717,6 @@ const SURAH_META = {
   113: { name: 'Аль-Фаляк', subtitle: 'Рассвет · Мекканская · 5 аятов' },
   114: { name: 'Ан-Нас', subtitle: 'Люди · Мекканская · 6 аятов' }
 };
-
-async function fetchKulievSurah(surahNumber) {
-  if (!QURAN_USE_API) return null;
-  const cached = getCachedQuranSurah(surahNumber);
-  if (cached) return cached;
-  try {
-    const url = `${QURAN_API_BASE}/verses/by_chapter/${surahNumber}?fields=${QURAN_SCRIPT}&translations=${KULIEV_RESOURCE_ID}&per_page=all`;
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`API ${res.status}`);
-    const data = await res.json();
-    if (!Array.isArray(data.verses)) throw new Error('Invalid API response');
-    const meta = SURAH_META[surahNumber] || { name: `Сура ${surahNumber}`, subtitle: '' };
-    const ayahs = data.verses.map((v, i) => ({
-      num: v.verse_number || i + 1,
-      ar: v[QURAN_SCRIPT] || v.text_uthmani || '',
-      tr: '',
-      trn: (Array.isArray(v.translations) && v.translations[0]?.text) || ''
-    }));
-    const result = { number: surahNumber, title: meta.name, subtitle: meta.subtitle, ayahs };
-    setCachedQuranSurah(surahNumber, result);
-    return result;
-  } catch (e) { console.warn(`API недоступен для суры ${surahNumber}`); return null; }
-}
-function getCachedQuranSurah(n) {
-  try { const raw = localStorage.getItem(QURAN_CACHE_KEY); if (!raw) return null; const cache = JSON.parse(raw); const entry = cache[n]; if (!entry || Date.now() - entry.ts > QURAN_CACHE_TTL) return null; return entry.data; } catch (e) { return null; }
-}
-function setCachedQuranSurah(n, data) {
-  try { const raw = localStorage.getItem(QURAN_CACHE_KEY); const cache = raw ? JSON.parse(raw) : {}; cache[n] = { ts: Date.now(), data }; localStorage.setItem(QURAN_CACHE_KEY, JSON.stringify(cache)); } catch (e) {}
-}
-async function getSurahWithFallback(n, localQuran) {
-  if (!QURAN_USE_API) return localQuran.find(q => q.number === n) || null;
-  const fromApi = await fetchKulievSurah(n);
-  if (fromApi) return fromApi;
-  return localQuran.find(q => q.number === n) || null;
-}
   
 const TAWHID_TASBIH = { id: 'tawhid', arabic: 'لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ', transcription: 'Ля иляха илляллаху вахдаху ля шарика ляху, ляхуль-мульку ва ляхуль-хамду, ва хува ‘аля кулли шай’ин кадир', translation: '«Нет бога, кроме одного лишь Аллаха, у Которого нет сотоварища, Ему принадлежит власть, Ему хвала, и Он всё может»', target: 10, current: 0, cycles: 0 };
 const ISTIGHFAR_TASBIH = { id:'istighfar', arabic:'أَسْتَغْفِرُ اللَّهَ', transcription:'АстагфируЛлах', translation:'Прошу прощения у Аллаха', target:100, current:0, cycles:0 };
@@ -1185,17 +1145,13 @@ async function renderQuranList() {
     return `<div class="content-card${hasNum}" onclick="openQuran('${item.id}')">${numHtml}${badge}${star}<div class="c-title">${esc(item.title)}</div><div class="c-sub">${esc(item.subtitle||'')}</div><div class="c-ar ar-font">${esc(item.arabic)}</div><div class="c-tr">${esc(item.translation)}</div></div>`;
   }).join('');
 }
-async function openQuran(id) {
+function openQuran(id) {
   activeQuranId = id;
   const item = getQuranById(id); if (!item) return;
   trackEvent('quran/' + id, 'Сура/аят: ' + item.title);
   saveLastRead(id);
   document.getElementById('quran-detail-title').textContent = item.title;
-  let ayahs = parseAyahs(item);
-  if (!ayahs.length && item.number && QURAN_USE_API) {
-    const loaded = await getSurahWithFallback(item.number, state.quran);
-    if (loaded && loaded.ayahs) { ayahs = loaded.ayahs; Object.assign(item, loaded); save(); }
-  }
+  const ayahs = parseAyahs(item);
   const st = document.getElementById('quran-detail-star');
   if (st) { const fav=isFavorite(id); st.textContent=fav?'★':'☆'; st.classList.toggle('starred', fav); }
   const el = document.getElementById('quran-detail-content');
@@ -1246,16 +1202,12 @@ function toggleQuranLearned(id) {
 function showCongratsLearn(title) { const el = document.getElementById('modal-content'); el.innerHTML = `<div class="congrats-modal"><div class="congrats-icon">🌟</div><h2>МашаАллах!</h2><p><b>${esc(title)}</b><br>отмечено как выученное</p><button class="btn" onclick="closeModal()">Амин</button></div>`; document.getElementById('modal-bg').classList.add('active'); }
 function goQuranList() { activeQuranId = null; renderQuranList(); showScreen('screen-quran'); }
 
-async function openRead(id) {
+function openRead(id) {
   const item = getQuranById(id); if (!item) return;
   trackEvent('read/' + id, 'Чтение: ' + item.title);
   saveLastRead(id);
   document.getElementById('read-title').textContent = item.title;
-  let ayahs = parseAyahs(item);
-  if (!ayahs.length && item.number && QURAN_USE_API) {
-    const loaded = await getSurahWithFallback(item.number, state.quran);
-    if (loaded && loaded.ayahs) { ayahs = loaded.ayahs; Object.assign(item, loaded); save(); }
-  }
+  const ayahs = parseAyahs(item);
   let bismillahHtml = '';
   if (item.bismillah) {
     bismillahHtml = `<div class="bismillah-card" style="margin-bottom:20px;"><div class="b-ar ar-font">${item.bismillah.arabic}</div><div class="b-tr">${item.bismillah.transcription}</div><div class="b-trn">${item.bismillah.translation}</div></div>`;
@@ -1355,7 +1307,7 @@ function renderNightList() {
   });
   el.innerHTML = html;
 }
-async function openNight(idx) {
+function openNight(idx) {
   activeNightId = idx;
   const n = NIGHT_ORDER[idx]; if (!n) return;
   let item=null;
@@ -1365,11 +1317,7 @@ async function openNight(idx) {
   if (!item) return;
   trackEvent('night/' + idx, 'Ночное чтение: пункт ' + (idx+1));
   document.getElementById('night-detail-title').textContent = item.title;
-  let ayahs = parseAyahs(item);
-  if (!ayahs.length && item.number && QURAN_USE_API) {
-    const loaded = await getSurahWithFallback(item.number, state.quran);
-    if (loaded && loaded.ayahs) { ayahs = loaded.ayahs; Object.assign(item, loaded); save(); }
-  }
+  const ayahs = parseAyahs(item);
   const el = document.getElementById('night-detail-content');
   el.innerHTML = `
     <div class="detail-hero">
@@ -1643,7 +1591,8 @@ state.migrations.quran_v15 = true;
 saveNow();
 state = load();
 save(); applyTheme(); setArSize(state.settings.arSize); renderHome(); renderDuaList(); renderHadithList(); renderQuranList(); renderNightList(); renderProgress(); showScreen('screen-home'); alert('Импортировано'); e.target.value=''; }; r.readAsText(f); }
-function resetAll() { if (!confirm('Удалить ВСЕ данные? Это необратимо.')) return; if (!confirm('Точно? Резервную копию можно сделать в Настройках.')) return; localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(QURAN_CACHE_KEY); location.reload(); }
+function resetAll() { if (!confirm('Удалить ВСЕ данные? Это необратимо.')) return; if (!confirm('Точно? Резервную копию можно сделать в Настройках.')) return;   localStorage.removeItem(STORAGE_KEY);
+  location.reload(); }
 
 function showScreen(id) {
   if (_lastScreenName && _lastScreenTs) {
