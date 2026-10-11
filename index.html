@@ -661,6 +661,57 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .dash-top .dt-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; font-weight: 700; margin-bottom: 2px; }
 .dash-top .dt-title { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
 .dash-top .dt-sub { font-size: 12px; color: var(--muted); }
+
+.dash-marks {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  margin-bottom: 14px;
+  box-shadow: 0 2px 8px var(--shadow);
+  cursor: pointer;
+  border: 1px dashed var(--border);
+  transition: transform .15s ease;
+}
+.dash-marks:active { transform: scale(.98); }
+.dash-marks .dm-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.dash-marks .dm-star { color: #e6b445; font-size: 20px; }
+.dash-marks .dm-title { font-size: 15px; font-weight: 700; flex: 1; }
+.dash-marks .dm-count { font-size: 13px; color: var(--muted); font-weight: 600; }
+.dash-marks .dm-list { display: flex; flex-direction: column; gap: 6px; }
+.dash-marks .dm-item { font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; overflow-wrap: break-word; }
+.dash-marks .dm-item .dm-ico { margin-right: 6px; }
+.dash-marks .dm-empty { font-size: 13px; color: var(--muted); text-align: center; padding: 8px 0; }
+
+.mark-item { display: flex; align-items: center; gap: 12px; }
+.mark-item .mi-del {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--card2); color: #c96a5a;
+  font-size: 16px; flex-shrink: 0; cursor: pointer;
+  border: none;
+}
+.mark-item .mi-del:active { opacity: .7; }
+
+.toast {
+  position: fixed;
+  left: 50%; bottom: 90px;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 10px 18px;
+  font-size: 13px;
+  color: var(--text);
+  box-shadow: 0 6px 20px var(--shadow);
+  opacity: 0;
+  transition: opacity .25s ease, transform .25s ease;
+  z-index: 9998;
+  pointer-events: none;
+  white-space: nowrap;
+  max-width: 90vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 </style>
 </head>
 <body>
@@ -694,6 +745,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
   <symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
   <symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+  <symbol id="i-bookmark" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></symbol>
 </svg>
 
 <!-- DASHBOARD -->
@@ -716,6 +768,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
     <div class="dash-quote" id="dash-quote" onclick="dashQuoteTap()"></div>
     <div class="dash-top" id="dash-top"></div>
     <div class="dash-stats" id="dash-stats"></div>
+    <div class="dash-marks" id="dash-marks"></div>
     <div class="dash-quick" id="dash-quick"></div>
   </div>
 </div>
@@ -881,7 +934,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
       <button data-pt="overview" class="active" onclick="setProgTab('overview')">Обзор</button>
       <button data-pt="calendar" onclick="setProgTab('calendar')">Календарь</button>
        <button data-pt="learned" onclick="setProgTab('learned')">Заучено</button>
-      <button data-pt="favorites" onclick="setProgTab('favorites')">Избранное</button>
+      <button data-pt="favorites" onclick="setProgTab('favorites')">Метки</button>
     </div>
     <div id="prog-body"></div>
   </div>
@@ -960,7 +1013,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   <div class="fs-header">
     <button class="icon-btn ghost" onclick="closeRead()" aria-label="Закрыть"><svg class="ico"><use href="#i-x"/></svg></button>
     <h2 id="read-title"></h2>
-    <div style="width:42px"></div>
+    <button class="icon-btn ghost bm-btn" onclick="addBookmarkFromRead()" aria-label="Добавить метку"><svg class="ico"><use href="#i-bookmark"/></svg></button>
   </div>
   <div class="fs-body" id="read-body"></div>
 </div>
@@ -1062,6 +1115,8 @@ input, textarea { -webkit-user-select:text; user-select:text; }
     <button class="btn" id="ob-next" onclick="nextOnboarding()">Далее →</button>
   </div>
 </div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
 "use strict";
@@ -1341,7 +1396,7 @@ function load() {
   s.duas = Array.isArray(s.duas) ? s.duas : [];
   s.hadiths = Array.isArray(s.hadiths) ? s.hadiths : [];
   s.quran = Array.isArray(s.quran) ? s.quran : [];
-  s.migrations = s.migrations && typeof s.migrations === 'object' ? s.migrations : {};   s.favorites = Array.isArray(s.favorites) ? s.favorites : [];   s.settings.readScrolls = (s.settings.readScrolls && typeof s.settings.readScrolls === 'object') ? s.settings.readScrolls : {};
+  s.migrations = s.migrations && typeof s.migrations === 'object' ? s.migrations : {};   s.favorites = Array.isArray(s.favorites) ? s.favorites : [];   s.bookmarks = Array.isArray(s.bookmarks) ? s.bookmarks : [];   s.settings.readScrolls = (s.settings.readScrolls && typeof s.settings.readScrolls === 'object') ? s.settings.readScrolls : {};
 
   if (!s.migrations.addedTawhid) { if (!s.tasbihs.some(t=>t.id==='tawhid')) s.tasbihs.unshift(JSON.parse(JSON.stringify(TAWHID_TASBIH))); s.migrations.addedTawhid = true; }
   if (!s.migrations.addedIstighfar) { if (!s.tasbihs.some(t=>t.id==='istighfar')) s.tasbihs.splice(1,0,JSON.parse(JSON.stringify(ISTIGHFAR_TASBIH))); s.migrations.addedIstighfar = true; }
@@ -1385,7 +1440,7 @@ function getById(id){ return state.tasbihs.find(t=>t.id===id); }
 function getDuaById(id){ return state.duas.find(d=>d.id===id); }
 function getHadithById(id){ return state.hadiths.find(h=>h.id===id); }
 function getQuranById(id){ return state.quran.find(q=>q.id===id); }
-function formatHijri(date){ try { return new Intl.DateTimeFormat('ru-RU-u-ca-islamic-umalqura', { day:'numeric', month:'long', year:'numeric' }).format(date); } catch(e){ return ''; } } function isFavorite(id){ return Array.isArray(state.favorites) && state.favorites.includes(id); } function toggleFavorite(id){ if (!Array.isArray(state.favorites)) state.favorites=[]; const i=state.favorites.indexOf(id); if (i>=0) { state.favorites.splice(i,1); trackEvent('fav_off/' + id, 'Убрано из избранного: ' + id); } else { state.favorites.push(id); trackEvent('fav_on/' + id, 'В избранное: ' + id); } save(); } function starClick(event, id, list){ event.stopPropagation(); toggleFavorite(id); if (list==='quran') renderQuranList(); else if (list==='dua') renderDuaList(); else if (list==='hadith') renderHadithList(); else if (list==='favorites') renderProgressFavorites(); } function detailStarClick(){ if (document.getElementById('screen-quran-detail').classList.contains('active') && activeQuranId) { toggleFavorite(activeQuranId); openQuran(activeQuranId); } else if (document.getElementById('screen-dua-detail').classList.contains('active') && activeDuaId) { toggleFavorite(activeDuaId); openDua(activeDuaId); } else if (document.getElementById('screen-hadith-detail').classList.contains('active') && activeHadithId) { toggleFavorite(activeHadithId); openHadith(activeHadithId); } } function openSearch(){ document.getElementById('search-overlay').classList.add('active'); setTimeout(()=>{ const i=document.getElementById('global-search-input'); if (i) i.focus(); }, 120); renderGlobalSearch(); } function closeSearch(){ document.getElementById('search-overlay').classList.remove('active'); const i=document.getElementById('global-search-input'); if (i) i.value=''; } function searchOpen(type, id){ closeSearch(); if (type==='quran') openQuran(id); else if (type==='dua') openDua(id); else if (type==='hadith') openHadith(id); else if (type==='tasbih') openCounter(id); } function setSearchFilter(key, value){ searchFilters[key] = value; document.querySelectorAll('#search-filters .filter-group[data-filter="' + key + '"] .filter-chip').forEach(function(b){ b.classList.toggle('active', b.dataset.value === value); }); renderGlobalSearch(); } function renderGlobalSearch(){   const q = (document.getElementById('global-search-input').value||'').toLowerCase().trim();   const el = document.getElementById('search-results');   if (!q) { el.innerHTML = '<div class="empty">Введите запрос — поиск по тасбихам, Корану, дуа и хадисам.</div>'; return; }   const m = (it) => { const h=[it.title,it.subtitle,it.arabic,it.transcription,it.translation,String(it.number||'')].filter(Boolean).join(' ').toLowerCase(); return h.includes(q); };   const statusOk = (it, type) => { if (type === 'tasbih') return true; return searchFilters.status === 'all' || (searchFilters.status === 'learned' && !!it.learned) || (searchFilters.status === 'unlearned' && !it.learned); };   const favOk = (it) => searchFilters.favorite === 'all' || (searchFilters.favorite === 'only' && isFavorite(it.id));   const showType = (t) => searchFilters.type === 'all' || searchFilters.type === t;   const grp = (title, items, type) => { if (!items.length) return ''; return `<div class="progress-section-title">${title}</div>` + items.map(it => { const t=it.title||it.transcription||it.arabic||'—'; const sub=it.subtitle?`<div class="c-sub">${esc(it.subtitle)}</div>`:''; const ar=it.arabic?`<div class="c-ar ar-font">${esc(it.arabic)}</div>`:''; const tr=it.translation?`<div class="c-tr">${esc(it.translation)}</div>`:''; return `<div class="content-card" onclick="searchOpen('${type}','${it.id}')"><div class="c-title">${esc(t)}</div>${sub}${ar}${tr}</div>`; }).join(''); };   let html = '';   if (showType('tasbih')) html += grp('📿 Тасбихи', state.tasbihs.filter(m).filter(it => statusOk(it, 'tasbih')).filter(favOk), 'tasbih');   if (showType('quran')) html += grp('📖 Коран', state.quran.filter(m).filter(it => statusOk(it, 'quran')).filter(favOk), 'quran');   if (showType('dua')) html += grp('🤲 Дуа', state.duas.filter(m).filter(it => statusOk(it, 'dua')).filter(favOk), 'dua');   if (showType('hadith')) html += grp('📜 Хадисы', state.hadiths.filter(m).filter(it => statusOk(it, 'hadith')).filter(favOk), 'hadith');   el.innerHTML = html || '<div class="empty">Ничего не найдено</div>'; }
+function formatHijri(date){ try { return new Intl.DateTimeFormat('ru-RU-u-ca-islamic-umalqura', { day:'numeric', month:'long', year:'numeric' }).format(date); } catch(e){ return ''; } } function isFavorite(id){ return Array.isArray(state.favorites) && state.favorites.includes(id); } function toggleFavorite(id){ if (!Array.isArray(state.favorites)) state.favorites=[]; const i=state.favorites.indexOf(id); if (i>=0) { state.favorites.splice(i,1); trackEvent('fav_off/' + id, 'Убрано из избранного: ' + id); if (typeof showMarkToast === 'function') showMarkToast('Удалено из избранного'); } else { state.favorites.push(id); trackEvent('fav_on/' + id, 'В избранное: ' + id); if (typeof showMarkToast === 'function') showMarkToast('Добавлено в избранное'); } save(); if (typeof renderDashMarks === 'function') renderDashMarks(); } function starClick(event, id, list){ event.stopPropagation(); toggleFavorite(id); if (list==='quran') renderQuranList(); else if (list==='dua') renderDuaList(); else if (list==='hadith') renderHadithList(); else if (list==='favorites') renderProgressFavorites(); } function detailStarClick(){ if (document.getElementById('screen-quran-detail').classList.contains('active') && activeQuranId) { toggleFavorite(activeQuranId); openQuran(activeQuranId); } else if (document.getElementById('screen-dua-detail').classList.contains('active') && activeDuaId) { toggleFavorite(activeDuaId); openDua(activeDuaId); } else if (document.getElementById('screen-hadith-detail').classList.contains('active') && activeHadithId) { toggleFavorite(activeHadithId); openHadith(activeHadithId); } } function openSearch(){ document.getElementById('search-overlay').classList.add('active'); setTimeout(()=>{ const i=document.getElementById('global-search-input'); if (i) i.focus(); }, 120); renderGlobalSearch(); } function closeSearch(){ document.getElementById('search-overlay').classList.remove('active'); const i=document.getElementById('global-search-input'); if (i) i.value=''; } function searchOpen(type, id){ closeSearch(); if (type==='quran') openQuran(id); else if (type==='dua') openDua(id); else if (type==='hadith') openHadith(id); else if (type==='tasbih') openCounter(id); } function setSearchFilter(key, value){ searchFilters[key] = value; document.querySelectorAll('#search-filters .filter-group[data-filter="' + key + '"] .filter-chip').forEach(function(b){ b.classList.toggle('active', b.dataset.value === value); }); renderGlobalSearch(); } function renderGlobalSearch(){   const q = (document.getElementById('global-search-input').value||'').toLowerCase().trim();   const el = document.getElementById('search-results');   if (!q) { el.innerHTML = '<div class="empty">Введите запрос — поиск по тасбихам, Корану, дуа и хадисам.</div>'; return; }   const m = (it) => { const h=[it.title,it.subtitle,it.arabic,it.transcription,it.translation,String(it.number||'')].filter(Boolean).join(' ').toLowerCase(); return h.includes(q); };   const statusOk = (it, type) => { if (type === 'tasbih') return true; return searchFilters.status === 'all' || (searchFilters.status === 'learned' && !!it.learned) || (searchFilters.status === 'unlearned' && !it.learned); };   const favOk = (it) => searchFilters.favorite === 'all' || (searchFilters.favorite === 'only' && isFavorite(it.id));   const showType = (t) => searchFilters.type === 'all' || searchFilters.type === t;   const grp = (title, items, type) => { if (!items.length) return ''; return `<div class="progress-section-title">${title}</div>` + items.map(it => { const t=it.title||it.transcription||it.arabic||'—'; const sub=it.subtitle?`<div class="c-sub">${esc(it.subtitle)}</div>`:''; const ar=it.arabic?`<div class="c-ar ar-font">${esc(it.arabic)}</div>`:''; const tr=it.translation?`<div class="c-tr">${esc(it.translation)}</div>`:''; return `<div class="content-card" onclick="searchOpen('${type}','${it.id}')"><div class="c-title">${esc(t)}</div>${sub}${ar}${tr}</div>`; }).join(''); };   let html = '';   if (showType('tasbih')) html += grp('📿 Тасбихи', state.tasbihs.filter(m).filter(it => statusOk(it, 'tasbih')).filter(favOk), 'tasbih');   if (showType('quran')) html += grp('📖 Коран', state.quran.filter(m).filter(it => statusOk(it, 'quran')).filter(favOk), 'quran');   if (showType('dua')) html += grp('🤲 Дуа', state.duas.filter(m).filter(it => statusOk(it, 'dua')).filter(favOk), 'dua');   if (showType('hadith')) html += grp('📜 Хадисы', state.hadiths.filter(m).filter(it => statusOk(it, 'hadith')).filter(favOk), 'hadith');   el.innerHTML = html || '<div class="empty">Ничего не найдено</div>'; }
 function trackEvent(name, title) {   var data = {     path: '/event/' + String(name).slice(0, 100),     title: String(title || name).slice(0, 200),     event: true   };   var tries = 0;   function attempt() {     try {       if (window.goatcounter && typeof window.goatcounter.count === 'function') {         window.goatcounter.count(data);       } else if (tries < 10) {         tries++;         setTimeout(attempt, 200);       }     } catch (e) {}   }   attempt(); } function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function escNl(s){ return esc(s).replace(/\n/g,'<br>'); }
 function transcriptionNote() { return `<div class="transcription-note"><span class="tn-icon">ℹ️</span><div>Транскрипция передаёт лишь <b>примерное произношение</b> и не отражает всех тонкостей арабского. Для правильного чтения следует изучить <b>таджвид</b>.</div></div>`; }
@@ -1813,7 +1868,7 @@ const MONTHS = ['Январь','Февраль','Март','Апрель','Ма�
 const DOW = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
 
 function setProgTab(t) { progTab = t; document.querySelectorAll('.prog-tabs button').forEach(b=>b.classList.toggle('active', b.dataset.pt===t)); renderProgress(); }
-function renderProgress() { if (progTab === 'overview') renderProgressOverview(); else if (progTab === 'calendar') renderProgressCalendar(); else if (progTab === 'learned') renderProgressLearned(); else if (progTab === 'favorites') renderProgressFavorites(); } function renderProgressFavorites() {   const body = document.getElementById('prog-body');   const favQ = state.quran.filter(q=>isFavorite(q.id));   const favD = state.duas.filter(d=>isFavorite(d.id));   const favH = state.hadiths.filter(h=>isFavorite(h.id));   let html = '';   if (favQ.length) { html += `<div class="settings-group"><div class="progress-section-title">📖 Суры и аяты</div>`; favQ.forEach(q => { html += `<div class="learned-item" onclick="openQuran('${q.id}')" style="cursor:pointer"><div><div class="li-title">${esc(q.title)}</div><div class="li-sub">${esc(q.subtitle||'')}</div></div><div class="li-check">★</div></div>`; }); html += `</div>`; }   if (favD.length) { html += `<div class="settings-group"><div class="progress-section-title">🤲 Дуа</div>`; favD.forEach(d => { html += `<div class="learned-item" onclick="openDua('${d.id}')" style="cursor:pointer"><div><div class="li-title">${esc(d.title)}</div><div class="li-sub">${esc(d.subtitle||'')}</div></div><div class="li-check">★</div></div>`; }); html += `</div>`; }   if (favH.length) { html += `<div class="settings-group"><div class="progress-section-title">📜 Хадисы</div>`; favH.forEach(h => { html += `<div class="learned-item" onclick="openHadith('${h.id}')" style="cursor:pointer"><div><div class="li-title">${esc(h.title)}</div><div class="li-sub">${esc(h.subtitle||'')}</div></div><div class="li-check">★</div></div>`; }); html += `</div>`; }   if (!html) html = '<div class="empty">Пока пусто.<br>Нажмите ☆ на карточке текста.</div>';   body.innerHTML = html; }
+function renderProgress() { if (progTab === 'overview') renderProgressOverview(); else if (progTab === 'calendar') renderProgressCalendar(); else if (progTab === 'learned') renderProgressLearned(); else if (progTab === 'favorites') renderProgressFavorites(); } function renderProgressFavorites() {   const body = document.getElementById('prog-body');   const favQ = state.quran.filter(q=>isFavorite(q.id));   const favD = state.duas.filter(d=>isFavorite(d.id));   const favH = state.hadiths.filter(h=>isFavorite(h.id));   const bms = Array.isArray(state.bookmarks) ? state.bookmarks.slice().reverse() : [];   let html = '';   if (bms.length) {     html += '<div class="settings-group"><div class="progress-section-title">🔖 Закладки</div>';     bms.forEach(b => {       html += '<div class="learned-item mark-item"><div onclick="openBookmark(\'' + b.id + '\')" style="cursor:pointer;flex:1;min-width:0"><div class="li-title">' + esc(b.label) + '</div><div class="li-sub">' + new Date(b.ts).toLocaleDateString('ru-RU') + '</div></div><button class="mi-del" onclick="removeBookmark(\'' + b.id + '\')" aria-label="Удалить">×</button></div>';     });     html += '</div>';   }   if (favQ.length) { html += `<div class="settings-group"><div class="progress-section-title">📖 Суры и аяты</div>`; favQ.forEach(q => { html += `<div class="learned-item" onclick="openQuran('${q.id}')" style="cursor:pointer"><div><div class="li-title">${esc(q.title)}</div><div class="li-sub">${esc(q.subtitle||'')}</div></div><div class="li-check">★</div></div>`; }); html += `</div>`; }   if (favD.length) { html += `<div class="settings-group"><div class="progress-section-title">🤲 Дуа</div>`; favD.forEach(d => { html += `<div class="learned-item" onclick="openDua('${d.id}')" style="cursor:pointer"><div><div class="li-title">${esc(d.title)}</div><div class="li-sub">${esc(d.subtitle||'')}</div></div><div class="li-check">★</div></div>`; }); html += `</div>`; }   if (favH.length) { html += `<div class="settings-group"><div class="progress-section-title">📜 Хадисы</div>`; favH.forEach(h => { html += `<div class="learned-item" onclick="openHadith('${h.id}')" style="cursor:pointer"><div><div class="li-title">${esc(h.title)}</div><div class="li-sub">${esc(h.subtitle||'')}</div></div><div class="li-check">★</div></div>`; }); html += `</div>`; }   if (!html) html = '<div class="empty">Пока пусто.<br>Нажимайте ★ на карточках и добавляйте закладки в режиме чтения.</div>';   body.innerHTML = html; }
 function renderProgressOverview() {
   const body = document.getElementById('prog-body');
   let totalAll = 0, daysWithDhikr = 0, bestDay = 0, bestDayKey = '';
@@ -1957,6 +2012,7 @@ function validateImport(d) {
   safe.migrations = (d.migrations && typeof d.migrations === 'object' && !Array.isArray(d.migrations)) ? d.migrations : {};
   safe.draft = (d.draft && typeof d.draft === 'object') ? d.draft : null;
   safe.favorites = Array.isArray(d.favorites) ? d.favorites : [];
+  safe.bookmarks = Array.isArray(d.bookmarks) ? d.bookmarks : [];
   return safe;
 }
 function importData(e) { const f=e.target.files[0]; if (!f) return; if (f.size > 5*1024*1024) { alert('Файл слишком большой'); e.target.value=''; return; } const r=new FileReader(); r.onload=()=>{ let parsed; try { parsed=JSON.parse(r.result); } catch(err) { alert('Файл повреждён'); e.target.value=''; return; } const validated = validateImport(parsed); if (!validated) { alert('Файл не похож на резервную копию'); e.target.value=''; return; } if (!confirm('Импорт заменит все текущие данные. Продолжить?')) { e.target.value=''; return; } const currentMigrations = state.migrations || {};
@@ -2034,7 +2090,103 @@ function getRandomQuote() {
   return { type: 'tasbih', id: item.id, badge: '📿 Тасбих', title: item.transcription || item.arabic || '—', ar: item.arabic || '', tr: (item.translation || '').slice(0, 140) };
 }
 let _dashQuote = null;
-function renderDashboard() {
+// === MARKS: favorites + bookmarks ===
+var _toastTimer = null;
+function showMarkToast(text) {
+  var el = document.getElementById('toast');
+  if (!el) return;
+  el.textContent = text;
+  el.classList.add('show');
+  if (_toastTimer) clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(function(){ el.classList.remove('show'); }, 1800);
+}
+
+function currentAyahIdx() {
+  var body = document.getElementById('read-body');
+  if (!body) return 0;
+  var ayahs = body.querySelectorAll('.read-ayah');
+  if (!ayahs.length) return 0;
+  var bodyRect = body.getBoundingClientRect();
+  var mid = bodyRect.top + bodyRect.height * 0.35;
+  var best = 0;
+  for (var i = 0; i < ayahs.length; i++) {
+    var r = ayahs[i].getBoundingClientRect();
+    if (r.top <= mid) best = i; else break;
+  }
+  return best;
+}
+
+function addBookmarkFromRead() {
+  if (!activeReadId) return;
+  var item = getQuranById(activeReadId);
+  if (!item) return;
+  var idx = currentAyahIdx();
+  if (!Array.isArray(state.bookmarks)) state.bookmarks = [];
+  var exists = state.bookmarks.some(function(b){ return b.quranId === activeReadId && b.ayahIdx === idx; });
+  if (exists) { showMarkToast('Метка уже есть на этой позиции'); return; }
+  if (state.bookmarks.length >= 50) { showMarkToast('Максимум 50 меток'); return; }
+  var label = item.title + ' · позиция ' + (idx + 1);
+  state.bookmarks.push({ id: 'bm_' + Date.now(), quranId: activeReadId, ayahIdx: idx, label: label, ts: Date.now() });
+  save();
+  renderDashMarks();
+  showMarkToast('Метка добавлена');
+}
+
+function removeBookmark(bmId) {
+  if (!Array.isArray(state.bookmarks)) return;
+  var i = state.bookmarks.findIndex(function(b){ return b.id === bmId; });
+  if (i < 0) return;
+  state.bookmarks.splice(i, 1);
+  save();
+  renderProgress();
+  renderDashMarks();
+  showMarkToast('Метка удалена');
+}
+
+function openBookmark(bmId) {
+  if (!Array.isArray(state.bookmarks)) return;
+  var bm = state.bookmarks.find(function(b){ return b.id === bmId; });
+  if (!bm) return;
+  var item = getQuranById(bm.quranId);
+  if (!item) { showMarkToast('Текст недоступен'); return; }
+  openRead(bm.quranId);
+  setTimeout(function(){
+    var body = document.getElementById('read-body');
+    if (!body) return;
+    var ayahs = body.querySelectorAll('.read-ayah');
+    if (ayahs[bm.ayahIdx]) ayahs[bm.ayahIdx].scrollIntoView({ block: 'start' });
+  }, 120);
+}
+
+function renderDashMarks() {
+  var el = document.getElementById('dash-marks');
+  if (!el) return;
+  var favCount = Array.isArray(state.favorites) ? state.favorites.length : 0;
+  var bmCount = Array.isArray(state.bookmarks) ? state.bookmarks.length : 0;
+  var total = favCount + bmCount;
+  var recent = [];
+  if (Array.isArray(state.bookmarks)) {
+    state.bookmarks.slice(-3).reverse().forEach(function(b){
+      recent.push({ icon: '🔖', title: b.label });
+    });
+  }
+  if (recent.length < 3 && Array.isArray(state.favorites)) {
+    state.favorites.slice(-3).forEach(function(id){
+      if (recent.length >= 3) return;
+      var it = getQuranById(id) || getDuaById(id) || getHadithById(id);
+      if (it) recent.push({ icon: '★', title: it.title || it.subtitle || id });
+    });
+  }
+  var head = '<div class="dm-head"><span class="dm-star">★</span><div class="dm-title">Метки</div><span class="dm-count">' + total + '</span></div>';
+  var body;
+  if (!total) body = '<div class="dm-empty">Пока пусто — отмечайте ★ и закладками</div>';
+  else body = '<div class="dm-list">' + recent.map(function(r){
+    return '<div class="dm-item"><span class="dm-ico">' + r.icon + '</span>' + esc(r.title) + '</div>';
+  }).join('') + '</div>';
+  el.innerHTML = head + body;
+  el.onclick = function(){ switchTab('cal'); setProgTab('favorites'); };
+}
+
   const t = document.getElementById('dash-time');
   const h = document.getElementById('dash-hijri');
   if (t) t.textContent = getTimeOfDay();
@@ -2100,10 +2252,13 @@ function renderDashboard() {
       quickEl.innerHTML = '<div class="dq-icon">📿</div><div class="dq-body"><div class="dq-label">Продолжить зикр</div><div class="dq-name">' + esc(item.transcription || item.arabic || '—') + '</div></div>';
       quickEl.onclick = function(){ openCounter(item.id); };
     } else {
-      quickEl.innerHTML = '<div class="dq-icon">📿</div><div class="dq-body"><div class="dq-label">Начать зикр</div><div class="dq-name">Открой вкладку «Тасбих»</div></div>';
+        quickEl.innerHTML = '<div class="dq-icon">📿</div><div class="dq-body"><div class="dq-label">Начать зикр</div><div class="dq-name">Открой вкладку «Тасбих»</div></div>';
       quickEl.onclick = function(){ switchTab('tasbih'); };
     }
   }
+
+  renderDashMarks();
+}
 }
 function pluralDays(n) {
   const m = n % 10, h = Math.floor(n / 10) % 10;
@@ -2245,6 +2400,41 @@ document.addEventListener('keydown', (e) => {
   if (missing.length) console.error('⚠️ Структура — отсутствуют: ' + missing.join(', '));
   if (nested.length) { console.error('⚠️ Структура — неверное вложение:'); nested.forEach(function(n){ console.error('  • ' + n); }); }
   if (!missing.length && !nested.length) console.log('✓ Структура: все ключевые элементы на месте');
+})();
+
+(function checkInlineHandlers(){
+  var attrs = ['onclick','oninput','onchange','onsubmit'];
+  var problems = [];
+  attrs.forEach(function(a){
+    document.querySelectorAll('[' + a + ']').forEach(function(el){
+      var v = el.getAttribute(a) || '';
+      if (/\s[a-z-]+=\s*$/i.test(v)) {
+        problems.push('<' + el.tagName.toLowerCase() + '> ' + a + '=' + JSON.stringify(v));
+      }
+      var opens = (v.match(/\(/g) || []).length;
+      var closes = (v.match(/\)/g) || []).length;
+      if (opens !== closes) problems.push('Скобки (' + opens + '/' + closes + '): ' + a + '=' + JSON.stringify(v));
+    });
+  });
+  if (problems.length) { console.error('⚠️ Inline-обработчики — ' + problems.length + ':'); problems.forEach(function(p){ console.error('  • ' + p); }); }
+  else console.log('✓ Inline-обработчики: парность в порядке');
+})();
+
+(function checkStructure(){
+  var expected = ['screen-dashboard','screen-tasbih','screen-quran','screen-night','screen-dua','screen-hadith','screen-cal','screen-quran-detail','screen-night-detail','screen-dua-detail','screen-hadith-detail','screen-form','screen-counter','screen-settings','read-mode','memorize-mode','search-overlay','nav','modal-bg','onboarding','save-indicator'];
+  var directBodyIds = ['nav','modal-bg','onboarding','save-indicator','read-mode','memorize-mode','search-overlay'];
+  var missing = [], nested = [];
+  expected.forEach(function(id){
+    var el = document.getElementById(id);
+    if (!el) { missing.push(id); return; }
+    if (directBodyIds.indexOf(id) >= 0 && el.parentElement !== document.body) {
+      var p = el.parentElement;
+      nested.push('#' + id + ' вложен в ' + p.tagName.toLowerCase() + (p.id ? '#' + p.id : ''));
+    }
+  });
+  if (missing.length) console.error('⚠️ Структура — отсутствуют: ' + missing.join(', '));
+  if (nested.length) { console.error('⚠️ Структура — неверное вложение:'); nested.forEach(function(n){ console.error('  • ' + n); }); }
+  if (!missing.length && !nested.length) console.log('✓ Структура: ключевые элементы на месте');
 })();
 
 if ('serviceWorker' in navigator) {   window.addEventListener('load', function() {     navigator.serviceWorker.register('./sw.js').catch(function() {});   }); }
