@@ -20,7 +20,7 @@
   font-family: 'Noto Naskh Arabic';
   font-style: normal;
   font-weight: 400;
-  src: url('./fonts/noto-naskh-arabic-v26-arabic_latin-regular.woff2') format('woff2');
+  src: url('./fonts/noto-naskh-arabic-v44-arabic_latin-regular.woff2') format('woff2');
 }
 /* noto-naskh-arabic-500 - arabic_latin */
 @font-face {
@@ -28,7 +28,7 @@
   font-family: 'Noto Naskh Arabic';
   font-style: normal;
   font-weight: 500;
-  src: url('./fonts/noto-naskh-arabic-v26-arabic_latin-500.woff2') format('woff2');
+  src: url('./fonts/noto-naskh-arabic-v44-arabic_latin-500.woff2') format('woff2');
 }
 /* noto-naskh-arabic-700 - arabic_latin */
 @font-face {
@@ -36,45 +36,45 @@
   font-family: 'Noto Naskh Arabic';
   font-style: normal;
   font-weight: 700;
-  src: url('./fonts/noto-naskh-arabic-v26-arabic_latin-700.woff2') format('woff2');
+  src: url('./fonts/noto-naskh-arabic-v44-arabic_latin-700.woff2') format('woff2');
 }
-/* inter-regular - latin */
+/* inter-regular - latin_latin-ext */
 @font-face {
   font-display: swap;
   font-family: 'Inter';
   font-style: normal;
   font-weight: 400;
-  src: url('./fonts/inter-v13-latin-regular.woff2') format('woff2');
+  src: url('./fonts/inter-v20-latin_latin-ext-regular.woff2') format('woff2');
 }
-/* inter-500 - latin */
+/* inter-500 - latin_latin-ext */
 @font-face {
   font-display: swap;
   font-family: 'Inter';
   font-style: normal;
   font-weight: 500;
-  src: url('./fonts/inter-v13-latin-500.woff2') format('woff2');
+  src: url('./fonts/inter-v20-latin_latin-ext-500.woff2') format('woff2');
 }
-/* inter-600 - latin */
+/* inter-600 - latin_latin-ext */
 @font-face {
   font-display: swap;
   font-family: 'Inter';
   font-style: normal;
   font-weight: 600;
-  src: url('./fonts/inter-v13-latin-600.woff2') format('woff2');
+  src: url('./fonts/inter-v20-latin_latin-ext-600.woff2') format('woff2');
 }
-/* inter-700 - latin */
+/* inter-700 - latin_latin-ext */
 @font-face {
   font-display: swap;
   font-family: 'Inter';
   font-style: normal;
   font-weight: 700;
-  src: url('./fonts/inter-v13-latin-700.woff2') format('woff2');
+  src: url('./fonts/inter-v20-latin_latin-ext-700.woff2') format('woff2');
 }
-/* inter-800 - latin */
+/* inter-800 - latin_latin-ext */
 @font-face {
   font-display: swap;
   font-family: 'Inter';
   font-style: normal;
   font-weight: 800;
-  src: url('./fonts/inter-v13-latin-800.woff2') format('woff2');
+  src: url('./fonts/inter-v20-latin_latin-ext-800.woff2') format('woff2');
 }
