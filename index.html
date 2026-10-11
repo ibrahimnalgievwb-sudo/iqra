@@ -2444,31 +2444,8 @@ document.addEventListener('keydown', (e) => {
     startY = e.touches[0].clientY;
     tracking = true;
   }, { passive: true });
-
-  document.addEventListener('touchend', function(e) {
-    if (!tracking) return;
-    tracking = false;
-    if (dragEl) return;
-    var dx = e.changedTouches[0].clientX - startX;
-    var dy = e.changedTouches[0].clientY - startY;
-    if (Math.abs(dx) < THRESHOLD) return;
-    if (Math.abs(dy) > Math.abs(dx) * 0.5) return;
-
-    var back = activeBackScreen();
-    if (back) {
-      if (dx > 0) window[BACKS[back]]();
-      return;
-    }
-
-    var cur = activeTab();
-    if (!cur) return;
-    var idx = TABS.indexOf(cur);
-    if (dx < 0 && idx < TABS.length - 1) switchTab(TABS[idx + 1]);
-    else if (dx > 0 && idx > 0) switchTab(TABS[idx - 1]);
-  }, { passive: true });
 })();
-
-(function checkStructure(){
+ (function checkStructure(){
   var expected = [
     'screen-dashboard','screen-tasbih','screen-quran','screen-night','screen-dua',
     'screen-hadith','screen-cal','screen-quran-detail','screen-night-detail',
