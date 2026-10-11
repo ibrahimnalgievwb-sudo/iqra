@@ -13,7 +13,8 @@
 <meta name="robots" content="noindex, nofollow">
 <title>Iqra | Читай</title>
 <link rel="icon" type="image/png" href="https://api.dicebear.com/7.x/initials/png?seed=Iqra&size=180&backgroundColor=0e1626&textColor=6fb8c4&fontWeight=700&fontSize=45">
-<link rel="apple-touch-icon" href="https://api.dicebear.com/7.x/initials/png?seed=Iqra&size=180&backgroundColor=0e1626&textColor=6fb8c4&fontWeight=700&fontSize=45"> <link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="https://api.dicebear.com/7.x/initials/png?seed=Iqra&size=180&backgroundColor=0e1626&textColor=6fb8c4&fontWeight=700&fontSize=45">
+<link rel="manifest" href="./manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Noto+Naskh+Arabic:wght@400;500;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -1401,7 +1402,17 @@ function load() {
   s.quran = Array.isArray(s.quran) ? s.quran : [];
   s.migrations = s.migrations && typeof s.migrations === 'object' ? s.migrations : {};   s.favorites = Array.isArray(s.favorites) ? s.favorites : [];   s.bookmarks = Array.isArray(s.bookmarks) ? s.bookmarks : [];   s.settings.readScrolls = (s.settings.readScrolls && typeof s.settings.readScrolls === 'object') ? s.settings.readScrolls : {};
 
-  if (!s.migrations.addedTawhid) { if (!s.tasbihs.some(t=>t.id==='tawhid')) s.tasbihs.unshift(JSON.parse(JSON.stringify(TAWHID_TASBIH))); s.migrations.addedTawhid = true; }
+  if (!s.migrations.sanitizeIds_v1) {
+    const validId = (id) => (typeof id === 'string' && /^[a-zA-Z0-9_-]{1,100}$/.test(id));
+    s.tasbihs = s.tasbihs.filter(t => t && typeof t === 'object' && validId(t.id));
+    s.duas = s.duas.filter(d => d && typeof d === 'object' && validId(d.id));
+    s.hadiths = s.hadiths.filter(h => h && typeof h === 'object' && validId(h.id));
+    s.favorites = s.favorites.filter(id => validId(id));
+    s.bookmarks = s.bookmarks.filter(b => b && typeof b === 'object' && validId(b.id) && validId(b.quranId));
+    s.migrations.sanitizeIds_v1 = true;
+  }
+
+  if (!s.migrations.addedTawhid) { { if (!s.tasbihs.some(t=>t.id==='tawhid')) s.tasbihs.unshift(JSON.parse(JSON.stringify(TAWHID_TASBIH))); s.migrations.addedTawhid = true; }
   if (!s.migrations.addedIstighfar) { if (!s.tasbihs.some(t=>t.id==='istighfar')) s.tasbihs.splice(1,0,JSON.parse(JSON.stringify(ISTIGHFAR_TASBIH))); s.migrations.addedIstighfar = true; }
   if (!s.migrations.addedDuas) { const ids=new Set(s.duas.map(d=>d.id)); for (const d of DEFAULT_DUAS) if (!ids.has(d.id)) s.duas.push(JSON.parse(JSON.stringify(d))); s.migrations.addedDuas = true; }
   if (!s.migrations.addedHadiths) { const ids=new Set(s.hadiths.map(h=>h.id)); for (const h of DEFAULT_HADITHS) if (!ids.has(h.id)) s.hadiths.push(JSON.parse(JSON.stringify(h))); s.migrations.addedHadiths = true; }    if (!s.migrations.duaSayyidulFix_v1) {     const fixed = DEFAULT_DUAS.find(d => d.id === 'dua_sayyidul_istighfar');     const existing = s.duas.find(d => d.id === 'dua_sayyidul_istighfar');     if (fixed && existing) { existing.arabic = fixed.arabic; existing.transcription = fixed.transcription; existing.translation = fixed.translation; }     s.migrations.duaSayyidulFix_v1 = true;   }
