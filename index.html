@@ -9,7 +9,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Iqra">
-<meta name="theme-color" content="#E8EDE6">
+<meta name="theme-color" content="#F0F4F0">
 <meta name="robots" content="noindex, nofollow">
 <title>Iqra | Читай</title>
 <link rel="icon" type="image/png" href="https://api.dicebear.com/7.x/initials/png?seed=Iqra&size=180&backgroundColor=0e1626&textColor=6fb8c4&fontWeight=700&fontSize=45">
@@ -966,8 +966,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 </div>
 
 <!-- MEMORIZE MODE -->
-
-<!-- MEMORIZE MODE -->
+<div class="fullscreen" id="memorize-mode">
 <div class="fullscreen" id="memorize-mode">
   <div class="fs-header">
     <button class="icon-btn ghost" onclick="closeMemorize()" aria-label="Закрыть"><svg class="ico"><use href="#i-x"/></svg></button>
@@ -1417,7 +1416,7 @@ function applyTheme() {
   else if (t === 'light') dark = false;
   else dark = isNightNow();
   document.documentElement.setAttribute('data-theme', dark?'dark':'light');
-  document.querySelector('meta[name=theme-color]').setAttribute('content', dark?'#0E1626':'#E8EDE6');
+  document.querySelector('meta[name=theme-color]').setAttribute('content', dark?'#0A1620':'#F0F4F0');
   document.querySelectorAll('#theme-seg button').forEach(b=>b.classList.toggle('active', b.dataset.theme===t));
 }
 function setTheme(t){ state.settings.theme=t; save(); applyTheme(); }
@@ -2091,6 +2090,20 @@ function renderDashboard() {
       '<div class="ds-item"><div class="ds-num">' + totalAll + '</div><div class="ds-label">Всего</div></div>' +
       '<div class="ds-item"><div class="ds-num">' + daysActive + '</div><div class="ds-label">Дней</div></div>' +
       '<div class="ds-item"><div class="ds-num">' + state.tasbihs.length + '</div><div class="ds-label">Тасбихов</div></div>';
+  }
+
+  const quickEl = document.getElementById('dash-quick');
+  if (quickEl) {
+    let lastId = null;
+    try { lastId = localStorage.getItem('iqra_last_tasbih'); } catch(e) {}
+    const item = lastId ? getById(lastId) : null;
+    if (item) {
+      quickEl.innerHTML = '<div class="dq-icon">📿</div><div class="dq-body"><div class="dq-label">Продолжить зикр</div><div class="dq-name">' + esc(item.transcription || item.arabic || '—') + '</div></div>';
+      quickEl.onclick = function(){ openCounter(item.id); };
+    } else {
+      quickEl.innerHTML = '<div class="dq-icon">📿</div><div class="dq-body"><div class="dq-label">Начать зикр</div><div class="dq-name">Открой вкладку «Тасбих»</div></div>';
+      quickEl.onclick = function(){ switchTab('tasbih'); };
+    }
   }
 }
 function pluralDays(n) {
