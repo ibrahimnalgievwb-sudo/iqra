@@ -15,9 +15,7 @@
 <link rel="icon" type="image/png" href="./favicon.png">
 <link rel="apple-touch-icon" href="./apple-touch-icon.png">
 <link rel="manifest" href="./manifest.json">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Noto+Naskh+Arabic:wght@400;500;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./fonts.css">
 <style>
 :root { --ar-scale: 1; --radius: 22px; --accent-rgb: 13, 94, 76; }
 [data-theme="light"] {
@@ -2470,22 +2468,7 @@ document.addEventListener('keydown', (e) => {
   }, { passive: true });
 })();
 
-  document.addEventListener('touchend', function(e) {
-    if (!tracking) return;
-    tracking = false;
-    if (dragEl) return;
-    var dx = e.changedTouches[0].clientX - startX;
-    var dy = e.changedTouches[0].clientY - startY;
-    if (Math.abs(dx) < THRESHOLD) return;
-    if (Math.abs(dy) > Math.abs(dx) * 0.5) return;
-    var cur = activeTab();
-    if (!cur) return;
-    var idx = TABS.indexOf(cur);
-    if (dx < 0 && idx < TABS.length - 1) switchTab(TABS[idx + 1]);
-    else if (dx > 0 && idx > 0) switchTab(TABS[idx - 1]);
-  }, { passive: true });
-})();
- (function checkStructure(){
+(function checkStructure(){
   var expected = [
     'screen-dashboard','screen-tasbih','screen-quran','screen-night','screen-dua',
     'screen-hadith','screen-cal','screen-quran-detail','screen-night-detail',
