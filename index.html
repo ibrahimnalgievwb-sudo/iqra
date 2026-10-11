@@ -1120,9 +1120,9 @@ const DEFAULT_DUAS = [
     note:'Пророк ﷺ сказал: если того, кого постигнет беспокойство или грусть, произнесёт эти слова — Аллах обязательно избавит его от скорби и заменит печаль радостью.',
     source:'Передали: имам Ахмад (1/391), Ибн Хиббан (3/972), ат-Табарани (10352).', learned:false },
   { id:'dua_sayyidul_istighfar', title:'Саййидуль-истигфар', subtitle:'Господин истигфара · хадис от Шаддада ибн Ауса',
-    arabic:'اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ، أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ، أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَيَّ، وَأَبُوءُ لَكَ بِذَنْبِي، فَاغْفِرْ لِي، فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ',
-    transcription:'Аллахумма, Анта Рабби, ля иляха илля Анта, халяктани ва ана ‘абдука, ва ана ‘аля ‘ахдика ва ва‘дика ма-стата‘ту. А‘узу бика мин шарри ма сана‘ту, абу’у ляка би-ни‘матика ‘аляйя, ва абу’у ляка би-занби. Фагфир ли, фа-иннаху ля йагфиру-з-зунуба илля Анта.',
-    translation:'«О Аллах, Ты — мой Господь. Нет бога, кроме Тебя. Ты создал меня, и я — Твой раб. Я придерживаюсь Твоего завета и обещания, насколько могу. Прибегаю к Тебе от зла того, что я совершил. Я признаю Твою милость, оказанную мне, и признаю свой грех. Прости же меня, ибо, поистине, никто не прощает грехи, кроме Тебя».',
+    arabic:'اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ خَلَقْتَنِي وَ أَنَا عَبْدُكَ وَ أَنَا عَلَى عَهْدِكَ وَ وَعْدِكَ مَا اسْتَطَعْتُ أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُّ أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَيَّ وَ أَبُوءُ بِذَنْبِي فَاغْفِرْ لِي فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ',
+       transcription:'Аллахумма, Анта Рабби, ля иляха илля Анта, халякта-ни ва ана \'абду-кя, ва ана \'аля \'ахди-кя ва ва\'ди-кя ма-стата\'ту. А\'узу би-кя мин шарри ма сана\'ту, абу\'у ля-кя би-ни\'мати-кя \'аляййя, ва абу\'у би-занби, фа-гфир ли, фа-инна-ху ля йагфи-ру-з-зунуба илля Анта!',
+    translation:'«О Аллах, Ты - Господь мой, и нет достойного поклонения, кроме Тебя, Ты создал меня, а я - Твой раб, и я буду хранить верность Тебе, пока у меня хватит сил. Прибегаю к Тебе от зла того, что я сделал, признаю милость, оказанную Тобой мне, и признаю грех свой. Прости же меня, ибо, поистине, никто не прощает грехов, кроме Тебя!»',
     note:'Пророк ﷺ сказал: «Тот, кто произнесёт это днём, будучи убеждённым, и умрёт в тот же день до наступления вечера — будет из обитателей Рая. И тот, кто произнесёт это той же ночью, будучи убеждённым, и умрёт до наступления утра — будет из обитателей Рая».',
     source:'Сахих аль-Бухари (№ 6306). Также передают: ат-Тирмизи (№ 3393), Абу Дауд, ан-Насаи.', learned:false }
 ];
@@ -1348,7 +1348,7 @@ function load() {
   if (!s.migrations.addedTawhid) { if (!s.tasbihs.some(t=>t.id==='tawhid')) s.tasbihs.unshift(JSON.parse(JSON.stringify(TAWHID_TASBIH))); s.migrations.addedTawhid = true; }
   if (!s.migrations.addedIstighfar) { if (!s.tasbihs.some(t=>t.id==='istighfar')) s.tasbihs.splice(1,0,JSON.parse(JSON.stringify(ISTIGHFAR_TASBIH))); s.migrations.addedIstighfar = true; }
   if (!s.migrations.addedDuas) { const ids=new Set(s.duas.map(d=>d.id)); for (const d of DEFAULT_DUAS) if (!ids.has(d.id)) s.duas.push(JSON.parse(JSON.stringify(d))); s.migrations.addedDuas = true; }
-  if (!s.migrations.addedHadiths) { const ids=new Set(s.hadiths.map(h=>h.id)); for (const h of DEFAULT_HADITHS) if (!ids.has(h.id)) s.hadiths.push(JSON.parse(JSON.stringify(h))); s.migrations.addedHadiths = true; }
+  if (!s.migrations.addedHadiths) { const ids=new Set(s.hadiths.map(h=>h.id)); for (const h of DEFAULT_HADITHS) if (!ids.has(h.id)) s.hadiths.push(JSON.parse(JSON.stringify(h))); s.migrations.addedHadiths = true; }    if (!s.migrations.duaSayyidulFix_v1) {     const fixed = DEFAULT_DUAS.find(d => d.id === 'dua_sayyidul_istighfar');     const existing = s.duas.find(d => d.id === 'dua_sayyidul_istighfar');     if (fixed && existing) { existing.arabic = fixed.arabic; existing.transcription = fixed.transcription; existing.translation = fixed.translation; }     s.migrations.duaSayyidulFix_v1 = true;   }
 
   if (!s.migrations.quran_v15) {
     const learnedMap = new Map(s.quran.map(q => [q.id, { learned: q.learned, learnedAt: q.learnedAt }]));
