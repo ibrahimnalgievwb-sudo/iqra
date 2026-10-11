@@ -2355,31 +2355,7 @@ document.addEventListener('keydown', (e) => {
   const mem = document.getElementById('memorize-mode');
   if (mem && mem.classList.contains('active')) { closeMemorize(); return; }
 });
-(function(){ var el=document.getElementById('read-body'); if (el) { let tx=0, ty=0, on=false; el.addEventListener('touchstart', function(e){ tx=e.touches[0].clientX; ty=e.touches[0].clientY; on=true; }, { passive:true }); el.addEventListener('touchend', function(e){ if (!on) return; on=false; var dx=e.changedTouches[0].clientX-tx; var dy=e.changedTouches[0].clientY-ty; if (Math.abs(dx)<80 || Math.abs(dy)>Math.abs(dx)) return; if (!activeReadId) return; var idx=state.quran.findIndex(function(q){return q.id===activeReadId;}); if (idx<0) return; if (dx<0 && idx<state.quran.length-1) openRead(state.quran[idx+1].id); else if (dx>0 && idx>0) openRead(state.quran[idx-1].id); }, { passive:true }); } })(); (function(){ var startX=0, startY=0, tracking=false; var threshold=100; function isFullscreenOpen(){ var ids=['read-mode','memorize-mode','search-overlay']; for (var i=0;i<ids.length;i++){ var el=document.getElementById(ids[i]); if (el && el.classList.contains('active')) return ids[i]; } return null; } document.addEventListener('touchstart', function(e){ if (e.touches.length !== 1) return; startX=e.touches[0].clientX; startY=e.touches[0].clientY; tracking=true; }, { passive:true }); document.addEventListener('touchend', function(e){ if (!tracking) return; tracking=false; var dx=e.changedTouches[0].clientX-startX; var dy=e.changedTouches[0].clientY-startY; if (Math.abs(dx) < threshold || Math.abs(dy) > Math.abs(dx)*0.8) return; var current = isFullscreenOpen(); if (!current) return; if (dx > 0) { if (current === 'read-mode') closeRead(); else if (current === 'memorize-mode') closeMemorize(); else if (current === 'search-overlay') closeSearch(); } }, { passive:true }); })(); (function checkInlineHandlers(){
-  var attrs = ['onclick','oninput','onchange','onsubmit'];
-  var problems = [];
-  attrs.forEach(function(a){
-    document.querySelectorAll('[' + a + ']').forEach(function(el){
-      var v = el.getAttribute(a) || '';
-      if (/\s[a-z-]+=\s*$/i.test(v)) {
-        problems.push('<' + el.tagName.toLowerCase() + '> ' + a + '=' + JSON.stringify(v));
-      }
-      var opens = (v.match(/\(/g) || []).length;
-      var closes = (v.match(/\)/g) || []).length;
-      if (opens !== closes) {
-        problems.push('Скобки (' + opens + '/' + closes + '): ' + a + '=' + JSON.stringify(v));
-      }
-    });
-  });
-  if (problems.length) {
-    console.error('⚠️ Inline-обработчики — ' + problems.length + ' проблем(ы):');
-    problems.forEach(function(p){ console.error('  • ' + p); });
-  } else {
-    console.log('✓ Inline-обработчики: парность кавычек и скобок в порядке');
-  }
-})();
-
-(function checkStructure(){
+(function(){ var el=document.getElementById('read-body'); if (el) { let tx=0, ty=0, on=false; el.addEventListener('touchstart', function(e){ tx=e.touches[0].clientX; ty=e.touches[0].clientY; on=true; }, { passive:true }); el.addEventListener('touchend', function(e){ if (!on) return; on=false; var dx=e.changedTouches[0].clientX-tx; var dy=e.changedTouches[0].clientY-ty; if (Math.abs(dx)<80 || Math.abs(dy)>Math.abs(dx)) return; if (!activeReadId) return; var idx=state.quran.findIndex(function(q){return q.id===activeReadId;}); if (idx<0) return; if (dx<0 && idx<state.quran.length-1) openRead(state.quran[idx+1].id); else if (dx>0 && idx>0) openRead(state.quran[idx-1].id); }, { passive:true }); } })(); (function(){ var startX=0, startY=0, tracking=false; var threshold=100; function isFullscreenOpen(){ var ids=['read-mode','memorize-mode','search-overlay']; for (var i=0;i<ids.length;i++){ var el=document.getElementById(ids[i]); if (el && el.classList.contains('active')) return ids[i]; } return null; } document.addEventListener('touchstart', function(e){ if (e.touches.length !== 1) return; startX=e.touches[0].clientX; startY=e.touches[0].clientY; tracking=true; }, { passive:true }); document.addEventListener('touchend', function(e){ if (!tracking) return; tracking=false; var dx=e.changedTouches[0].clientX-startX; var dy=e.changedTouches[0].clientY-startY; if (Math.abs(dx) < threshold || Math.abs(dy) > Math.abs(dx)*0.8) return; var current = isFullscreenOpen(); if (!current) return; if (dx > 0) { if (current === 'read-mode') closeRead(); else if (current === 'memorize-mode') closeMemorize(); else if (current === 'search-overlay') closeSearch(); } }, { passive:true }); })(); (function checkStructure(){
   var expected = [
     'screen-dashboard','screen-tasbih','screen-quran','screen-night','screen-dua',
     'screen-hadith','screen-cal','screen-quran-detail','screen-night-detail',
