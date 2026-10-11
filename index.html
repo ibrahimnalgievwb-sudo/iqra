@@ -246,7 +246,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .read-ayah { background:var(--card); border-radius:18px; padding:18px 20px; margin-bottom:14px; box-shadow:0 2px 8px var(--shadow); position:relative; overflow-wrap: break-word; }
 .read-ayah-num { display:inline-flex; align-items:center; justify-content:center; min-width:32px; height:32px; padding:0 10px; border-radius:16px; background:rgba(var(--accent-rgb), .15); color:var(--accent); font-size:12px; font-weight:700; margin-bottom:12px; }
 .read-ayah-tr { font-size:15px; color:var(--muted); line-height:1.75; margin-bottom:10px; font-style:italic; overflow-wrap: break-word; letter-spacing:0.01em; }
-.read-ayah-trn { font-size:15px; line-height:1.7; overflow-wrap: break-word; }
+.read-ayah-trn { font-size:16px; line-height:1.8; overflow-wrap: break-word; letter-spacing:0.005em; }
 .read-ayah.ayat-mode .read-ayah-num { background:var(--accent2); color:var(--bg); }
 
 .bismillah-card {
@@ -625,6 +625,13 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   overflow-wrap: break-word;
 }
 
+.dash-quick { background: var(--card); border-radius: var(--radius); padding: 14px 18px; margin-bottom: 14px; box-shadow: 0 2px 8px var(--shadow); display: flex; align-items: center; gap: 12px; cursor: pointer; border: 1px dashed var(--border); }
+.dash-quick:active { transform: scale(.98); }
+.dash-quick .dq-icon { font-size: 24px; flex-shrink: 0; }
+.dash-quick .dq-body { flex: 1; min-width: 0; }
+.dash-quick .dq-label { font-size: 11px; color: var(--accent); text-transform: uppercase; letter-spacing: .5px; font-weight: 700; }
+.dash-quick .dq-name { font-size: 15px; font-weight: 700; margin-top: 2px; }
+
 .dash-stats {
   background: var(--card);
   border-radius: var(--radius);
@@ -709,6 +716,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
     <div class="dash-quote" id="dash-quote" onclick="dashQuoteTap()"></div>
     <div class="dash-top" id="dash-top"></div>
     <div class="dash-stats" id="dash-stats"></div>
+    <div class="dash-quick" id="dash-quick"></div>
   </div>
 </div>
 
@@ -1458,7 +1466,7 @@ function cardTouchStart(e) { const card=e.currentTarget; dragId=card.dataset.id;
 function cardTouchMove(e) { const card=e.currentTarget; if (!dragEl) { if (dragHoldTimer && Math.abs(e.touches[0].clientY-(card._startY||0))>8) { clearTimeout(dragHoldTimer); dragHoldTimer=null; } return; } e.preventDefault(); const y=e.touches[0].clientY; const container=document.getElementById('cards-container'); const cards=[...container.querySelectorAll('.tasbih-card:not(.dragging)')]; let before=null; for (const c of cards) { const r=c.getBoundingClientRect(); if (y<r.top+r.height/2) { before=c; break; } } if (before) container.insertBefore(dragEl,before); else container.appendChild(dragEl); }
 function cardTouchEnd() { if (dragHoldTimer) { clearTimeout(dragHoldTimer); dragHoldTimer=null; } if (!dragEl) { dragId=null; return; } dragEl.classList.remove('dragging'); const ids=[...document.querySelectorAll('#cards-container .tasbih-card')].map(c=>c.dataset.id); state.tasbihs.sort((a,b)=>ids.indexOf(a.id)-ids.indexOf(b.id)); save(); dragEl=null; dragId=null; setTimeout(()=>renderTasbih(),50); }
 
-function openCounter(id) { activeId=id; const t=getById(id); if (!t) return; trackEvent('tasbih/' + id, 'Тасбих: ' + (t.transcription || t.arabic || id)); document.getElementById('c-ar').textContent=t.arabic; document.getElementById('c-tr').textContent=t.transcription; document.getElementById('c-trn').textContent=t.translation; document.getElementById('c-target').textContent='из '+t.target; updateCounterUI(); showScreen('screen-counter'); if (state.settings.wakeLock) requestWakeLock(); }
+function openCounter(id) { activeId=id; const t=getById(id); if (!t) return; try { localStorage.setItem('iqra_last_tasbih', id); } catch(e) {} trackEvent('tasbih/' + id, 'Тасбих: ' + (t.transcription || t.arabic || id)); document.getElementById('c-ar').textContent=t.arabic; document.getElementById('c-tr').textContent=t.transcription; document.getElementById('c-trn').textContent=t.translation; document.getElementById('c-target').textContent='из '+t.target; updateCounterUI(); showScreen('screen-counter'); if (state.settings.wakeLock) requestWakeLock(); }
 function updateCounterUI() { const t=getById(activeId); if (!t) return; const numEl=document.getElementById('c-num'); numEl.textContent=t.current; const done=t.current>=t.target; numEl.classList.toggle('done', done); document.getElementById('c-cycles').textContent='Циклов: '+t.cycles; const R=44, C=2*Math.PI*R; const p=Math.min(1,t.current/t.target); document.getElementById('c-ring').setAttribute('stroke-dashoffset', C*(1-p)); document.getElementById('top-progress-bar').style.width=(p*100)+'%'; }
 function tap(e) {
   const t=getById(activeId); if (!t) return;
@@ -2060,7 +2068,7 @@ function renderDashboard() {
   const counts = {};
   for (const k in state.history) for (const id in state.history[k].byId) counts[id] = (counts[id] || 0) + state.history[k].byId[id];
   const topId = Object.keys(counts).sort((a, b) => counts[b] - counts[a])[0];
-  const topEl = document.getElementById('dash-top');
+   const topEl = document.getElementById('dash-top');
   if (topEl) {
     if (topId) {
       const item = getById(topId);
@@ -2073,6 +2081,16 @@ function renderDashboard() {
     } else {
       topEl.innerHTML = '<div class="dt-icon">🏆</div><div class="dt-body"><div class="dt-label">Топ зикра</div><div class="dt-title">Пока пусто</div><div class="dt-sub">Начни считать тасбих</div></div>';
     }
+  }
+
+  const statsEl = document.getElementById('dash-stats');
+  if (statsEl) {
+    let totalAll = 0, daysActive = 0;
+    for (const k in state.history) { const t = state.history[k].total; totalAll += t; if (t > 0) daysActive++; }
+    statsEl.innerHTML =
+      '<div class="ds-item"><div class="ds-num">' + totalAll + '</div><div class="ds-label">Всего</div></div>' +
+      '<div class="ds-item"><div class="ds-num">' + daysActive + '</div><div class="ds-label">Дней</div></div>' +
+      '<div class="ds-item"><div class="ds-num">' + state.tasbihs.length + '</div><div class="ds-label">Тасбихов</div></div>';
   }
 }
 function pluralDays(n) {
