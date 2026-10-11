@@ -36,7 +36,7 @@ html, body {
   height:100%; overscroll-behavior:none;
   -webkit-user-select:none; user-select:none;
 }
-body { display:flex; flex-direction:column; padding-top:env(safe-area-inset-top); padding-bottom:env(safe-area-inset-bottom); }
+body { display:flex; flex-direction:column; padding-top:env(safe-area-inset-top); }
 button, input, textarea, select { font-family:inherit; color:inherit; }
 button { cursor:pointer; border:none; background:none; }
 input, textarea { -webkit-user-select:text; user-select:text; }
@@ -301,7 +301,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .security-note { display:flex; align-items:flex-start; gap:10px; background:rgba(var(--accent-rgb), .10); border-radius:14px; padding:12px 14px; margin-bottom:14px; font-size:12px; color:var(--muted); line-height:1.5; overflow-wrap: break-word; }
 .security-note .icon { font-size:16px; flex-shrink:0; }
 
-.modal-bg { position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:100; display:none; align-items:center; justify-content:center; padding:20px; }
+.modal-bg { position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:10050; display:none; align-items:center; justify-content:center; padding:20px; }
 .modal-bg.active { display:flex; animation:fadeIn .2s; }
 .modal { background:var(--card); border-radius:22px; width:100%; max-width:440px; max-height:80vh; overflow-y:auto; padding:26px 22px; overflow-wrap: break-word; }
 .modal h2 { margin:0 0 16px; font-size:18px; }
@@ -320,7 +320,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .time-row input[type="time"] { flex:1; min-width:120px; background:var(--card2); border:none; border-radius:10px; padding:10px 12px; font-size:16px; outline:none; color:var(--text); }
 .time-row .del { width:36px; height:36px; border-radius:50%; background:var(--card2); color:#c96a5a; font-size:18px; flex-shrink:0; } .reminder-row { padding:12px 16px; border-top:1px solid var(--border); display:flex; flex-direction:column; gap:8px; } .reminder-row > .rr-top { display:flex; gap:8px; align-items:center; } .reminder-row input[type="time"] { flex:1; background:var(--card2); border:none; border-radius:10px; padding:10px 12px; font-size:16px; outline:none; color:var(--text); } .reminder-row .del { width:36px; height:36px; border-radius:50%; background:var(--card2); color:#c96a5a; font-size:18px; flex-shrink:0; } .reminder-row input[type="text"] { background:var(--card2); border:none; border-radius:10px; padding:9px 12px; font-size:14px; outline:none; color:var(--text); width:100%; }
 
-.fullscreen { position:fixed; inset:0; background:var(--bg); z-index:200; display:none; flex-direction:column; padding-top:env(safe-area-inset-top); padding-bottom:env(safe-area-inset-bottom); }
+.fullscreen { position:fixed; inset:0; background:var(--bg); z-index:10000; display:none; flex-direction:column; padding-top:env(safe-area-inset-top); padding-bottom:env(safe-area-inset-bottom); }
 .fullscreen.active { display:flex; animation: slideUp .26s cubic-bezier(.16,1,.3,1); }
 .fullscreen .fs-header { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-bottom:1px solid var(--border); gap:10px; }
 .fullscreen .fs-header h2 { font-size:16px; margin:0; font-weight:600; overflow-wrap: break-word; } .fullscreen .fs-header input { flex:1; min-width:0; background:var(--card); border:1px solid var(--border); border-radius:12px; padding:10px 14px; font-size:15px; outline:none; color:var(--text); margin:0 8px; -webkit-user-select:text; user-select:text; }
@@ -948,7 +948,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
     <div style="width:42px"></div>
   </div>
   <div class="settings">
-    <div class="security-note"><svg class="ico ico-sm" style="flex-shrink:0"><use href="#i-shield"/></svg><span>Приложение работает <b>полностью офлайн</b>. Данные хранятся только на этом устройстве. Текст Корана <b>зафиксирован в коде</b> и не может быть изменён извне.</span></div>
+    <div class="security-note"><svg class="ico ico-sm" style="flex-shrink:0"><use href="#i-shield"/></svg><span>Данные хранятся только на этом устройстве. Текст Корана <b>зафиксирован в коде</b> и не может быть изменён извне. Для шрифтов и счётчика посещений используются внешние сервисы (Google Fonts, GoatCounter).</span></div>
     <div class="settings-group">
       <div class="sg-title">Внешний вид</div>
       <div class="setting-row">
@@ -1519,7 +1519,7 @@ function cardTouchStart(e) { const card=e.currentTarget; dragId=card.dataset.id;
 function cardTouchMove(e) { const card=e.currentTarget; if (!dragEl) { if (dragHoldTimer && Math.abs(e.touches[0].clientY-(card._startY||0))>8) { clearTimeout(dragHoldTimer); dragHoldTimer=null; } return; } e.preventDefault(); const y=e.touches[0].clientY; const container=document.getElementById('cards-container'); const cards=[...container.querySelectorAll('.tasbih-card:not(.dragging)')]; let before=null; for (const c of cards) { const r=c.getBoundingClientRect(); if (y<r.top+r.height/2) { before=c; break; } } if (before) container.insertBefore(dragEl,before); else container.appendChild(dragEl); }
 function cardTouchEnd() { if (dragHoldTimer) { clearTimeout(dragHoldTimer); dragHoldTimer=null; } if (!dragEl) { dragId=null; return; } dragEl.classList.remove('dragging'); const ids=[...document.querySelectorAll('#cards-container .tasbih-card')].map(c=>c.dataset.id); state.tasbihs.sort((a,b)=>ids.indexOf(a.id)-ids.indexOf(b.id)); save(); dragEl=null; dragId=null; setTimeout(()=>renderTasbih(),50); }
 
-function openCounter(id) { activeId=id; const t=getById(id); if (!t) return; try { localStorage.setItem('iqra_last_tasbih', id); } catch(e) {} trackEvent('tasbih/' + id, 'Тасбих: ' + (t.transcription || t.arabic || id)); document.getElementById('c-ar').textContent=t.arabic; document.getElementById('c-tr').textContent=t.transcription; document.getElementById('c-trn').textContent=t.translation; document.getElementById('c-target').textContent='из '+t.target; updateCounterUI(); showScreen('screen-counter'); if (state.settings.wakeLock) requestWakeLock(); }
+function openCounter(id) { activeId=id; const t=getById(id); if (!t) return; try { localStorage.setItem('iqra_last_tasbih', id); } catch(e) {} trackEvent('tasbih/' + id, 'Тасбих: ' + id); document.getElementById('c-ar').textContent=t.arabic; document.getElementById('c-tr').textContent=t.transcription; document.getElementById('c-trn').textContent=t.translation; document.getElementById('c-target').textContent='из '+t.target; updateCounterUI(); showScreen('screen-counter'); if (state.settings.wakeLock) requestWakeLock(); }
 function updateCounterUI() { const t=getById(activeId); if (!t) return; const numEl=document.getElementById('c-num'); numEl.textContent=t.current; const done=t.current>=t.target; numEl.classList.toggle('done', done); document.getElementById('c-cycles').textContent='Циклов: '+t.cycles; const R=44, C=2*Math.PI*R; const p=Math.min(1,t.current/t.target); document.getElementById('c-ring').setAttribute('stroke-dashoffset', C*(1-p)); document.getElementById('top-progress-bar').style.width=(p*100)+'%'; }
 function tap(e) {
   const t=getById(activeId); if (!t) return;
@@ -1529,7 +1529,7 @@ function tap(e) {
   if (t.current >= t.target) { t.cycles += 1; t.current = 1; } else { t.current += 1; }
   addToHistory(t.id, 1); updateCounterUI(); save();
   const numEl=document.getElementById('c-num'); numEl.classList.remove('pulse'); void numEl.offsetWidth; numEl.classList.add('pulse');
-  if (completed) { trackEvent('complete/' + t.id, 'Цель достигнута: ' + (t.transcription || t.arabic || t.id)); playChime(); if (state.settings.vibrate && navigator.vibrate) navigator.vibrate([30,40,30]); showCongrats(t); if (state.settings.autoNext) setTimeout(showNextToast, 800); }
+  if (completed) { trackEvent('complete/' + t.id, 'Цель достигнута: ' + t.id); playChime(); if (state.settings.vibrate && navigator.vibrate) navigator.vibrate([30,40,30]); showCongrats(t); if (state.settings.autoNext) setTimeout(showNextToast, 800); }
   else { playClick(); if (state.settings.vibrate && navigator.vibrate) navigator.vibrate(8); }
 }
 function showCongrats(tasbih) { const el = document.getElementById('modal-content'); el.innerHTML = `<div class="congrats-modal"><svg class="ico ico-xl" style="color:var(--accent);margin:0 auto 14px"><use href="#i-check"/></svg><h2>Цель достигнута!</h2><p><b>${esc(tasbih.transcription || tasbih.translation || 'Тасбих')}</b><br>${tasbih.target} раз · Цикл #${tasbih.cycles}</p><button class="btn" onclick="closeModal()">Продолжить</button></div>`; document.getElementById('modal-bg').classList.add('active'); }
@@ -1634,7 +1634,7 @@ function toggleQuranLearned(id) {
 function showCongratsLearn(title) { const el = document.getElementById('modal-content'); el.innerHTML = `<div class="congrats-modal"><svg class="ico ico-xl" style="color:var(--accent);margin:0 auto 14px"><use href="#i-check"/></svg><h2>МашаАллах!</h2><p><b>${esc(title)}</b><br>отмечено как выученное</p><button class="btn" onclick="closeModal()">Амин</button></div>`; document.getElementById('modal-bg').classList.add('active'); }
 function goQuranList() { activeQuranId = null; renderQuranList(); showScreen('screen-quran'); }
 
-function openRead(id) {
+function openRead(id, targetAyahIdx) {
   const item = getQuranById(id); if (!item) return;
   trackEvent('read/' + id, 'Чтение: ' + item.title);
   saveLastRead(id);
@@ -1660,8 +1660,20 @@ function openRead(id) {
   `;
   activeReadId = id;
   document.getElementById('read-mode').classList.add('active');
-  const saved = (state.settings.readScrolls && state.settings.readScrolls[id]) || 0;
-  setTimeout(()=>{ const b=document.getElementById('read-body'); if (b) b.scrollTop=saved; }, 40);
+  const body = document.getElementById('read-body');
+  const restore = () => {
+    if (!body) return;
+    if (typeof targetAyahIdx === 'number' && targetAyahIdx >= 0) {
+      const ayahs = body.querySelectorAll('.read-ayah');
+      if (ayahs[targetAyahIdx]) { ayahs[targetAyahIdx].scrollIntoView({ block: 'start' }); return; }
+    }
+    body.scrollTop = (state.settings.readScrolls && state.settings.readScrolls[id]) || 0;
+  };
+  if (document.fonts && document.fonts.ready && typeof document.fonts.ready.then === 'function') {
+    document.fonts.ready.then(restore).catch(restore);
+  } else {
+    setTimeout(restore, 40);
+  }
 }
 function closeRead() {
   if (activeReadId && state.settings.readScrolls) { const b=document.getElementById('read-body'); state.settings.readScrolls[activeReadId] = b ? (b.scrollTop||0) : 0; save(); }
@@ -2149,13 +2161,7 @@ function openBookmark(bmId) {
   if (!bm) return;
   var item = getQuranById(bm.quranId);
   if (!item) { showMarkToast('Текст недоступен'); return; }
-  openRead(bm.quranId);
-  setTimeout(function(){
-    var body = document.getElementById('read-body');
-    if (!body) return;
-    var ayahs = body.querySelectorAll('.read-ayah');
-    if (ayahs[bm.ayahIdx]) ayahs[bm.ayahIdx].scrollIntoView({ block: 'start' });
-  }, 120);
+  openRead(bm.quranId, bm.ayahIdx);
 }
 
 function renderDashMarks() {
