@@ -2400,7 +2400,53 @@ document.addEventListener('keydown', (e) => {
   const mem = document.getElementById('memorize-mode');
   if (mem && mem.classList.contains('active')) { closeMemorize(); return; }
 });
-(function(){ var el=document.getElementById('read-body'); if (el) { let tx=0, ty=0, on=false; el.addEventListener('touchstart', function(e){ tx=e.touches[0].clientX; ty=e.touches[0].clientY; on=true; }, { passive:true }); el.addEventListener('touchend', function(e){ if (!on) return; on=false; var dx=e.changedTouches[0].clientX-tx; var dy=e.changedTouches[0].clientY-ty; if (Math.abs(dx)<80 || Math.abs(dy)>Math.abs(dx)) return; if (!activeReadId) return; var idx=state.quran.findIndex(function(q){return q.id===activeReadId;}); if (idx<0) return; if (dx<0 && idx<state.quran.length-1) openRead(state.quran[idx+1].id); else if (dx>0 && idx>0) openRead(state.quran[idx-1].id); }, { passive:true }); } })(); (function(){ var startX=0, startY=0, tracking=false; var threshold=100; function isFullscreenOpen(){ var ids=['read-mode','memorize-mode','search-overlay']; for (var i=0;i<ids.length;i++){ var el=document.getElementById(ids[i]); if (el && el.classList.contains('active')) return ids[i]; } return null; } document.addEventListener('touchstart', function(e){ if (e.touches.length !== 1) return; startX=e.touches[0].clientX; startY=e.touches[0].clientY; tracking=true; }, { passive:true }); document.addEventListener('touchend', function(e){ if (!tracking) return; tracking=false; var dx=e.changedTouches[0].clientX-startX; var dy=e.changedTouches[0].clientY-startY; if (Math.abs(dx) < threshold || Math.abs(dy) > Math.abs(dx)*0.8) return; var current = isFullscreenOpen(); if (!current) return; if (dx > 0) { if (current === 'read-mode') closeRead(); else if (current === 'memorize-mode') closeMemorize(); else if (current === 'search-overlay') closeSearch(); } }, { passive:true }); })(); (function checkStructure(){
+(function(){ var el=document.getElementById('read-body'); if (el) { let tx=0, ty=0, on=false; el.addEventListener('touchstart', function(e){ tx=e.touches[0].clientX; ty=e.touches[0].clientY; on=true; }, { passive:true }); el.addEventListener('touchend', function(e){ if (!on) return; on=false; var dx=e.changedTouches[0].clientX-tx; var dy=e.changedTouches[0].clientY-ty; if (Math.abs(dx)<80 || Math.abs(dy)>Math.abs(dx)) return; if (!activeReadId) return; var idx=state.quran.findIndex(function(q){return q.id===activeReadId;}); if (idx<0) return; if (dx<0 && idx<state.quran.length-1) openRead(state.quran[idx+1].id); else if (dx>0 && idx>0) openRead(state.quran[idx-1].id); }, { passive:true }); } })(); (function(){ var startX=0, startY=0, tracking=false; var threshold=100; function isFullscreenOpen(){ var ids=['read-mode','memorize-mode','search-overlay']; for (var i=0;i<ids.length;i++){ var el=document.getElementById(ids[i]); if (el && el.classList.contains('active')) return ids[i]; } return null; } document.addEventListener('touchstart', function(e){ if (e.touches.length !== 1) return; startX=e.touches[0].clientX; startY=e.touches[0].clientY; tracking=true; }, { passive:true }); document.addEventListener('touchend', function(e){ if (!tracking) return; tracking=false; var dx=e.changedTouches[0].clientX-startX; var dy=e.changedTouches[0].clientY-startY; if (Math.abs(dx) < threshold || Math.abs(dy) > Math.abs(dx)*0.8) return; var current = isFullscreenOpen(); if (!current) return; if (dx > 0) { if (current === 'read-mode') closeRead(); else if (current === 'memorize-mode') closeMemorize(); else if (current === 'search-overlay') closeSearch(); } }, { passive:true }); })();(function() {
+  var startX = 0, startY = 0, tracking = false;
+  var THRESHOLD = 70;
+  var TABS = ['dashboard','tasbih','quran','night','dua','hadith','cal'];
+  var SCREENS = { 'dashboard':'screen-dashboard','tasbih':'screen-tasbih','quran':'screen-quran','night':'screen-night','dua':'screen-dua','hadith':'screen-hadith','cal':'screen-cal' };
+
+  function activeTab() {
+    for (var i = 0; i < TABS.length; i++) {
+      var el = document.getElementById(SCREENS[TABS[i]]);
+      if (el && el.classList.contains('active')) return TABS[i];
+    }
+    return null;
+  }
+  function isBlocked() {
+    if (document.getElementById('modal-bg').classList.contains('active')) return true;
+    if (document.getElementById('read-mode').classList.contains('active')) return true;
+    if (document.getElementById('memorize-mode').classList.contains('active')) return true;
+    if (document.getElementById('search-overlay').classList.contains('active')) return true;
+    return false;
+  }
+
+  document.addEventListener('touchstart', function(e) {
+    if (e.touches.length !== 1) { tracking = false; return; }
+    if (isBlocked()) { tracking = false; return; }
+    var t = e.target;
+    if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT')) { tracking = false; return; }
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    tracking = true;
+  }, { passive: true });
+
+  document.addEventListener('touchend', function(e) {
+    if (!tracking) return;
+    tracking = false;
+    if (dragEl) return;
+    var dx = e.changedTouches[0].clientX - startX;
+    var dy = e.changedTouches[0].clientY - startY;
+    if (Math.abs(dx) < THRESHOLD) return;
+    if (Math.abs(dy) > Math.abs(dx) * 0.5) return;
+    var cur = activeTab();
+    if (!cur) return;
+    var idx = TABS.indexOf(cur);
+    if (dx < 0 && idx < TABS.length - 1) switchTab(TABS[idx + 1]);
+    else if (dx > 0 && idx > 0) switchTab(TABS[idx - 1]);
+  }, { passive: true });
+})();
+ (function checkStructure(){
   var expected = [
     'screen-dashboard','screen-tasbih','screen-quran','screen-night','screen-dua',
     'screen-hadith','screen-cal','screen-quran-detail','screen-night-detail',
