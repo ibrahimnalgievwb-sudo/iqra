@@ -409,7 +409,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   background: var(--accent);
   opacity: 0;
   transition: opacity .3s ease;
-  z-index: 10000;
+  z-index: 10010;
   pointer-events: none;
 }
 .save-indicator.active {
@@ -1412,7 +1412,7 @@ function load() {
     s.migrations.sanitizeIds_v1 = true;
   }
 
-  if (!s.migrations.addedTawhid) { { if (!s.tasbihs.some(t=>t.id==='tawhid')) s.tasbihs.unshift(JSON.parse(JSON.stringify(TAWHID_TASBIH))); s.migrations.addedTawhid = true; }
+  if  if (!s.migrations.addedTawhid) { if (!s.tasbihs.some(t=>t.id==='tawhid')) s.tasbihs.unshift(JSON.parse(JSON.stringify(TAWHID_TASBIH))); s.migrations.addedTawhid = true; }
   if (!s.migrations.addedIstighfar) { if (!s.tasbihs.some(t=>t.id==='istighfar')) s.tasbihs.splice(1,0,JSON.parse(JSON.stringify(ISTIGHFAR_TASBIH))); s.migrations.addedIstighfar = true; }
   if (!s.migrations.addedDuas) { const ids=new Set(s.duas.map(d=>d.id)); for (const d of DEFAULT_DUAS) if (!ids.has(d.id)) s.duas.push(JSON.parse(JSON.stringify(d))); s.migrations.addedDuas = true; }
   if (!s.migrations.addedHadiths) { const ids=new Set(s.hadiths.map(h=>h.id)); for (const h of DEFAULT_HADITHS) if (!ids.has(h.id)) s.hadiths.push(JSON.parse(JSON.stringify(h))); s.migrations.addedHadiths = true; }    if (!s.migrations.duaSayyidulFix_v1) {     const fixed = DEFAULT_DUAS.find(d => d.id === 'dua_sayyidul_istighfar');     const existing = s.duas.find(d => d.id === 'dua_sayyidul_istighfar');     if (fixed && existing) { existing.arabic = fixed.arabic; existing.transcription = fixed.transcription; existing.translation = fixed.translation; }     s.migrations.duaSayyidulFix_v1 = true;   }
