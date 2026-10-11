@@ -2187,6 +2187,7 @@ function renderDashMarks() {
   el.onclick = function(){ switchTab('cal'); setProgTab('favorites'); };
 }
 
+function renderDashboard() {
   const t = document.getElementById('dash-time');
   const h = document.getElementById('dash-hijri');
   if (t) t.textContent = getTimeOfDay();
@@ -2258,7 +2259,6 @@ function renderDashMarks() {
   }
 
   renderDashMarks();
-}
 }
 function pluralDays(n) {
   const m = n % 10, h = Math.floor(n / 10) % 10;
@@ -2418,23 +2418,6 @@ document.addEventListener('keydown', (e) => {
   });
   if (problems.length) { console.error('⚠️ Inline-обработчики — ' + problems.length + ':'); problems.forEach(function(p){ console.error('  • ' + p); }); }
   else console.log('✓ Inline-обработчики: парность в порядке');
-})();
-
-(function checkStructure(){
-  var expected = ['screen-dashboard','screen-tasbih','screen-quran','screen-night','screen-dua','screen-hadith','screen-cal','screen-quran-detail','screen-night-detail','screen-dua-detail','screen-hadith-detail','screen-form','screen-counter','screen-settings','read-mode','memorize-mode','search-overlay','nav','modal-bg','onboarding','save-indicator'];
-  var directBodyIds = ['nav','modal-bg','onboarding','save-indicator','read-mode','memorize-mode','search-overlay'];
-  var missing = [], nested = [];
-  expected.forEach(function(id){
-    var el = document.getElementById(id);
-    if (!el) { missing.push(id); return; }
-    if (directBodyIds.indexOf(id) >= 0 && el.parentElement !== document.body) {
-      var p = el.parentElement;
-      nested.push('#' + id + ' вложен в ' + p.tagName.toLowerCase() + (p.id ? '#' + p.id : ''));
-    }
-  });
-  if (missing.length) console.error('⚠️ Структура — отсутствуют: ' + missing.join(', '));
-  if (nested.length) { console.error('⚠️ Структура — неверное вложение:'); nested.forEach(function(n){ console.error('  • ' + n); }); }
-  if (!missing.length && !nested.length) console.log('✓ Структура: ключевые элементы на месте');
 })();
 
 if ('serviceWorker' in navigator) {   window.addEventListener('load', function() {     navigator.serviceWorker.register('./sw.js').catch(function() {});   }); }
