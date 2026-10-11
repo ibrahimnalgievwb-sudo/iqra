@@ -1,5 +1,5 @@
 const CACHE_VERSION = 'iqra-v2';
-const CACHE_ASSETS = ['./', './index.html'];
+const CACHE_ASSETS = ['./', './index.html', './manifest.json'];
 
 self.addEventListener('install', function(event) {
   event.waitUntil(
