@@ -31,10 +31,10 @@
   --ar-g1:#FFF3B0; --ar-g2:#FFD700; --ar-g3:#B8860B; --ar-gold:#FFD700;
 }
 [data-theme="mono"] {
-  --bg:#1C1C1C; --card:#262626; --card2:#303030; --accent:#F5F5F5; --accent2:#C8C8C8;
-  --text:#F0F0F0; --muted:#A0A0A0; --border:#3A3A3A; --shadow:rgba(0,0,0,.60);
-  --accent-rgb: 245, 245, 245; --ripple:rgba(245,245,245,.20);
-  --ar-g1:#F5DC7A; --ar-g2:#D4A017; --ar-g3:#8B6914; --ar-gold:#D4A017;
+  --bg:#0D0D0D; --card:#1A1A1A; --card2:#262626; --accent:#FFFFFF; --accent2:#DADADA;
+  --text:#FAFAFA; --muted:#AAAAAA; --border:#303030; --shadow:rgba(0,0,0,.70);
+  --accent-rgb: 255, 255, 255; --ripple:rgba(255,255,255,.22);
+  --ar-g1:#FFE580; --ar-g2:#E8B82E; --ar-g3:#A67C10; --ar-gold:#E8B82E;
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body {
@@ -1378,7 +1378,7 @@ let dragEl = null, dragId = null, dragHoldTimer = null;
 let memorizeItem = null, memorizeAyahs = [], memorizeStep = 0;
 let memorizePhase = 'learn', memorizeRevealed = false; let activeReadId = null; let _lastScreenName = null, _lastScreenTs = null; let searchFilters = { type: 'all', status: 'all', favorite: 'all' }; let obStep = 0; const OB_TOTAL = 4;
 
-function defaultSettings() { return { theme:'auto', arSize:1, dailyGoal:100, autoNext:true, wakeLock:true, sound:true, vibrate:true, lastRead:null }; }
+function defaultSettings() { return { theme:'auto', arSize:1, dailyGoal:100, autoNext:true, wakeLock:true, sound:true, vibrate:true, lastRead:null, lastScreen:null }; }
 
 function load() {
   let s = null;
@@ -1528,7 +1528,7 @@ function applyTheme() {
   _clearInlinePalette();
   if (t === 'mono') {
     document.documentElement.setAttribute('data-theme', 'mono');
-    document.querySelector('meta[name=theme-color]').setAttribute('content', '#1C1C1C');
+    document.querySelector('meta[name=theme-color]').setAttribute('content', '#0D0D0D');
   } else if (t === 'light') {
     document.documentElement.setAttribute('data-theme', 'light');
     document.querySelector('meta[name=theme-color]').setAttribute('content', '#FFFFFF');
@@ -2172,6 +2172,8 @@ function showScreen(id) {
     if (dur >= 2) trackEvent('duration/' + _lastScreenName, 'Экран ' + _lastScreenName + ': ' + dur + ' сек');
   }
   _lastScreenName = id; _lastScreenTs = Date.now();
+  state.settings.lastScreen = id;
+  save();
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   const nav = document.getElementById('nav');
@@ -2473,7 +2475,10 @@ var debouncedRenderQuranList = debounce(renderQuranList, 250);
 applyTheme();
 setArSize(state.settings.arSize);
 renderPresets(); renderDashboard(); renderTasbih(); renderDuaList(); renderHadithList(); renderQuranList(); renderNightList(); renderProgress();
-showScreen('screen-dashboard');
+var _allowedScreens = ['screen-dashboard','screen-tasbih','screen-quran','screen-night','screen-dua','screen-hadith','screen-cal'];
+var _restore = state.settings.lastScreen;
+if (_restore && _allowedScreens.indexOf(_restore) !== -1) { showScreen(_restore); }
+else { showScreen('screen-dashboard'); }
 if (!state.migrations.onboarded) setTimeout(startOnboarding, 200);
 document.addEventListener('keydown', (e) => {
   if (e.key !== 'Escape') return;
