@@ -85,8 +85,9 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 
 .read-surah-title,
 .detail-hero .dh-title {
-  font-family: "Amiri", Georgia, "Times New Roman", serif;
-  letter-spacing: 0;
+  font-family: "Unbounded", Georgia, "Times New Roman", serif;
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 .screen { display:none; flex:1; flex-direction:column; min-height:0; }
 .screen.active { display:flex; animation:slideIn .24s cubic-bezier(.16,1,.3,1); } @keyframes slideIn { from { transform: translateX(16px); opacity: 0; } to { transform: translateX(0); opacity: 1; } } @keyframes slideUp { from { transform: translateY(24px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
@@ -96,10 +97,10 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 }
 
 .header { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; gap:12px; min-height:56px; }
-.header h1 { font-size:22px; font-weight:800; margin:0; letter-spacing:-.5px; line-height:1.2; }
+.header h1 { font-family:"Unbounded", "Inter", sans-serif; font-size:20px; font-weight:600; margin:0; letter-spacing:-.02em; line-height:1.2; }
 .icon-btn { width:42px; height:42px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:var(--card); color:var(--text); font-size:18px; }
 .icon-btn:active { background:var(--card2); transform:scale(.95); }
-.icon-btn.ghost { background:transparent; }  .ico {   display: inline-block;   width: 24px;   height: 24px;   fill: none;   stroke: currentColor;   stroke-width: 1.7;   stroke-linecap: round;   stroke-linejoin: round;   flex-shrink: 0;   vertical-align: middle;   transition: width .25s cubic-bezier(.16,1,.3,1), height .25s cubic-bezier(.16,1,.3,1); } .ico-sm { width: 18px; height: 18px; } .ico-md { width: 22px; height: 22px; } .ico-lg { width: 28px; height: 28px; } .ico-xl { width: 36px; height: 36px; }
+.icon-btn.ghost { background:transparent; }  .ico {   display: inline-block;   width: 24px;   height: 24px;   fill: none;   stroke-width: 1.7;   stroke-linecap: round;   stroke-linejoin: round;   flex-shrink: 0;   vertical-align: middle;   transition: width .25s cubic-bezier(.16,1,.3,1), height .25s cubic-bezier(.16,1,.3,1); } .ico-sm { width: 18px; height: 18px; } .ico-md { width: 22px; height: 22px; } .ico-lg { width: 28px; height: 28px; } .ico-xl { width: 36px; height: 36px; }
 
 .list, .form, .cal, .settings { flex:1; overflow-y:auto; padding:0 16px 120px; -webkit-overflow-scrolling:touch; }
 
@@ -340,7 +341,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .fullscreen { position:fixed; inset:0; background:var(--bg); z-index:10000; display:none; flex-direction:column; padding-top:env(safe-area-inset-top); padding-bottom:env(safe-area-inset-bottom); }
 .fullscreen.active { display:flex; animation: slideUp .26s cubic-bezier(.16,1,.3,1); }
 .fullscreen .fs-header { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-bottom:1px solid var(--border); gap:10px; }
-.fullscreen .fs-header h2 { font-size:16px; margin:0; font-weight:600; overflow-wrap: break-word; } .fullscreen .fs-header input { flex:1; min-width:0; background:var(--card); border:1px solid var(--border); border-radius:12px; padding:10px 14px; font-size:15px; outline:none; color:var(--text); margin:0 8px; -webkit-user-select:text; user-select:text; }
+.fullscreen .fs-header h2 { font-family:"Unbounded", "Inter", sans-serif; font-size:14px; margin:0; font-weight:600; letter-spacing:-.01em; overflow-wrap: break-word; } .fullscreen .fs-header input { flex:1; min-width:0; background:var(--card); border:1px solid var(--border); border-radius:12px; padding:10px 14px; font-size:15px; outline:none; color:var(--text); margin:0 8px; -webkit-user-select:text; user-select:text; }
 .fullscreen .fs-body { flex:1; overflow-y:auto; padding:24px 20px; -webkit-overflow-scrolling:touch; overflow-wrap: break-word; }
 .fullscreen .fs-nav { display:flex; gap:10px; padding:12px 16px; border-top:1px solid var(--border); }
 .fullscreen .fs-nav .btn { margin:0; flex:1; }
@@ -734,6 +735,15 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 <body>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="goldIconGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFF3B0"/>
+      <stop offset="22%" stop-color="#FFD700"/>
+      <stop offset="50%" stop-color="#B8860B"/>
+      <stop offset="78%" stop-color="#FFD700"/>
+      <stop offset="100%" stop-color="#FFF3B0"/>
+    </linearGradient>
+  </defs>
   <symbol id="i-arrow-left" viewBox="0 0 24 24"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></symbol>
   <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
   <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7.5"/><path d="m21 21-4.5-4.5"/><path d="M11 7v0"/></symbol>
