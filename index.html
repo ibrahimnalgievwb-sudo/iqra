@@ -9,7 +9,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Iqra">
-<meta name="theme-color" content="#F0F4F0">
+<meta name="theme-color" content="#FFFFFF">
 <meta name="robots" content="noindex, nofollow">
 <title>Iqra | Читай</title>
 <link rel="icon" type="image/png" href="./favicon.png">
@@ -19,19 +19,19 @@
 <style>
 :root { --ar-scale: 1; --radius: 18px; }
 [data-theme="light"] {
-  --bg:#FAF8F3; --card:#FFFFFF; --card2:#F2EFE8; --accent:#0A0A0A; --accent2:#8B6F2E;
-  --text:#0F0F0F; --muted:#6B6B6B; --border:#E5E0D5; --shadow:rgba(15,15,15,.08);
-  --accent-rgb: 10, 10, 10; --ripple:rgba(10,10,10,.18);
+  --bg:#FFFFFF; --card:#F7F7F7; --card2:#EEEEEE; --accent:#0A0A0A; --accent2:#B8860B;
+  --text:#0A0A0A; --muted:#666666; --border:#DDDDDD; --shadow:rgba(0,0,0,.10);
+  --accent-rgb: 10, 10, 10; --ripple:rgba(10,10,10,.15);
 }
 [data-theme="dark"] {
-  --bg:#0A0A0A; --card:#141414; --card2:#1F1F1F; --accent:#FFFFFF; --accent2:#C9A961;
-  --text:#F2F2F2; --muted:#8A8A8A; --border:#242424; --shadow:rgba(0,0,0,.55);
-  --accent-rgb: 255, 255, 255; --ripple:rgba(255,255,255,.20);
+  --bg:#000000; --card:#101010; --card2:#1A1A1A; --accent:#FFFFFF; --accent2:#D4AF37;
+  --text:#FFFFFF; --muted:#999999; --border:#232323; --shadow:rgba(0,0,0,.70);
+  --accent-rgb: 255, 255, 255; --ripple:rgba(255,255,255,.18);
 }
 [data-theme="mono"] {
-  --bg:#F5F5F5; --card:#FFFFFF; --card2:#F0F0F0; --accent:#1A1A1A; --accent2:#6B6B6B;
-  --text:#0A0A0A; --muted:#6B6B6B; --border:#E0E0E0; --shadow:rgba(0,0,0,.08);
-  --accent-rgb: 26, 26, 26; --ripple:rgba(26,26,26,.18);
+  --bg:#F4F4F4; --card:#FFFFFF; --card2:#E8E8E8; --accent:#1A1A1A; --accent2:#666666;
+  --text:#0A0A0A; --muted:#6B6B6B; --border:#DADADA; --shadow:rgba(0,0,0,.08);
+  --accent-rgb: 26, 26, 26; --ripple:rgba(26,26,26,.15);
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body {
@@ -1490,8 +1490,8 @@ function isNightNow() { const h = new Date().getHours(); return (h >= 19 || h < 
 const MOSCOW_LAT = 55.75, MOSCOW_LON = 37.62;
 const SUN_WINDOW = 15;
 const PALETTES = {
-  dark:  { bg:[10,10,10], card:[20,20,20], card2:[31,31,31], accent:[255,255,255], accent2:[201,169,97], text:[242,242,242], muted:[138,138,138], border:[36,36,36] },
-  light: { bg:[250,248,243], card:[255,255,255], card2:[242,239,232], accent:[10,10,10], accent2:[139,111,46], text:[15,15,15], muted:[107,107,107], border:[229,224,213] }
+  dark:  { bg:[0,0,0], card:[16,16,16], card2:[26,26,26], accent:[255,255,255], accent2:[212,175,55], text:[255,255,255], muted:[153,153,153], border:[35,35,35] },
+  light: { bg:[255,255,255], card:[247,247,247], card2:[238,238,238], accent:[10,10,10], accent2:[184,134,11], text:[10,10,10], muted:[102,102,102], border:[221,221,221] }
 };
 function getSunTimes(date) {
   const rad = Math.PI / 180;
@@ -1520,13 +1520,13 @@ function applyTheme() {
   _clearInlinePalette();
   if (t === 'mono') {
     document.documentElement.setAttribute('data-theme', 'mono');
-    document.querySelector('meta[name=theme-color]').setAttribute('content', '#F5F5F5');
+    document.querySelector('meta[name=theme-color]').setAttribute('content', '#F4F4F4');
   } else if (t === 'light') {
     document.documentElement.setAttribute('data-theme', 'light');
-    document.querySelector('meta[name=theme-color]').setAttribute('content', '#FAF8F3');
+    document.querySelector('meta[name=theme-color]').setAttribute('content', '#FFFFFF');
   } else if (t === 'dark') {
     document.documentElement.setAttribute('data-theme', 'dark');
-    document.querySelector('meta[name=theme-color]').setAttribute('content', '#0A0A0A');
+    document.querySelector('meta[name=theme-color]').setAttribute('content', '#000000');
   } else {
     const now = new Date();
     const nowMin = now.getHours() * 60 + now.getMinutes();
@@ -1541,12 +1541,12 @@ function applyTheme() {
     } else {
       k = isNightNow() ? 0 : 1;
     }
-    if (k === 0) {
+     if (k === 0) {
       document.documentElement.setAttribute('data-theme', 'dark');
-      document.querySelector('meta[name=theme-color]').setAttribute('content', '#0A0A0A');
+      document.querySelector('meta[name=theme-color]').setAttribute('content', '#000000');
     } else if (k === 1) {
       document.documentElement.setAttribute('data-theme', 'light');
-      document.querySelector('meta[name=theme-color]').setAttribute('content', '#FAF8F3');
+      document.querySelector('meta[name=theme-color]').setAttribute('content', '#FFFFFF');
     } else {
       document.documentElement.setAttribute('data-theme', 'light');
       const d = PALETTES.dark, l = PALETTES.light, s = document.documentElement.style;
