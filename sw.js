@@ -1,49 +1,73 @@
-<?xml version="1.0" standalone="no"?>
-<svg version="1.0" xmlns="http://www.w3.org/2000/svg"
- width="512" height="512" viewBox="0 0 512 512"
- preserveAspectRatio="xMidYMid meet">
-<defs>
-  <linearGradient id="goldGrad" x1="0" y1="0" x2="0" y2="1">
-    <stop offset="0%" stop-color="#FFF3B0"/>
-    <stop offset="22%" stop-color="#FFD700"/>
-    <stop offset="50%" stop-color="#B8860B"/>
-    <stop offset="78%" stop-color="#FFD700"/>
-    <stop offset="100%" stop-color="#FFF3B0"/>
-  </linearGradient>
-  
-  <!-- Маска для рамки: белый внешний контур, черный внутренний вырез -->
-  <mask id="borderMask">
-    <rect width="512" height="512" rx="115" fill="white" />
-    <!-- Радиус 98 делает углы визуально толще, компенсируя иллюзию -->
-    <rect x="12" y="12" width="488" height="488" rx="98" fill="black" />
-  </mask>
-</defs>
+const CACHE_VERSION = 'iqra-v24';
+const CACHE_ASSETS = [
+  './', './index.html', './manifest.json', './count.js', './fonts.css',
+  './favicon.png', './apple-touch-icon.png', './icon-192.png', './icon-512.png',
+  './fonts/amiri-v30-arabic_latin-regular.woff2',
+  './fonts/amiri-v30-arabic_latin-700.woff2',
+  './fonts/noto-naskh-arabic-v44-arabic_latin-regular.woff2',
+  './fonts/noto-naskh-arabic-v44-arabic_latin-500.woff2',
+  './fonts/noto-naskh-arabic-v44-arabic_latin-700.woff2',
+  './fonts/inter-v20-latin_latin-ext-regular.woff2',
+  './fonts/inter-v20-latin_latin-ext-500.woff2',
+  './fonts/inter-v20-latin_latin-ext-600.woff2',
+  './fonts/inter-v20-latin_latin-ext-700.woff2',
+  './fonts/inter-v20-latin_latin-ext-800.woff2'
+];
 
-<!-- Черный фон -->
-<rect width="512" height="512" rx="115" fill="#000000"/>
+self.addEventListener('install', function(event) {
+  event.waitUntil(
+    caches.open(CACHE_VERSION).then(function(cache) {
+      return cache.addAll(CACHE_ASSETS);
+    }).catch(function() {})
+  );
+  self.skipWaiting();
+});
 
-<!-- Золотая рамка с равномерной толщиной на углах -->
-<rect width="512" height="512" rx="115" fill="url(#goldGrad)" mask="url(#borderMask)"/>
+self.addEventListener('activate', function(event) {
+  event.waitUntil(
+    caches.keys().then(function(keys) {
+      return Promise.all(
+        keys.filter(function(k) { return k !== CACHE_VERSION; })
+            .map(function(k) { return caches.delete(k); })
+      );
+    })
+  );
+  self.clients.claim();
+});
 
-<!-- Центральный логотип (градиент сохранен) -->
-<g transform="translate(0,553) scale(0.1,-0.1)"
-   fill="url(#goldGrad)" stroke="none">
-<path d="M2579 4273 c48 -138 154 -259 279 -320 l80 -39
--77 -34 c-106 -48 -194 -137 -250 -252 -23 -46 -41 -92 -41 -101 0 -9 -4 -17
--10 -17 -5 0 -10 7 -10 16 0 9 -16 50 -36 91 -52 109 -144 202 -251 255 l-84
-42 45 18 c118 46 224 146 286 270 22 44 40 87 40 94 0 27 16 14 29 -23z"/>
-<path d="M3812 3561 c3 -17 -10 -28 -62 -54 l-65 -32 -3 -55 c-2 -30 -1 -96 3 -146 l7 -92 84
-39 c46 21 91 39 98 39 17 0 52 -98 40 -110 -5 -5 -182 -93 -394 -195 -408
--198 -800 -396 -800 -405 0 -3 30 -21 68 -40 37 -20 157 -83 267 -142 110 -58
-247 -129 305 -158 58 -29 113 -60 123 -68 36 -31 7 -112 -40 -112 -21 0 -101
-40 -539 268 -181 95 -336 172 -342 172 -13 0 -544 -270 -747 -380 -60 -33
--122 -60 -136 -60 -36 0 -61 31 -57 72 3 30 10 37 100 88 53 30 228 123 387
-205 160 83 291 153 291 156 0 3 -82 45 -182 94 -101 49 -347 169 -548 268
--201 99 -389 190 -417 203 -29 13 -53 30 -53 37 0 23 31 107 40 107 4 0 39
--14 77 -31 37 -17 78 -35 91 -40 l22 -9 0 149 0 148 -60 27 c-32 15 -62 31
--64 35 -8 13 25 102 39 108 15 5 282 -120 726 -343 267 -133 311 -158 347
--199 71 -80 76 -100 82 -285 l5 -164 27 -16 c25 -13 31 -13 55 0 l28 16 5 159
-c6 183 19 224 96 302 44 43 331 193 844 439 l215 104 17 -39 c10 -21 19 -49
-20 -60z"/>
-</g>
-</svg>
+self.addEventListener('fetch', function(event) {
+  const req = event.request;
+  if (req.method !== 'GET') return;
+  const url = new URL(req.url);
+  if (url.origin !== self.location.origin) return;
+
+  if (req.mode === 'navigate' || req.destination === 'document') {
+    event.respondWith(
+      fetch(req).then(function(res) {
+        if (res && res.status === 200) {
+          const copy = res.clone();
+          caches.open(CACHE_VERSION).then(function(c) { c.put(req, copy); });
+        }
+        return res;
+      }).catch(function() {
+        return caches.match(req).then(function(r) {
+          return r || caches.match('./index.html');
+        });
+      })
+    );
+    return;
+  }
+
+  event.respondWith(
+    caches.match(req).then(function(cached) {
+      if (cached) return cached;
+      return fetch(req).then(function(res) {
+        if (res && res.status === 200 && res.type === 'basic') {
+          const copy = res.clone();
+          caches.open(CACHE_VERSION).then(function(c) { c.put(req, copy); });
+        }
+        return res;
+      }).catch(function() { return cached; });
+    })
+  );
+});
