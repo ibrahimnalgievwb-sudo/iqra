@@ -3,7 +3,8 @@
  "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
 <svg version="1.0" xmlns="http://www.w3.org/2000/svg"
  width="512" height="512" viewBox="0 0 512 512"
- preserveAspectRatio="xMidYMid meet">
+ preserveAspectRatio="xMidYMid meet"
+ shape-rendering="geometricPrecision">
 <defs>
   <radialGradient id="goldGrad" cx="50%" cy="50%" r="60%">
     <stop offset="0%" stop-color="#FFF3B0"/>
@@ -13,8 +14,9 @@
   </radialGradient>
 </defs>
 
-<rect width="512" height="512" rx="115" fill="#000000"/>
-<rect x="6" y="6" width="500" height="500" rx="109" fill="none" stroke="url(#goldGrad)" stroke-width="12"/>
+<rect x="10" y="10" width="492" height="492" rx="110" fill="#000000"/>
+<rect x="5" y="5" width="502" height="502" rx="113" fill="none" stroke="url(#goldGrad)" stroke-width="10"/>
+<rect x="10" y="10" width="492" height="492" rx="110" fill="none" stroke="url(#goldGrad)" stroke-width="10"/>
 
 <g transform="translate(0,512) scale(0.1,-0.1)"
    fill="url(#goldGrad)" stroke="none">
