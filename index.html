@@ -19,19 +19,22 @@
 <style>
 :root { --ar-scale: 1; --radius: 18px; }
 [data-theme="light"] {
-  --bg:#FFFFFF; --card:#F7F7F7; --card2:#EEEEEE; --accent:#0A0A0A; --accent2:#B8860B;
-  --text:#0A0A0A; --muted:#666666; --border:#DDDDDD; --shadow:rgba(0,0,0,.10);
+  --bg:#FFFFFF; --card:#F5F5F5; --card2:#EAEAEA; --accent:#0A0A0A; --accent2:#8B6914;
+  --text:#0A0A0A; --muted:#666666; --border:#DADADA; --shadow:rgba(0,0,0,.10);
   --accent-rgb: 10, 10, 10; --ripple:rgba(10,10,10,.15);
+  --ar-g1:#C8A34E; --ar-g2:#8B6914; --ar-g3:#5E4400; --ar-gold:#8B6914;
 }
 [data-theme="dark"] {
   --bg:#000000; --card:#101010; --card2:#1A1A1A; --accent:#FFFFFF; --accent2:#D4AF37;
   --text:#FFFFFF; --muted:#999999; --border:#232323; --shadow:rgba(0,0,0,.70);
   --accent-rgb: 255, 255, 255; --ripple:rgba(255,255,255,.18);
+  --ar-g1:#FFF3B0; --ar-g2:#FFD700; --ar-g3:#B8860B; --ar-gold:#FFD700;
 }
 [data-theme="mono"] {
-  --bg:#F4F4F4; --card:#FFFFFF; --card2:#E8E8E8; --accent:#1A1A1A; --accent2:#666666;
-  --text:#0A0A0A; --muted:#6B6B6B; --border:#DADADA; --shadow:rgba(0,0,0,.08);
-  --accent-rgb: 26, 26, 26; --ripple:rgba(26,26,26,.15);
+  --bg:#4A4A4A; --card:#565656; --card2:#626262; --accent:#F0F0F0; --accent2:#C8C8C8;
+  --text:#F5F5F5; --muted:#B8B8B8; --border:#6A6A6A; --shadow:rgba(0,0,0,.35);
+  --accent-rgb: 240, 240, 240; --ripple:rgba(240,240,240,.20);
+  --ar-g1:#F0D488; --ar-g2:#D4A017; --ar-g3:#8B6914; --ar-gold:#D4A017;
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body {
@@ -54,7 +57,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   word-break: break-word;
   hyphens: none;
   text-rendering: optimizeLegibility;
-    background: linear-gradient(180deg, #FFF3B0 0%, #FFD700 20%, #B8860B 50%, #FFD700 80%, #FFF3B0 100%);
+  background: linear-gradient(180deg, var(--ar-g1) 0%, var(--ar-g2) 22%, var(--ar-g3) 50%, var(--ar-g2) 78%, var(--ar-g1) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -1525,7 +1528,7 @@ function applyTheme() {
   _clearInlinePalette();
   if (t === 'mono') {
     document.documentElement.setAttribute('data-theme', 'mono');
-    document.querySelector('meta[name=theme-color]').setAttribute('content', '#F4F4F4');
+    document.querySelector('meta[name=theme-color]').setAttribute('content', '#4A4A4A');
   } else if (t === 'light') {
     document.documentElement.setAttribute('data-theme', 'light');
     document.querySelector('meta[name=theme-color]').setAttribute('content', '#FFFFFF');
