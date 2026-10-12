@@ -14,8 +14,6 @@ const CACHE_ASSETS = [
   './fonts/inter-v20-cyrillic_cyrillic-ext_latin_latin-ext-700.woff2',
   './fonts/inter-v20-cyrillic_cyrillic-ext_latin_latin-ext-800.woff2',
   './fonts/inter-v20-cyrillic_cyrillic-ext_latin_latin-ext-300.woff2'
-  './fonts/unbounded-v12-cyrillic-600.woff2',
-  './fonts/unbounded-v12-cyrillic-700.woff2'
 ];
 
 self.addEventListener('install', function(event) {
