@@ -1804,7 +1804,7 @@ function openNight(idx) {
     ${item.source ? `<div class="dh-section" style="margin-top:20px;"><div class="dh-label">Источник</div><div class="dh-text muted" style="font-size:13px;">${esc(item.source)}</div></div>` : ''}
     ${transcriptionNote()}
     <div class="detail-actions" style="margin-top:20px">
-      <button class="btn secondary" onclick="openRead('${item.id}')">📖 Читать</button>
+      ${n.quranId ? `<button class="btn secondary" onclick="openRead('${item.id}')">📖 Читать</button>` : ''}
       <button class="btn" onclick="memorizeFromNight(${idx})">🧠 Заучить</button>
     </div>
   `;
