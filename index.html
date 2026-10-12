@@ -31,10 +31,10 @@
   --ar-g1:#FFF3B0; --ar-g2:#FFD700; --ar-g3:#B8860B; --ar-gold:#FFD700;
 }
 [data-theme="mono"] {
-  --bg:#0D0D0D; --card:#1A1A1A; --card2:#262626; --accent:#FFFFFF; --accent2:#DADADA;
-  --text:#FAFAFA; --muted:#AAAAAA; --border:#303030; --shadow:rgba(0,0,0,.70);
+  --bg:#0D0D0D; --card:#1C1C1C; --card2:#2A2A2A; --accent:#FFFFFF; --accent2:#E8E8E8;
+  --text:#FFFFFF; --muted:#B8B8B8; --border:#3A3A3A; --shadow:rgba(0,0,0,.70);
   --accent-rgb: 255, 255, 255; --ripple:rgba(255,255,255,.22);
-  --ar-g1:#FFE580; --ar-g2:#E8B82E; --ar-g3:#A67C10; --ar-gold:#E8B82E;
+  --ar-g1:#FFF0A0; --ar-g2:#FFD700; --ar-g3:#B8860B; --ar-gold:#FFD700;
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body {
@@ -2172,8 +2172,7 @@ function showScreen(id) {
     if (dur >= 2) trackEvent('duration/' + _lastScreenName, 'Экран ' + _lastScreenName + ': ' + dur + ' сек');
   }
   _lastScreenName = id; _lastScreenTs = Date.now();
-  state.settings.lastScreen = id;
-  save();
+  state.settings.lastScreen = id; save();
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   const nav = document.getElementById('nav');
