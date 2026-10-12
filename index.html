@@ -17,16 +17,21 @@
 <link rel="manifest" href="./manifest.json">
 <link rel="stylesheet" href="./fonts.css">
 <style>
-:root { --ar-scale: 1; --radius: 22px; --accent-rgb: 13, 94, 76; }
+:root { --ar-scale: 1; --radius: 18px; }
 [data-theme="light"] {
-  --bg:#F0F4F0; --card:#FFFFFF; --card2:#E8F0EA; --accent:#0D5E4C; --accent2:#B8860B;
-  --text:#1A2A24; --muted:#5C6B63; --border:#D0DCD4; --shadow:rgba(26,42,36,.10);
-  --accent-rgb: 13, 94, 76; --ripple:rgba(13,94,76,.25);
+  --bg:#FAF8F3; --card:#FFFFFF; --card2:#F2EFE8; --accent:#0A0A0A; --accent2:#8B6F2E;
+  --text:#0F0F0F; --muted:#6B6B6B; --border:#E5E0D5; --shadow:rgba(15,15,15,.08);
+  --accent-rgb: 10, 10, 10; --ripple:rgba(10,10,10,.18);
 }
 [data-theme="dark"] {
-  --bg:#0A1620; --card:#12202E; --card2:#1A2C3E; --accent:#2DB88A; --accent2:#D4A843;
-  --text:#EAF0F6; --muted:#7A8FA8; --border:#1E3248; --shadow:rgba(0,0,0,.40);
-  --accent-rgb: 45, 184, 138; --ripple:rgba(45,184,138,.25);
+  --bg:#0A0A0A; --card:#141414; --card2:#1F1F1F; --accent:#FFFFFF; --accent2:#C9A961;
+  --text:#F2F2F2; --muted:#8A8A8A; --border:#242424; --shadow:rgba(0,0,0,.55);
+  --accent-rgb: 255, 255, 255; --ripple:rgba(255,255,255,.20);
+}
+[data-theme="mono"] {
+  --bg:#F5F5F5; --card:#FFFFFF; --card2:#F0F0F0; --accent:#1A1A1A; --accent2:#6B6B6B;
+  --text:#0A0A0A; --muted:#6B6B6B; --border:#E0E0E0; --shadow:rgba(0,0,0,.08);
+  --accent-rgb: 26, 26, 26; --ripple:rgba(26,26,26,.18);
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body {
@@ -70,7 +75,15 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   .ar-font { font-synthesis: none; }
 }
 
-.screen { display:none; flex:1; flex-direction:column; min-height:0; }
+.header h1,
+.dash-greeting .dg-hello,
+.read-surah-title,
+.detail-hero .dh-title,
+.content-card .c-title,
+.dash-quote .dq-title {
+  font-family: "Amiri", Georgia, "Times New Roman", serif;
+  letter-spacing: 0;
+}
 .screen.active { display:flex; animation:slideIn .24s cubic-bezier(.16,1,.3,1); } @keyframes slideIn { from { transform: translateX(16px); opacity: 0; } to { transform: translateX(0); opacity: 1; } } @keyframes slideUp { from { transform: translateY(24px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
 @media (prefers-reduced-motion: reduce) {
@@ -81,7 +94,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .header h1 { font-size:22px; font-weight:800; margin:0; letter-spacing:-.5px; line-height:1.2; }
 .icon-btn { width:42px; height:42px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:var(--card); color:var(--text); font-size:18px; }
 .icon-btn:active { background:var(--card2); transform:scale(.95); }
-.icon-btn.ghost { background:transparent; }  .ico {   display: inline-block;   width: 24px;   height: 24px;   fill: none;   stroke: currentColor;   stroke-width: 2;   stroke-linecap: round;   stroke-linejoin: round;   flex-shrink: 0;   vertical-align: middle;   transition: width .25s cubic-bezier(.16,1,.3,1), height .25s cubic-bezier(.16,1,.3,1); } .ico-sm { width: 18px; height: 18px; } .ico-md { width: 22px; height: 22px; } .ico-lg { width: 28px; height: 28px; } .ico-xl { width: 36px; height: 36px; }
+.icon-btn.ghost { background:transparent; }  .ico {   display: inline-block;   width: 24px;   height: 24px;   fill: none;   stroke: currentColor;   stroke-width: 1.7;   stroke-linecap: round;   stroke-linejoin: round;   flex-shrink: 0;   vertical-align: middle;   transition: width .25s cubic-bezier(.16,1,.3,1), height .25s cubic-bezier(.16,1,.3,1); } .ico-sm { width: 18px; height: 18px; } .ico-md { width: 22px; height: 22px; } .ico-lg { width: 28px; height: 28px; } .ico-xl { width: 36px; height: 36px; }
 
 .list, .form, .cal, .settings { flex:1; overflow-y:auto; padding:0 16px 120px; -webkit-overflow-scrolling:touch; }
 
@@ -106,7 +119,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .continue-card .cc-sub { font-size:12px; color:var(--muted); }
 
 #cards-container { min-height:20px; }
-.tasbih-card { background:linear-gradient(145deg, var(--card) 0%, var(--card2) 100%); border-radius:var(--radius); padding:18px 20px; margin-bottom:14px; cursor:pointer; box-shadow:0 4px 16px var(--shadow), 0 1px 3px rgba(0,0,0,.04); display:flex; align-items:flex-start; gap:14px; position:relative; border:1px solid rgba(var(--accent-rgb), .08); transition: box-shadow .2s ease, transform .2s ease; } .tasbih-card:hover { box-shadow:0 8px 24px var(--shadow), 0 2px 6px rgba(0,0,0,.06); }
+.tasbih-card { background:var(--card); border-radius:var(--radius); padding:18px 20px; margin-bottom:14px; cursor:pointer; box-shadow:0 4px 16px var(--shadow), 0 1px 3px rgba(0,0,0,.04); display:flex; align-items:flex-start; gap:14px; position:relative; border:1px solid rgba(var(--accent-rgb), .08); transition: box-shadow .2s ease, transform .2s ease; } .tasbih-card:hover { box-shadow:0 8px 24px var(--shadow), 0 2px 6px rgba(0,0,0,.06); }
 .tasbih-card:active { transform:scale(.98); }
 .tasbih-card .body { flex:1; min-width:0; overflow-wrap: break-word; }
 .tasbih-card .ar { font-size:26px; line-height:2; direction:rtl; text-align:right; margin-bottom:6px; padding-top: 4px; overflow-wrap: break-word; }
@@ -339,7 +352,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .mem-progress { height:4px; background:var(--card2); border-radius:2px; margin-bottom:16px; overflow:hidden; }
 .mem-progress > div { height:100%; background:var(--accent); transition: width .3s; }
 
-.night-note { background:linear-gradient(135deg, rgba(139,111,78,.18), rgba(139,111,78,.06)); border-radius:16px; padding:16px 18px; margin-bottom:16px; font-size:13px; line-height:1.6; color:var(--text); overflow-wrap: break-word; }
+.night-note { background:var(--card2); border-radius:16px; padding:16px 18px; margin-bottom:16px; font-size:13px; line-height:1.6; color:var(--text); overflow-wrap: break-word; }
 .night-note b { color:var(--accent2); }
 
 .stat-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px; }
@@ -531,7 +544,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 #onboarding .ob-dot.active { background: var(--accent); }
 
 .dash-greeting {
-  background: linear-gradient(135deg, rgba(var(--accent-rgb), .18), rgba(var(--accent-rgb), .05));
+  background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 20px 22px;
@@ -749,7 +762,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 
 <!-- DASHBOARD -->
 <div class="screen active" id="screen-dashboard">
-  <div class="header"><h1>Iqra | Читай</h1><div style="display:flex;gap:6px"><button class="icon-btn ghost" onclick="openSearch()" aria-label="Поиск"><svg class="ico"><use href="#i-search"/></svg></button><button class="icon-btn" onclick="openSettings()" aria-label="Настройки"><svg class="ico"><use href="#i-settings"/></svg></button></div></div>
+  <div class="header"><div style="display:flex;align-items:center;gap:10px;min-width:0"><img src="./logo.svg" alt="" width="28" height="28" style="border-radius:7px;flex-shrink:0"><h1>Iqra | Читай</h1></div><div style="display:flex;gap:6px"><button class="icon-btn ghost" onclick="openSearch()" aria-label="Поиск"><svg class="ico"><use href="#i-search"/></svg></button><button class="icon-btn" onclick="openSettings()" aria-label="Настройки"><svg class="ico"><use href="#i-settings"/></svg></button></div></div>
   <div class="list" id="dashboard-list">
     <div class="dash-greeting">
       <div class="dg-hello">Ассаляму алейкум 👋</div>
@@ -956,6 +969,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
           <button data-theme="light" onclick="setTheme('light')">Светлая</button>
           <button data-theme="dark" onclick="setTheme('dark')">Тёмная</button>
           <button data-theme="auto" onclick="setTheme('auto')">Авто</button>
+          <button data-theme="mono" onclick="setTheme('mono')">Моно</button>
         </div>
       </div>
       <div class="setting-row" style="flex-direction:column; align-items:stretch; gap:10px;">
@@ -1071,7 +1085,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   <button class="ob-skip" onclick="finishOnboarding()">Пропустить</button>
   <div class="ob-body">
     <div class="ob-slide active" data-slide="0">
-      <div class="ob-icon">🕌</div>
+      <img src="./logo.svg" alt="Iqra" style="width:96px;height:96px;border-radius:22px;margin-bottom:24px;display:block;margin-left:auto;margin-right:auto;">
       <h1 class="ob-title">Ассаляму алейкум!</h1>
       <p class="ob-text">Это <b>Iqra</b> — ваше приложение для Корана, зикра и заучивания.</p>
     </div>
@@ -1088,6 +1102,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
         <button class="ob-option" data-ob-theme="light" onclick="setOnboardingTheme('light')">Светлая</button>
         <button class="ob-option" data-ob-theme="dark" onclick="setOnboardingTheme('dark')">Тёмная</button>
         <button class="ob-option" data-ob-theme="auto" onclick="setOnboardingTheme('auto')">Авто</button>
+        <button class="ob-option" data-ob-theme="mono" onclick="setOnboardingTheme('mono')">Моно</button>
       </div>
     </div>
     <div class="ob-slide" data-slide="3">
@@ -1475,14 +1490,84 @@ function parseAyahs(item) {
   return ar.map((line, i) => ({ num: isSurah ? (i+1) : (item.number || ''), ar: line, tr: tr[i] || '', trn: trn[i] || '' }));
 }
 function isNightNow() { const h = new Date().getHours(); return (h >= 19 || h < 6); }
+const MOSCOW_LAT = 55.75, MOSCOW_LON = 37.62;
+const SUN_WINDOW = 15;
+const PALETTES = {
+  dark:  { bg:[10,10,10], card:[20,20,20], card2:[31,31,31], accent:[255,255,255], accent2:[201,169,97], text:[242,242,242], muted:[138,138,138], border:[36,36,36] },
+  light: { bg:[250,248,243], card:[255,255,255], card2:[242,239,232], accent:[10,10,10], accent2:[139,111,46], text:[15,15,15], muted:[107,107,107], border:[229,224,213] }
+};
+function getSunTimes(date) {
+  const rad = Math.PI / 180;
+  const lat = MOSCOW_LAT * rad;
+  const start = new Date(date.getFullYear(), 0, 0);
+  const diff = (date - start) + ((start.getTimezoneOffset() - date.getTimezoneOffset()) * 60000);
+  const doy = Math.floor(diff / 86400000);
+  const B = 360 / 365 * (doy - 81) * rad;
+  const eqTime = 9.87 * Math.sin(2*B) - 7.53 * Math.cos(B) - 1.5 * Math.sin(B);
+  const decl = 23.45 * Math.sin(360 * (284 + doy) / 365 * rad) * rad;
+  const cosH = -Math.tan(lat) * Math.tan(decl);
+  if (cosH > 1 || cosH < -1) return null;
+  const H = Math.acos(cosH) / rad;
+  const noonUTC = 720 - 4 * MOSCOW_LON - eqTime;
+  const tzMin = -date.getTimezoneOffset();
+  return { sunriseMin: noonUTC - 4*H + tzMin, sunsetMin: noonUTC + 4*H + tzMin };
+}
+function _mix(a, b, t) { return [Math.round(a[0]+(b[0]-a[0])*t), Math.round(a[1]+(b[1]-a[1])*t), Math.round(a[2]+(b[2]-a[2])*t)]; }
+function _rgb(a) { return 'rgb(' + a[0] + ',' + a[1] + ',' + a[2] + ')'; }
+function _clearInlinePalette() {
+  const s = document.documentElement.style;
+  ['--bg','--card','--card2','--accent','--accent2','--text','--muted','--border','--accent-rgb','--ripple'].forEach(v => s.removeProperty(v));
+}
 function applyTheme() {
   const t = state.settings.theme;
-  let dark;
-  if (t === 'dark') dark = true;
-  else if (t === 'light') dark = false;
-  else dark = isNightNow();
-  document.documentElement.setAttribute('data-theme', dark?'dark':'light');
-  document.querySelector('meta[name=theme-color]').setAttribute('content', dark?'#0A1620':'#F0F4F0');
+  _clearInlinePalette();
+  if (t === 'mono') {
+    document.documentElement.setAttribute('data-theme', 'mono');
+    document.querySelector('meta[name=theme-color]').setAttribute('content', '#F5F5F5');
+  } else if (t === 'light') {
+    document.documentElement.setAttribute('data-theme', 'light');
+    document.querySelector('meta[name=theme-color]').setAttribute('content', '#FAF8F3');
+  } else if (t === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    document.querySelector('meta[name=theme-color]').setAttribute('content', '#0A0A0A');
+  } else {
+    const now = new Date();
+    const nowMin = now.getHours() * 60 + now.getMinutes();
+    const times = getSunTimes(now);
+    let k = null;
+    if (times) {
+      const W = SUN_WINDOW;
+      if (nowMin >= times.sunriseMin + W && nowMin < times.sunsetMin - W) k = 1;
+      else if (nowMin >= times.sunsetMin + W || nowMin < times.sunriseMin - W) k = 0;
+      else if (nowMin >= times.sunriseMin - W && nowMin < times.sunriseMin + W) k = (nowMin - (times.sunriseMin - W)) / (2 * W);
+      else if (nowMin >= times.sunsetMin - W && nowMin < times.sunsetMin + W) k = 1 - (nowMin - (times.sunsetMin - W)) / (2 * W);
+    } else {
+      k = isNightNow() ? 0 : 1;
+    }
+    if (k === 0) {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      document.querySelector('meta[name=theme-color]').setAttribute('content', '#0A0A0A');
+    } else if (k === 1) {
+      document.documentElement.setAttribute('data-theme', 'light');
+      document.querySelector('meta[name=theme-color]').setAttribute('content', '#FAF8F3');
+    } else {
+      document.documentElement.setAttribute('data-theme', 'light');
+      const d = PALETTES.dark, l = PALETTES.light, s = document.documentElement.style;
+      const bg = _mix(d.bg, l.bg, k), card = _mix(d.card, l.card, k), card2 = _mix(d.card2, l.card2, k);
+      const accent = _mix(d.accent, l.accent, k), accent2 = _mix(d.accent2, l.accent2, k);
+      const text = _mix(d.text, l.text, k), muted = _mix(d.muted, l.muted, k), border = _mix(d.border, l.border, k);
+      s.setProperty('--bg', _rgb(bg));
+      s.setProperty('--card', _rgb(card));
+      s.setProperty('--card2', _rgb(card2));
+      s.setProperty('--accent', _rgb(accent));
+      s.setProperty('--accent2', _rgb(accent2));
+      s.setProperty('--text', _rgb(text));
+      s.setProperty('--muted', _rgb(muted));
+      s.setProperty('--border', _rgb(border));
+      s.setProperty('--accent-rgb', accent.join(', '));
+      document.querySelector('meta[name=theme-color]').setAttribute('content', _rgb(bg));
+    }
+  }
   document.querySelectorAll('#theme-seg button').forEach(b=>b.classList.toggle('active', b.dataset.theme===t));
 }
 function setTheme(t){ state.settings.theme=t; save(); applyTheme(); }
