@@ -78,12 +78,11 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .header h1,
 .dash-greeting .dg-hello,
 .read-surah-title,
-.detail-hero .dh-title,
-.content-card .c-title,
-.dash-quote .dq-title {
+.detail-hero .dh-title {
   font-family: "Amiri", Georgia, "Times New Roman", serif;
   letter-spacing: 0;
 }
+.screen { display:none; flex:1; flex-direction:column; min-height:0; }
 .screen.active { display:flex; animation:slideIn .24s cubic-bezier(.16,1,.3,1); } @keyframes slideIn { from { transform: translateX(16px); opacity: 0; } to { transform: translateX(0); opacity: 1; } } @keyframes slideUp { from { transform: translateY(24px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
 @media (prefers-reduced-motion: reduce) {
