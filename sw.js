@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'iqra-v10';
+const CACHE_VERSION = 'iqra-v12';
 const CACHE_ASSETS = [
   './', './index.html', './manifest.json', './count.js', './fonts.css',
   './favicon.png', './apple-touch-icon.png', './icon-192.png', './icon-512.png', './logo.svg', './logo-mini.svg',
@@ -7,11 +7,11 @@ const CACHE_ASSETS = [
   './fonts/noto-naskh-arabic-v44-arabic_latin-regular.woff2',
   './fonts/noto-naskh-arabic-v44-arabic_latin-500.woff2',
   './fonts/noto-naskh-arabic-v44-arabic_latin-700.woff2',
-  './fonts/inter-v20-latin_latin-ext-regular.woff2',
-  './fonts/inter-v20-latin_latin-ext-500.woff2',
-  './fonts/inter-v20-latin_latin-ext-600.woff2',
-  './fonts/inter-v20-latin_latin-ext-700.woff2',
-  './fonts/inter-v20-latin_latin-ext-800.woff2'
+  './fonts/inter-v20-cyrillic_cyrillic-ext_latin_latin-ext-regular.woff2',
+  './fonts/inter-v20-cyrillic_cyrillic-ext_latin_latin-ext-500.woff2',
+  './fonts/inter-v20-cyrillic_cyrillic-ext_latin_latin-ext-600.woff2',
+  './fonts/inter-v20-cyrillic_cyrillic-ext_latin_latin-ext-700.woff2',
+  './fonts/inter-v20-cyrillic_cyrillic-ext_latin_latin-ext-800.woff2'
 ];
 
 self.addEventListener('install', function(event) {
