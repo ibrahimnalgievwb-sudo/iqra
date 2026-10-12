@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="115" fill="#0A0A0A"/>
+
+  <!-- 4-луч. звезда -->
+  <path d="M256 70c10 38 30 58 68 68-38 10-58 30-68 68-10-38-30-58-68-68 38-10 58-30 68-68z" fill="#fff"/>
+
+  <!-- Левая страница -->
+  <path d="M 108 244 L 248 300 L 256 326 L 116 270 Z" fill="#fff"/>
+  <!-- Правая страница -->
+  <path d="M 404 244 L 264 300 L 256 326 L 396 270 Z" fill="#fff"/>
+
+  <!-- Надпись -->
+  <text x="256" y="450"
+        font-family="Georgia, 'Times New Roman', serif"
+        font-size="128" font-weight="700"
+        text-anchor="middle" fill="#fff"
+        letter-spacing="1">IQRA'</text>
+</svg>
