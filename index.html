@@ -54,7 +54,11 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   word-break: break-word;
   hyphens: none;
   text-rendering: optimizeLegibility;
-  color: var(--accent2);
+    background: linear-gradient(180deg, #FFF3B0 0%, #FFD700 20%, #B8860B 50%, #FFD700 80%, #FFF3B0 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
 }
 .tasbih-card .ar,
 .content-card .c-ar,
