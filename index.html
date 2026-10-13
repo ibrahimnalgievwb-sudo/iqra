@@ -1981,9 +1981,9 @@ function openQuran(id) {
       <div class="dh-title">${esc(item.title)}</div>
       <div class="dh-sub">${esc(item.subtitle||'')}</div>
     </div>
-  if (learnedHadiths.length) { html += `<div class="settings-group"><div class="progress-section-title">Изученные хадисы</div>`;
-        <div class="detail-actions">
-           <button class="btn secondary" onclick="openRead('${item.id}')"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-book"/></svg>Читать</button>
+    ${item.note ? `<div class="note-box"><svg class="ico ico-sm" style="flex-shrink:0;color:var(--accent2)"><use href="#i-lightbulb"/></svg><div>${escNl(item.note)}</div></div>` : ''}
+    <div class="detail-actions">
+      <button class="btn secondary" onclick="openRead('${item.id}')"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-book"/></svg>Читать</button>
       <button class="btn" onclick="openMemorize('${item.id}')"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-lightbulb"/></svg>Заучить</button>
       <button class="btn secondary" onclick="shareItem('quran','${item.id}')"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-upload"/></svg>Поделиться</button>
     </div>
@@ -2253,21 +2253,8 @@ function openHadith(id) {
     </div>
     ${h.note ? `<div class="note-box"><svg class="ico ico-sm" style="flex-shrink:0;color:var(--accent2)"><use href="#i-lightbulb"/></svg><div>${escNl(h.note)}</div></div>` : ''}
     <div class="detail-actions"><button class="btn" onclick="openMemorizeFor(getHadithById('${h.id}'))"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-lightbulb"/></svg>Заучить</button><button class="btn secondary" onclick="shareItem('hadith','${h.id}')"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-upload"/></svg>Поделиться</button></div>
-    <div class="learned-toggle ${h.learned?'done':''}" onclick="toggleHadithLearned('${h.id}')">
-  if (type === 'quran') {
-    const item = state.quran[Math.floor(Math.random() * state.quran.length)];
-    if (!item) return null;
-    const trLines = (item.translation || '').split('\n').filter(Boolean);
-       return { type: 'quran', id: item.id, badge: 'Коран', title: item.title, ar: (item.arabic || '').split('\n')[0], tr: (trLines[0] || '').slice(0, 140) };
-  if (type === 'hadith') {
-    const item = state.hadiths[Math.floor(Math.random() * state.hadiths.length)];
-    if (!item) return null;
-       return { type: 'dua', id: item.id, badge: 'Дуа', title: item.title, ar: item.arabic || '', tr: (item.translation || '').slice(0, 140) };
-  if (type === 'dua') {
-    const item = state.duas[Math.floor(Math.random() * state.duas.length)];
-    if (!item) return null;
-    return { type: 'dua', id: item.id, badge: '🤲 Дуа', title: item.title, ar: item.arabic || '', tr: (item.translation || '').slice(0, 140) };
-  }
+       <div class="learned-toggle ${h.learned?'done':''}" onclick="toggleHadithLearned('${h.id}')">
+      <div class="lt-icon">${h.learned?'✓':'<svg class="ico ico-sm"><use href="#i-book"/></svg>'}</div>
       <div class="lt-body"><div class="lt-title">${h.learned?'Изучено':'Отметить как изученный'}</div><div class="lt-sub">${h.learned?'Нажми, чтобы снять отметку':'Изучи хадис и отметь'}</div></div>
     </div>
     ${h.source ? `<div class="dh-section" style="margin-top:20px;"><div class="dh-label">Источник</div><div class="dh-text muted" style="font-size:13px;">${esc(h.source)}</div></div>` : ''}
@@ -2347,10 +2334,11 @@ function renderProgressCalendar() {
   body.innerHTML = `
     <div class="cal-header"><div><div class="month">${MONTHS[m]} ${y}</div><div style="font-size:12px;color:var(--muted);margin-top:2px">${formatHijri(new Date(y, m, 15))}</div></div><div class="cal-nav"><button onclick="shiftMonth(-1)">‹</button><button onclick="shiftMonth(1)">›</button></div></div>
     <div class="cal-grid">${html}</div>
-    <div class="cal-summary">
+     <div class="cal-summary">
       <div class="stat"><div class="label">Всего за месяц</div><div class="value">${monthTotal}</div></div>
       <div class="stat"><div class="label">Дней с зикром</div><div class="value">${monthDays}</div></div>
       <div class="stat"><div class="label">Лучший день</div><div class="value">${best}</div></div>
+      <div class="stat"><div class="label">Средн. в день</div><div class="value">${monthDays > 0 ? Math.round(monthTotal / monthDays) : 0}</div></div>
     </div>
     <div class="bar-chart"><div class="bc-title">По дням месяца</div><div class="bars">${bars}</div><div class="x-axis">${labels}</div></div>
   `;
@@ -2571,15 +2559,17 @@ function getRandomQuote() {
     const item = state.quran[Math.floor(Math.random() * state.quran.length)];
     if (!item) return null;
     const trLines = (item.translation || '').split('\n').filter(Boolean);
-       return { type: 'quran', id: item.id, badge: 'Коран', title: item.title, ar: (item.arabic || '').split('\n')[0], tr: (trLines[0] || '').slice(0, 140) };
+    return { type: 'quran', id: item.id, badge: 'Коран', title: item.title, ar: (item.arabic || '').split('\n')[0], tr: (trLines[0] || '').slice(0, 140) };
+  }
   if (type === 'hadith') {
     const item = state.hadiths[Math.floor(Math.random() * state.hadiths.length)];
     if (!item) return null;
-       return { type: 'dua', id: item.id, badge: 'Дуа', title: item.title, ar: item.arabic || '', tr: (item.translation || '').slice(0, 140) };
+    return { type: 'hadith', id: item.id, badge: 'Хадис', title: item.title, ar: item.arabic || '', tr: (item.translation || '').slice(0, 140) };
+  }
   if (type === 'dua') {
     const item = state.duas[Math.floor(Math.random() * state.duas.length)];
     if (!item) return null;
-    return { type: 'dua', id: item.id, badge: '🤲 Дуа', title: item.title, ar: item.arabic || '', tr: (item.translation || '').slice(0, 140) };
+    return { type: 'dua', id: item.id, badge: 'Дуа', title: item.title, ar: item.arabic || '', tr: (item.translation || '').slice(0, 140) };
   }
   const item = state.tasbihs[Math.floor(Math.random() * state.tasbihs.length)];
   if (!item) return null;
