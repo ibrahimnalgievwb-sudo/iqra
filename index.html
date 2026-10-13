@@ -1730,9 +1730,10 @@ function openQuran(id) {
       <div class="dh-sub">${esc(item.subtitle||'')}</div>
     </div>
     ${item.note ? `<div class="note-box"><span class="note-icon">💡</span><div>${escNl(item.note)}</div></div>` : ''}
-    <div class="detail-actions">
+        <div class="detail-actions">
       <button class="btn secondary" onclick="openRead('${item.id}')">📖 Читать</button>
       <button class="btn" onclick="openMemorize('${item.id}')">🧠 Заучить</button>
+      <button class="btn secondary" onclick="shareItem('quran','${item.id}')">📤 Поделиться</button>
     </div>
     <div class="learned-toggle ${item.learned?'done':''}" onclick="toggleQuranLearned('${item.id}')">
       <div class="lt-icon">${item.learned?'✓':'📖'}</div>
@@ -1957,7 +1958,7 @@ function openDua(id) {
       </div>
     </div>
     ${d.note ? `<div class="note-box"><span class="note-icon">💡</span><div>${escNl(d.note)}</div></div>` : ''}
-    <div class="detail-actions"><button class="btn" onclick="openMemorizeFor(getDuaById('${d.id}'))">🧠 Заучить</button></div>
+    <div class="detail-actions"><button class="btn" onclick="openMemorizeFor(getDuaById('${d.id}'))">🧠 Заучить</button><button class="btn secondary" onclick="shareItem('dua','${d.id}')">📤 Поделиться</button></div>
     <div class="learned-toggle ${d.learned?'done':''}" onclick="toggleDuaLearned('${d.id}')">
       <div class="lt-icon">${d.learned?'✓':'📖'}</div>
       <div class="lt-body"><div class="lt-title">${d.learned?'Выучено':'Отметить как выучено'}</div><div class="lt-sub">${d.learned?'Нажми, чтобы снять отметку':'Изучи дуа и отметь'}</div></div>
@@ -1998,7 +1999,7 @@ function openHadith(id) {
       </div>
     </div>
     ${h.note ? `<div class="note-box"><span class="note-icon">💡</span><div>${escNl(h.note)}</div></div>` : ''}
-    <div class="detail-actions"><button class="btn" onclick="openMemorizeFor(getHadithById('${h.id}'))">🧠 Заучить</button></div>
+    <div class="detail-actions"><button class="btn" onclick="openMemorizeFor(getHadithById('${h.id}'))">🧠 Заучить</button><button class="btn secondary" onclick="shareItem('hadith','${h.id}')">📤 Поделиться</button></div>
     <div class="learned-toggle ${h.learned?'done':''}" onclick="toggleHadithLearned('${h.id}')">
       <div class="lt-icon">${h.learned?'✓':'📖'}</div>
       <div class="lt-body"><div class="lt-title">${h.learned?'Изучено':'Отметить как изученный'}</div><div class="lt-sub">${h.learned?'Нажми, чтобы снять отметку':'Изучи хадис и отметь'}</div></div>
@@ -2257,6 +2258,64 @@ function showMarkToast(text) {
   el.classList.add('show');
   if (_toastTimer) clearTimeout(_toastTimer);
   _toastTimer = setTimeout(function(){ el.classList.remove('show'); }, 1800);
+  
+function buildShareText(item) {
+  var parts = [];
+  if (item.title) parts.push(item.title);
+  if (item.subtitle) parts.push(item.subtitle);
+  if (item.arabic) parts.push(item.arabic);
+  if (item.transcription) parts.push(item.transcription);
+  if (item.translation) parts.push(item.translation);
+  if (item.source) parts.push(item.source);
+  parts.push('— Iqra | Читай');
+  return parts.join('\n\n');
+}
+
+function shareItem(type, id) {
+  var item = null;
+  if (type === 'quran') item = getQuranById(id);
+  else if (type === 'dua') item = getDuaById(id);
+  else if (type === 'hadith') item = getHadithById(id);
+  if (!item) return;
+  var text = buildShareText(item);
+  var title = item.title || 'Iqra | Читай';
+  if (navigator.share) {
+    navigator.share({ title: title, text: text }).then(function() {
+      trackEvent('share/' + type + '/' + id, 'Репост: ' + title);
+    }).catch(function() {});
+    return;
+  }
+  copyToClipboard(text);
+}
+
+function copyToClipboard(text) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function() {
+      showMarkToast('Скопировано в буфер');
+    }).catch(function() {
+      legacyCopy(text);
+    });
+    return;
+  }
+  legacyCopy(text);
+}
+
+function legacyCopy(text) {
+  try {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.top = '-1000px';
+    document.body.appendChild(ta);
+    ta.select();
+    var ok = document.execCommand('copy');
+    document.body.removeChild(ta);
+    showMarkToast(ok ? 'Скопировано в буфер' : 'Не удалось скопировать');
+  } catch (e) {
+    showMarkToast('Не удалось скопировать');
+  }
+}
 }
 
 function currentAyahIdx() {
