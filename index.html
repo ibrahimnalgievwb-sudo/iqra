@@ -42,7 +42,7 @@
   --bg:#0D0D0D; --card:#1C1C1C; --card2:#2A2A2A; --accent:#FFFFFF; --accent2:#E8E8E8;
   --text:#FFFFFF; --muted:#B8B8B8; --border:#3A3A3A; --shadow:rgba(0,0,0,.70);
   --accent-rgb: 255, 255, 255; --ripple:rgba(255,255,255,.22);
-  --ar-g1:#FFF0A0; --ar-g2:#FFD700; --ar-g3:#B8860B; --ar-gold:#FFD700;
+  --ar-g1:#FFF0A0; --ar-g2:#FFD700; --ar-g3:#B8860B;
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body {
@@ -740,41 +740,35 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   
-/* === LOGO-STYLE BUTTONS v2: золотые грани самой кнопки, без обводки-круга === */
+/* === LOGO-STYLE BUTTONS v3: чёрно-золото, усиленный блеск === */
 :root {
-  --gold-grad: linear-gradient(135deg, #FFF3B0 0%, #FFD700 22%, #8B6914 50%, #FFD700 78%, #FFF3B0 100%);
-  --gold-grad-light: linear-gradient(135deg, #D4A017 0%, #B8860B 25%, #7A5A0A 50%, #B8860B 75%, #D4A017 100%);
+  --gold-grad: linear-gradient(135deg,
+    #FFF9D6 0%, #FFD700 12%, #FFE680 22%, #B8860B 36%,
+    #FFF3B0 48%, #FFD700 55%, #8B6914 72%, #FFE680 85%, #FFF9D6 100%);
+  --gold-grad-light: linear-gradient(135deg,
+    #FFE680 0%, #D4A017 15%, #7A5A0A 38%,
+    #FFE680 52%, #D4A017 62%, #5C4409 78%, #FFE680 100%);
   --gold-accent: #D4AF37;
   --gold-accent-light: #8B6914;
-  --ink: #0A0A0A;
+  --gold-glow: 0 3px 14px rgba(212,175,55,.45), 0 1px 3px rgba(0,0,0,.22);
+  --gold-inner: inset 0 1px 0 rgba(255,243,176,.22), inset 0 -1px 0 rgba(139,105,20,.28);
 }
 
-/* === PRIMARY: сама кнопка — золото === */
 .btn {
   background: var(--gold-grad) !important;
   color: #0A0A0A !important;
   border: none !important;
   font-weight: 700;
-  box-shadow: 0 2px 10px rgba(212,175,55,.32);
+  box-shadow: var(--gold-glow), var(--gold-inner);
   transition: transform .1s ease, box-shadow .15s ease;
 }
 .btn:active { transform: scale(.97); box-shadow: 0 1px 4px rgba(212,175,55,.38); }
-[data-theme="light"] .btn {
-  background: var(--gold-grad-light) !important;
-  color: #FFFFFF !important;
-  box-shadow: 0 2px 10px rgba(139,105,20,.28);
-}
 
 .btn.secondary {
   background: var(--card) !important;
   color: var(--gold-accent) !important;
   border: none !important;
-  box-shadow: 0 1px 4px rgba(0,0,0,.18);
-}
-[data-theme="light"] .btn.secondary {
-  background: #FFFFFF !important;
-  color: var(--gold-accent-light) !important;
-  box-shadow: 0 1px 4px rgba(0,0,0,.08);
+  box-shadow: 0 1px 4px rgba(0,0,0,.18), var(--gold-inner);
 }
 
 .btn.danger {
@@ -782,13 +776,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   color: #C96A5A !important;
   border: none !important;
 }
-[data-theme="light"] .btn.danger {
-  background: #FFFFFF !important;
-  color: #A04434 !important;
-  box-shadow: 0 1px 4px rgba(0,0,0,.08);
-}
 
-/* === ICON BUTTONS === */
 .icon-btn {
   background: var(--card) !important;
   color: var(--gold-accent) !important;
@@ -796,55 +784,29 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   transition: transform .08s ease;
 }
 .icon-btn:active { transform: scale(.94); }
-[data-theme="light"] .icon-btn {
-  background: #FFFFFF !important;
-  color: var(--gold-accent-light) !important;
-  box-shadow: 0 1px 4px rgba(0,0,0,.08);
-}
 .icon-btn.ghost {
   background: transparent !important;
   color: var(--gold-accent) !important;
   box-shadow: none !important;
 }
-[data-theme="light"] .icon-btn.ghost {
-  color: var(--gold-accent-light) !important;
-  box-shadow: none !important;
-}
 .icon-btn.starred {
   background: var(--gold-grad) !important;
   color: #0A0A0A !important;
-}
-[data-theme="light"] .icon-btn.starred {
-  background: var(--gold-grad-light) !important;
-  color: #FFFFFF !important;
+  box-shadow: var(--gold-glow), var(--gold-inner);
 }
 
-/* === FAB === */
 .fab {
   background: var(--gold-grad) !important;
   color: #0A0A0A !important;
   border: none !important;
-  box-shadow: 0 4px 18px rgba(212,175,55,.45) !important;
-}
-[data-theme="light"] .fab {
-  background: var(--gold-grad-light) !important;
-  color: #FFFFFF !important;
-  box-shadow: 0 4px 18px rgba(139,105,20,.35) !important;
+  box-shadow: 0 4px 20px rgba(212,175,55,.55), var(--gold-inner) !important;
 }
 
-/* === SEG / STEPPER / PROG-TABS === */
 .seg, .stepper, .prog-tabs {
   background: var(--card) !important;
   border: none !important;
 }
-[data-theme="light"] .seg,
-[data-theme="light"] .stepper,
-[data-theme="light"] .prog-tabs {
-  background: #FFFFFF !important;
-  box-shadow: 0 1px 4px rgba(0,0,0,.06);
-}
 
-/* === CHIPS / NAV ARROWS / DELETE === */
 .preset-chip,
 .cal-nav button,
 .mark-item .mi-del,
@@ -854,20 +816,10 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   color: var(--gold-accent) !important;
   border: none !important;
 }
-[data-theme="light"] .preset-chip,
-[data-theme="light"] .cal-nav button,
-[data-theme="light"] .mark-item .mi-del,
-[data-theme="light"] .reminder-row .del,
-[data-theme="light"] .time-row .del {
-  background: #FFFFFF !important;
-  color: var(--gold-accent-light) !important;
-  box-shadow: 0 1px 3px rgba(0,0,0,.06);
-}
 .mark-item .mi-del,
 .reminder-row .del,
 .time-row .del { color: #C96A5A !important; }
 
-/* === FILTER CHIPS === */
 .search-filters .filter-chip {
   background: var(--card) !important;
   color: var(--muted) !important;
@@ -877,18 +829,9 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   background: var(--gold-grad) !important;
   color: #0A0A0A !important;
   font-weight: 700 !important;
-}
-[data-theme="light"] .search-filters .filter-chip {
-  background: #FFFFFF !important;
-  color: #4A4A4A !important;
-  box-shadow: 0 1px 3px rgba(0,0,0,.06);
-}
-[data-theme="light"] .search-filters .filter-chip.active {
-  background: var(--gold-grad-light) !important;
-  color: #FFFFFF !important;
+  box-shadow: var(--gold-glow), var(--gold-inner);
 }
 
-/* === ONBOARDING OPTIONS === */
 #onboarding .ob-option {
   background: var(--card) !important;
   color: var(--text) !important;
@@ -898,13 +841,9 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   background: var(--gold-grad) !important;
   color: #0A0A0A !important;
   font-weight: 700 !important;
-}
-[data-theme="light"] #onboarding .ob-option.active {
-  background: var(--gold-grad-light) !important;
-  color: #FFFFFF !important;
+  box-shadow: var(--gold-glow), var(--gold-inner);
 }
 
-/* === STAR BUTTON (content-card) === */
 .content-card .star-btn {
   background: rgba(212,175,55,.12) !important;
   color: var(--gold-accent) !important;
@@ -913,28 +852,16 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .content-card .star-btn.active {
   background: var(--gold-grad) !important;
   color: #0A0A0A !important;
-}
-[data-theme="light"] .content-card .star-btn {
-  background: rgba(139,105,20,.12) !important;
-  color: var(--gold-accent-light) !important;
-}
-[data-theme="light"] .content-card .star-btn.active {
-  background: var(--gold-grad-light) !important;
-  color: #FFFFFF !important;
+  box-shadow: var(--gold-glow), var(--gold-inner);
 }
 
-/* === NEXT TOAST BTN === */
 .next-toast .nt-btn {
   background: var(--gold-grad) !important;
   color: #0A0A0A !important;
   border: none !important;
-}
-[data-theme="light"] .next-toast .nt-btn {
-  background: var(--gold-grad-light) !important;
-  color: #FFFFFF !important;
+  box-shadow: var(--gold-glow), var(--gold-inner);
 }
 
-/* === AYAH SHARE — минимализм, только золотой контур-плашка === */
 .ayah-share-btn {
   display: inline-flex;
   align-items: center;
@@ -946,7 +873,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   font-weight: 700;
   background: transparent;
   color: var(--gold-accent);
-  border: 1px solid var(--gold-accent);
+  border: 1.5px solid var(--gold-accent);
   cursor: pointer;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
@@ -957,13 +884,75 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   background: var(--gold-grad);
   color: #0A0A0A;
 }
+
+/* === LIGHT THEME: чёрный фон + золотые грани + усиленный блеск === */
+[data-theme="light"] .btn,
+[data-theme="light"] .btn.secondary {
+  background: linear-gradient(#0A0A0A, #0A0A0A) padding-box,
+              var(--gold-grad-light) border-box !important;
+  border: 2px solid transparent !important;
+  color: var(--gold-accent-light) !important;
+  box-shadow: 0 4px 18px rgba(139,105,20,.48),
+              0 1px 4px rgba(0,0,0,.30),
+              inset 0 1px 0 rgba(255,230,128,.40),
+              inset 0 -1px 0 rgba(92,68,9,.42) !important;
+}
+[data-theme="light"] .btn:active,
+[data-theme="light"] .btn.secondary:active {
+  box-shadow: 0 2px 8px rgba(139,105,20,.55),
+              inset 0 1px 0 rgba(255,230,128,.40) !important;
+}
+[data-theme="light"] .btn.danger {
+  background: #FFFFFF !important;
+  color: #A04434 !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,.08) !important;
+}
+[data-theme="light"] .icon-btn {
+  background: linear-gradient(#0A0A0A, #0A0A0A) padding-box,
+              var(--gold-grad-light) border-box !important;
+  border: 1.6px solid transparent !important;
+  color: var(--gold-accent-light) !important;
+  box-shadow: 0 2px 10px rgba(139,105,20,.38),
+              inset 0 1px 0 rgba(255,230,128,.35) !important;
+}
+[data-theme="light"] .icon-btn.ghost {
+  background: transparent !important;
+  border: none !important;
+  color: var(--gold-accent-light) !important;
+  box-shadow: none !important;
+}
+[data-theme="light"] .icon-btn.starred {
+  background: linear-gradient(#0A0A0A, #0A0A0A) padding-box,
+              var(--gold-grad-light) border-box !important;
+  border: 1.6px solid transparent !important;
+  color: #FFD700 !important;
+}
+[data-theme="light"] .fab {
+  background: linear-gradient(#0A0A0A, #0A0A0A) padding-box,
+              var(--gold-grad-light) border-box !important;
+  border: 2.2px solid transparent !important;
+  color: #FFD700 !important;
+  box-shadow: 0 4px 20px rgba(139,105,20,.52),
+              inset 0 1px 0 rgba(255,230,128,.40) !important;
+}
+[data-theme="light"] .search-filters .filter-chip.active,
+[data-theme="light"] #onboarding .ob-option.active,
+[data-theme="light"] .next-toast .nt-btn {
+  background: linear-gradient(#0A0A0A, #0A0A0A) padding-box,
+              var(--gold-grad-light) border-box !important;
+  color: #FFD700 !important;
+  border: 1.6px solid transparent !important;
+  box-shadow: 0 2px 10px rgba(139,105,20,.42),
+              inset 0 1px 0 rgba(255,230,128,.35) !important;
+}
 [data-theme="light"] .ayah-share-btn {
   color: var(--gold-accent-light);
   border-color: var(--gold-accent-light);
 }
 [data-theme="light"] .ayah-share-btn:active {
-  background: var(--gold-grad-light);
-  color: #FFFFFF;
+  background: linear-gradient(#0A0A0A, #0A0A0A) padding-box,
+              var(--gold-grad-light) border-box;
+  color: #FFD700;
 }
 
 button, .btn, .icon-btn, .fab, .ayah-share-btn, .star-btn, .filter-chip, .preset-chip, .ob-option {
