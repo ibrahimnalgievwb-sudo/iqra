@@ -739,6 +739,122 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   text-overflow: ellipsis;
 }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  
+/* === LOGO-STYLE BUTTONS === */
+:root {
+  --gold-grad: linear-gradient(135deg, #FFF3B0 0%, #FFD700 22%, #B8860B 50%, #FFD700 78%, #FFF3B0 100%);
+}
+
+.btn {
+  background: linear-gradient(#0A0A0A, #0A0A0A) padding-box, var(--gold-grad) border-box !important;
+  border: 2px solid transparent !important;
+  color: #FFF3B0 !important;
+  transition: transform .08s ease, opacity .08s ease;
+}
+.btn:active { transform: scale(.97); opacity: .8; }
+.btn.secondary {
+  background: linear-gradient(var(--card), var(--card)) padding-box, var(--gold-grad) border-box !important;
+  color: var(--text) !important;
+}
+.btn.danger {
+  background: linear-gradient(var(--bg), var(--bg)) padding-box,
+              linear-gradient(135deg, #E0A0A0, #C96A5A, #8B3A2A) border-box !important;
+  color: #E07060 !important;
+}
+
+.icon-btn {
+  background: linear-gradient(var(--card), var(--card)) padding-box, var(--gold-grad) border-box !important;
+  border: 2px solid transparent !important;
+  transition: transform .08s ease;
+}
+.icon-btn:active { transform: scale(.94); }
+.icon-btn.ghost {
+  background: transparent !important;
+  border: none !important;
+}
+.icon-btn.ghost:active { background: rgba(212,175,55,.15) !important; }
+.icon-btn.starred { color: #FFD700 !important; }
+
+.fab {
+  background: linear-gradient(#000, #000) padding-box, var(--gold-grad) border-box !important;
+  border: 2.5px solid transparent !important;
+  color: #FFD700 !important;
+  box-shadow: 0 6px 22px rgba(212,175,55,.28) !important;
+}
+
+.seg {
+  background: linear-gradient(var(--card2), var(--card2)) padding-box, var(--gold-grad) border-box !important;
+  border: 1.5px solid transparent !important;
+}
+.stepper {
+  background: linear-gradient(var(--card), var(--card)) padding-box, var(--gold-grad) border-box !important;
+  border: 1.5px solid transparent !important;
+}
+.prog-tabs {
+  background: linear-gradient(var(--card2), var(--card2)) padding-box, var(--gold-grad) border-box !important;
+  border: 1.5px solid transparent !important;
+}
+
+.preset-chip, .cal-nav button, .mark-item .mi-del, .reminder-row .del, .time-row .del {
+  background: linear-gradient(var(--card), var(--card)) padding-box, var(--gold-grad) border-box !important;
+  border: 1.5px solid transparent !important;
+}
+.search-filters .filter-chip {
+  background: linear-gradient(var(--card), var(--card)) padding-box, var(--gold-grad) border-box !important;
+  border: 1.5px solid transparent !important;
+  color: var(--muted) !important;
+}
+.search-filters .filter-chip.active {
+  background: linear-gradient(#0A0A0A, #0A0A0A) padding-box, var(--gold-grad) border-box !important;
+  color: #FFD700 !important;
+  font-weight: 700 !important;
+}
+#onboarding .ob-option {
+  background: linear-gradient(var(--card), var(--card)) padding-box, var(--gold-grad) border-box !important;
+  border: 1.5px solid transparent !important;
+  color: var(--text) !important;
+}
+#onboarding .ob-option.active {
+  background: linear-gradient(#0A0A0A, #0A0A0A) padding-box, var(--gold-grad) border-box !important;
+  color: #FFD700 !important;
+  font-weight: 700 !important;
+}
+.content-card .star-btn {
+  background: linear-gradient(var(--card), var(--card)) padding-box, var(--gold-grad) border-box !important;
+  border: 1.5px solid transparent !important;
+  color: var(--muted) !important;
+}
+.content-card .star-btn.active {
+  background: linear-gradient(#0A0A0A, #0A0A0A) padding-box, var(--gold-grad) border-box !important;
+  color: #FFD700 !important;
+}
+.next-toast .nt-btn {
+  background: linear-gradient(#0A0A0A, #0A0A0A) padding-box, var(--gold-grad) border-box !important;
+  border: 1.5px solid transparent !important;
+  color: #FFD700 !important;
+}
+
+/* per-ayah share button */
+.ayah-share-btn {
+  margin-top: 12px;
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  background: linear-gradient(var(--card2), var(--card2)) padding-box, var(--gold-grad) border-box;
+  border: 1.5px solid transparent;
+  color: #D4AF37;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform .08s ease, opacity .08s ease;
+}
+.ayah-share-btn:active { transform: scale(.94); opacity: .75; }
+
+button, .btn, .icon-btn, .fab, .ayah-share-btn, .star-btn, .filter-chip, .preset-chip, .ob-option {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
 
 /* === LOGO-STYLE BUTTONS === */
 .btn {
@@ -1220,7 +1336,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 <script>
 "use strict";
 
-const STORAGE_KEY = 'iqra_data';
+const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
 const LIMITS = { tasbihs:1000, history:10000, reminders:50, textLen:1000, idLen:100, targetMax:100000, cyclesMax:1000000 };
 
 const QURAN_USE_API = false;
@@ -1805,12 +1921,13 @@ function openQuran(id) {
     </div>
     ${bismillahHtml}
     <div style="height:16px"></div>
-    ${ayahs.map((a) => `
+    ${ayahs.map((a, idx) => `
       <div class="read-ayah ${item.type==='ayat'?'ayat-mode':''}">
         <div class="read-ayah-num">${item.type==='surah' ? a.num : (item.number||'')}</div>
         <div class="read-ayah-ar ar-font">${esc(a.ar)}</div>
         ${a.tr ? `<div class="read-ayah-tr">${esc(a.tr)}</div>` : ''}
         <div class="read-ayah-trn">${esc(a.trn)}</div>
+        <button class="ayah-share-btn" onclick="shareAyah('${item.id}',${idx})">📤 Поделиться аятом</button>
       </div>
     `).join('')}
     ${item.source ? `<div class="dh-section" style="margin-top:20px;"><div class="dh-label">Источник</div><div class="dh-text muted" style="font-size:13px;">${esc(item.source)}</div></div>` : ''}
@@ -1855,6 +1972,7 @@ function openRead(id, targetAyahIdx) {
   `;
   activeReadId = id;
   document.getElementById('read-mode').classList.add('active');
+  saveNavContext();
   const body = document.getElementById('read-body');
   const restore = () => {
     if (!body) return;
@@ -1874,6 +1992,7 @@ function closeRead() {
   if (activeReadId && state.settings.readScrolls) { const b=document.getElementById('read-body'); state.settings.readScrolls[activeReadId] = b ? (b.scrollTop||0) : 0; save(); }
   document.getElementById('read-mode').classList.remove('active');
   activeReadId = null;
+  saveNavContext();
 }
 
 function openMemorizeFor(item) {
@@ -1881,8 +2000,9 @@ function openMemorizeFor(item) {
   memorizeAyahs = parseAyahs(item);
   if (!memorizeAyahs.length) { alert('Нет текста для заучивания'); return; }
   memorizeStep = 0; memorizePhase = 'learn'; memorizeRevealed = false;
-  renderMemorize();
+    renderMemorize();
   document.getElementById('memorize-mode').classList.add('active');
+  saveNavContext();
 }
 function openMemorize(id) { const item = getQuranById(id); if (!item) return; trackEvent('memorize/' + id, 'Заучивание: ' + item.title); openMemorizeFor(item); }
 function renderMemorize() {
@@ -1932,7 +2052,7 @@ function memNext() {
     }
   }
 }
-function closeMemorize() { document.getElementById('memorize-mode').classList.remove('active'); memorizeItem=null; memorizeAyahs=[]; memorizeStep=0; memorizePhase='learn'; memorizeRevealed=false; }
+function closeMemorize() { document.getElementById('memorize-mode').classList.remove('active'); memorizeItem=null; memorizeAyahs=[]; memorizeStep=0; memorizePhase='learn'; memorizeRevealed=false; saveNavContext(); }
 
 function renderNightList() {
   const el = document.getElementById('night-list');
@@ -2246,6 +2366,85 @@ save(); applyTheme(); setArSize(state.settings.arSize); renderDashboard(); rende
 function resetAll() { if (!confirm('Удалить ВСЕ данные? Это необратимо.')) return; if (!confirm('Точно? Резервную копию можно сделать в Настройках.')) return;localStorage.removeItem(STORAGE_KEY);
   location.reload(); }
 
+function saveNavContext() {
+  var activeScreenEl = document.querySelector('.screen.active');
+  var ctx = {
+    screen: activeScreenEl ? activeScreenEl.id : 'screen-dashboard',
+    quranId: activeQuranId || null,
+    duaId: activeDuaId || null,
+    hadithId: activeHadithId || null,
+    tasbihId: activeId || null,
+    nightId: (typeof activeNightId === 'number') ? activeNightId : null,
+    readId: (typeof activeReadId !== 'undefined' && activeReadId) ? activeReadId : null,
+    readOpen: !!(document.getElementById('read-mode') && document.getElementById('read-mode').classList.contains('active')),
+    memOpen: !!(document.getElementById('memorize-mode') && document.getElementById('memorize-mode').classList.contains('active')),
+    memId: memorizeItem ? memorizeItem.id : null,
+    memStep: memorizeStep || 0,
+    memPhase: memorizePhase || 'learn'
+  };
+  state.settings.lastScreen = ctx.screen;
+  state.settings.lastScreenContext = ctx;
+  save();
+}
+
+function restoreNav() {
+  var ctx = state.settings.lastScreenContext;
+  if (!ctx || !ctx.screen) {
+    var old = state.settings.lastScreen;
+    var oldAllowed = ['screen-dashboard','screen-tasbih','screen-quran','screen-night','screen-dua','screen-hadith','screen-cal'];
+    if (old === 'screen-quran') renderQuranList();
+    else if (old === 'screen-dua') renderDuaList();
+    else if (old === 'screen-hadith') renderHadithList();
+    else if (old === 'screen-night') renderNightList();
+    else if (old === 'screen-tasbih') renderTasbih();
+    else if (old === 'screen-cal') renderProgress();
+    showScreen(oldAllowed.indexOf(old) !== -1 ? old : 'screen-dashboard');
+    return;
+  }
+  var s = ctx.screen;
+  var baseScreens = ['screen-dashboard','screen-tasbih','screen-quran','screen-night','screen-dua','screen-hadith','screen-cal'];
+  if (s === 'screen-settings') {
+    openSettings();
+  } else if (s === 'screen-quran-detail' && ctx.quranId && getQuranById(ctx.quranId)) {
+    openQuran(ctx.quranId);
+  } else if (s === 'screen-dua-detail' && ctx.duaId && getDuaById(ctx.duaId)) {
+    openDua(ctx.duaId);
+  } else if (s === 'screen-hadith-detail' && ctx.hadithId && getHadithById(ctx.hadithId)) {
+    openHadith(ctx.hadithId);
+  } else if (s === 'screen-night-detail' && ctx.nightId !== null && NIGHT_ORDER[ctx.nightId]) {
+    openNight(ctx.nightId);
+  } else if (s === 'screen-counter' && ctx.tasbihId && getById(ctx.tasbihId)) {
+    openCounter(ctx.tasbihId);
+  } else if (baseScreens.indexOf(s) !== -1) {
+    if (s === 'screen-quran') renderQuranList();
+    else if (s === 'screen-dua') renderDuaList();
+    else if (s === 'screen-hadith') renderHadithList();
+    else if (s === 'screen-night') renderNightList();
+    else if (s === 'screen-tasbih') renderTasbih();
+    else if (s === 'screen-cal') renderProgress();
+    else if (s === 'screen-dashboard') renderDashboard();
+    showScreen(s);
+  } else {
+    renderDashboard();
+    showScreen('screen-dashboard');
+  }
+  if (ctx.readOpen && ctx.readId && getQuranById(ctx.readId)) {
+    openRead(ctx.readId);
+  }
+  if (ctx.memOpen && ctx.memId) {
+    var memItem = getQuranById(ctx.memId) || getDuaById(ctx.memId) || getHadithById(ctx.memId);
+    if (memItem) {
+      memorizeItem = memItem;
+      memorizeAyahs = parseAyahs(memItem);
+      memorizeStep = ctx.memStep || 0;
+      memorizePhase = ctx.memPhase || 'learn';
+      memorizeRevealed = false;
+      renderMemorize();
+      document.getElementById('memorize-mode').classList.add('active');
+    }
+  }
+}
+
 function showScreen(id) {
   if (_lastScreenName && _lastScreenTs) {
     const dur = Math.round((Date.now() - _lastScreenTs) / 1000);
@@ -2265,7 +2464,8 @@ function showScreen(id) {
   if (id==='screen-dua') setNav('dua');
   if (id==='screen-hadith') setNav('hadith');
   if (id==='screen-cal') setNav('cal');
-  window.scrollTo(0,0);
+   window.scrollTo(0,0);
+  saveNavContext();
 }
 function setNav(tab) { document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab)); }
 async function switchTab(tab) {
@@ -2329,8 +2529,53 @@ function buildShareText(item) {
   if (item.transcription) parts.push(item.transcription);
   if (item.translation) parts.push(item.translation);
   if (item.source) parts.push(item.source);
-  parts.push('— Iqra | Читай');
+  
+function buildShareTextSurah(item) {
+  var ayahs = parseAyahs(item);
+  if (!ayahs.length) return buildShareText(item);
+  var first = ayahs[0];
+  var parts = [];
+  if (item.bismillah) parts.push(item.bismillah.arabic);
+  if (first.ar) parts.push(first.ar);
+  if (first.tr) parts.push(first.tr);
+  if (first.trn) parts.push(first.trn);
+  var label = item.title;
+  if (item.type === 'surah') label += ' · аяты 1-' + ayahs.length;
+  else if (item.number) label += ' · ' + item.number;
+  parts.push(label);
+  parts.push(APP_URL);
   return parts.join('\n\n');
+}
+
+function buildShareTextAyah(item, ayahIdx) {
+  var ayahs = parseAyahs(item);
+  var a = ayahs[ayahIdx];
+  if (!a) return buildShareTextSurah(item);
+  var parts = [];
+  if (item.bismillah) parts.push(item.bismillah.arabic);
+  if (a.ar) parts.push(a.ar);
+  if (a.tr) parts.push(a.tr);
+  if (a.trn) parts.push(a.trn);
+  var label = item.title;
+  if (item.type === 'surah') label += ' · аят ' + a.num;
+  else if (item.number) label += ' · ' + item.number;
+  parts.push(label);
+  parts.push(APP_URL);
+  return parts.join('\n\n');
+}
+
+function shareAyah(itemId, ayahIdx) {
+  var item = getQuranById(itemId);
+  if (!item) return;
+  var text = buildShareTextAyah(item, ayahIdx);
+  var title = item.title;
+  if (navigator.share) {
+    navigator.share({ title: title, text: text })
+      .then(function() { trackEvent('share_ayah/' + itemId + '/' + ayahIdx, 'Репост аята: ' + title); })
+      .catch(function() {});
+    return;
+  }
+  copyToClipboard(text);
 }
 
 function shareItem(type, id) {
@@ -2339,7 +2584,7 @@ function shareItem(type, id) {
   else if (type === 'dua') item = getDuaById(id);
   else if (type === 'hadith') item = getHadithById(id);
   if (!item) return;
-  var text = buildShareText(item);
+  var text = (type === 'quran') ? buildShareTextSurah(item) : buildShareText(item);
   var title = item.title || 'Iqra | Читай';
   if (navigator.share) {
     navigator.share({ title: title, text: text }).then(function() {
@@ -2608,10 +2853,7 @@ var debouncedRenderQuranList = debounce(renderQuranList, 250);
 applyTheme();
 setArSize(state.settings.arSize);
 renderPresets(); renderDashboard(); renderTasbih(); renderDuaList(); renderHadithList(); renderQuranList(); renderNightList(); renderProgress();
-var _allowedScreens = ['screen-dashboard','screen-tasbih','screen-quran','screen-night','screen-dua','screen-hadith','screen-cal'];
-var _restore = state.settings.lastScreen;
-if (_restore && _allowedScreens.indexOf(_restore) !== -1) { showScreen(_restore); }
-else { showScreen('screen-dashboard'); }
+restoreNav();
 if (!state.migrations.onboarded) setTimeout(startOnboarding, 200);
 document.addEventListener('keydown', (e) => {
   if (e.key !== 'Escape') return;
