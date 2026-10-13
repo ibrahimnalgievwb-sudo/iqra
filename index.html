@@ -740,116 +740,231 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   
-/* === LOGO-STYLE BUTTONS === */
+/* === LOGO-STYLE BUTTONS v2: золотые грани самой кнопки, без обводки-круга === */
 :root {
-  --gold-grad: linear-gradient(135deg, #FFF3B0 0%, #FFD700 22%, #B8860B 50%, #FFD700 78%, #FFF3B0 100%);
+  --gold-grad: linear-gradient(135deg, #FFF3B0 0%, #FFD700 22%, #8B6914 50%, #FFD700 78%, #FFF3B0 100%);
+  --gold-grad-light: linear-gradient(135deg, #D4A017 0%, #B8860B 25%, #7A5A0A 50%, #B8860B 75%, #D4A017 100%);
+  --gold-accent: #D4AF37;
+  --gold-accent-light: #8B6914;
+  --ink: #0A0A0A;
 }
 
+/* === PRIMARY: сама кнопка — золото === */
 .btn {
-  background: linear-gradient(#0A0A0A, #0A0A0A) padding-box, var(--gold-grad) border-box !important;
-  border: 2px solid transparent !important;
-  color: #FFF3B0 !important;
-  transition: transform .08s ease, opacity .08s ease;
+  background: var(--gold-grad) !important;
+  color: #0A0A0A !important;
+  border: none !important;
+  font-weight: 700;
+  box-shadow: 0 2px 10px rgba(212,175,55,.32);
+  transition: transform .1s ease, box-shadow .15s ease;
 }
-.btn:active { transform: scale(.97); opacity: .8; }
-.btn.secondary {
-  background: linear-gradient(var(--card), var(--card)) padding-box, var(--gold-grad) border-box !important;
-  color: var(--text) !important;
-}
-.btn.danger {
-  background: linear-gradient(var(--bg), var(--bg)) padding-box,
-              linear-gradient(135deg, #E0A0A0, #C96A5A, #8B3A2A) border-box !important;
-  color: #E07060 !important;
+.btn:active { transform: scale(.97); box-shadow: 0 1px 4px rgba(212,175,55,.38); }
+[data-theme="light"] .btn {
+  background: var(--gold-grad-light) !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 2px 10px rgba(139,105,20,.28);
 }
 
+.btn.secondary {
+  background: var(--card) !important;
+  color: var(--gold-accent) !important;
+  border: none !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,.18);
+}
+[data-theme="light"] .btn.secondary {
+  background: #FFFFFF !important;
+  color: var(--gold-accent-light) !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,.08);
+}
+
+.btn.danger {
+  background: var(--card) !important;
+  color: #C96A5A !important;
+  border: none !important;
+}
+[data-theme="light"] .btn.danger {
+  background: #FFFFFF !important;
+  color: #A04434 !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,.08);
+}
+
+/* === ICON BUTTONS === */
 .icon-btn {
-  background: linear-gradient(var(--card), var(--card)) padding-box, var(--gold-grad) border-box !important;
-  border: 2px solid transparent !important;
+  background: var(--card) !important;
+  color: var(--gold-accent) !important;
+  border: none !important;
   transition: transform .08s ease;
 }
 .icon-btn:active { transform: scale(.94); }
+[data-theme="light"] .icon-btn {
+  background: #FFFFFF !important;
+  color: var(--gold-accent-light) !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,.08);
+}
 .icon-btn.ghost {
   background: transparent !important;
+  color: var(--gold-accent) !important;
+  box-shadow: none !important;
+}
+[data-theme="light"] .icon-btn.ghost {
+  color: var(--gold-accent-light) !important;
+  box-shadow: none !important;
+}
+.icon-btn.starred {
+  background: var(--gold-grad) !important;
+  color: #0A0A0A !important;
+}
+[data-theme="light"] .icon-btn.starred {
+  background: var(--gold-grad-light) !important;
+  color: #FFFFFF !important;
+}
+
+/* === FAB === */
+.fab {
+  background: var(--gold-grad) !important;
+  color: #0A0A0A !important;
+  border: none !important;
+  box-shadow: 0 4px 18px rgba(212,175,55,.45) !important;
+}
+[data-theme="light"] .fab {
+  background: var(--gold-grad-light) !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 4px 18px rgba(139,105,20,.35) !important;
+}
+
+/* === SEG / STEPPER / PROG-TABS === */
+.seg, .stepper, .prog-tabs {
+  background: var(--card) !important;
   border: none !important;
 }
-.icon-btn.ghost:active { background: rgba(212,175,55,.15) !important; }
-.icon-btn.starred { color: #FFD700 !important; }
-
-.fab {
-  background: linear-gradient(#000, #000) padding-box, var(--gold-grad) border-box !important;
-  border: 2.5px solid transparent !important;
-  color: #FFD700 !important;
-  box-shadow: 0 6px 22px rgba(212,175,55,.28) !important;
+[data-theme="light"] .seg,
+[data-theme="light"] .stepper,
+[data-theme="light"] .prog-tabs {
+  background: #FFFFFF !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,.06);
 }
 
-.seg {
-  background: linear-gradient(var(--card2), var(--card2)) padding-box, var(--gold-grad) border-box !important;
-  border: 1.5px solid transparent !important;
+/* === CHIPS / NAV ARROWS / DELETE === */
+.preset-chip,
+.cal-nav button,
+.mark-item .mi-del,
+.reminder-row .del,
+.time-row .del {
+  background: var(--card) !important;
+  color: var(--gold-accent) !important;
+  border: none !important;
 }
-.stepper {
-  background: linear-gradient(var(--card), var(--card)) padding-box, var(--gold-grad) border-box !important;
-  border: 1.5px solid transparent !important;
+[data-theme="light"] .preset-chip,
+[data-theme="light"] .cal-nav button,
+[data-theme="light"] .mark-item .mi-del,
+[data-theme="light"] .reminder-row .del,
+[data-theme="light"] .time-row .del {
+  background: #FFFFFF !important;
+  color: var(--gold-accent-light) !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
 }
-.prog-tabs {
-  background: linear-gradient(var(--card2), var(--card2)) padding-box, var(--gold-grad) border-box !important;
-  border: 1.5px solid transparent !important;
-}
+.mark-item .mi-del,
+.reminder-row .del,
+.time-row .del { color: #C96A5A !important; }
 
-.preset-chip, .cal-nav button, .mark-item .mi-del, .reminder-row .del, .time-row .del {
-  background: linear-gradient(var(--card), var(--card)) padding-box, var(--gold-grad) border-box !important;
-  border: 1.5px solid transparent !important;
-}
+/* === FILTER CHIPS === */
 .search-filters .filter-chip {
-  background: linear-gradient(var(--card), var(--card)) padding-box, var(--gold-grad) border-box !important;
-  border: 1.5px solid transparent !important;
+  background: var(--card) !important;
   color: var(--muted) !important;
+  border: none !important;
 }
 .search-filters .filter-chip.active {
-  background: linear-gradient(#0A0A0A, #0A0A0A) padding-box, var(--gold-grad) border-box !important;
-  color: #FFD700 !important;
+  background: var(--gold-grad) !important;
+  color: #0A0A0A !important;
   font-weight: 700 !important;
 }
-#onboarding .ob-option {
-  background: linear-gradient(var(--card), var(--card)) padding-box, var(--gold-grad) border-box !important;
-  border: 1.5px solid transparent !important;
-  color: var(--text) !important;
+[data-theme="light"] .search-filters .filter-chip {
+  background: #FFFFFF !important;
+  color: #4A4A4A !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
 }
-#onboarding .ob-option.active {
-  background: linear-gradient(#0A0A0A, #0A0A0A) padding-box, var(--gold-grad) border-box !important;
-  color: #FFD700 !important;
-  font-weight: 700 !important;
-}
-.content-card .star-btn {
-  background: linear-gradient(var(--card), var(--card)) padding-box, var(--gold-grad) border-box !important;
-  border: 1.5px solid transparent !important;
-  color: var(--muted) !important;
-}
-.content-card .star-btn.active {
-  background: linear-gradient(#0A0A0A, #0A0A0A) padding-box, var(--gold-grad) border-box !important;
-  color: #FFD700 !important;
-}
-.next-toast .nt-btn {
-  background: linear-gradient(#0A0A0A, #0A0A0A) padding-box, var(--gold-grad) border-box !important;
-  border: 1.5px solid transparent !important;
-  color: #FFD700 !important;
+[data-theme="light"] .search-filters .filter-chip.active {
+  background: var(--gold-grad-light) !important;
+  color: #FFFFFF !important;
 }
 
-/* per-ayah share button */
+/* === ONBOARDING OPTIONS === */
+#onboarding .ob-option {
+  background: var(--card) !important;
+  color: var(--text) !important;
+  border: none !important;
+}
+#onboarding .ob-option.active {
+  background: var(--gold-grad) !important;
+  color: #0A0A0A !important;
+  font-weight: 700 !important;
+}
+[data-theme="light"] #onboarding .ob-option.active {
+  background: var(--gold-grad-light) !important;
+  color: #FFFFFF !important;
+}
+
+/* === STAR BUTTON (content-card) === */
+.content-card .star-btn {
+  background: rgba(212,175,55,.12) !important;
+  color: var(--gold-accent) !important;
+  border: none !important;
+}
+.content-card .star-btn.active {
+  background: var(--gold-grad) !important;
+  color: #0A0A0A !important;
+}
+[data-theme="light"] .content-card .star-btn {
+  background: rgba(139,105,20,.12) !important;
+  color: var(--gold-accent-light) !important;
+}
+[data-theme="light"] .content-card .star-btn.active {
+  background: var(--gold-grad-light) !important;
+  color: #FFFFFF !important;
+}
+
+/* === NEXT TOAST BTN === */
+.next-toast .nt-btn {
+  background: var(--gold-grad) !important;
+  color: #0A0A0A !important;
+  border: none !important;
+}
+[data-theme="light"] .next-toast .nt-btn {
+  background: var(--gold-grad-light) !important;
+  color: #FFFFFF !important;
+}
+
+/* === AYAH SHARE — минимализм, только золотой контур-плашка === */
 .ayah-share-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   margin-top: 12px;
-  padding: 8px 16px;
+  padding: 8px 14px;
   border-radius: 12px;
   font-size: 13px;
-  font-weight: 600;
-  background: linear-gradient(var(--card2), var(--card2)) padding-box, var(--gold-grad) border-box;
-  border: 1.5px solid transparent;
-  color: #D4AF37;
+  font-weight: 700;
+  background: transparent;
+  color: var(--gold-accent);
+  border: 1px solid var(--gold-accent);
   cursor: pointer;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
-  transition: transform .08s ease, opacity .08s ease;
+  transition: transform .08s ease, background .15s ease, color .15s ease;
 }
-.ayah-share-btn:active { transform: scale(.94); opacity: .75; }
+.ayah-share-btn:active {
+  transform: scale(.95);
+  background: var(--gold-grad);
+  color: #0A0A0A;
+}
+[data-theme="light"] .ayah-share-btn {
+  color: var(--gold-accent-light);
+  border-color: var(--gold-accent-light);
+}
+[data-theme="light"] .ayah-share-btn:active {
+  background: var(--gold-grad-light);
+  color: #FFFFFF;
+}
 
 button, .btn, .icon-btn, .fab, .ayah-share-btn, .star-btn, .filter-chip, .preset-chip, .ob-option {
   touch-action: manipulation;
@@ -863,9 +978,9 @@ button, .btn, .icon-btn, .fab, .ayah-share-btn, .star-btn, .filter-chip, .preset
   <defs>
     <linearGradient id="goldIconGrad" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#FFF3B0"/>
-      <stop offset="22%" stop-color="#FFD700"/>
-      <stop offset="50%" stop-color="#B8860B"/>
-      <stop offset="78%" stop-color="#FFD700"/>
+      <stop offset="20%" stop-color="#FFD700"/>
+      <stop offset="50%" stop-color="#8B6914"/>
+      <stop offset="80%" stop-color="#FFD700"/>
       <stop offset="100%" stop-color="#FFF3B0"/>
     </linearGradient>
   </defs>
@@ -897,7 +1012,8 @@ button, .btn, .icon-btn, .fab, .ayah-share-btn, .star-btn, .filter-chip, .preset
   <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
   <symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
   <symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
-  <symbol id="i-bookmark" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></symbol>
+    <symbol id="i-bookmark" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.59 13.51 6.83 3.98"/><path d="m15.41 6.51-6.82 3.98"/></symbol>
 </svg>
 
 <!-- DASHBOARD -->
@@ -1850,7 +1966,7 @@ function openQuran(id) {
         <div class="detail-actions">
       <button class="btn secondary" onclick="openRead('${item.id}')">📖 Читать</button>
       <button class="btn" onclick="openMemorize('${item.id}')">🧠 Заучить</button>
-      <button class="btn secondary" onclick="shareItem('quran','${item.id}')">📤 Поделиться</button>
+      <button class="btn secondary" onclick="shareItem('quran','${item.id}')"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-upload"/></svg>Поделиться</button>
     </div>
     <div class="learned-toggle ${item.learned?'done':''}" onclick="toggleQuranLearned('${item.id}')">
       <div class="lt-icon">${item.learned?'✓':'📖'}</div>
@@ -1867,8 +1983,7 @@ function openQuran(id) {
         <div class="read-ayah-ar ar-font">${esc(a.ar)}</div>
         ${a.tr ? `<div class="read-ayah-tr">${esc(a.tr)}</div>` : ''}
         <div class="read-ayah-trn">${esc(a.trn)}</div>
-        <button class="ayah-share-btn" onclick="shareAyah('${item.id}',${idx})">📤 Поделиться аятом</button>
-      </div>
+           <button class="ayah-share-btn" onclick="shareAyah('${item.id}',${idx})"><svg class="ico ico-sm"><use href="#i-upload"/></svg>Поделиться аятом</button>
     `).join('')}
     ${item.source ? `<div class="dh-section" style="margin-top:20px;"><div class="dh-label">Источник</div><div class="dh-text muted" style="font-size:13px;">${esc(item.source)}</div></div>` : ''}
     ${transcriptionNote()}
@@ -2079,7 +2194,7 @@ function openDua(id) {
       </div>
     </div>
     ${d.note ? `<div class="note-box"><span class="note-icon">💡</span><div>${escNl(d.note)}</div></div>` : ''}
-    <div class="detail-actions"><button class="btn" onclick="openMemorizeFor(getDuaById('${d.id}'))">🧠 Заучить</button><button class="btn secondary" onclick="shareItem('dua','${d.id}')">📤 Поделиться</button></div>
+    <div class="detail-actions"><button class="btn" onclick="openMemorizeFor(getDuaById('${d.id}'))">🧠 Заучить</button><button class="btn secondary" onclick="shareItem('dua','${d.id}')"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-upload"/></svg>Поделиться</button></div>
     <div class="learned-toggle ${d.learned?'done':''}" onclick="toggleDuaLearned('${d.id}')">
       <div class="lt-icon">${d.learned?'✓':'📖'}</div>
       <div class="lt-body"><div class="lt-title">${d.learned?'Выучено':'Отметить как выучено'}</div><div class="lt-sub">${d.learned?'Нажми, чтобы снять отметку':'Изучи дуа и отметь'}</div></div>
@@ -2120,7 +2235,7 @@ function openHadith(id) {
       </div>
     </div>
     ${h.note ? `<div class="note-box"><span class="note-icon">💡</span><div>${escNl(h.note)}</div></div>` : ''}
-    <div class="detail-actions"><button class="btn" onclick="openMemorizeFor(getHadithById('${h.id}'))">🧠 Заучить</button><button class="btn secondary" onclick="shareItem('hadith','${h.id}')">📤 Поделиться</button></div>
+    <div class="detail-actions"><button class="btn" onclick="openMemorizeFor(getHadithById('${h.id}'))">🧠 Заучить</button><button class="btn secondary" onclick="shareItem('hadith','${h.id}')"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-upload"/></svg>Поделиться</button></div>
     <div class="learned-toggle ${h.learned?'done':''}" onclick="toggleHadithLearned('${h.id}')">
       <div class="lt-icon">${h.learned?'✓':'📖'}</div>
       <div class="lt-body"><div class="lt-title">${h.learned?'Изучено':'Отметить как изученный'}</div><div class="lt-sub">${h.learned?'Нажми, чтобы снять отметку':'Изучи хадис и отметь'}</div></div>
