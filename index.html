@@ -739,6 +739,67 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   text-overflow: ellipsis;
 }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* === LOGO-STYLE BUTTONS === */
+.btn {
+  background: #0A0A0A;
+  color: #FFF3B0;
+  border: 1.5px solid #D4AF37;
+  outline: 1px solid #D4AF37;
+  outline-offset: 2px;
+}
+.btn.secondary {
+  background: var(--card);
+  color: var(--text);
+}
+.btn.danger {
+  background: transparent;
+  color: #c96a5a;
+  border-color: rgba(201,106,90,.5);
+  outline-color: rgba(201,106,90,.3);
+}
+.icon-btn {
+  border: 1.5px solid #D4AF37;
+  outline: 1px solid #D4AF37;
+  outline-offset: 1px;
+}
+.icon-btn.ghost { background: transparent; }
+.icon-btn.starred { color: #FFD700; border-color: #FFD700; outline-color: #FFD700; }
+.fab {
+  background: #000;
+  color: #FFD700;
+  border: 2px solid #D4AF37;
+  outline: 1px solid #D4AF37;
+  outline-offset: 3px;
+}
+.seg, .stepper, .prog-tabs {
+  border: 1.5px solid #D4AF37;
+  outline: 1px solid #D4AF37;
+  outline-offset: 1px;
+}
+.preset-chip,
+.filter-chip,
+.ob-option,
+.star-btn,
+.cal-nav button,
+.next-toast .nt-btn,
+.mark-item .mi-del,
+.reminder-row .del,
+.time-row .del {
+  border: 1.5px solid #D4AF37;
+  outline: 1px solid #D4AF37;
+  outline-offset: 1px;
+}
+.star-btn.active {
+  color: #FFD700;
+  border-color: #FFD700;
+  outline-color: #FFD700;
+}
+.filter-chip.active,
+.ob-option.active {
+  border-color: #FFD700;
+  outline-color: #FFD700;
+}
 </style>
 </head>
 <body>
