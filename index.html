@@ -2258,7 +2258,8 @@ function showMarkToast(text) {
   el.classList.add('show');
   if (_toastTimer) clearTimeout(_toastTimer);
   _toastTimer = setTimeout(function(){ el.classList.remove('show'); }, 1800);
-  
+}
+
 function buildShareText(item) {
   var parts = [];
   if (item.title) parts.push(item.title);
@@ -2315,7 +2316,6 @@ function legacyCopy(text) {
   } catch (e) {
     showMarkToast('Не удалось скопировать');
   }
-}
 }
 
 function currentAyahIdx() {
