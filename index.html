@@ -156,8 +156,21 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .nav { position:fixed; bottom:0; left:0; right:0; display:flex; background:var(--card); border-top:1px solid var(--border); padding-bottom:env(safe-area-inset-bottom); z-index:9999; }
 .nav button { flex:1; height:60px; padding:6px 0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; color:var(--muted); background:transparent; min-width:0; transition:color .2s ease; }
 .nav button.active { color:var(--accent); }
-.nav button .ico { width: 30px; height: 30px; }
-.nav button.active .ico { width: 36px; height: 36px; }
+.nav button .ico {
+  width: 24px; height: 24px;
+  padding: 5px;
+  box-sizing: content-box;
+  background: #0A0A0A;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1.4px var(--gold-accent, #D4AF37);
+  transition: width .25s cubic-bezier(.16,1,.3,1), height .25s cubic-bezier(.16,1,.3,1),
+              padding .25s cubic-bezier(.16,1,.3,1), box-shadow .2s ease;
+}
+.nav button.active .ico {
+  width: 26px; height: 26px;
+  padding: 6px;
+  box-shadow: 0 0 0 1.6px var(--gold-accent, #D4AF37), 0 0 14px rgba(212,175,55,.5);
+}
 .nav button .nav-label { font-size: 10px; line-height: 1.1; font-weight: 600; white-space: nowrap; color: var(--muted); transition: color .2s ease, font-weight .2s ease; }
 .nav button.active .nav-label { color: var(--accent); font-weight: 700; opacity: 1; transform: translateY(0); }
 .nav button[data-tab="dashboard"] .nav-label { visibility: hidden; }
@@ -1023,10 +1036,8 @@ button, .btn, .icon-btn, .fab, .ayah-share-btn, .star-btn, .filter-chip, .preset
         <div class="dp-num" id="dash-goal-num">0 <span>/ 100</span></div>
       </div>
       <div class="dp-bar"><div id="dash-goal-bar" style="width:0%"></div></div>
-      <div class="dp-streak" id="dash-streak"></div>
     </div>
     <div class="dash-quote" id="dash-quote" onclick="dashQuoteTap()"></div>
-    <div class="dash-top" id="dash-top"></div>
     <div class="dash-stats" id="dash-stats"></div>
     <div class="dash-marks" id="dash-marks"></div>
     <div class="dash-quick" id="dash-quick"></div>
@@ -1887,10 +1898,10 @@ function tap(e) {
   if (t.current >= t.target) { t.cycles += 1; t.current = 1; } else { t.current += 1; }
   addToHistory(t.id, 1); updateCounterUI(); save();
   const numEl=document.getElementById('c-num'); numEl.classList.remove('pulse'); void numEl.offsetWidth; numEl.classList.add('pulse');
-  if (completed) { trackEvent('complete/' + t.id, 'Цель достигнута: ' + t.id); playChime(); if (state.settings.vibrate && navigator.vibrate) navigator.vibrate([30,40,30]); showCongrats(t); if (state.settings.autoNext) setTimeout(showNextToast, 800); }
+  if (completed) { trackEvent('complete/' + t.id, 'Цель достигнута: ' + t.id); playChime(); if (state.settings.vibrate && navigator.vibrate) navigator.vibrate([30,40,30]); if (state.settings.autoNext) setTimeout(showNextToast, 800); }
   else { playClick(); if (state.settings.vibrate && navigator.vibrate) navigator.vibrate(8); }
 }
-function showCongrats(tasbih) { const el = document.getElementById('modal-content'); el.innerHTML = `<div class="congrats-modal"><svg class="ico ico-xl" style="color:var(--accent);margin:0 auto 14px"><use href="#i-check"/></svg><h2>Цель достигнута!</h2><p><b>${esc(tasbih.transcription || tasbih.translation || 'Тасбих')}</b><br>${tasbih.target} раз · Цикл #${tasbih.cycles}</p><button class="btn" onclick="closeModal()">Продолжить</button></div>`; document.getElementById('modal-bg').classList.add('active'); }
+
 function showNextToast() { const idx=state.tasbihs.findIndex(x=>x.id===activeId); const next=state.tasbihs[idx+1]; if (!next) return; const toast=document.getElementById('next-toast'); document.getElementById('nt-name').textContent=next.transcription||next.translation||'—'; document.getElementById('nt-ar').textContent=next.arabic||''; toast.classList.add('show'); clearTimeout(nextToastTimer); nextToastTimer=setTimeout(()=>toast.classList.remove('show'),5000); }
 function goNext() { const idx=state.tasbihs.findIndex(x=>x.id===activeId); const next=state.tasbihs[idx+1]; document.getElementById('next-toast').classList.remove('show'); if (next) openCounter(next.id); }
 function resetCurrent(e) { if (e) e.stopPropagation(); if (!confirm('Сбросить текущий счёт?')) return; const t=getById(activeId); t.current=0; save(); updateCounterUI(); }
@@ -1928,11 +1939,10 @@ async function renderQuranList() {
   if (!items.length) { el.innerHTML = state.quran.length ? '<div class="empty">Ничего не найдено</div>' : '<div class="empty">Пока нет текстов</div>'; return; }
   el.innerHTML = items.map(item => {
     const fav = isFavorite(item.id);
-    const badge = item.learned ? `<div class="c-badge">✓ Выучено</div>` : '';
     const numHtml = item.type === 'surah' ? `<div class="c-num">${item.number}</div>` : '';
     const hasNum = item.type === 'surah' ? ' has-num' : '';
     const star = `<button class="star-btn ${fav?'active':''}" onclick="starClick(event,'${item.id}','quran')">${fav?'<svg class="ico"><use href="#i-star-filled"/></svg>':'<svg class="ico"><use href="#i-star"/></svg>'}</button>`;
-    return `<div class="content-card${hasNum}" onclick="openQuran('${item.id}')">${numHtml}${badge}${star}<div class="c-title">${esc(item.title)}</div><div class="c-sub">${esc(item.subtitle||'')}</div><div class="c-ar ar-font">${esc(item.arabic)}</div><div class="c-tr">${esc(item.translation)}</div></div>`;
+    return `<div class="content-card${hasNum}" onclick="openQuran('${item.id}')">${numHtml}${star}<div class="c-title">${esc(item.title)}</div><div class="c-sub">${esc(item.subtitle||'')}</div><div class="c-ar ar-font">${esc(item.arabic)}</div><div class="c-tr">${esc(item.translation)}</div></div>`;
   }).join('');
 }
 function openQuran(id) {
@@ -1987,10 +1997,9 @@ function toggleQuranLearned(id) {
   item.learned = !item.learned;
   item.learnedAt = item.learned ? todayKey() : '';
   save();
-  if (item.learned) { playChime(); if (navigator.vibrate) navigator.vibrate([20,40,20]); showCongratsLearn(item.title); }
+   if (item.learned) { playChime(); if (navigator.vibrate) navigator.vibrate([20,40,20]); }
   openQuran(id);
 }
-function showCongratsLearn(title) { const el = document.getElementById('modal-content'); el.innerHTML = `<div class="congrats-modal"><svg class="ico ico-xl" style="color:var(--accent);margin:0 auto 14px"><use href="#i-check"/></svg><h2>МашаАллах!</h2><p><b>${esc(title)}</b><br>отмечено как выученное</p><button class="btn" onclick="closeModal()">Амин</button></div>`; document.getElementById('modal-bg').classList.add('active'); }
 function goQuranList() { activeQuranId = null; renderQuranList(); showScreen('screen-quran'); }
 
 function openRead(id, targetAyahIdx) {
@@ -2090,11 +2099,11 @@ function memNext() {
       if (navigator.vibrate) navigator.vibrate([30,40,30]);
       if (memorizeItem && memorizeItem.id) {
         const q = getQuranById(memorizeItem.id);
-        if (q && !q.learned) { q.learned = true; q.learnedAt = todayKey(); save(); showCongratsLearn(q.title); }
+      if (q && !q.learned) { q.learned = true; q.learnedAt = todayKey(); save(); }
         const d = getDuaById(memorizeItem.id);
-        if (d && !d.learned) { d.learned = true; save(); showCongratsLearn(d.title); }
+        if (d && !d.learned) { d.learned = true; save(); }
         const h = getHadithById(memorizeItem.id);
-        if (h && !h.learned) { h.learned = true; save(); showCongratsLearn(h.title); }
+        if (h && !h.learned) { h.learned = true; save(); }
       }
     }
   }
@@ -2163,9 +2172,8 @@ function renderDuaList() {
   if (!state.duas.length) { el.innerHTML = '<div class="empty">Пока нет дуа</div>'; return; }
   el.innerHTML = state.duas.map(d => {
     const fav = isFavorite(d.id);
-    const badge = d.learned ? `<div class="c-badge">✓ Выучено</div>` : '';
     const star = `<button class="star-btn ${fav?'active':''}" onclick="starClick(event,'${d.id}','dua')">${fav?'<svg class="ico"><use href="#i-star-filled"/></svg>':'<svg class="ico"><use href="#i-star"/></svg>'}</button>`;
-    return `<div class="content-card" onclick="openDua('${d.id}')">${badge}${star}<div class="c-title">${esc(d.title)}</div><div class="c-sub">${esc(d.subtitle||'')}</div><div class="c-ar ar-font">${esc(d.arabic)}</div><div class="c-tr">${esc(d.translation)}</div></div>`;
+    return `<div class="content-card" onclick="openDua('${d.id}')">${star}<div class="c-title">${esc(d.title)}</div><div class="c-sub">${esc(d.subtitle||'')}</div><div class="c-ar ar-font">${esc(d.arabic)}</div><div class="c-tr">${esc(d.translation)}</div></div>`;
   }).join('');
 }
 function openDua(id) {
@@ -2196,7 +2204,7 @@ function openDua(id) {
   `;
   showScreen('screen-dua-detail');
 }
-function toggleDuaLearned(id) { const d=getDuaById(id); if (!d) return; d.learned=!d.learned; save(); if (d.learned) { playChime(); if (navigator.vibrate) navigator.vibrate([20,40,20]); showCongratsLearn(d.title); } openDua(id); }
+function toggleDuaLearned(id) { const d=getDuaById(id); if (!d) return; d.learned=!d.learned; save(); if (d.learned) { playChime(); if (navigator.vibrate) navigator.vibrate([20,40,20]); } openDua(id); }
 function goDuaList() { activeDuaId=null; renderDuaList(); showScreen('screen-dua'); }
 
 function renderHadithList() {
@@ -2204,9 +2212,8 @@ function renderHadithList() {
   if (!state.hadiths.length) { el.innerHTML = '<div class="empty">Пока нет хадисов</div>'; return; }
   el.innerHTML = state.hadiths.map(h => {
     const fav = isFavorite(h.id);
-    const badge = h.learned ? `<div class="c-badge">✓ Изучено</div>` : '';
     const star = `<button class="star-btn ${fav?'active':''}" onclick="starClick(event,'${h.id}','hadith')">${fav?'<svg class="ico"><use href="#i-star-filled"/></svg>':'<svg class="ico"><use href="#i-star"/></svg>'}</button>`;
-    return `<div class="content-card" onclick="openHadith('${h.id}')">${badge}${star}<div class="c-title">${esc(h.title)}</div><div class="c-sub">${esc(h.subtitle||'')}</div><div class="c-ar ar-font">${esc(h.arabic)}</div><div class="c-tr">${esc(h.translation)}</div></div>`;
+    return `<div class="content-card" onclick="openHadith('${h.id}')">${star}<div class="c-title">${esc(h.title)}</div><div class="c-sub">${esc(h.subtitle||'')}</div><div class="c-ar ar-font">${esc(h.arabic)}</div><div class="c-tr">${esc(h.translation)}</div></div>`;
   }).join('');
 }
 function openHadith(id) {
@@ -2237,7 +2244,7 @@ function openHadith(id) {
   `;
   showScreen('screen-hadith-detail');
 }
-function toggleHadithLearned(id) { const h=getHadithById(id); if (!h) return; h.learned=!h.learned; save(); if (h.learned) { playChime(); if (navigator.vibrate) navigator.vibrate([20,40,20]); showCongratsLearn(h.title); } openHadith(id); }
+function toggleHadithLearned(id) { const h=getHadithById(id); if (!h) return; h.learned=!h.learned; save(); if (h.learned) { playChime(); if (navigator.vibrate) navigator.vibrate([20,40,20]); } openHadith(id); }
 function goHadithList() { activeHadithId=null; renderHadithList(); showScreen('screen-hadith'); }
 
 const MONTHS = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
@@ -2250,16 +2257,12 @@ function renderProgressOverview() {
   let totalAll = 0, daysWithDhikr = 0, bestDay = 0, bestDayKey = '';
   for (const k in state.history) { const t = state.history[k].total; totalAll += t; if (t > 0) daysWithDhikr++; if (t > bestDay) { bestDay = t; bestDayKey = k; } }
   const avg = daysWithDhikr > 0 ? Math.round(totalAll / daysWithDhikr) : 0;
-  const streak = computeStreak();
   const today = state.history[todayKey()]; const todayTotal = today ? today.total : 0;
   const goal = state.settings.dailyGoal;
   const goalPct = goal > 0 ? Math.min(100, Math.round((todayTotal/goal)*100)) : 0;
   const learnedQuran = state.quran.filter(q => q.learned).length; const totalQuran = state.quran.length;
   const learnedDuas = state.duas.filter(d => d.learned).length; const totalDuas = state.duas.length;
   const learnedHadiths = state.hadiths.filter(h => h.learned).length; const totalHadiths = state.hadiths.length;
-  const counts = {};
-  for (const k in state.history) for (const id in state.history[k].byId) counts[id] = (counts[id]||0) + state.history[k].byId[id];
-  const top3 = Object.entries(counts).map(([id,cnt])=>{ const t=getById(id); return { name: t ? (t.transcription||t.arabic||'—') : 'Удалённый', count:cnt }; }).sort((a,b)=>b.count-a.count).slice(0,3);
   body.innerHTML = `
     <div class="stat-card" style="grid-column: span 2; background:linear-gradient(135deg, rgba(var(--accent-rgb), .15), rgba(var(--accent-rgb), .05));">
       <div class="sc-label">Сегодня</div>
@@ -2268,7 +2271,6 @@ function renderProgressOverview() {
     </div>
     <div class="stat-grid">
       <div class="stat-card"><div class="sc-label">Всего зикра</div><div class="sc-value">${totalAll}</div><div class="sc-sub">за всё время</div></div>
-      <div class="stat-card"><div class="sc-label">Дней подряд</div><div class="sc-value">${streak}${streak > 0 ? '🔥' : ''}</div><div class="sc-sub">${streak > 0 ? 'серия идёт' : 'начни сегодня'}</div></div>
       <div class="stat-card"><div class="sc-label">Дней с зикром</div><div class="sc-value">${daysWithDhikr}</div><div class="sc-sub">активных</div></div>
       <div class="stat-card"><div class="sc-label">Среднее в день</div><div class="sc-value">${avg}</div><div class="sc-sub">за активный день</div></div>
       <div class="stat-card"><div class="sc-label">Лучший день</div><div class="sc-value">${bestDay}</div><div class="sc-sub">${bestDayKey ? formatDateShort(bestDayKey) : '—'}</div></div>
@@ -2280,7 +2282,6 @@ function renderProgressOverview() {
       <div class="learned-item"><div><div class="li-title">Дуа</div><div class="li-sub">${learnedDuas} из ${totalDuas} выучено</div></div><div style="font-size:15px; font-weight:700; color:var(--accent);">${totalDuas > 0 ? Math.round((learnedDuas/totalDuas)*100) : 0}%</div></div>
       <div class="learned-item"><div><div class="li-title">Хадисы</div><div class="li-sub">${learnedHadiths} из ${totalHadiths} изучено</div></div><div style="font-size:15px; font-weight:700; color:var(--accent);">${totalHadiths > 0 ? Math.round((learnedHadiths/totalHadiths)*100) : 0}%</div></div>
     </div>
-    ${top3.length ? `<div class="settings-group"><div class="progress-section-title">🏆 Топ зикра за всё время</div>${top3.map((x, i) => `<div class="learned-item"><div><div class="li-title">${i+1}. ${esc(x.name)}</div></div><div style="font-weight:700; color:var(--accent); font-variant-numeric:tabular-nums;">${x.count}</div></div>`).join('')}</div>` : ''}
   `;
 }
 function renderProgressCalendar() {
@@ -2318,7 +2319,6 @@ function renderProgressCalendar() {
     <div class="cal-summary">
       <div class="stat"><div class="label">Всего за месяц</div><div class="value">${monthTotal}</div></div>
       <div class="stat"><div class="label">Дней с зикром</div><div class="value">${monthDays}</div></div>
-      <div class="stat"><div class="label">Дней подряд</div><div class="value">${computeStreak()}</div></div>
       <div class="stat"><div class="label">Лучший день</div><div class="value">${best}</div></div>
     </div>
     <div class="bar-chart"><div class="bc-title">По дням месяца</div><div class="bars">${bars}</div><div class="x-axis">${labels}</div></div>
@@ -2769,10 +2769,7 @@ function renderDashboard() {
   if (numEl) numEl.innerHTML = done + ' <span>/ ' + goal + '</span>';
   if (barEl) barEl.style.width = pct + '%';
 
-  const streak = computeStreak();
-  const st = document.getElementById('dash-streak');
-  if (st) st.textContent = streak > 0 ? '🔥 ' + streak + ' ' + pluralDays(streak) + ' подряд' : 'Начни серию сегодня';
-
+  _dashQuote = getRandomQuote();
   _dashQuote = getRandomQuote();
   const qEl = document.getElementById('dash-quote');
   if (qEl && _dashQuote) {
@@ -2781,24 +2778,6 @@ function renderDashboard() {
       '<div class="dq-title">' + esc(_dashQuote.title) + '</div>' +
       (_dashQuote.ar ? '<div class="dq-ar ar-font">' + esc(_dashQuote.ar) + '</div>' : '') +
       (_dashQuote.tr ? '<div class="dq-tr">' + esc(_dashQuote.tr) + '</div>' : '');
-  }
-
-  const counts = {};
-  for (const k in state.history) for (const id in state.history[k].byId) counts[id] = (counts[id] || 0) + state.history[k].byId[id];
-  const topId = Object.keys(counts).sort((a, b) => counts[b] - counts[a])[0];
-   const topEl = document.getElementById('dash-top');
-  if (topEl) {
-    if (topId) {
-      const item = getById(topId);
-      const name = item ? (item.transcription || item.arabic || '—') : 'Тасбих';
-      topEl.innerHTML =
-        '<div class="dt-icon">🏆</div>' +
-        '<div class="dt-body"><div class="dt-label">Топ зикра</div>' +
-        '<div class="dt-title">' + esc(name) + '</div>' +
-        '<div class="dt-sub">' + counts[topId] + ' раз всего</div></div>';
-    } else {
-      topEl.innerHTML = '<div class="dt-icon">🏆</div><div class="dt-body"><div class="dt-label">Топ зикра</div><div class="dt-title">Пока пусто</div><div class="dt-sub">Начни считать тасбих</div></div>';
-    }
   }
 
   const statsEl = document.getElementById('dash-stats');
