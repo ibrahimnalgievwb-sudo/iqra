@@ -28,7 +28,7 @@
   --bg:#000000; --card:#101010; --card2:#1A1A1A; --accent:#FFFFFF; --accent2:#D4AF37;
   --text:#FFFFFF; --muted:#999999; --border:#232323; --shadow:rgba(0,0,0,.70);
   --accent-rgb: 255, 255, 255; --ripple:rgba(255,255,255,.18);
-  --ar-g1:#FFF3B0; --ar-g2:#FFD700; --ar-g3:#B8860B; --ar-gold:#FFD700;
+  --ar-g1:#FFF3B0; --ar-g2:#FFD700; --ar-g3:#B8860B;
 }
 [data-theme="light"] .ar-font {
   -webkit-filter: drop-shadow(0 0 0.5px rgba(92,68,9,0.55));
@@ -855,67 +855,6 @@ button, .btn, .icon-btn, .fab, .ayah-share-btn, .star-btn, .filter-chip, .preset
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
-
-/* === LOGO-STYLE BUTTONS === */
-.btn {
-  background: #0A0A0A;
-  color: #FFF3B0;
-  border: 1.5px solid #D4AF37;
-  outline: 1px solid #D4AF37;
-  outline-offset: 2px;
-}
-.btn.secondary {
-  background: var(--card);
-  color: var(--text);
-}
-.btn.danger {
-  background: transparent;
-  color: #c96a5a;
-  border-color: rgba(201,106,90,.5);
-  outline-color: rgba(201,106,90,.3);
-}
-.icon-btn {
-  border: 1.5px solid #D4AF37;
-  outline: 1px solid #D4AF37;
-  outline-offset: 1px;
-}
-.icon-btn.ghost { background: transparent; }
-.icon-btn.starred { color: #FFD700; border-color: #FFD700; outline-color: #FFD700; }
-.fab {
-  background: #000;
-  color: #FFD700;
-  border: 2px solid #D4AF37;
-  outline: 1px solid #D4AF37;
-  outline-offset: 3px;
-}
-.seg, .stepper, .prog-tabs {
-  border: 1.5px solid #D4AF37;
-  outline: 1px solid #D4AF37;
-  outline-offset: 1px;
-}
-.preset-chip,
-.filter-chip,
-.ob-option,
-.star-btn,
-.cal-nav button,
-.next-toast .nt-btn,
-.mark-item .mi-del,
-.reminder-row .del,
-.time-row .del {
-  border: 1.5px solid #D4AF37;
-  outline: 1px solid #D4AF37;
-  outline-offset: 1px;
-}
-.star-btn.active {
-  color: #FFD700;
-  border-color: #FFD700;
-  outline-color: #FFD700;
-}
-.filter-chip.active,
-.ob-option.active {
-  border-color: #FFD700;
-  outline-color: #FFD700;
-}
 </style>
 </head>
 <body>
@@ -1336,6 +1275,7 @@ button, .btn, .icon-btn, .fab, .ayah-share-btn, .star-btn, .filter-chip, .preset
 <script>
 "use strict";
 
+const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
 const LIMITS = { tasbihs:1000, history:10000, reminders:50, textLen:1000, idLen:100, targetMax:100000, cyclesMax:1000000 };
 
@@ -2529,7 +2469,10 @@ function buildShareText(item) {
   if (item.transcription) parts.push(item.transcription);
   if (item.translation) parts.push(item.translation);
   if (item.source) parts.push(item.source);
-  
+  parts.push('— Iqra | Читай');
+  return parts.join('\n\n');
+}
+
 function buildShareTextSurah(item) {
   var ayahs = parseAyahs(item);
   if (!ayahs.length) return buildShareText(item);
