@@ -1296,7 +1296,7 @@ button, .btn, .icon-btn, .fab, .ayah-share-btn, .star-btn, .filter-chip, .preset
   <div class="fs-header">
     <button class="icon-btn ghost" onclick="closeRead()" aria-label="Закрыть"><svg class="ico"><use href="#i-x"/></svg></button>
     <h2 id="read-title"></h2>
-    <button class="icon-btn ghost bm-btn" onclick="addBookmarkFromRead()" aria-label="Добавить метку"><svg class="ico"><use href="#i-bookmark"/></svg></button>
+    <button class="icon-btn ghost" onclick="addBookmarkFromRead()" aria-label="Добавить метку"><svg class="ico"><use href="#i-bookmark"/></svg></button>
   </div>
   <div class="fs-body" id="read-body"></div>
 </div>
@@ -1363,12 +1363,12 @@ button, .btn, .icon-btn, .fab, .ayah-share-btn, .star-btn, .filter-chip, .preset
       <p class="ob-text">Это <b>Iqra</b> — ваше приложение для Корана, зикра и заучивания.</p>
     </div>
     <div class="ob-slide" data-slide="1">
-      <div class="ob-icon">📖</div>
+      <div class="ob-icon"><svg class="ico ico-xl" style="color:var(--gold-accent, #D4AF37)"><use href="#i-book"/></svg></div>
       <h1 class="ob-title">Всё под рукой</h1>
       <p class="ob-text">Читайте Коран, считайте тасбих, заучивайте дуа и хадисы.<br>Всё работает <b>полностью офлайн</b>.</p>
     </div>
     <div class="ob-slide" data-slide="2">
-      <div class="ob-icon">🎨</div>
+      <div class="ob-icon"><svg class="ico ico-xl" style="color:var(--gold-accent, #D4AF37)"><use href="#i-star"/></svg></div>
       <h1 class="ob-title">Выберите тему</h1>
       <p class="ob-text">Можно изменить в любой момент в настройках.</p>
       <div class="ob-options">
@@ -1379,7 +1379,7 @@ button, .btn, .icon-btn, .fab, .ayah-share-btn, .star-btn, .filter-chip, .preset
       </div>
     </div>
     <div class="ob-slide" data-slide="3">
-      <div class="ob-icon">🔤</div>
+      <div class="ob-icon"><svg class="ico ico-xl" style="color:var(--gold-accent, #D4AF37)"><use href="#i-book"/></svg></div>
       <h1 class="ob-title">Размер арабского текста</h1>
       <p class="ob-text">Настройте удобный размер для чтения.</p>
       <div class="ob-options">
@@ -1981,14 +1981,14 @@ function openQuran(id) {
       <div class="dh-title">${esc(item.title)}</div>
       <div class="dh-sub">${esc(item.subtitle||'')}</div>
     </div>
-    ${item.note ? `<div class="note-box"><span class="note-icon">💡</span><div>${escNl(item.note)}</div></div>` : ''}
+  if (learnedHadiths.length) { html += `<div class="settings-group"><div class="progress-section-title">Изученные хадисы</div>`;
         <div class="detail-actions">
            <button class="btn secondary" onclick="openRead('${item.id}')"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-book"/></svg>Читать</button>
       <button class="btn" onclick="openMemorize('${item.id}')"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-lightbulb"/></svg>Заучить</button>
       <button class="btn secondary" onclick="shareItem('quran','${item.id}')"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-upload"/></svg>Поделиться</button>
     </div>
     <div class="learned-toggle ${item.learned?'done':''}" onclick="toggleQuranLearned('${item.id}')">
-      <div class="lt-icon">${item.learned?'✓':'📖'}</div>
+      <div class="lt-icon">${item.learned?'✓':'<svg class="ico ico-sm"><use href="#i-book"/></svg>'}</div>
       <div class="lt-body">
         <div class="lt-title">${item.learned?'Выучено':'Отметить как выучено'}</div>
         <div class="lt-sub">${item.learned ? (item.learnedAt ? 'Выучено ' + item.learnedAt : 'Нажми, чтобы снять отметку') : 'Изучи текст и отметь'}</div>
@@ -2001,8 +2001,9 @@ function openQuran(id) {
         <div class="read-ayah-num">${item.type==='surah' ? a.num : (item.number||'')}</div>
         <div class="read-ayah-ar ar-font">${esc(a.ar)}</div>
         ${a.tr ? `<div class="read-ayah-tr">${esc(a.tr)}</div>` : ''}
-        <div class="read-ayah-trn">${esc(a.trn)}</div>
-           <button class="ayah-share-btn" onclick="shareAyah('${item.id}',${idx})"><svg class="ico ico-sm"><use href="#i-upload"/></svg>Поделиться аятом</button>
+               <div class="read-ayah-trn">${esc(a.trn)}</div>
+        <button class="ayah-share-btn" onclick="shareAyah('${item.id}',${idx})"><svg class="ico ico-sm"><use href="#i-upload"/></svg>Поделиться аятом</button>
+      </div>
     `).join('')}
     ${item.source ? `<div class="dh-section" style="margin-top:20px;"><div class="dh-label">Источник</div><div class="dh-text muted" style="font-size:13px;">${esc(item.source)}</div></div>` : ''}
     ${transcriptionNote()}
@@ -2210,10 +2211,10 @@ function openDua(id) {
         <div class="read-ayah-trn">${escNl(d.translation)}</div>
       </div>
     </div>
-    ${d.note ? `<div class="note-box"><span class="note-icon">💡</span><div>${escNl(d.note)}</div></div>` : ''}
+    ${d.note ? `<div class="note-box"><svg class="ico ico-sm" style="flex-shrink:0;color:var(--accent2)"><use href="#i-lightbulb"/></svg><div>${escNl(d.note)}</div></div>` : ''}
     <div class="detail-actions"><button class="btn" onclick="openMemorizeFor(getDuaById('${d.id}'))"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-lightbulb"/></svg>Заучить</button><button class="btn secondary" onclick="shareItem('dua','${d.id}')"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-upload"/></svg>Поделиться</button></div>
     <div class="learned-toggle ${d.learned?'done':''}" onclick="toggleDuaLearned('${d.id}')">
-      <div class="lt-icon">${d.learned?'✓':'📖'}</div>
+      <div class="lt-icon">${d.learned?'✓':'<svg class="ico ico-sm"><use href="#i-book"/></svg>'}</div>
       <div class="lt-body"><div class="lt-title">${d.learned?'Выучено':'Отметить как выучено'}</div><div class="lt-sub">${d.learned?'Нажми, чтобы снять отметку':'Изучи дуа и отметь'}</div></div>
     </div>
     ${d.source ? `<div class="dh-section" style="margin-top:20px;"><div class="dh-label">Источник</div><div class="dh-text muted" style="font-size:13px;">${esc(d.source)}</div></div>` : ''}
@@ -2250,10 +2251,23 @@ function openHadith(id) {
         <div class="read-ayah-trn">${escNl(h.translation)}</div>
       </div>
     </div>
-    ${h.note ? `<div class="note-box"><span class="note-icon">💡</span><div>${escNl(h.note)}</div></div>` : ''}
+    ${h.note ? `<div class="note-box"><svg class="ico ico-sm" style="flex-shrink:0;color:var(--accent2)"><use href="#i-lightbulb"/></svg><div>${escNl(h.note)}</div></div>` : ''}
     <div class="detail-actions"><button class="btn" onclick="openMemorizeFor(getHadithById('${h.id}'))"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-lightbulb"/></svg>Заучить</button><button class="btn secondary" onclick="shareItem('hadith','${h.id}')"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-upload"/></svg>Поделиться</button></div>
     <div class="learned-toggle ${h.learned?'done':''}" onclick="toggleHadithLearned('${h.id}')">
-      <div class="lt-icon">${h.learned?'✓':'📖'}</div>
+  if (type === 'quran') {
+    const item = state.quran[Math.floor(Math.random() * state.quran.length)];
+    if (!item) return null;
+    const trLines = (item.translation || '').split('\n').filter(Boolean);
+       return { type: 'quran', id: item.id, badge: 'Коран', title: item.title, ar: (item.arabic || '').split('\n')[0], tr: (trLines[0] || '').slice(0, 140) };
+  if (type === 'hadith') {
+    const item = state.hadiths[Math.floor(Math.random() * state.hadiths.length)];
+    if (!item) return null;
+       return { type: 'dua', id: item.id, badge: 'Дуа', title: item.title, ar: item.arabic || '', tr: (item.translation || '').slice(0, 140) };
+  if (type === 'dua') {
+    const item = state.duas[Math.floor(Math.random() * state.duas.length)];
+    if (!item) return null;
+    return { type: 'dua', id: item.id, badge: '🤲 Дуа', title: item.title, ar: item.arabic || '', tr: (item.translation || '').slice(0, 140) };
+  }
       <div class="lt-body"><div class="lt-title">${h.learned?'Изучено':'Отметить как изученный'}</div><div class="lt-sub">${h.learned?'Нажми, чтобы снять отметку':'Изучи хадис и отметь'}</div></div>
     </div>
     ${h.source ? `<div class="dh-section" style="margin-top:20px;"><div class="dh-label">Источник</div><div class="dh-text muted" style="font-size:13px;">${esc(h.source)}</div></div>` : ''}
@@ -2294,7 +2308,7 @@ function renderProgressOverview() {
       <div class="stat-card"><div class="sc-label">Тасбихов создано</div><div class="sc-value">${state.tasbihs.length}</div><div class="sc-sub">в списке</div></div>
     </div>
     <div class="settings-group">
-      <div class="progress-section-title">📖 Заучивание</div>
+      <div class="progress-section-title">Заучивание</div>
       <div class="learned-item"><div><div class="li-title">Суры и аяты</div><div class="li-sub">${learnedQuran} из ${totalQuran} выучено</div></div><div style="font-size:15px; font-weight:700; color:var(--accent);">${totalQuran > 0 ? Math.round((learnedQuran/totalQuran)*100) : 0}%</div></div>
       <div class="learned-item"><div><div class="li-title">Дуа</div><div class="li-sub">${learnedDuas} из ${totalDuas} выучено</div></div><div style="font-size:15px; font-weight:700; color:var(--accent);">${totalDuas > 0 ? Math.round((learnedDuas/totalDuas)*100) : 0}%</div></div>
       <div class="learned-item"><div><div class="li-title">Хадисы</div><div class="li-sub">${learnedHadiths} из ${totalHadiths} изучено</div></div><div style="font-size:15px; font-weight:700; color:var(--accent);">${totalHadiths > 0 ? Math.round((learnedHadiths/totalHadiths)*100) : 0}%</div></div>
@@ -2347,9 +2361,9 @@ function renderProgressLearned() {
   const learnedDuas = state.duas.filter(d => d.learned);
   const learnedHadiths = state.hadiths.filter(h => h.learned);
   let html = '';
-  if (learnedQuran.length) { html += `<div class="settings-group"><div class="progress-section-title">📖 Выученные суры и аяты</div>`; learnedQuran.forEach(q => { html += `<div class="learned-item"><div><div class="li-title">${esc(q.title)}</div><div class="li-sub">${q.learnedAt ? formatDateShort(q.learnedAt) : ''}</div></div><div class="li-check">✓</div></div>`; }); html += `</div>`; }
-  if (learnedDuas.length) { html += `<div class="settings-group"><div class="progress-section-title">🤲 Выученные дуа</div>`; learnedDuas.forEach(d => { html += `<div class="learned-item"><div><div class="li-title">${esc(d.title)}</div></div><div class="li-check">✓</div></div>`; }); html += `</div>`; }
-  if (learnedHadiths.length) { html += `<div class="settings-group"><div class="progress-section-title">📜 Изученные хадисы</div>`; learnedHadiths.forEach(h => { html += `<div class="learned-item"><div><div class="li-title">${esc(h.title)}</div></div><div class="li-check">✓</div></div>`; }); html += `</div>`; }
+  if (learnedQuran.length) { html += `<div class="settings-group"><div class="progress-section-title">Выученные суры и аяты</div>`; learnedQuran.forEach(q => { html += `<div class="learned-item"><div><div class="li-title">${esc(q.title)}</div><div class="li-sub">${q.learnedAt ? formatDateShort(q.learnedAt) : ''}</div></div><div class="li-check">✓</div></div>`; }); html += `</div>`; }
+  if (learnedDuas.length) { html += `<div class="settings-group"><div class="progress-section-title">Выученные дуа</div>`; learnedDuas.forEach(d => { html += `<div class="learned-item"><div><div class="li-title">${esc(d.title)}</div></div><div class="li-check">✓</div></div>`; }); html += `</div>`; }
+  if (learnedHadiths.length) { html += `<div class="settings-group"><div class="progress-section-title">Изученные хадисы</div>`; learnedHadiths.forEach(h => { html += `<div class="learned-item"><div><div class="li-title">${esc(h.title)}</div></div><div class="li-check">✓</div></div>`; }); html += `</div>`; }
   if (!html) html = '<div class="empty">Пока ничего не выучено.<br>Начните с раздела «Коран» или «Дуа».</div>';
   body.innerHTML = html;
 }
@@ -2748,8 +2762,8 @@ function renderDashMarks() {
   var total = favCount + bmCount;
   var recent = [];
   if (Array.isArray(state.bookmarks)) {
-    state.bookmarks.slice(-3).reverse().forEach(function(b){
-      recent.push({ icon: '🔖', title: b.label });
+   state.bookmarks.slice(-3).reverse().forEach(function(b){
+      recent.push({ icon: '', title: b.label });
     });
   }
   if (recent.length < 3 && Array.isArray(state.favorites)) {
@@ -2784,7 +2798,6 @@ function renderDashboard() {
   if (numEl) numEl.innerHTML = done + ' <span>/ ' + goal + '</span>';
   if (barEl) barEl.style.width = pct + '%';
 
-  _dashQuote = getRandomQuote();
   _dashQuote = getRandomQuote();
   const qEl = document.getElementById('dash-quote');
   if (qEl && _dashQuote) {
