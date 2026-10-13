@@ -122,7 +122,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .home-controls { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
 .search-wrap { flex:1; min-width:160px; position:relative; }
 .search-wrap input { width:100%; background:var(--card); border:1px solid var(--border); border-radius:14px; padding:11px 14px 11px 38px; font-size:15px; outline:none; }
-.search-wrap::before { content:"🔍"; position:absolute; left:13px; top:50%; transform:translateY(-50%); font-size:13px; opacity:.6; pointer-events:none; }
+.search-wrap::before { content:""; position:absolute; left:13px; top:50%; transform:translateY(-50%); width:14px; height:14px; opacity:.55; pointer-events:none; background:currentColor; -webkit-mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='11' cy='11' r='7.5'/><path d='m21 21-4.5-4.5'/></svg>") center/contain no-repeat; mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='11' cy='11' r='7.5'/><path d='m21 21-4.5-4.5'/></svg>") center/contain no-repeat; }
 .sort-select { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:11px 12px; font-size:13px; outline:none; min-width:110px; -webkit-appearance:none; appearance:none; text-align:center; }
 
 .daily-goal { background:var(--card); border-radius:var(--radius); padding:16px; margin-bottom:16px; box-shadow:0 2px 8px var(--shadow); }
@@ -1098,7 +1098,7 @@ button, .btn, .icon-btn, .fab, .ayah-share-btn, .star-btn, .filter-chip, .preset
     <div class="target-label" id="c-target">из 33</div>
     <div class="cycles" id="c-cycles">Циклов: 0</div>
     <div class="transcription-note" onclick="event.stopPropagation()">
-      <span class="tn-icon">ℹ️</span>
+      <svg class="ico ico-sm tn-icon" style="flex-shrink:0;opacity:.75"><use href="#i-info"/></svg>
       <div>Транскрипция передаёт лишь <b>примерное произношение</b> и не отражает всех тонкостей арабского. Для правильного чтения следует изучить <b>таджвид</b>.</div>
     </div>
   </div>
@@ -2390,7 +2390,7 @@ function updateReminderField(i, field, v) { if (field==='time') { if (!/^\d{2}:\
 function toggleReminder(i,v) { state.reminders[i].on = v; save(); }
 function deleteReminder(i) { state.reminders.splice(i,1); save(); renderReminders(); }
 setInterval(checkReminders, 30000);
-function checkReminders() { const now=new Date(); const hh=pad(now.getHours())+':'+pad(now.getMinutes()); const k=todayKey(); state.reminders.forEach(r=>{ if (!r.on) return; if (r.time===hh && r.lastFired!==k) { r.lastFired=k; save(); if ('Notification' in window && Notification.permission === 'granted') { try { new Notification('Iqra | Читай', { body: r.message || 'Время зикра 🕋' }); } catch(e){} } } }); }
+function checkReminders() { const now=new Date(); const hh=pad(now.getHours())+':'+pad(now.getMinutes()); const k=todayKey(); state.reminders.forEach(r=>{ if (!r.on) return; if (r.time===hh && r.lastFired!==k) { r.lastFired=k; save(); if ('Notification' in window && Notification.permission === 'granted') { try { new Notification('Iqra | Читай', { body: r.message || 'Время зикра' }); } catch(e){} } } }); }
 
 function exportData() { const data = JSON.stringify(state, null, 2); const blob = new Blob([data], { type:'application/json' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'iqra-backup-' + todayKey() + '.json'; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href), 1000); }
 function validateImport(d) {
