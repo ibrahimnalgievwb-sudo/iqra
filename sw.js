@@ -20,11 +20,12 @@ self.addEventListener('install', function(event) {
   event.waitUntil(
     caches.open(CACHE_VERSION).then(function(cache) {
       return cache.addAll(CACHE_ASSETS);
-    }).catch(function() {})
+    }).catch(function(err) {
+      console.error('SW install: cache.addAll failed', err);
+    })
   );
   self.skipWaiting();
 });
-
 self.addEventListener('activate', function(event) {
   event.waitUntil(
     caches.keys().then(function(keys) {
