@@ -22,7 +22,7 @@
   --bg:#FFFFFF; --card:#F4F4F4; --card2:#E8E8E8; --accent:#0A0A0A; --accent2:#8B6914;
   --text:#0A0A0A; --muted:#4A4A4A; --border:#D5D5D5; --shadow:rgba(0,0,0,.12);
   --accent-rgb: 10, 10, 10; --ripple:rgba(10,10,10,.15);
-  --ar-g1:#D4A017; --ar-g2:#8B6914; --ar-g3:#5C4409; --ar-gold:#D4A017;
+  --ar-g1:#D4A017; --ar-g2:#8B6914; --ar-g3:#5C4409;
 }
 [data-theme="dark"] {
   --bg:#000000; --card:#101010; --card2:#1A1A1A; --accent:#FFFFFF; --accent2:#D4AF37;
@@ -159,9 +159,8 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .nav button .ico { width: 30px; height: 30px; }
 .nav button.active .ico { width: 36px; height: 36px; }
 .nav button .nav-label { font-size: 10px; line-height: 1.1; font-weight: 600; white-space: nowrap; color: var(--muted); transition: color .2s ease, font-weight .2s ease; }
-.nav button.active .nav-label { color: var(--accent); font-weight: 700; }
+.nav button.active .nav-label { color: var(--accent); font-weight: 700; opacity: 1; transform: translateY(0); }
 .nav button[data-tab="dashboard"] .nav-label { visibility: hidden; }
-.nav button.active .nav-label { opacity: 1; transform: translateY(0); }
 
 .top-progress { position:fixed; top:0; left:0; right:0; height:3px; z-index:5; pointer-events:none; }
 .top-progress > div { height:100%; width:0%; background:var(--accent); transition: width .3s ease; }
@@ -535,7 +534,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   border-color: var(--accent);
   font-weight: 700;
 }
-#onboarding .ob-ar-preview { font-size: 28px; color: var(--text); margin: 12px 0 4px; }
+#onboarding .ob-ar-preview { font-size: calc(28px * var(--ar-scale)); color: var(--text); margin: 12px 0 4px; }
 #onboarding .ob-nav {
   display: flex;
   gap: 10px;
@@ -2130,7 +2129,6 @@ function openSettings() {
   document.getElementById('opt-sound').checked = state.settings.sound;
   document.getElementById('opt-vibrate').checked = state.settings.vibrate;
   document.querySelectorAll('#size-seg button').forEach(b=>b.classList.toggle('active', parseFloat(b.dataset.size)===state.settings.arSize));
-  document.getElementById('ar-preview').style.fontSize = (24*state.settings.arSize)+'px';
   renderReminders(); showScreen('screen-settings');
 }
 document.getElementById('opt-autonext').addEventListener('change', e=>{ state.settings.autoNext = e.target.checked; save(); });
@@ -2439,8 +2437,6 @@ function startOnboarding() {
   if (themeBtn) themeBtn.classList.add('active');
   const sizeBtn = ob.querySelector('[data-ob-size="' + state.settings.arSize + '"]');
   if (sizeBtn) sizeBtn.classList.add('active');
-  const pv = document.getElementById('ob-ar-preview');
-  if (pv) pv.style.fontSize = (28 * state.settings.arSize) + 'px';
 }
 function renderOnboarding() {
   document.querySelectorAll('#onboarding .ob-slide').forEach(function(s) {
@@ -2472,8 +2468,6 @@ function setOnboardingSize(s) {
   document.querySelectorAll('#onboarding [data-ob-size]').forEach(function(b) {
     b.classList.toggle('active', parseFloat(b.dataset.obSize) === parseFloat(s));
   });
-  const pv = document.getElementById('ob-ar-preview');
-  if (pv) pv.style.fontSize = (28 * parseFloat(s)) + 'px';
 }
 function finishOnboarding() {
   const ob = document.getElementById('onboarding');
