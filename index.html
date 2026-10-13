@@ -1080,6 +1080,7 @@ button, .btn, .icon-btn, .fab, .ayah-share-btn, .star-btn, .filter-chip, .preset
   <div class="header">
     <button class="icon-btn ghost" onclick="goHome()" aria-label="Назад"><svg class="ico"><use href="#i-arrow-left"/></svg></button>
     <div style="display:flex;gap:6px">
+      <button class="icon-btn ghost" onclick="shareCurrent(event)" aria-label="Поделиться"><svg class="ico"><use href="#i-upload"/></svg></button>
       <button class="icon-btn ghost" onclick="resetCurrent(event)" aria-label="Сбросить"><svg class="ico"><use href="#i-rotate-ccw"/></svg></button>
       <button class="icon-btn ghost" onclick="editCurrent(event)" aria-label="Редактировать"><svg class="ico"><use href="#i-edit"/></svg></button>
     </div>
@@ -1921,8 +1922,8 @@ function tap(e) {
 
 function showNextToast() { const idx=state.tasbihs.findIndex(x=>x.id===activeId); const next=state.tasbihs[idx+1]; if (!next) return; const toast=document.getElementById('next-toast'); document.getElementById('nt-name').textContent=next.transcription||next.translation||'—'; document.getElementById('nt-ar').textContent=next.arabic||''; toast.classList.add('show'); clearTimeout(nextToastTimer); nextToastTimer=setTimeout(()=>toast.classList.remove('show'),5000); }
 function goNext() { const idx=state.tasbihs.findIndex(x=>x.id===activeId); const next=state.tasbihs[idx+1]; document.getElementById('next-toast').classList.remove('show'); if (next) openCounter(next.id); }
+function shareCurrent(e) { if (e) e.stopPropagation(); if (activeId) shareItem('tasbih', activeId); }
 function resetCurrent(e) { if (e) e.stopPropagation(); if (!confirm('Сбросить текущий счёт?')) return; const t=getById(activeId); t.current=0; save(); updateCounterUI(); }
-function editCurrent(e) { if (e) e.stopPropagation(); openForm(activeId); }
 function goHome() { if (activeId) saveNow(); activeId=null; releaseWakeLock(); renderDashboard(); showScreen('screen-dashboard'); }
 async function requestWakeLock() { try { if ('wakeLock' in navigator) { wakeLock=await navigator.wakeLock.request('screen'); wakeLock.addEventListener('release',()=>{wakeLock=null;}); } } catch(e){} }
 function releaseWakeLock() { try { if (wakeLock) { wakeLock.release(); wakeLock=null; } } catch(e){} }
@@ -2602,12 +2603,15 @@ function buildShareText(item) {
 function buildShareTextSurah(item) {
   var ayahs = parseAyahs(item);
   if (!ayahs.length) return buildShareText(item);
-  var first = ayahs[0];
   var parts = [];
   if (item.bismillah) parts.push(item.bismillah.arabic);
-  if (first.ar) parts.push(first.ar);
-  if (first.tr) parts.push(first.tr);
-  if (first.trn) parts.push(first.trn);
+  ayahs.forEach(function(a) {
+    var block = [];
+    if (a.ar) block.push(a.ar);
+    if (a.tr) block.push(a.tr);
+    if (a.trn) block.push(a.trn);
+    if (block.length) parts.push(block.join('\n'));
+  });
   var label = item.title;
   if (item.type === 'surah') label += ' · аяты 1-' + ayahs.length;
   else if (item.number) label += ' · ' + item.number;
@@ -2652,9 +2656,10 @@ function shareItem(type, id) {
   if (type === 'quran') item = getQuranById(id);
   else if (type === 'dua') item = getDuaById(id);
   else if (type === 'hadith') item = getHadithById(id);
+  else if (type === 'tasbih') item = getById(id);
   if (!item) return;
   var text = (type === 'quran') ? buildShareTextSurah(item) : buildShareText(item);
-  var title = item.title || 'Iqra | Читай';
+  var title = item.title || item.transcription || 'Iqra | Читай';
   if (navigator.share) {
     navigator.share({ title: title, text: text }).then(function() {
       trackEvent('share/' + type + '/' + id, 'Репост: ' + title);
