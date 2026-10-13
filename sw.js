@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'iqra-v46';
+const CACHE_VERSION = 'iqra-v47';
 const CACHE_ASSETS = [
   './', './index.html', './manifest.json', './count.js', './fonts.css',
   './favicon.png', './apple-touch-icon.png', './icon-192.png', './icon-512.png',
