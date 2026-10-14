@@ -175,7 +175,9 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .nav button.active .ico {
   background: var(--gold-grad);
   box-shadow: 0 0 0 1px var(--ar-g2), 0 0 10px rgba(212,175,55,.40);
+  color: #0A0A0A;
 }
+.nav button.active .ico use { filter: brightness(0); }
 .nav button .nav-label { font-size: 10px; line-height: 1.1; font-weight: 600; white-space: nowrap; color: var(--muted); transition: color .2s ease, font-weight .2s ease; }
 .nav button.active .nav-label { color: var(--accent); font-weight: 700; opacity: 1; transform: translateY(0); }
 .nav button[data-tab="dashboard"] .nav-label { visibility: hidden; }
