@@ -295,7 +295,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .read-surah-title { font-size:24px; font-weight:700; margin-bottom:4px; text-align:center; overflow-wrap: break-word; }
 .read-surah-sub { font-size:13px; color:var(--muted); text-align:center; margin-bottom:24px; overflow-wrap: break-word; }
 .read-ayah { background:var(--card); border-radius:18px; padding:18px 20px; margin-bottom:14px; box-shadow:0 2px 8px var(--shadow); position:relative; overflow-wrap: anywhere; width:100%; max-width:100%; box-sizing:border-box; }
-.read-ayah-num { display:inline-flex; align-items:center; justify-content:center; min-width:32px; height:32px; padding:0 10px; border-radius:16px; background:rgba(var(--accent-rgb), .15); color:var(--accent); font-size:12px; font-weight:700; margin-bottom:12px; }
+.read-ayah-head { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px; } .read-ayah-head .read-ayah-num { margin-bottom:0; } .read-ayah-marker { display:inline-block; font-family:"Amiri","Noto Naskh Arabic","SF Arabic","Geeza Pro",serif; font-size:32px; line-height:1; color:var(--accent2); font-weight:400; direction:rtl; user-select:none; opacity:.9; flex-shrink:0; } .read-ayah.ayat-mode .read-ayah-marker { display:none; }
 .read-ayah-tr { font-size:15px; color:var(--muted); line-height:1.75; margin-bottom:10px; font-style:italic; overflow-wrap: anywhere; letter-spacing:0.01em; }
 .read-ayah-trn { font-size:16px; line-height:1.8; overflow-wrap: anywhere; letter-spacing:0.005em; }
 .read-ayah.ayat-mode .read-ayah-num { background:var(--accent2); color:var(--bg); }
@@ -1776,7 +1776,12 @@ function parseAyahs(item) {
   const tr = (item.transcription||'').split('\n').map(s=>s.trim());
   const trn = (item.translation||'').split('\n').map(s=>s.trim());
   const isSurah = item.type === 'surah';
-  return ar.map((line, i) => ({ num: isSurah ? (i+1) : (item.number || ''), ar: line, tr: tr[i] || '', trn: trn[i] || '' }));
+function ayahMarker(n) {
+  var num = (typeof n === 'number') ? n : parseInt(String(n).replace(/[^\d]/g, ''), 10);
+  if (!num || num < 1 || num > 999) return '';
+  var ar = '٠١٢٣٤٥٦٧٨٩';
+  var s = String(num).split('').map(function(d){ return ar[+d]; }).join('');
+  return '\u06DD' + s;
 }
 function isNightNow() { const h = new Date().getHours(); return (h >= 19 || h < 6); }
 const MOSCOW_LAT = 55.75, MOSCOW_LON = 37.62;
@@ -2010,7 +2015,7 @@ function openQuran(id) {
     <div style="height:16px"></div>
     ${ayahs.map((a, idx) => `
       <div class="read-ayah ${item.type==='ayat'?'ayat-mode':''}">
-        <div class="read-ayah-num">${item.type==='surah' ? a.num : (item.number||'')}</div>
+        <div class="read-ayah-head"><div class="read-ayah-num">${item.type==='surah' ? a.num : (item.number||'')}</div><span class="read-ayah-marker">${item.type==='surah' ? ayahMarker(a.num) : ''}</span></div>
         <div class="read-ayah-ar ar-font">${esc(a.ar)}</div>
         ${a.tr ? `<div class="read-ayah-tr">${esc(a.tr)}</div>` : ''}
                <div class="read-ayah-trn">${esc(a.trn)}</div>
@@ -2048,7 +2053,7 @@ function openRead(id, targetAyahIdx) {
     ${bismillahHtml}
     ${ayahs.map(a => `
       <div class="read-ayah ${item.type==='ayat'?'ayat-mode':''}">
-        <div class="read-ayah-num">${item.type==='surah' ? a.num : (item.number||'')}</div>
+        <div class="read-ayah-head"><div class="read-ayah-num">${item.type==='surah' ? a.num : (item.number||'')}</div><span class="read-ayah-marker">${item.type==='surah' ? ayahMarker(a.num) : ''}</span></div>
         <div class="read-ayah-ar ar-font">${esc(a.ar)}</div>
         ${a.tr ? `<div class="read-ayah-tr">${esc(a.tr)}</div>` : ''}
         <div class="read-ayah-trn">${esc(a.trn)}</div>
