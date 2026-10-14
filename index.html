@@ -1783,6 +1783,12 @@ function ayahMarker(n) {
   var s = String(num).split('').map(function(d){ return ar[+d]; }).join('');
   return '\u06DD' + s;
 }
+  var num = (typeof n === 'number') ? n : parseInt(String(n).replace(/[^\d]/g, ''), 10);
+  if (!num || num < 1 || num > 999) return '';
+  var ar = '٠١٢٣٤٥٦٧٨٩';
+  var s = String(num).split('').map(function(d){ return ar[+d]; }).join('');
+  return '\u06DD' + s;
+}
 function isNightNow() { const h = new Date().getHours(); return (h >= 19 || h < 6); }
 const MOSCOW_LAT = 55.75, MOSCOW_LON = 37.62;
 const SUN_WINDOW = 15;
@@ -2176,7 +2182,7 @@ function openNight(idx) {
     </div>
     ${ayahs.map(a => `
       <div class="read-ayah ${item.type==='ayat'?'ayat-mode':''}">
-        <div class="read-ayah-num">${item.type==='surah' ? a.num : (item.number||'')}</div>
+        <div class="read-ayah-head"><div class="read-ayah-num">${item.type==='surah' ? a.num : (item.number||'')}</div><span class="read-ayah-marker">${item.type==='surah' ? ayahMarker(a.num) : ''}</span></div>
         <div class="read-ayah-ar ar-font">${esc(a.ar)}</div>
         ${a.tr ? `<div class="read-ayah-tr">${esc(a.tr)}</div>` : ''}
         <div class="read-ayah-trn">${esc(a.trn)}</div>
