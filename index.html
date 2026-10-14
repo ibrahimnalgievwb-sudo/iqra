@@ -1776,6 +1776,8 @@ function parseAyahs(item) {
   const tr = (item.transcription||'').split('\n').map(s=>s.trim());
   const trn = (item.translation||'').split('\n').map(s=>s.trim());
   const isSurah = item.type === 'surah';
+  return ar.map((line, i) => ({ num: isSurah ? (i+1) : (item.number || ''), ar: line, tr: tr[i] || '', trn: trn[i] || '' }));
+}
 function ayahMarker(n) {
   var num = (typeof n === 'number') ? n : parseInt(String(n).replace(/[^\d]/g, ''), 10);
   if (!num || num < 1 || num > 999) return '';
@@ -2020,7 +2022,7 @@ function openQuran(id) {
     ${bismillahHtml}
     <div style="height:16px"></div>
     ${ayahs.map((a, idx) => `
-      <div class="read-ayah ${item.type==='ayat'?'ayat-mode':''}">
+        <div class="read-ayah ${item.type==='ayat'?'ayat-mode':''}">
         <div class="read-ayah-head"><div class="read-ayah-num">${item.type==='surah' ? a.num : (item.number||'')}</div><span class="read-ayah-marker">${item.type==='surah' ? ayahMarker(a.num) : ''}</span></div>
         <div class="read-ayah-ar ar-font">${esc(a.ar)}</div>
         ${a.tr ? `<div class="read-ayah-tr">${esc(a.tr)}</div>` : ''}
