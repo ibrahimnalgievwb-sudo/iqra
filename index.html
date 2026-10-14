@@ -178,6 +178,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   color: #0A0A0A;
 }
 .nav button.active .ico use { filter: brightness(0); }
+[data-theme="light"] .nav button:not(.active) .ico { filter: brightness(0.55) saturate(1.2); }
 .nav button .nav-label { font-size: 10px; line-height: 1.1; font-weight: 600; white-space: nowrap; color: var(--muted); transition: color .2s ease, font-weight .2s ease; }
 .nav button.active .nav-label { color: var(--accent); font-weight: 700; opacity: 1; transform: translateY(0); }
 .nav button[data-tab="dashboard"] .nav-label { visibility: hidden; }
