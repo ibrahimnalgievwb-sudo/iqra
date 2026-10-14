@@ -1716,6 +1716,12 @@ function load() {
     s.quran.forEach(q => { const prev = learnedMap.get(q.id); if (prev) { q.learned = !!prev.learned; q.learnedAt = prev.learnedAt || ''; } });
     s.migrations.quran_v15 = true;
   }
+  if (!s.migrations.quran_v16) {
+    const learnedMap = new Map(s.quran.map(q => [q.id, { learned: q.learned, learnedAt: q.learnedAt }]));
+    s.quran = JSON.parse(JSON.stringify(DEFAULT_QURAN));
+    s.quran.forEach(q => { const prev = learnedMap.get(q.id); if (prev) { q.learned = !!prev.learned; q.learnedAt = prev.learnedAt || ''; } });
+    s.migrations.quran_v16 = true;
+  }
   return s;
 }
 let _saveTimer = null;
