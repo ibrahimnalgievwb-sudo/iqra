@@ -2,12 +2,12 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; worker-src 'self'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' https://iqra-stats.goatcounter.com; object-src 'none'; base-uri 'none'; form-action 'none';">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; worker-src 'self'; img-src 'self' data: blob: https://iqra-stats.goatcounter.com; font-src 'self'; connect-src 'self' https://iqra-stats.goatcounter.com; object-src 'none'; base-uri 'none'; form-action 'none';">
 <meta name="referrer" content="no-referrer">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Iqra">
 <meta name="theme-color" content="#FFFFFF">
 <meta name="robots" content="noindex, nofollow">
@@ -180,7 +180,12 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 }
 .nav button .nav-label { font-size: 10px; line-height: 1.1; font-weight: 600; white-space: nowrap; color: var(--muted); transition: color .2s ease, font-weight .2s ease; }
 .nav button.active .nav-label { color: var(--accent); font-weight: 700; opacity: 1; transform: translateY(0); }
-.nav button[data-tab="dashboard"] .nav-label { visibility: hidden; }
+/* Медиа-запрос для узких экранов (iPhone SE и т.п.) */
+@media (max-width: 380px) {
+  .nav button { height: 54px; padding: 4px 0; }
+  .nav button .ico { width: 28px; height: 28px; padding: 4px; }
+  .nav button .nav-label { font-size: 9px; }
+}
 
 .top-progress { position:fixed; top:0; left:0; right:0; height:3px; z-index:5; pointer-events:none; }
 .top-progress > div { height:100%; width:0%; background:var(--accent); transition: width .3s ease; }
@@ -291,10 +296,27 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .read-surah-title { font-size:24px; font-weight:700; margin-bottom:4px; text-align:center; overflow-wrap: break-word; }
 .read-surah-sub { font-size:13px; color:var(--muted); text-align:center; margin-bottom:24px; overflow-wrap: break-word; }
 .read-ayah { background:var(--card); border-radius:18px; padding:18px 20px; margin-bottom:14px; box-shadow:0 2px 8px var(--shadow); position:relative; overflow-wrap: anywhere; width:100%; max-width:100%; box-sizing:border-box; }
+/* НОВОЕ: полноценный стиль номера аята (кружок) */
+.read-ayah-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 9px;
+  margin-bottom: 10px;
+  border-radius: 14px;
+  background: rgba(var(--accent-rgb), .12);
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.read-ayah.ayat-mode .read-ayah-num { background: var(--accent2); color: var(--bg); }
 .read-ayah-marker { display:inline-block; font-family:"Amiri","Noto Naskh Arabic","SF Arabic","Geeza Pro",serif; font-size:1em; line-height:1; color:var(--accent2); font-weight:400; margin:0 .25em; user-select:none; opacity:.95; vertical-align:middle; }
 .read-ayah-tr { font-size:15px; color:var(--muted); line-height:1.75; margin-bottom:10px; font-style:italic; overflow-wrap: anywhere; letter-spacing:0.01em; }
 .read-ayah-trn { font-size:16px; line-height:1.8; overflow-wrap: anywhere; letter-spacing:0.005em; }
-.read-ayah.ayat-mode .read-ayah-num { background:var(--accent2); color:var(--bg); }
 
 .bismillah-card {
   background: var(--card);
@@ -445,10 +467,11 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 
 .mem-body-note { margin-top: 20px; }
 
+/* ИЗМЕНЕНО: safe-area для индикатора сохранения */
 .save-indicator {
   position: fixed;
-  top: 8px;
-  right: 8px;
+  top: calc(8px + env(safe-area-inset-top));
+  right: calc(8px + env(safe-area-inset-right));
   width: 8px;
   height: 8px;
   border-radius: 50%;
@@ -759,7 +782,35 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   text-overflow: ellipsis;
 }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-  
+
+/* НОВОЕ: баннер установки PWA (Android) */
+.install-banner {
+  position: fixed;
+  left: 12px; right: 12px;
+  bottom: calc(72px + env(safe-area-inset-bottom));
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 12px 14px;
+  display: none;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 8px 24px var(--shadow);
+  z-index: 9997;
+  font-size: 14px;
+  color: var(--text);
+}
+.install-banner.show { display: flex; }
+.install-banner .ib-text { flex: 1; min-width: 0; font-weight: 600; }
+.install-banner .ib-install {
+  padding: 8px 14px; border-radius: 10px; font-size: 13px; font-weight: 700;
+  background: var(--gold-grad); color: #0A0A0A; border: none;
+}
+.install-banner .ib-later {
+  padding: 8px 10px; border-radius: 10px; font-size: 13px;
+  background: transparent; color: var(--muted); border: none;
+}
+
 /* === LOGO-STYLE BUTTONS v4: единый блеск с арабским текстом === */
 :root {
   --gold-grad: linear-gradient(135deg, var(--ar-g1) 0%, var(--ar-g2) 35%, var(--ar-g3) 55%, var(--ar-g2) 78%, var(--ar-g1) 100%);
@@ -1037,11 +1088,6 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 <symbol id="i-dua" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><g transform="translate(0,1.2) scale(0.55,0.9)"><path vector-effect="non-scaling-stroke" d="M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2"/><path vector-effect="non-scaling-stroke" d="M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2"/><path vector-effect="non-scaling-stroke" d="M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8"/><path vector-effect="non-scaling-stroke" d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></g><g transform="translate(24,1.2) scale(-0.55,0.9)"><path vector-effect="non-scaling-stroke" d="M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2"/><path vector-effect="non-scaling-stroke" d="M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2"/><path vector-effect="non-scaling-stroke" d="M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8"/><path vector-effect="non-scaling-stroke" d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></g></symbol>
 <symbol id="i-scroll" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v14"/><path d="M16 12h2"/><path d="M16 8h2"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/><path d="M6 12h2"/><path d="M6 8h2"/></symbol>
   <symbol id="i-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><rect x="5" y="13" width="3.5" height="8" rx="1.5"/><rect x="10.5" y="8" width="3.5" height="13" rx="1.5"/><rect x="16" y="3" width="3.5" height="18" rx="1.5"/><circle cx="6.75" cy="11.5" r="0.8" fill="currentColor" stroke="none"/><circle cx="12.25" cy="6.5" r="0.8" fill="currentColor" stroke="none"/><circle cx="17.75" cy="1.5" r="0.8" fill="currentColor" stroke="none"/></symbol>
-  <symbol id="i-book" viewBox="0 0 24 24" fill="none" stroke="url(#goldIconGrad)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5h7a3 3 0 0 1 3 3v12a2.5 2.5 0 0 0-2.5-2.5H2z"/><path d="M22 5h-7a3 3 0 0 0-3 3v12a2.5 2.5 0 0 1 2.5-2.5H22z"/></symbol>
-  <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="url(#goldIconGrad)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/><circle cx="17" cy="5" r="1" fill="url(#goldIconGrad)" stroke="none"/><circle cx="20" cy="8" r="0.7" fill="url(#goldIconGrad)" stroke="none"/></symbol>
-<symbol id="i-dua" viewBox="0 0 24 24" fill="none" stroke="url(#goldIconGrad)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><g transform="translate(0,1.2) scale(0.55,0.9)"><path vector-effect="non-scaling-stroke" d="M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2"/><path vector-effect="non-scaling-stroke" d="M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2"/><path vector-effect="non-scaling-stroke" d="M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8"/><path vector-effect="non-scaling-stroke" d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></g><g transform="translate(24,1.2) scale(-0.55,0.9)"><path vector-effect="non-scaling-stroke" d="M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2"/><path vector-effect="non-scaling-stroke" d="M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2"/><path vector-effect="non-scaling-stroke" d="M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8"/><path vector-effect="non-scaling-stroke" d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></g></symbol>
-<symbol id="i-scroll" viewBox="0 0 24 24" fill="none" stroke="url(#goldIconGrad)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v14"/><path d="M16 12h2"/><path d="M16 8h2"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/><path d="M6 12h2"/><path d="M6 8h2"/></symbol>
-  <symbol id="i-chart" viewBox="0 0 24 24" fill="none" stroke="url(#goldIconGrad)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><rect x="5" y="13" width="3.5" height="8" rx="1.5"/><rect x="10.5" y="8" width="3.5" height="13" rx="1.5"/><rect x="16" y="3" width="3.5" height="18" rx="1.5"/><circle cx="6.75" cy="11.5" r="0.8" fill="url(#goldIconGrad)" stroke="none"/><circle cx="12.25" cy="6.5" r="0.8" fill="url(#goldIconGrad)" stroke="none"/><circle cx="17.75" cy="1.5" r="0.8" fill="url(#goldIconGrad)" stroke="none"/></symbol>
   <symbol id="i-lightbulb" viewBox="0 0 24 24"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.3h6c0-1 .4-1.8 1-2.3A7 7 0 0 0 12 2z"/></symbol>
   <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><circle cx="12" cy="8" r="0.9" fill="currentColor" stroke="none"/></symbol>
   <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0z"/></symbol>
@@ -1374,10 +1420,37 @@ button::-moz-focus-inner { border: 0; padding: 0; }
     <div class="nav-label">Прогресс</div>
   </button>
 </div>
-<div class="save-indicator" id="save-indicator" aria-hidden="true"></div>  <div class="fullscreen" id="search-overlay">   <div class="fs-header">     <button class="icon-btn ghost" onclick="closeSearch()" aria-label="Закрыть"><svg class="ico"><use href="#i-x"/></svg></button>     <input id="global-search-input" placeholder="Поиск по приложению..." oninput="renderGlobalSearch()" autocomplete="off">     <div style="width:42px"></div>   </div>   <div class="search-filters" id="search-filters">     <div class="filter-group" data-filter="type">       <button class="filter-chip active" data-value="all" onclick="setSearchFilter('type','all')">Все</button>              <button class="filter-chip" data-value="tasbih" onclick="setSearchFilter('type','tasbih')">Тасбихи</button>
-       <button class="filter-chip" data-value="quran" onclick="setSearchFilter('type','quran')">Коран</button>
-       <button class="filter-chip" data-value="dua" onclick="setSearchFilter('type','dua')">Дуа</button>
-       <button class="filter-chip" data-value="hadith" onclick="setSearchFilter('type','hadith')">Хадисы</button>     </div>     <div class="filter-group" data-filter="status">       <button class="filter-chip active" data-value="all" onclick="setSearchFilter('status','all')">Все</button>       <button class="filter-chip" data-value="learned" onclick="setSearchFilter('status','learned')">✓ Выучено</button>       <button class="filter-chip" data-value="unlearned" onclick="setSearchFilter('status','unlearned')">Не выучено</button>     </div>     <div class="filter-group" data-filter="favorite">       <button class="filter-chip active" data-value="all" onclick="setSearchFilter('favorite','all')">Все</button>       <button class="filter-chip" data-value="only" onclick="setSearchFilter('favorite','only')">★ Избранное</button>     </div>   </div>   <div class="fs-body" id="search-results"></div> </div>  <div class="modal-bg" id="modal-bg" onclick="if(event.target===this)closeModal()">
+
+<div class="save-indicator" id="save-indicator" aria-hidden="true"></div>
+
+<div class="fullscreen" id="search-overlay">
+  <div class="fs-header">
+    <button class="icon-btn ghost" onclick="closeSearch()" aria-label="Закрыть"><svg class="ico"><use href="#i-x"/></svg></button>
+    <input id="global-search-input" placeholder="Поиск по приложению..." oninput="renderGlobalSearch()" autocomplete="off">
+    <div style="width:42px"></div>
+  </div>
+  <div class="search-filters" id="search-filters">
+    <div class="filter-group" data-filter="type">
+      <button class="filter-chip active" data-value="all" onclick="setSearchFilter('type','all')">Все</button>
+      <button class="filter-chip" data-value="tasbih" onclick="setSearchFilter('type','tasbih')">Тасбихи</button>
+      <button class="filter-chip" data-value="quran" onclick="setSearchFilter('type','quran')">Коран</button>
+      <button class="filter-chip" data-value="dua" onclick="setSearchFilter('type','dua')">Дуа</button>
+      <button class="filter-chip" data-value="hadith" onclick="setSearchFilter('type','hadith')">Хадисы</button>
+    </div>
+    <div class="filter-group" data-filter="status">
+      <button class="filter-chip active" data-value="all" onclick="setSearchFilter('status','all')">Все</button>
+      <button class="filter-chip" data-value="learned" onclick="setSearchFilter('status','learned')">✓ Выучено</button>
+      <button class="filter-chip" data-value="unlearned" onclick="setSearchFilter('status','unlearned')">Не выучено</button>
+    </div>
+    <div class="filter-group" data-filter="favorite">
+      <button class="filter-chip active" data-value="all" onclick="setSearchFilter('favorite','all')">Все</button>
+      <button class="filter-chip" data-value="only" onclick="setSearchFilter('favorite','only')">★ Избранное</button>
+    </div>
+  </div>
+  <div class="fs-body" id="search-results"></div>
+</div>
+
+<div class="modal-bg" id="modal-bg" onclick="if(event.target===this)closeModal()">
   <div class="modal" id="modal-content"></div>
 </div>
 
@@ -1430,6 +1503,13 @@ button::-moz-focus-inner { border: 0; padding: 0; }
   </div>
 </div>
 
+<!-- НОВОЕ: баннер установки PWA -->
+<div class="install-banner" id="install-banner">
+  <div class="ib-text">Установить Iqra на главный экран?</div>
+  <button class="ib-install" onclick="installPWA()">Установить</button>
+  <button class="ib-later" onclick="dismissInstall()">Позже</button>
+</div>
+
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
@@ -1437,7 +1517,9 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const LIMITS = { tasbihs:1000, history:10000, reminders:50, textLen:1000, idLen:100, targetMax:100000, cyclesMax:1000000 };
+const APP_VERSION = 'iqra-v64';
+const BACKUP_SCHEMA = 2;
+const LIMITS = { tasbihs:1000, history:10000, historyDays:365, reminders:50, textLen:1000, idLen:100, targetMax:100000, cyclesMax:1000000 };
 
 const QURAN_USE_API = false;
 
@@ -1675,9 +1757,12 @@ let activeDuaId = null, activeQuranId = null, activeHadithId = null, activeNight
 let calDate = new Date();
 let progTab = 'overview';
 let wakeLock = null, nextToastTimer = null, audioCtx = null;
-let dragEl = null, dragId = null, dragHoldTimer = null;
+// B1: флаг подавления click после long-press
+let dragEl = null, dragId = null, dragHoldTimer = null, suppressNextClick = false;
 let memorizeItem = null, memorizeAyahs = [], memorizeStep = 0;
 let memorizePhase = 'learn', memorizeRevealed = false; let activeReadId = null; let _lastScreenName = null, _lastScreenTs = null; let searchFilters = { type: 'all', status: 'all', favorite: 'all' }; let obStep = 0; const OB_TOTAL = 4;
+// P2: отложенный промпт установки PWA
+let deferredPrompt = null;
 
 function defaultSettings() { return { theme:'auto', arSize:1, dailyGoal:100, autoNext:true, wakeLock:true, sound:true, vibrate:true, lastRead:null, lastScreen:null }; }
 
@@ -1753,6 +1838,8 @@ function load() {
 let _saveTimer = null;
 function saveNow() {
   if (_saveTimer) { clearTimeout(_saveTimer); _saveTimer = null; }
+  // B3: обрезаем историю перед сохранением
+  pruneHistory();
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
   catch(e) {
     if (e && (e.name === 'QuotaExceededError' || e.code === 22)) {
@@ -1768,6 +1855,26 @@ function save() {
   const ind = document.getElementById('save-indicator');
   if (ind) ind.classList.add('active');
 }
+
+// B3: чистка истории — последние 365 дней и не более LIMITS.history записей
+function pruneHistory() {
+  if (!state.history || typeof state.history !== 'object') return;
+  const keys = Object.keys(state.history);
+  if (keys.length <= LIMITS.historyDays && keys.length <= LIMITS.history) return;
+  keys.sort(); // YYYY-MM-DD — лексикографическая сортировка = хронологическая
+  let toRemove = [];
+  // Сначала по количеству дней
+  if (keys.length > LIMITS.historyDays) {
+    toRemove = keys.slice(0, keys.length - LIMITS.historyDays);
+  }
+  // Потом по общему количеству записей
+  const remaining = keys.filter(k => toRemove.indexOf(k) < 0);
+  if (remaining.length > LIMITS.history) {
+    toRemove = toRemove.concat(remaining.slice(0, remaining.length - LIMITS.history));
+  }
+  toRemove.forEach(k => { delete state.history[k]; });
+}
+
 window.addEventListener('beforeunload', saveNow);
 window.addEventListener('pagehide', () => { if (activeReadId) { const b=document.getElementById('read-body'); if (b && state.settings.readScrolls) state.settings.readScrolls[activeReadId] = b.scrollTop||0; if (b && state.settings.readAyah) state.settings.readAyah[activeReadId] = currentAyahIdx(); } saveNow(); });
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveNow(); });
@@ -1811,7 +1918,6 @@ function ayahMarker(n) {
   var s = String(num).split('').map(function(d){ return ar[+d]; }).join('');
   return '\u06DD' + s;
 }
-function isNightNow() { const h = new Date().getHours(); return (h >= 19 || h < 6); }
 const MOSCOW_LAT = 55.75, MOSCOW_LON = 37.62;
 const SUN_WINDOW = 15;
 const PALETTES = {
@@ -1834,12 +1940,11 @@ function getSunTimes(date) {
   const tzMin = -date.getTimezoneOffset();
   return { sunriseMin: noonUTC - 4*H + tzMin, sunsetMin: noonUTC + 4*H + tzMin };
 }
-function _mix(a, b, t) { return [Math.round(a[0]+(b[0]-a[0])*t), Math.round(a[1]+(b[1]-a[1])*t), Math.round(a[2]+(b[2]-a[2])*t)]; }
-function _rgb(a) { return 'rgb(' + a[0] + ',' + a[1] + ',' + a[2] + ')'; }
 function _clearInlinePalette() {
   const s = document.documentElement.style;
   ['--bg','--card','--card2','--accent','--accent2','--text','--muted','--border','--accent-rgb','--ripple'].forEach(v => s.removeProperty(v));
 }
+// U6: без смешивания палитр — только чёткое переключение dark/light
 function applyTheme() {
   const t = state.settings.theme;
   _clearInlinePalette();
@@ -1856,39 +1961,16 @@ function applyTheme() {
     const now = new Date();
     const nowMin = now.getHours() * 60 + now.getMinutes();
     const times = getSunTimes(now);
-    let k = null;
+    let isDark;
     if (times) {
-      const W = SUN_WINDOW;
-      if (nowMin >= times.sunriseMin + W && nowMin < times.sunsetMin - W) k = 1;
-      else if (nowMin >= times.sunsetMin + W || nowMin < times.sunriseMin - W) k = 0;
-      else if (nowMin >= times.sunriseMin - W && nowMin < times.sunriseMin + W) k = (nowMin - (times.sunriseMin - W)) / (2 * W);
-      else if (nowMin >= times.sunsetMin - W && nowMin < times.sunsetMin + W) k = 1 - (nowMin - (times.sunsetMin - W)) / (2 * W);
+      // День — между восходом и закатом; ночь — вне
+      isDark = nowMin < times.sunriseMin || nowMin >= times.sunsetMin;
     } else {
-      k = isNightNow() ? 0 : 1;
+      const h = now.getHours();
+      isDark = (h >= 19 || h < 6);
     }
-     if (k === 0) {
-      document.documentElement.setAttribute('data-theme', 'dark');
-      document.querySelector('meta[name=theme-color]').setAttribute('content', '#000000');
-    } else if (k === 1) {
-      document.documentElement.setAttribute('data-theme', 'light');
-      document.querySelector('meta[name=theme-color]').setAttribute('content', '#FFFFFF');
-    } else {
-      document.documentElement.setAttribute('data-theme', 'light');
-      const d = PALETTES.dark, l = PALETTES.light, s = document.documentElement.style;
-      const bg = _mix(d.bg, l.bg, k), card = _mix(d.card, l.card, k), card2 = _mix(d.card2, l.card2, k);
-      const accent = _mix(d.accent, l.accent, k), accent2 = _mix(d.accent2, l.accent2, k);
-      const text = _mix(d.text, l.text, k), muted = _mix(d.muted, l.muted, k), border = _mix(d.border, l.border, k);
-      s.setProperty('--bg', _rgb(bg));
-      s.setProperty('--card', _rgb(card));
-      s.setProperty('--card2', _rgb(card2));
-      s.setProperty('--accent', _rgb(accent));
-      s.setProperty('--accent2', _rgb(accent2));
-      s.setProperty('--text', _rgb(text));
-      s.setProperty('--muted', _rgb(muted));
-      s.setProperty('--border', _rgb(border));
-      s.setProperty('--accent-rgb', accent.join(', '));
-      document.querySelector('meta[name=theme-color]').setAttribute('content', _rgb(bg));
-    }
+    document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+    document.querySelector('meta[name=theme-color]').setAttribute('content', isDark ? '#000000' : '#FFFFFF');
   }
   document.querySelectorAll('#theme-seg button').forEach(b=>b.classList.toggle('active', b.dataset.theme===t));
 }
@@ -1896,6 +1978,14 @@ function setTheme(t){ state.settings.theme=t; save(); applyTheme(); }
 function setArSize(s) { state.settings.arSize=parseFloat(s); save(); document.documentElement.style.setProperty('--ar-scale',s); document.querySelectorAll('#size-seg button').forEach(b=>b.classList.toggle('active',parseFloat(b.dataset.size)===parseFloat(s))); }
 setInterval(() => { if (state.settings.theme === 'auto') applyTheme(); }, 60000);
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && state.settings.theme === 'auto') applyTheme(); });
+
+// B1: обработка клика по карточке с учётом long-press
+function cardClick(event, id) {
+  if (suppressNextClick) { suppressNextClick = false; return; }
+  if (dragEl) return;
+  openCounter(id);
+}
+
 function renderTasbih() {
   const today = state.history[todayKey()];
   const done = today ? today.total : 0;
@@ -1908,17 +1998,10 @@ function renderTasbih() {
   if (contSlot) {
     const lr = state.settings.lastRead;
     let lrItem = null, lrLabel = '', lrHandler = '';
-    if (lr && lr.type) {
-        if (lr.type === 'quran') {
-        const q = getQuranById(lr.id);
-        if (q) { lrItem = q; lrLabel = 'Продолжить чтение'; lrHandler = "openRead('" + q.id + "')"; }
-      } else if (lr.type === 'dua') {
-        const dd = getDuaById(lr.id);
-        if (dd) { lrItem = dd; lrLabel = 'Продолжить дуа'; lrHandler = "openDua('" + dd.id + "')"; }
-      } else if (lr.type === 'hadith') {
-        const hh = getHadithById(lr.id);
-        if (hh) { lrItem = hh; lrLabel = 'Продолжить хадис'; lrHandler = "openHadith('" + hh.id + "')"; }
-      }
+    // U5: на вкладке Тасбих показываем только Коран (дуа/хадис — на своих вкладках)
+    if (lr && lr.type === 'quran') {
+      const q = getQuranById(lr.id);
+      if (q) { lrItem = q; lrLabel = 'Продолжить чтение'; lrHandler = "openRead('" + q.id + "')"; }
     }
     if (lrItem) {
       contSlot.innerHTML = '<div class="continue-card" onclick="' + lrHandler + '">' +
@@ -1943,12 +2026,13 @@ function renderTasbih() {
     const off = C*(1-p);
     const tc = todayCountFor(t.id);
     const badge = tc>0 ? `<div class="today-badge">${tc}</div>` : '';
-    return `<div class="tasbih-card" data-id="${t.id}" onclick="if(!dragEl)openCounter('${t.id}')" ontouchstart="cardTouchStart(event)" ontouchmove="cardTouchMove(event)" ontouchend="cardTouchEnd(event)" ontouchcancel="cardTouchEnd(event)">${badge}<div class="body"><div class="ar ar-font">${esc(t.arabic)}</div><div class="tr">${esc(t.transcription)}</div><div class="trn">${esc(t.translation)}</div><div class="p-row"><span>${t.current} / ${t.target}</span><span>Циклов: ${t.cycles}</span></div></div><div class="mini-ring"><svg width="52" height="52"><circle class="ring-bg" cx="26" cy="26" r="${R}" fill="none" stroke-width="3.5"/><circle class="ring-fg" cx="26" cy="26" r="${R}" fill="none" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${off}"/></svg><div class="ring-num">${Math.round(p*100)}%</div></div></div>`;
+    return `<div class="tasbih-card" data-id="${t.id}" onclick="cardClick(event,'${t.id}')" ontouchstart="cardTouchStart(event)" ontouchmove="cardTouchMove(event)" ontouchend="cardTouchEnd(event)" ontouchcancel="cardTouchEnd(event)">${badge}<div class="body"><div class="ar ar-font">${esc(t.arabic)}</div><div class="tr">${esc(t.transcription)}</div><div class="trn">${esc(t.translation)}</div><div class="p-row"><span>${t.current} / ${t.target}</span><span>Циклов: ${t.cycles}</span></div></div><div class="mini-ring"><svg width="52" height="52"><circle class="ring-bg" cx="26" cy="26" r="${R}" fill="none" stroke-width="3.5"/><circle class="ring-fg" cx="26" cy="26" r="${R}" fill="none" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${off}"/></svg><div class="ring-num">${Math.round(p*100)}%</div></div></div>`;
   }).join('');
 }
-function cardTouchStart(e) { const card=e.currentTarget; dragId=card.dataset.id; card._startY=e.touches[0].clientY; dragHoldTimer=setTimeout(()=>{dragEl=card; card.classList.add('dragging'); if (navigator.vibrate) navigator.vibrate(15);},450); }
+// B1: long-press активирует drag и подавляет следующий click
+function cardTouchStart(e) { const card=e.currentTarget; dragId=card.dataset.id; card._startY=e.touches[0].clientY; dragHoldTimer=setTimeout(()=>{dragEl=card; card.classList.add('dragging'); suppressNextClick=true; if (navigator.vibrate) navigator.vibrate(15);},450); }
 function cardTouchMove(e) { const card=e.currentTarget; if (!dragEl) { if (dragHoldTimer && Math.abs(e.touches[0].clientY-(card._startY||0))>8) { clearTimeout(dragHoldTimer); dragHoldTimer=null; } return; } e.preventDefault(); const y=e.touches[0].clientY; const container=document.getElementById('cards-container'); const cards=[...container.querySelectorAll('.tasbih-card:not(.dragging)')]; let before=null; for (const c of cards) { const r=c.getBoundingClientRect(); if (y<r.top+r.height/2) { before=c; break; } } if (before) container.insertBefore(dragEl,before); else container.appendChild(dragEl); }
-function cardTouchEnd() { if (dragHoldTimer) { clearTimeout(dragHoldTimer); dragHoldTimer=null; } if (!dragEl) { dragId=null; return; } dragEl.classList.remove('dragging'); const ids=[...document.querySelectorAll('#cards-container .tasbih-card')].map(c=>c.dataset.id); state.tasbihs.sort((a,b)=>ids.indexOf(a.id)-ids.indexOf(b.id)); save(); dragEl=null; dragId=null; setTimeout(()=>renderTasbih(),50); }
+function cardTouchEnd() { if (dragHoldTimer) { clearTimeout(dragHoldTimer); dragHoldTimer=null; } if (!dragEl) { dragId=null; return; } dragEl.classList.remove('dragging'); const ids=[...document.querySelectorAll('#cards-container .tasbih-card')].map(c=>c.dataset.id); state.tasbihs.sort((a,b)=>ids.indexOf(a.id)-ids.indexOf(b.id)); save(); dragEl=null; dragId=null; setTimeout(()=>renderTasbih(),50); setTimeout(()=>{suppressNextClick=false;},400); }
 
 function openCounter(id) { activeId=id; const t=getById(id); if (!t) return; try { localStorage.setItem('iqra_last_tasbih', id); } catch(e) {} trackEvent('tasbih/' + id, 'Тасбих: ' + id); document.getElementById('c-ar').textContent=t.arabic; document.getElementById('c-tr').textContent=t.transcription; document.getElementById('c-trn').textContent=t.translation; document.getElementById('c-target').textContent='из '+t.target; updateCounterUI(); showScreen('screen-counter'); if (state.settings.wakeLock) requestWakeLock(); }
 function updateCounterUI() { const t=getById(activeId); if (!t) return; const numEl=document.getElementById('c-num'); numEl.textContent=t.current; const done=t.current>=t.target; numEl.classList.toggle('done', done); document.getElementById('c-cycles').textContent='Циклов: '+t.cycles; const R=44, C=2*Math.PI*R; const p=Math.min(1,t.current/t.target); document.getElementById('c-ring').setAttribute('stroke-dashoffset', C*(1-p)); document.getElementById('top-progress-bar').style.width=(p*100)+'%'; }
@@ -1983,7 +2067,10 @@ function updatePreview() { document.getElementById('pv-ar').textContent=document
 function openForm(id) { editingId=id||null; const t=id?getById(id):null; document.getElementById('form-title').textContent=id?'Редактировать':'Новый Тасбих'; let ar='',tr='',trn='',target=33; if (t) { ar=t.arabic; tr=t.transcription; trn=t.translation; target=t.target; } else if (state.draft) { ar=state.draft.ar||''; tr=state.draft.tr||''; trn=state.draft.trn||''; target=state.draft.target||33; } document.getElementById('f-ar').value=ar; document.getElementById('f-tr').value=tr; document.getElementById('f-trn').value=trn; document.getElementById('f-target').value=target; document.getElementById('btn-delete').style.display=id?'block':'none'; updatePreview(); showScreen('screen-form'); }
 function cancelForm() { if (activeId) showScreen('screen-counter'); else { renderTasbih(); showScreen('screen-tasbih'); } }
 function stepTarget(d){ const el=document.getElementById('f-target'); el.value=Math.max(1,(parseInt(el.value)||1)+d); updatePreview(); }
-function saveForm() { const arabic=document.getElementById('f-ar').value.trim().slice(0,LIMITS.textLen); const transcription=document.getElementById('f-tr').value.trim().slice(0,LIMITS.textLen); const translation=document.getElementById('f-trn').value.trim().slice(0,LIMITS.textLen); const target=Math.max(1,Math.min(LIMITS.targetMax,parseInt(document.getElementById('f-target').value)||33)); if (!arabic && !transcription && !translation) { alert('Заполните хотя бы одно поле'); return; } if (editingId) { const t=getById(editingId); t.arabic=arabic; t.transcription=transcription; t.translation=translation; t.target=target; if (t.current>target) { t.current=0; t.cycles=0; } } else { state.tasbihs.push({id:'u'+Date.now(),arabic,transcription,translation,target,current:0,cycles:0}); } state.draft=null; save(); if (activeId) openCounter(activeId); else { renderTasbih(); showScreen('screen-tasbih'); } }
+function saveForm() { const arabic=document.getElementById('f-ar').value.trim().slice(0,LIMITS.textLen); const transcription=document.getElementById('f-tr').value.trim().slice(0,LIMITS.textLen); const translation=document.getElementById('f-trn').value.trim().slice(0,LIMITS.textLen); const target=Math.max(1,Math.min(LIMITS.targetMax,parseInt(document.getElementById('f-target').value)||33)); if (!arabic && !transcription && !translation) { alert('Заполните хотя бы одно поле'); return; } if (editingId) { const t=getById(editingId); t.arabic=arabic; t.transcription=transcription; t.translation=translation; t.target=target; if (t.current>target) { t.current=0; t.cycles=0; } } else {
+    // B3: лимит количества тасбихов
+    if (state.tasbihs.length >= LIMITS.tasbihs) { alert('Максимум ' + LIMITS.tasbihs + ' тасбихов. Удалите старые.'); return; }
+    state.tasbihs.push({id:'u'+Date.now(),arabic,transcription,translation,target,current:0,cycles:0}); } state.draft=null; save(); if (activeId) openCounter(activeId); else { renderTasbih(); showScreen('screen-tasbih'); } }
 function deleteCurrent() { if (!editingId) return; if (!confirm('Удалить этот тасбих?')) return; state.tasbihs=state.tasbihs.filter(t=>t.id!==editingId); save(); activeId=null; editingId=null; renderTasbih(); showScreen('screen-tasbih'); }
 
 async function renderQuranList() {
@@ -2446,7 +2533,22 @@ function deleteReminder(i) { state.reminders.splice(i,1); save(); renderReminder
 setInterval(checkReminders, 30000);
 function checkReminders() { const now=new Date(); const hh=pad(now.getHours())+':'+pad(now.getMinutes()); const k=todayKey(); state.reminders.forEach(r=>{ if (!r.on) return; if (r.time===hh && r.lastFired!==k) { r.lastFired=k; save(); if ('Notification' in window && Notification.permission === 'granted') { try { new Notification('Iqra | Читай', { body: r.message || 'Время зикра' }); } catch(e){} } } }); }
 
-function exportData() { const data = JSON.stringify(state, null, 2); const blob = new Blob([data], { type:'application/json' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'iqra-backup-' + todayKey() + '.json'; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href), 1000); }
+// S1+S3: экспорт бэкапа с метаданными и тостом
+function exportData() {
+  const payload = Object.assign({}, state, {
+    __schema: BACKUP_SCHEMA,
+    __exportedAt: new Date().toISOString(),
+    __appVersion: APP_VERSION
+  });
+  const data = JSON.stringify(payload, null, 2);
+  const blob = new Blob([data], { type:'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'iqra-backup-' + todayKey() + '.json';
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
+  showMarkToast('Бэкап сохранён');
+}
 function validateImport(d) {
   if (!d || typeof d !== 'object' || Array.isArray(d)) return null;
   if (!Array.isArray(d.tasbihs)) return null;
@@ -2472,17 +2574,48 @@ function validateImport(d) {
   safe.bookmarks = Array.isArray(d.bookmarks) ? d.bookmarks.filter(x => x && typeof x === 'object' && safeId(x.id) && safeId(x.quranId)).map(x => { const c = Object.assign({}, x); c.id = safeId(x.id); c.quranId = safeId(x.quranId); return c; }) : [];
   return safe;
 }
-function importData(e) { const f=e.target.files[0]; if (!f) return; if (f.size > 5*1024*1024) { alert('Файл слишком большой'); e.target.value=''; return; } const r=new FileReader(); r.onload=()=>{ let parsed; try { parsed=JSON.parse(r.result); } catch(err) { alert('Файл повреждён'); e.target.value=''; return; } const validated = validateImport(parsed); if (!validated) { alert('Файл не похож на резервную копию'); e.target.value=''; return; } if (!confirm('Импорт заменит все текущие данные. Продолжить?')) { e.target.value=''; return; }const currentMigrations = state.migrations || {};
-const incomingMigrations = Object.assign({}, validated.migrations || {});
-delete incomingMigrations.onboarded;
-const mergedMigrations = Object.assign({}, currentMigrations, incomingMigrations);
-state = Object.assign({}, state, validated);
-state.quran = JSON.parse(JSON.stringify(DEFAULT_QURAN));
-state.migrations = mergedMigrations;
-state.migrations.quran_v15 = true;
-saveNow();
-state = load();
-save(); applyTheme(); setArSize(state.settings.arSize); renderDashboard(); renderTasbih(); renderDuaList(); renderHadithList(); renderQuranList(); renderNightList(); renderProgress(); showScreen('screen-dashboard'); alert('Импортировано'); e.target.value=''; }; r.readAsText(f); }
+// S2: импорт без повторного load() — работаем с уже валидированным объектом
+function importData(e) {
+  const f = e.target.files[0]; if (!f) return;
+  if (f.size > 5 * 1024 * 1024) { alert('Файл слишком большой'); e.target.value = ''; return; }
+  const r = new FileReader();
+  r.onload = () => {
+    let parsed;
+    try { parsed = JSON.parse(r.result); } catch(err) { alert('Файл повреждён'); e.target.value = ''; return; }
+    const validated = validateImport(parsed);
+    if (!validated) { alert('Файл не похож на резервную копию'); e.target.value = ''; return; }
+    if (!confirm('Импорт заменит все текущие данные. Продолжить?')) { e.target.value = ''; return; }
+
+    // Мержим миграции — не теряем локальный флаг онбординга
+    const currentMigrations = state.migrations || {};
+    const incomingMigrations = Object.assign({}, validated.migrations || {});
+    delete incomingMigrations.onboarded;
+    const mergedMigrations = Object.assign({}, currentMigrations, incomingMigrations);
+    mergedMigrations.quran_v15 = true;
+    mergedMigrations.quran_v16 = true;
+
+    // Применяем валидированное состояние без перечитывания LS
+    state = Object.assign({}, state, validated);
+    // Коран всегда канонический
+    state.quran = JSON.parse(JSON.stringify(DEFAULT_QURAN));
+    state.migrations = mergedMigrations;
+
+    saveNow();
+    applyTheme();
+    setArSize(state.settings.arSize);
+    renderDashboard();
+    renderTasbih();
+    renderDuaList();
+    renderHadithList();
+    renderQuranList();
+    renderNightList();
+    renderProgress();
+    showScreen('screen-dashboard');
+    showMarkToast('Импортировано');
+    e.target.value = '';
+  };
+  r.readAsText(f);
+}
 function resetAll() { if (!confirm('Удалить ВСЕ данные? Это необратимо.')) return; if (!confirm('Точно? Резервную копию можно сделать в Настройках.')) return;localStorage.removeItem(STORAGE_KEY);
   location.reload(); }
 
@@ -2507,62 +2640,10 @@ function saveNavContext() {
   save();
 }
 
+// C1: при старте всегда открываем дашборд
 function restoreNav() {
-  var ctx = state.settings.lastScreenContext;
-  if (!ctx || !ctx.screen) {
-    var old = state.settings.lastScreen;
-    var oldAllowed = ['screen-dashboard','screen-tasbih','screen-quran','screen-night','screen-dua','screen-hadith','screen-cal'];
-    if (old === 'screen-quran') renderQuranList();
-    else if (old === 'screen-dua') renderDuaList();
-    else if (old === 'screen-hadith') renderHadithList();
-    else if (old === 'screen-night') renderNightList();
-    else if (old === 'screen-tasbih') renderTasbih();
-    else if (old === 'screen-cal') renderProgress();
-    showScreen(oldAllowed.indexOf(old) !== -1 ? old : 'screen-dashboard');
-    return;
-  }
-  var s = ctx.screen;
-  var baseScreens = ['screen-dashboard','screen-tasbih','screen-quran','screen-night','screen-dua','screen-hadith','screen-cal'];
-  if (s === 'screen-settings') {
-    openSettings();
-  } else if (s === 'screen-quran-detail' && ctx.quranId && getQuranById(ctx.quranId)) {
-    openQuran(ctx.quranId);
-  } else if (s === 'screen-dua-detail' && ctx.duaId && getDuaById(ctx.duaId)) {
-    openDua(ctx.duaId);
-  } else if (s === 'screen-hadith-detail' && ctx.hadithId && getHadithById(ctx.hadithId)) {
-    openHadith(ctx.hadithId);
-  } else if (s === 'screen-night-detail' && ctx.nightId !== null && NIGHT_ORDER[ctx.nightId]) {
-    openNight(ctx.nightId);
-  } else if (s === 'screen-counter' && ctx.tasbihId && getById(ctx.tasbihId)) {
-    openCounter(ctx.tasbihId);
-  } else if (baseScreens.indexOf(s) !== -1) {
-    if (s === 'screen-quran') renderQuranList();
-    else if (s === 'screen-dua') renderDuaList();
-    else if (s === 'screen-hadith') renderHadithList();
-    else if (s === 'screen-night') renderNightList();
-    else if (s === 'screen-tasbih') renderTasbih();
-    else if (s === 'screen-cal') renderProgress();
-    else if (s === 'screen-dashboard') renderDashboard();
-    showScreen(s);
-  } else {
-    renderDashboard();
-    showScreen('screen-dashboard');
-  }
-  if (ctx.readOpen && ctx.readId && getQuranById(ctx.readId)) {
-    openRead(ctx.readId);
-  }
-  if (ctx.memOpen && ctx.memId) {
-    var memItem = getQuranById(ctx.memId) || getDuaById(ctx.memId) || getHadithById(ctx.memId);
-    if (memItem) {
-      memorizeItem = memItem;
-      memorizeAyahs = parseAyahs(memItem);
-      memorizeStep = ctx.memStep || 0;
-      memorizePhase = ctx.memPhase || 'learn';
-      memorizeRevealed = false;
-      renderMemorize();
-      document.getElementById('memorize-mode').classList.add('active');
-    }
-  }
+  renderDashboard();
+  showScreen('screen-dashboard');
 }
 
 function showScreen(id) {
@@ -2955,10 +3036,50 @@ function debounce(fn, wait) {
 }
 var debouncedRenderTasbih = debounce(renderTasbih, 250);
 var debouncedRenderQuranList = debounce(renderQuranList, 250);
+
+// P2: баннер установки PWA
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  if (!localStorage.getItem('iqra_install_dismissed')) {
+    setTimeout(() => {
+      const b = document.getElementById('install-banner');
+      if (b) b.classList.add('show');
+    }, 3000);
+  }
+});
+function installPWA() {
+  const b = document.getElementById('install-banner');
+  if (b) b.classList.remove('show');
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then((c) => {
+    if (c.outcome === 'accepted') trackEvent('pwa_install', 'PWA установлено');
+    deferredPrompt = null;
+  });
+}
+function dismissInstall() {
+  const b = document.getElementById('install-banner');
+  if (b) b.classList.remove('show');
+  try { localStorage.setItem('iqra_install_dismissed', '1'); } catch(e) {}
+}
+window.addEventListener('appinstalled', () => {
+  const b = document.getElementById('install-banner');
+  if (b) b.classList.remove('show');
+  try { localStorage.setItem('iqra_install_dismissed', '1'); } catch(e) {}
+});
+
 applyTheme();
 setArSize(state.settings.arSize);
 renderPresets(); renderDashboard(); renderTasbih(); renderDuaList(); renderHadithList(); renderQuranList(); renderNightList(); renderProgress();
 restoreNav();
+try {
+  if (new URLSearchParams(location.search).get('reset') === '1') {
+    state.migrations.onboarded = false;
+    saveNow();
+    history.replaceState(null, '', location.pathname);
+  }
+} catch (e) {}
 if (!state.migrations.onboarded) setTimeout(startOnboarding, 200);
 document.addEventListener('keydown', (e) => {
   if (e.key !== 'Escape') return;
@@ -3050,7 +3171,7 @@ document.addEventListener('keydown', (e) => {
     'screen-settings','read-mode','memorize-mode','search-overlay','nav',
     'modal-bg','onboarding','save-indicator'
   ];
-  var directBodyIds = ['nav','modal-bg','onboarding','save-indicator','read-mode','memorize-mode','search-overlay'];
+  var directBodyIds = ['nav','modal-bg','onboarding','save-indicator','read-mode','memorize-mode','search-overlay','install-banner'];
   var missing = [], nested = [];
   expected.forEach(function(id){
     var el = document.getElementById(id);
