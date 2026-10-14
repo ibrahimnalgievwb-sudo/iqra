@@ -763,7 +763,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   --gold-grad: linear-gradient(135deg, var(--ar-g1) 0%, var(--ar-g2) 35%, var(--ar-g3) 55%, var(--ar-g2) 78%, var(--ar-g1) 100%);
   --gold-grad-light: linear-gradient(135deg, var(--ar-g1) 0%, var(--ar-g2) 35%, var(--ar-g3) 55%, var(--ar-g2) 78%, var(--ar-g1) 100%);
   --gold-accent: var(--ar-g2);
-  --gold-accent-light: var(--ar-g3);
+  --gold-accent-light: var(--ar-g1);
   --gold-glow: 0 2px 8px rgba(212,175,55,.30), 0 1px 2px rgba(0,0,0,.18);
   --gold-inner: inset 0 1px 0 rgba(255,243,176,.18), inset 0 -1px 0 rgba(139,105,20,.22);
 }
@@ -2023,7 +2023,7 @@ function openQuran(id) {
     ${item.note ? `<div class="note-box"><svg class="ico ico-sm" style="flex-shrink:0;color:var(--accent2)"><use href="#i-lightbulb"/></svg><div>${escNl(item.note)}</div></div>` : ''}
     <div class="detail-actions">
       <button class="btn secondary" onclick="openRead('${item.id}')"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-book"/></svg>Читать</button>
-      <button class="btn" onclick="openMemorize('${item.id}')"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-lightbulb"/></svg>Заучить</button>
+      <button class="btn secondary" onclick="openMemorize('${item.id}')"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-lightbulb"/></svg>Заучить</button>
       <button class="btn secondary" onclick="shareItem('quran','${item.id}')"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-upload"/></svg>Поделиться</button>
     </div>
     <div class="learned-toggle ${item.learned?'done':''}" onclick="toggleQuranLearned('${item.id}')">
