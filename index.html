@@ -1693,7 +1693,7 @@ function load() {
   s.duas = Array.isArray(s.duas) ? s.duas : [];
   s.hadiths = Array.isArray(s.hadiths) ? s.hadiths : [];
   s.quran = Array.isArray(s.quran) ? s.quran : [];
-  s.migrations = s.migrations && typeof s.migrations === 'object' ? s.migrations : {};   s.favorites = Array.isArray(s.favorites) ? s.favorites : [];   s.bookmarks = Array.isArray(s.bookmarks) ? s.bookmarks : [];   s.settings.readScrolls = (s.settings.readScrolls && typeof s.settings.readScrolls === 'object') ? s.settings.readScrolls : {};
+  s.migrations = s.migrations && typeof s.migrations === 'object' ? s.migrations : {};   s.favorites = Array.isArray(s.favorites) ? s.favorites : [];   s.bookmarks = Array.isArray(s.bookmarks) ? s.bookmarks : [];   s.settings.readScrolls = (s.settings.readScrolls && typeof s.settings.readScrolls === 'object') ? s.settings.readScrolls : {};   s.settings.readAyah = (s.settings.readAyah && typeof s.settings.readAyah === 'object') ? s.settings.readAyah : {};
 
   if (!s.migrations.sanitizeIds_v1) {
     const validId = (id) => (typeof id === 'string' && /^[a-zA-Z0-9_-]{1,100}$/.test(id));
@@ -1743,7 +1743,7 @@ function save() {
   if (ind) ind.classList.add('active');
 }
 window.addEventListener('beforeunload', saveNow);
-window.addEventListener('pagehide', () => { if (activeReadId && state.settings.readScrolls) { const b=document.getElementById('read-body'); if (b) state.settings.readScrolls[activeReadId] = b.scrollTop||0; } saveNow(); });
+window.addEventListener('pagehide', () => { if (activeReadId) { const b=document.getElementById('read-body'); if (b && state.settings.readScrolls) state.settings.readScrolls[activeReadId] = b.scrollTop||0; if (b && state.settings.readAyah) state.settings.readAyah[activeReadId] = currentAyahIdx(); } saveNow(); });
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveNow(); });
 
 function pad(n){ return n<10?'0'+n:''+n; }
@@ -1883,9 +1883,9 @@ function renderTasbih() {
     const lr = state.settings.lastRead;
     let lrItem = null, lrLabel = '', lrHandler = '';
     if (lr && lr.type) {
-      if (lr.type === 'quran') {
+        if (lr.type === 'quran') {
         const q = getQuranById(lr.id);
-        if (q) { lrItem = q; lrLabel = 'Продолжить чтение'; lrHandler = "openQuran('" + q.id + "')"; }
+        if (q) { lrItem = q; lrLabel = 'Продолжить чтение'; lrHandler = "openRead('" + q.id + "')"; }
       } else if (lr.type === 'dua') {
         const dd = getDuaById(lr.id);
         if (dd) { lrItem = dd; lrLabel = 'Продолжить дуа'; lrHandler = "openDua('" + dd.id + "')"; }
@@ -2067,11 +2067,14 @@ function openRead(id, targetAyahIdx) {
   document.getElementById('read-mode').classList.add('active');
   saveNavContext();
   const body = document.getElementById('read-body');
+  let targetIdx = null;
+  if (typeof targetAyahIdx === 'number' && targetAyahIdx >= 0) targetIdx = targetAyahIdx;
+  else if (state.settings.readAyah && typeof state.settings.readAyah[id] === 'number' && state.settings.readAyah[id] >= 0) targetIdx = state.settings.readAyah[id];
   const restore = () => {
     if (!body) return;
-    if (typeof targetAyahIdx === 'number' && targetAyahIdx >= 0) {
+    if (targetIdx !== null) {
       const ayahs = body.querySelectorAll('.read-ayah');
-      if (ayahs[targetAyahIdx]) { ayahs[targetAyahIdx].scrollIntoView({ block: 'start' }); return; }
+      if (ayahs[targetIdx]) { ayahs[targetIdx].scrollIntoView({ block: 'start' }); return; }
     }
     body.scrollTop = (state.settings.readScrolls && state.settings.readScrolls[id]) || 0;
   };
@@ -2082,7 +2085,12 @@ function openRead(id, targetAyahIdx) {
   }
 }
 function closeRead() {
-  if (activeReadId && state.settings.readScrolls) { const b=document.getElementById('read-body'); state.settings.readScrolls[activeReadId] = b ? (b.scrollTop||0) : 0; save(); }
+  if (activeReadId) {
+    const b = document.getElementById('read-body');
+    if (b && state.settings.readScrolls) state.settings.readScrolls[activeReadId] = b.scrollTop || 0;
+    if (state.settings.readAyah && b) state.settings.readAyah[activeReadId] = currentAyahIdx();
+    save();
+  }
   document.getElementById('read-mode').classList.remove('active');
   activeReadId = null;
   saveNavContext();
