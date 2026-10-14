@@ -1785,12 +1785,6 @@ function ayahMarker(n) {
   var s = String(num).split('').map(function(d){ return ar[+d]; }).join('');
   return '\u06DD' + s;
 }
-  var num = (typeof n === 'number') ? n : parseInt(String(n).replace(/[^\d]/g, ''), 10);
-  if (!num || num < 1 || num > 999) return '';
-  var ar = '٠١٢٣٤٥٦٧٨٩';
-  var s = String(num).split('').map(function(d){ return ar[+d]; }).join('');
-  return '\u06DD' + s;
-}
 function isNightNow() { const h = new Date().getHours(); return (h >= 19 || h < 6); }
 const MOSCOW_LAT = 55.75, MOSCOW_LON = 37.62;
 const SUN_WINDOW = 15;
