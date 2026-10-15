@@ -171,7 +171,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 
 .empty { text-align:center; color:var(--muted); padding:60px 20px; font-size:15px; line-height:1.6; }
 
-.fab { position:fixed; right:20px; bottom:100px; width:60px; height:60px; border-radius:50%; background:var(--accent); color:var(--bg); font-size:30px; font-weight:300; display:flex; align-items:center; justify-content:center; box-shadow:0 6px 20px var(--shadow); z-index:100; }
+.fab { position:fixed; right:20px; bottom:calc(100px + env(safe-area-inset-bottom)); width:60px; height:60px; border-radius:50%; background:var(--accent); color:var(--bg); font-size:30px; font-weight:300; display:flex; align-items:center; justify-content:center; box-shadow:0 6px 20px var(--shadow); z-index:100; }
 .fab:active { transform:scale(.92); }
 
 .nav { position:fixed; bottom:0; left:0; right:0; display:flex; background:var(--card); border-top:1px solid var(--border); z-index:9999; padding-bottom:min(env(safe-area-inset-bottom), 12px); }
@@ -225,7 +225,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .ripple { position:absolute; border-radius:50%; background:var(--ripple); pointer-events:none; width:120px; height:120px; transform:translate(-50%,-50%) scale(0); animation:ripple .55s ease-out; }
 @keyframes ripple { to { transform:translate(-50%,-50%) scale(3.5); opacity:0; } }
 
-.next-toast { position:fixed; left:16px; right:16px; bottom:110px; background:var(--card); border:1px solid var(--border); border-radius:16px; padding:14px 16px; display:flex; align-items:center; gap:12px; box-shadow:0 8px 24px var(--shadow); z-index:50; transform:translateY(400%); transition: transform .35s ease; pointer-events:none; }
+.next-toast { position:fixed; left:16px; right:16px; bottom:calc(110px + env(safe-area-inset-bottom)); background:var(--card); border:1px solid var(--border); border-radius:16px; padding:14px 16px; display:flex; align-items:center; gap:12px; box-shadow:0 8px 24px var(--shadow); z-index:50; transform:translateY(400%); transition: transform .35s ease; pointer-events:none; }
 .next-toast.show { transform:translateY(0); pointer-events:auto; }
 .next-toast .nt-label { font-size:11px; color:var(--muted); margin-bottom:2px; }
 .next-toast .nt-name { font-size:15px; font-weight:600; }
