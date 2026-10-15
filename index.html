@@ -18,7 +18,7 @@
 <link rel="manifest" href="./manifest.json">
 <link rel="stylesheet" href="./fonts.css">
 <style>
-:root { --ar-scale: 1; --radius: 18px; --nav-safe: 0px; }
+:root { --ar-scale: 1; --radius: 18px; --nav-safe: env(safe-area-inset-bottom, 0px); }
 [data-theme="light"] {
   --bg:#FFFFFF; --card:#F5F5F5; --card2:#EAEAEA; --accent:#0A0A0A; --accent2:#8B6914;
   --text:#0A0A0A; --muted:#3D3D3D; --border:#C8C8C8; --shadow:rgba(0,0,0,.12);
@@ -131,7 +131,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .icon-btn:active { background:var(--card2); transform:scale(.95); }
 .icon-btn.ghost { background:transparent; }  .ico {   display: inline-block;   width: 24px;   height: 24px;   fill: none;   stroke: currentColor;   stroke-width: 1.7;   stroke-linecap: round;   stroke-linejoin: round;   flex-shrink: 0;   vertical-align: middle;   transition: width .25s cubic-bezier(.16,1,.3,1), height .25s cubic-bezier(.16,1,.3,1); } .ico-sm { width: 18px; height: 18px; } .ico-md { width: 22px; height: 22px; } .ico-lg { width: 28px; height: 28px; } .ico-xl { width: 36px; height: 36px; }
 
-.list, .form, .cal, .settings { flex:1; overflow-y:auto; min-height:0; padding:0 16px calc(60px + var(--nav-safe)); -webkit-overflow-scrolling:touch; min-width:0; width:100%; max-width:100%; box-sizing:border-box; }
+.list, .form, .cal, .settings { flex:1; overflow-y:auto; min-height:0; padding:0 16px calc(68px + var(--nav-safe)); -webkit-overflow-scrolling:touch; min-width:0; width:100%; max-width:100%; box-sizing:border-box; }
 
 .home-controls { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
 .search-wrap { flex:1; min-width:160px; position:relative; }
@@ -289,7 +289,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .stat .label { font-size:12px; color:var(--muted); margin-bottom:6px; }
 .stat .value { font-size:24px; font-weight:700; }
 
-.content-list { flex:1; overflow-y:auto; min-height:0; padding:0 16px calc(60px + var(--nav-safe)); -webkit-overflow-scrolling:touch; min-width:0; width:100%; max-width:100%; box-sizing:border-box; }
+.content-list { flex:1; overflow-y:auto; min-height:0; padding:0 16px calc(68px + var(--nav-safe)); -webkit-overflow-scrolling:touch; min-width:0; width:100%; max-width:100%; box-sizing:border-box; }
 .content-card { background:var(--card); border-radius:var(--radius); padding:18px 20px; margin-bottom:12px; cursor:pointer; box-shadow:0 2px 8px var(--shadow); position:relative; overflow-wrap: anywhere; width:100%; max-width:100%; box-sizing:border-box; }
 .content-card:active { transform:scale(.98); }
 .content-card .c-badge { position:absolute; top:14px; right:56px; font-size:10px; font-weight:700; padding:3px 9px; border-radius:8px; background:rgba(var(--accent-rgb), .15); color:var(--accent); } .content-card .star-btn { position:absolute; top:12px; right:12px; width:34px; height:34px; padding:0; border-radius:50%; background:rgba(var(--accent-rgb),.10); display:flex; align-items:center; justify-content:center; font-size:17px; color:var(--muted); cursor:pointer; z-index:2; } .content-card .star-btn.active { color:var(--gold-star); background:var(--gold-soft); } .icon-btn.starred { color:var(--gold-star); }
@@ -301,7 +301,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .content-card .c-ar { font-size:calc(24px * var(--ar-scale)); line-height:2; direction:rtl; text-align:right; margin-bottom:10px; opacity:.9; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; overflow-wrap: anywhere; }
 .content-card .c-tr { font-size:13px; color:var(--muted); line-height:1.5; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; overflow-wrap: anywhere; }
 
-.detail-body { padding:0 20px calc(60px + var(--nav-safe)); flex:1; overflow-y:auto; min-height:0; -webkit-overflow-scrolling:touch; min-width:0; width:100%; max-width:100%; box-sizing:border-box; }
+.detail-body { padding:0 20px calc(68px + var(--nav-safe)); flex:1; overflow-y:auto; min-height:0; -webkit-overflow-scrolling:touch; min-width:0; width:100%; max-width:100%; box-sizing:border-box; }
 .detail-hero { background:var(--card); border-radius:var(--radius); padding:24px 20px; box-shadow:0 2px 8px var(--shadow); margin-bottom:16px; overflow-wrap: break-word; }
 .detail-hero .dh-title { font-size:20px; font-weight:700; margin-bottom:6px; line-height:1.3; overflow-wrap: break-word; }
 .detail-hero .dh-sub { font-size:13px; color:var(--muted); margin-bottom:20px; overflow-wrap: break-word; }
@@ -1063,61 +1063,14 @@ button, .btn, .icon-btn, .fab, .ayah-share-btn, .star-btn, .filter-chip, .preset
 }
 button::-moz-focus-inner { border: 0; padding: 0; }
 
-/* Override: обнуление env(safe-area-inset-*) на не-iOS (ПК, Android).
-   Класс .is-ios ставит JS-детектор в начале скрипта.
-   Причина: Chrome Android возвращает ненулевое значение
-   env(safe-area-inset-bottom), что создаёт пустую полосу под nav.
-   На iOS Safari и iOS PWA — safe-area применяется как задумано. */
-html:not(.is-ios) { --nav-safe: 0px; }
-html:not(.is-ios) .nav { padding-bottom: 0 !important; }
-html:not(.is-ios) .list,
-html:not(.is-ios) .form,
-html:not(.is-ios) .cal,
-html:not(.is-ios) .settings,
-html:not(.is-ios) .content-list,
-html:not(.is-ios) .detail-body { padding-bottom: 60px !important; }
-html:not(.is-ios) .fab { bottom: 100px !important; }
-html:not(.is-ios) .next-toast { bottom: 110px !important; }
-html:not(.is-ios) .toast { bottom: 90px !important; }
-html:not(.is-ios) .install-banner { bottom: 72px !important; }
-html:not(.is-ios) .save-indicator { top: 8px !important; right: 8px !important; }
-html:not(.is-ios) .modal { padding-bottom: 26px !important; }
-html:not(.is-ios) .fullscreen { padding-bottom: 0 !important; }
-html:not(.is-ios) #onboarding { padding-bottom: 0 !important; }
-html:not(.is-ios) #onboarding .ob-nav { padding-bottom: 24px !important; }
-  html:not(.is-ios) #onboarding .ob-nav { padding-bottom: 24px !important; }
-
-/* === Кросс-платформенная согласованность (ПП-19) + фикс прокрутки === */
-/* 1) Scroll padding увеличен до 72px — буфер 12px над nav, прокрутка доходит до конца.
-   2) Убран разнобой env() / --nav-safe: единый источник истины.
-   3) Значения одинаковы на iOS и Android. */
-.list, .form, .cal, .settings,
-.content-list, .detail-body { padding-bottom: 72px !important; }
+/* === Единая формула safe-area через --nav-safe (см. :root) ===
+   iOS = 34px (кнопки над home-индикатором), Android/ПК = 0px.
+   Никаких override — переменная сама даёт нужное значение. */
 .toast { bottom: calc(90px + var(--nav-safe)) !important; }
 .next-toast { bottom: calc(110px + var(--nav-safe)) !important; }
 .install-banner { bottom: calc(72px + var(--nav-safe)) !important; }
 .modal { padding-bottom: calc(26px + var(--nav-safe)) !important; }
-html:not(.is-ios) .list,
-html:not(.is-ios) .form,
-html:not(.is-ios) .cal,
-html:not(.is-ios) .settings,
-html:not(.is-ios) .content-list,
-html:not(.is-ios) .detail-body { padding-bottom: 72px !important; }
-html:not(.is-ios) .toast { bottom: 90px !important; }
-html:not(.is-ios) .next-toast { bottom: 110px !important; }
-html:not(.is-ios) .install-banner { bottom: 72px !important; }
-html:not(.is-ios) .modal { padding-bottom: 26px !important; }
-/* Страховка: цветная подложка на iOS в зоне home-индикатора (ПП-19) */
-body::after {
-  content: '';
-  position: fixed;
-  left: 0; right: 0; bottom: 0;
-  height: env(safe-area-inset-bottom, 0px);
-  background: var(--card);
-  z-index: 9998;
-  pointer-events: none;
-}
-html:not(.is-ios) body::after { display: none; }
+</style>
 </style>
 </head>
 <body>
@@ -1562,8 +1515,7 @@ html:not(.is-ios) body::after { display: none; }
 "use strict";
 
 // Детектор iOS: устанавливает класс is-ios на <html> только для iOS Safari / iOS PWA.
-// Внутри CSS это используется для применения env(safe-area-inset-*) только на iOS.
-// На Android и ПК safe-area обнуляется, чтобы не было пустоты под nav.
+// Используется как запасной маркер; основная логика safe-area — через :root.
 (function(){
   var ua = navigator.userAgent || '';
   var isIOS = /iPad|iPhone|iPod/.test(ua)
@@ -1573,7 +1525,7 @@ html:not(.is-ios) body::after { display: none; }
 
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v88';
+const APP_VERSION = 'iqra-v89';
 const BACKUP_SCHEMA = 2;
 const LIMITS = { tasbihs:1000, history:10000, historyDays:365, reminders:50, textLen:1000, idLen:100, targetMax:100000, cyclesMax:1000000 };
 const QURAN_USE_API = false;
@@ -3219,29 +3171,6 @@ document.addEventListener('keydown', (e) => {
 });
 (function(){ var el=document.getElementById('read-body'); if (el) { let tx=0, ty=0, on=false; el.addEventListener('touchstart', function(e){ tx=e.touches[0].clientX; ty=e.touches[0].clientY; on=true; }, { passive:true }); el.addEventListener('touchend', function(e){ if (!on) return; on=false; var dx=e.changedTouches[0].clientX-tx; var dy=e.changedTouches[0].clientY-ty; if (Math.abs(dx)<80 || Math.abs(dy)>Math.abs(dx)) return; if (!activeReadId) return; var idx=state.quran.findIndex(function(q){return q.id===activeReadId;}); if (idx<0) return; if (dx<0 && idx<state.quran.length-1) openRead(state.quran[idx+1].id); else if (dx>0 && idx>0) openRead(state.quran[idx-1].id); }, { passive:true }); } })();
  (function checkStructure(){
-  var expected = [
-    'screen-dashboard','screen-tasbih','screen-quran','screen-night','screen-dua',
-    'screen-hadith','screen-cal','screen-quran-detail','screen-night-detail',
-    'screen-dua-detail','screen-hadith-detail','screen-form','screen-counter',
-    'screen-settings','read-mode','memorize-mode','search-overlay','nav',
-    'modal-bg','onboarding','save-indicator'
-  ];
-  var directBodyIds = ['nav','modal-bg','onboarding','save-indicator','read-mode','memorize-mode','search-overlay','install-banner'];
-  var missing = [], nested = [];
-  expected.forEach(function(id){
-    var el = document.getElementById(id);
-    if (!el) { missing.push(id); return; }
-    if (directBodyIds.indexOf(id) >= 0 && el.parentElement !== document.body) {
-      var p = el.parentElement;
-      nested.push('#' + id + ' вложен в ' + p.tagName.toLowerCase() + (p.id ? '#' + p.id : ''));
-    }
-  });
-  if (missing.length) console.error('⚠️ Структура — отсутствуют: ' + missing.join(', '));
-  if (nested.length) { console.error('⚠️ Структура — неверное вложение:'); nested.forEach(function(n){ console.error('  • ' + n); }); }
-  if (!missing.length && !nested.length) console.log('✓ Структура: все ключевые элементы на месте');
-})();
-
-(function checkInlineHandlers(){
   var attrs = ['onclick','oninput','onchange','onsubmit'];
   var problems = [];
   attrs.forEach(function(a){
@@ -3268,20 +3197,140 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
     navigator.serviceWorker.register('./sw.js').then(function(reg) {
       try { reg.update(); } catch(e) {}
-      setInterval(function() { try { reg.update(); } catch(e) {} }, 3 * 60 * 1000);
+      setInterval(function() { try { reg.update(); } catch(e) {} }, 60 * 1000);
       document.addEventListener('visibilitychange', function() {
         if (document.visibilityState === 'visible') { try { reg.update(); } catch(e) {} }
       });
+
+      // Уже установлен waiting-воркер — просим его активироваться
+      if (reg.waiting) {
+        try { reg.waiting.postMessage({ type: 'SKIP_WAITING' }); } catch(e) {}
+      }
+
+      // Появился новый воркер — после install просим активироваться
+      reg.addEventListener('updatefound', function() {
+        var nw = reg.installing;
+        if (!nw) return;
+        nw.addEventListener('statechange', function() {
+          if (nw.state === 'installed' && navigator.serviceWorker.controller) {
+            try { nw.postMessage({ type: 'SKIP_WAITING' }); } catch(e) {}
+          }
+        });
+      });
     }).catch(function() {});
   });
+
   var _swRefreshing = false;
   navigator.serviceWorker.addEventListener('controllerchange', function() {
     if (_swRefreshing) return;
     _swRefreshing = true;
-    try { if (typeof showMarkToast === 'function') showMarkToast('Обновление приложения…'); } catch(e) {}
-        setTimeout(function() { location.reload(); }, 400);
+    // Тихая перезагрузка окна — пользователь не закрывает вкладку вручную
+    location.reload();
   });
 }
+
+// ====== Единая система «Назад»: iOS edge-swipe + Android system back ======
+(function(){
+  var going = false;
+  var OVERLAY_CLOSERS = {
+    'search-overlay': 'closeSearch',
+    'read-mode':      'closeRead',
+    'memorize-mode':  'closeMemorize',
+    'modal-bg':       'closeModal'
+  };
+  var ALL_OVERLAYS = Object.keys(OVERLAY_CLOSERS);
+
+  function currentScreen() {
+    var el = document.querySelector('.screen.active');
+    return el ? el.id : null;
+  }
+  function currentOverlay() {
+    for (var i = 0; i < ALL_OVERLAYS.length; i++) {
+      var el = document.getElementById(ALL_OVERLAYS[i]);
+      if (el && el.classList.contains('active')) return ALL_OVERLAYS[i];
+    }
+    return null;
+  }
+  function closeOverlay(name) {
+    var fn = OVERLAY_CLOSERS[name];
+    if (fn && typeof window[fn] === 'function') {
+      try { window[fn](); } catch(e) {}
+    }
+  }
+
+  try {
+    var s0 = currentScreen();
+    if (s0) history.replaceState({ screen: s0 }, '');
+  } catch(e) {}
+
+  var _showScreen = window.showScreen;
+  window.showScreen = function(id) {
+    if (!going) {
+      var cur = currentScreen();
+      if (cur && cur !== id) {
+        var st = { screen: id };
+        var ov = currentOverlay();
+        if (ov) st.overlay = ov;
+        try { history.pushState(st, ''); } catch(e) {}
+      }
+    }
+    return _showScreen.apply(this, arguments);
+  };
+
+  function hookOpener(fnName, ovId) {
+    var orig = window[fnName];
+    if (typeof orig !== 'function') return;
+    window[fnName] = function() {
+      try { history.pushState({ screen: currentScreen(), overlay: ovId }, ''); } catch(e) {}
+      return orig.apply(this, arguments);
+    };
+  }
+  hookOpener('openSearch', 'search-overlay');
+  hookOpener('openRead', 'read-mode');
+  hookOpener('openMemorizeFor', 'memorize-mode');
+  hookOpener('openDay', 'modal-bg');
+
+  function hookCloser(fnName, ovId) {
+    var orig = window[fnName];
+    if (typeof orig !== 'function') return;
+    window[fnName] = function() {
+      var st = history.state;
+      if (!going && st && st.overlay === ovId) {
+        try { history.back(); } catch(e) {}
+      }
+      return orig.apply(this, arguments);
+    };
+  }
+  hookCloser('closeSearch', 'search-overlay');
+  hookCloser('closeRead', 'read-mode');
+  hookCloser('closeMemorize', 'memorize-mode');
+  hookCloser('closeModal', 'modal-bg');
+
+  window.addEventListener('popstate', function(e) {
+    var st = e.state || {};
+    going = true;
+    try {
+      var targetOverlay = st.overlay || null;
+      for (var i = 0; i < ALL_OVERLAYS.length; i++) {
+        var ov = ALL_OVERLAYS[i];
+        var el = document.getElementById(ov);
+        if (!el) continue;
+        var isOpen = el.classList.contains('active');
+        var shouldBeOpen = (ov === targetOverlay);
+        if (isOpen && !shouldBeOpen) closeOverlay(ov);
+      }
+      if (st.screen && currentScreen() !== st.screen) {
+        try { _showScreen.call(window, st.screen); } catch(err) {}
+      }
+    } finally {
+      going = false;
+    }
+  });
+
+  window.goBack = function() {
+    try { history.back(); } catch(e) {}
+  };
+})();
 
 // ====== Единая система «Назад»: iOS edge-swipe + Android system back ======
 // Каждый переход (вкладка или detail) и каждое открытие оверлея сохраняют
