@@ -18,7 +18,10 @@
 <link rel="manifest" href="./manifest.json">
 <link rel="stylesheet" href="./fonts.css">
 <style>
-:root { --ar-scale: 1; --radius: 18px; --nav-safe: env(safe-area-inset-bottom, 0px); }
+:root { --ar-scale: 1; --radius: 18px; --nav-safe: 0px; }
+@supports (-webkit-touch-callout: none) {
+  :root { --nav-safe: 16px; }
+}
 [data-theme="light"] {
   --bg:#FFFFFF; --card:#F5F5F5; --card2:#EAEAEA; --accent:#0A0A0A; --accent2:#8B6914;
   --text:#0A0A0A; --muted:#3D3D3D; --border:#C8C8C8; --shadow:rgba(0,0,0,.12);
@@ -1524,7 +1527,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v91';
+const APP_VERSION = 'iqra-v92';
 const BACKUP_SCHEMA = 2;
 const LIMITS = { tasbihs:1000, history:10000, historyDays:365, reminders:50, textLen:1000, idLen:100, targetMax:100000, cyclesMax:1000000 };
 const QURAN_USE_API = false;
@@ -3339,37 +3342,6 @@ if ('serviceWorker' in navigator) {
   window.goBack = function() {
     try { history.back(); } catch(e) {}
   };
-})();
-
-// ====== ВРЕМЕННАЯ ДИАГНОСТИКА (удалю после вашего скриншота) ======
-(function(){
-  try {
-    var probe = document.createElement('div');
-    probe.style.cssText = 'position:absolute;bottom:0;width:0;height:env(safe-area-inset-bottom,0px);pointer-events:none;';
-    document.body.appendChild(probe);
-    var box = document.createElement('div');
-    box.id = 'iqra-debug';
-    box.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:rgba(0,0,0,.85);color:#0f0;font:10px/1.35 monospace;padding:5px 8px;z-index:9999999;pointer-events:none;white-space:pre;text-align:left;';
-    document.body.appendChild(box);
-    function measure() {
-      var nav = document.getElementById('nav');
-      var navH = nav ? nav.getBoundingClientRect().height : 0;
-      var navPB = nav ? getComputedStyle(nav).paddingBottom : '—';
-      var isIOS = document.documentElement.classList.contains('is-ios');
-      var envBottom = probe.getBoundingClientRect().height;
-      var vv = window.visualViewport ? window.visualViewport.height.toFixed(0) : '—';
-      box.textContent =
-        'VER=' + (window.APP_VERSION || '?') +
-        '  isIOS=' + isIOS +
-        '  env=safe-' + envBottom.toFixed(1) + 'px\n' +
-        'inner=' + window.innerHeight + '  vv=' + vv + '  docH=' + document.documentElement.clientHeight + '\n' +
-        'nav.h=' + navH.toFixed(1) + 'px  nav.pb=' + navPB;
-    }
-    measure();
-    setInterval(measure, 400);
-    window.addEventListener('resize', measure);
-    window.addEventListener('orientationchange', measure);
-  } catch(e) {}
 })();
 </script>
 <script data-goatcounter="https://iqra-stats.goatcounter.com/count" async src="./count.js"></script>
