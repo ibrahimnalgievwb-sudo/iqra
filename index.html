@@ -1062,11 +1062,28 @@ button, .btn, .icon-btn, .fab, .ayah-share-btn, .star-btn, .filter-chip, .preset
   -webkit-tap-highlight-color: transparent !important;
 }
 button::-moz-focus-inner { border: 0; padding: 0; }
-@media (hover: none) {
-  .tasbih-card:hover { box-shadow: 0 4px 16px var(--shadow), 0 1px 3px rgba(0,0,0,.04); }
-  .content-card:hover { transform: none; }
-  .btn:hover, .icon-btn:hover, .fab:hover, .ayah-share-btn:hover { opacity: 1; }
-}
+
+/* Override: обнуление env(safe-area-inset-*) на не-iOS (ПК, Android).
+   Класс .is-ios ставит JS-детектор в начале скрипта.
+   Причина: Chrome Android возвращает ненулевое значение
+   env(safe-area-inset-bottom), что создаёт пустую полосу под nav.
+   На iOS Safari и iOS PWA — safe-area применяется как задумано. */
+html:not(.is-ios) .nav { padding-bottom: 0 !important; }
+html:not(.is-ios) .list,
+html:not(.is-ios) .form,
+html:not(.is-ios) .cal,
+html:not(.is-ios) .settings,
+html:not(.is-ios) .content-list,
+html:not(.is-ios) .detail-body { padding-bottom: 72px !important; }
+html:not(.is-ios) .fab { bottom: 100px !important; }
+html:not(.is-ios) .next-toast { bottom: 110px !important; }
+html:not(.is-ios) .toast { bottom: 90px !important; }
+html:not(.is-ios) .install-banner { bottom: 72px !important; }
+html:not(.is-ios) .save-indicator { top: 8px !important; right: 8px !important; }
+html:not(.is-ios) .modal { padding-bottom: 26px !important; }
+html:not(.is-ios) .fullscreen { padding-bottom: 0 !important; }
+html:not(.is-ios) #onboarding { padding-bottom: 0 !important; }
+html:not(.is-ios) #onboarding .ob-nav { padding-bottom: 24px !important; }
 </style>
 </head>
 <body>
@@ -1522,7 +1539,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v80';
+const APP_VERSION = 'iqra-v81';
 const BACKUP_SCHEMA = 2;
 const LIMITS = { tasbihs:1000, history:10000, historyDays:365, reminders:50, textLen:1000, idLen:100, targetMax:100000, cyclesMax:1000000 };
 const QURAN_USE_API = false;
