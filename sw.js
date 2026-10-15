@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'iqra-v73';
+const CACHE_VERSION = 'iqra-v74';
 const CACHE_ASSETS = [
   './', './index.html', './manifest.json', './count.js', './fonts.css',
   './favicon.png', './apple-touch-icon.png', './icon-192.png', './icon-512.png',
@@ -38,9 +38,17 @@ self.addEventListener('activate', function(event) {
         keys.filter(function(k) { return k !== CACHE_VERSION; })
             .map(function(k) { return caches.delete(k); })
       );
+    }).then(function() {
+      // Сообщаем всем открытым клиентам о новой версии
+      return self.clients.matchAll({ type: 'window' }).then(function(clients) {
+        clients.forEach(function(client) {
+          try { client.postMessage({ type: 'SW_UPDATED', version: CACHE_VERSION }); } catch(e) {}
+        });
+      });
+    }).then(function() {
+      return self.clients.claim();
     })
   );
-  self.clients.claim();
 });
 
 self.addEventListener('fetch', function(event) {
