@@ -1510,6 +1510,16 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 <script>
 "use strict";
 
+// Детектор iOS: устанавливает класс is-ios на <html> только для iOS Safari / iOS PWA.
+// Внутри CSS это используется для применения env(safe-area-inset-*) только на iOS.
+// На Android и ПК safe-area обнуляется, чтобы не было пустоты под nav.
+(function(){
+  var ua = navigator.userAgent || '';
+  var isIOS = /iPad|iPhone|iPod/.test(ua)
+           || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  if (isIOS) document.documentElement.classList.add('is-ios');
+})();
+
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
 const APP_VERSION = 'iqra-v80';
