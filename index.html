@@ -174,7 +174,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .fab { position:fixed; right:20px; bottom:calc(100px + var(--nav-safe)); width:60px; height:60px; border-radius:50%; background:var(--accent); color:var(--bg); font-size:30px; font-weight:300; display:flex; align-items:center; justify-content:center; box-shadow:0 6px 20px var(--shadow); z-index:100; }
 .fab:active { transform:scale(.92); }
 
-.nav { position:fixed; bottom:0; left:0; right:0; display:flex; background:var(--card); border-top:1px solid var(--border); z-index:9999; padding-bottom:var(--nav-safe); }
+.nav { position:fixed; bottom:0; left:0; right:0; display:flex; background:var(--card); border-top:1px solid var(--border); z-index:9999; padding-bottom:clamp(8px, env(safe-area-inset-bottom, 0px), 24px); }
 .nav button { flex:1; min-height:60px; padding:6px 0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; color:var(--muted); background:transparent; min-width:0; transition:color .2s ease; }
 .nav button.active { color:var(--accent); }
 .nav button .ico {
@@ -1524,7 +1524,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v90';
+const APP_VERSION = 'iqra-v91';
 const BACKUP_SCHEMA = 2;
 const LIMITS = { tasbihs:1000, history:10000, historyDays:365, reminders:50, textLen:1000, idLen:100, targetMax:100000, cyclesMax:1000000 };
 const QURAN_USE_API = false;
