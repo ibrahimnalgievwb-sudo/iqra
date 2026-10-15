@@ -174,9 +174,8 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .fab { position:fixed; right:20px; bottom:calc(100px + var(--nav-safe)); width:60px; height:60px; border-radius:50%; background:var(--accent); color:var(--bg); font-size:30px; font-weight:300; display:flex; align-items:center; justify-content:center; box-shadow:0 6px 20px var(--shadow); z-index:100; }
 .fab:active { transform:scale(.92); }
 
-.nav { position:fixed; bottom:0; left:0; right:0; display:flex; background:var(--card); border-top:1px solid var(--border); z-index:9999; padding-bottom:var(--nav-safe); }
-.nav button { flex:1; min-height:48px; padding:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; color:var(--muted); background:transparent; min-width:0; transition:color .2s ease; }
-.nav button.active { color:var(--accent); }
+.nav { position:fixed; bottom:0; left:0; right:0; display:flex; align-items:flex-end; background:var(--card); border-top:1px solid var(--border); z-index:9999; padding:0; }
+.nav button { flex:1; padding:2px 0 0; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; gap:1px; color:var(--muted); background:transparent; min-width:0; transition:color .2s ease; }
 .nav button .ico {
   width: 34px; height: 34px;
   padding: 5px;
@@ -199,8 +198,8 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   .nav button .ico { width: 32px; height: 32px; padding: 4px; }
 }
 @media (max-width: 380px) {
-  .nav button { min-height: 54px; padding: 4px 0; }
   .nav button .ico { width: 30px; height: 30px; padding: 4px; }
+}
 }
 @media (max-width: 340px) {
   .nav button .ico { width: 28px; height: 28px; padding: 3px; }
@@ -1524,7 +1523,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v99';
+const APP_VERSION = 'iqra-v100';
 const BACKUP_SCHEMA = 2;
 const LIMITS = { tasbihs:1000, history:10000, historyDays:365, reminders:50, textLen:1000, idLen:100, targetMax:100000, cyclesMax:1000000 };
 const QURAN_USE_API = false;
