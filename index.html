@@ -1493,7 +1493,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v73';
+const APP_VERSION = 'iqra-v74';
 const BACKUP_SCHEMA = 2;
 const LIMITS = { tasbihs:1000, history:10000, historyDays:365, reminders:50, textLen:1000, idLen:100, targetMax:100000, cyclesMax:1000000 };
 const QURAN_USE_API = false;
@@ -3235,7 +3235,7 @@ document.addEventListener('keydown', (e) => {
   attrs.forEach(function(a){
     document.querySelectorAll('[' + a + ']').forEach(function(el){
       var v = el.getAttribute(a) || '';
-      if (/\s[a-z-]+=\s*$/i.test(v)) {
+      if (/\s[a-z-]+=\s*$/.test(v)) {
         problems.push('<' + el.tagName.toLowerCase() + '> ' + a + '=' + JSON.stringify(v));
       }
       var opens = (v.match(/\(/g) || []).length;
@@ -3247,7 +3247,29 @@ document.addEventListener('keydown', (e) => {
   else console.log('✓ Inline-обработчики: парность в порядке');
 })();
 
-if ('serviceWorker' in navigator) {   window.addEventListener('load', function() {     navigator.serviceWorker.register('./sw.js').catch(function() {});   }); }
+// Регистрация SW + авто-обновление приложения без действий пользователя:
+// 1) reg.update() — при загрузке, при возврате в приложение (visibilitychange),
+//    и по таймеру (3 минуты) — проверяем наличие нового SW.
+// 2) controllerchange — как только новый SW активировался, перезагружаем
+//    страницу, чтобы пользователь мгновенно увидел новую версию.
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('./sw.js').then(function(reg) {
+      try { reg.update(); } catch(e) {}
+      setInterval(function() { try { reg.update(); } catch(e) {} }, 3 * 60 * 1000);
+      document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'visible') { try { reg.update(); } catch(e) {} }
+      });
+    }).catch(function() {});
+  });
+  var _swRefreshing = false;
+  navigator.serviceWorker.addEventListener('controllerchange', function() {
+    if (_swRefreshing) return;
+    _swRefreshing = true;
+    try { if (typeof showMarkToast === 'function') showMarkToast('Обновление приложения…'); } catch(e) {}
+    setTimeout(function() { location.reload(); }, 400);
+  });
+}
 </script>
 <script data-goatcounter="https://iqra-stats.goatcounter.com/count" async src="./count.js"></script>
 </body>
