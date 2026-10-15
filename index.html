@@ -1085,6 +1085,28 @@ html:not(.is-ios) .modal { padding-bottom: 26px !important; }
 html:not(.is-ios) .fullscreen { padding-bottom: 0 !important; }
 html:not(.is-ios) #onboarding { padding-bottom: 0 !important; }
 html:not(.is-ios) #onboarding .ob-nav { padding-bottom: 24px !important; }
+  html:not(.is-ios) #onboarding .ob-nav { padding-bottom: 24px !important; }
+
+/* === Кросс-платформенная согласованность (ПП-19) + фикс прокрутки === */
+/* 1) Scroll padding увеличен до 72px — буфер 12px над nav, прокрутка доходит до конца.
+   2) Убран разнобой env() / --nav-safe: единый источник истины.
+   3) Значения одинаковы на iOS и Android. */
+.list, .form, .cal, .settings,
+.content-list, .detail-body { padding-bottom: 72px !important; }
+.toast { bottom: calc(90px + var(--nav-safe)) !important; }
+.next-toast { bottom: calc(110px + var(--nav-safe)) !important; }
+.install-banner { bottom: calc(72px + var(--nav-safe)) !important; }
+.modal { padding-bottom: calc(26px + var(--nav-safe)) !important; }
+html:not(.is-ios) .list,
+html:not(.is-ios) .form,
+html:not(.is-ios) .cal,
+html:not(.is-ios) .settings,
+html:not(.is-ios) .content-list,
+html:not(.is-ios) .detail-body { padding-bottom: 72px !important; }
+html:not(.is-ios) .toast { bottom: 90px !important; }
+html:not(.is-ios) .next-toast { bottom: 110px !important; }
+html:not(.is-ios) .install-banner { bottom: 72px !important; }
+html:not(.is-ios) .modal { padding-bottom: 26px !important; }
 </style>
 </head>
 <body>
@@ -1540,7 +1562,7 @@ html:not(.is-ios) #onboarding .ob-nav { padding-bottom: 24px !important; }
 
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v84';
+const APP_VERSION = 'iqra-v85';
 const BACKUP_SCHEMA = 2;
 const LIMITS = { tasbihs:1000, history:10000, historyDays:365, reminders:50, textLen:1000, idLen:100, targetMax:100000, cyclesMax:1000000 };
 const QURAN_USE_API = false;
@@ -3317,6 +3339,126 @@ if ('serviceWorker' in navigator) {
     setTimeout(function() { location.reload(); }, 400);
   });
 }
+    setTimeout(function() { location.reload(); }, 400);
+  });
+}
+
+// ====== Android system back button support (ПП-19: кросс-платформенность) ======
+// На Android системная кнопка/жест «Назад» должна возвращать на предыдущий экран
+// внутри приложения, как на iOS swipe-back. Мы пушим history-запись на каждый
+// переход вглубь и по popstate выполняем соответствующий откат.
+// Все публичные функции (showScreen, openSearch, openRead, closeRead, goQuranList
+// и т.д.) прозрачно оборачиваются, чтобы inline-обработчики (onclick) тоже
+// работали через единый механизм — без правки HTML.
+(function(){
+  var backStack = [];
+  var isGoingBack = false;
+  var DETAIL_SCREENS = {
+    'screen-quran-detail': 1,
+    'screen-dua-detail': 1,
+    'screen-hadith-detail': 1,
+    'screen-night-detail': 1,
+    'screen-counter': 1,
+    'screen-settings': 1,
+    'screen-form': 1
+  };
+  function pushScreen(prevId) {
+    backStack.push({ type: 'screen', id: prevId });
+    try { history.pushState({ _bs: backStack.length }, ''); } catch(e) {}
+  }
+  function pushAction(fnName) {
+    backStack.push({ type: 'action', fn: fnName });
+    try { history.pushState({ _bs: backStack.length }, ''); } catch(e) {}
+  }
+  function goBack() {
+    if (backStack.length > 0) { try { history.back(); } catch(e) {} return; }
+    var s = document.getElementById('search-overlay');
+    if (s && s.classList.contains('active')) { if (typeof closeSearch === 'function') closeSearch(); return; }
+    var m = document.getElementById('modal-bg');
+    if (m && m.classList.contains('active')) { if (typeof closeModal === 'function') closeModal(); return; }
+    var r = document.getElementById('read-mode');
+    if (r && r.classList.contains('active')) { if (typeof closeRead === 'function') closeRead(); return; }
+    var mm = document.getElementById('memorize-mode');
+    if (mm && mm.classList.contains('active')) { if (typeof closeMemorize === 'function') closeMemorize(); return; }
+  }
+  window.goBack = goBack;
+
+  window.addEventListener('popstate', function() {
+    if (backStack.length === 0) {
+      var s = document.getElementById('search-overlay');
+      if (s && s.classList.contains('active')) { if (typeof closeSearch === 'function') { closeSearch(); return; } }
+      var m = document.getElementById('modal-bg');
+      if (m && m.classList.contains('active')) { if (typeof closeModal === 'function') { closeModal(); return; } }
+      var r = document.getElementById('read-mode');
+      if (r && r.classList.contains('active')) { if (typeof closeRead === 'function') { closeRead(); return; } }
+      var mm = document.getElementById('memorize-mode');
+      if (mm && mm.classList.contains('active')) { if (typeof closeMemorize === 'function') { closeMemorize(); return; } }
+      return;
+    }
+    isGoingBack = true;
+    var entry = backStack.pop();
+    try {
+      if (entry.type === 'screen') showScreen(entry.id);
+      else if (entry.type === 'action') {
+        if (entry.fn === 'closeRead') closeRead();
+        else if (entry.fn === 'closeMemorize') closeMemorize();
+        else if (entry.fn === 'closeSearch') closeSearch();
+        else if (entry.fn === 'closeModal') closeModal();
+      }
+    } catch(e) {}
+    isGoingBack = false;
+  });
+
+  // Оборачиваем showScreen — push при переходе в detail-экран
+  var _showScreen = showScreen;
+  showScreen = function(id) {
+    if (!isGoingBack) {
+      var cur = document.querySelector('.screen.active');
+      var curId = cur ? cur.id : null;
+      if (curId && curId !== id && DETAIL_SCREENS[id]) pushScreen(curId);
+    }
+    return _showScreen.apply(this, arguments);
+  };
+
+  // Оборачиваем открытие оверлеев — push записи для каждого
+  var _openSearch = openSearch;
+  openSearch = function() { pushAction('closeSearch'); return _openSearch.apply(this, arguments); };
+  var _openRead = openRead;
+  openRead = function() { pushAction('closeRead'); return _openRead.apply(this, arguments); };
+  var _openMemorizeFor = openMemorizeFor;
+  openMemorizeFor = function() { pushAction('closeMemorize'); return _openMemorizeFor.apply(this, arguments); };
+  var _openDay = openDay;
+  openDay = function() { pushAction('closeModal'); return _openDay.apply(this, arguments); };
+
+  // Оборачиваем закрытие/go-навигацию: если пользователь инициирует возврат,
+  // а верх стека совпадает — уходим через history.back(), стек остаётся синхронным.
+  function wrapUserBack(fnName, actionName) {
+    var orig = window[fnName];
+    if (typeof orig !== 'function') return;
+    window[fnName] = function() {
+      if (!isGoingBack && backStack.length > 0) {
+        var top = backStack[backStack.length - 1];
+        if (top.type === 'action' && top.fn === actionName) { goBack(); return; }
+        if (top.type === 'screen') {
+          if (fnName === 'goQuranList' || fnName === 'goDuaList' ||
+              fnName === 'goHadithList' || fnName === 'goNightList' ||
+              fnName === 'goHome' || fnName === 'cancelForm') { goBack(); return; }
+        }
+      }
+      return orig.apply(this, arguments);
+    };
+  }
+  wrapUserBack('closeRead', 'closeRead');
+  wrapUserBack('closeMemorize', 'closeMemorize');
+  wrapUserBack('closeSearch', 'closeSearch');
+  wrapUserBack('closeModal', 'closeModal');
+  wrapUserBack('goQuranList', null);
+  wrapUserBack('goDuaList', null);
+  wrapUserBack('goHadithList', null);
+  wrapUserBack('goNightList', null);
+  wrapUserBack('goHome', null);
+  wrapUserBack('cancelForm', null);
+})();
 </script>
 <script data-goatcounter="https://iqra-stats.goatcounter.com/count" async src="./count.js"></script>
 </body>
