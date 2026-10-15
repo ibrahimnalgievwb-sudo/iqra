@@ -1071,7 +1071,6 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 .install-banner { bottom: calc(72px + var(--nav-safe)) !important; }
 .modal { padding-bottom: calc(26px + var(--nav-safe)) !important; }
 </style>
-</style>
 </head>
 <body>
 
@@ -1525,7 +1524,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v89';
+const APP_VERSION = 'iqra-v90';
 const BACKUP_SCHEMA = 2;
 const LIMITS = { tasbihs:1000, history:10000, historyDays:365, reminders:50, textLen:1000, idLen:100, targetMax:100000, cyclesMax:1000000 };
 const QURAN_USE_API = false;
@@ -3170,7 +3169,14 @@ document.addEventListener('keydown', (e) => {
   if (mem && mem.classList.contains('active')) { closeMemorize(); return; }
 });
 (function(){ var el=document.getElementById('read-body'); if (el) { let tx=0, ty=0, on=false; el.addEventListener('touchstart', function(e){ tx=e.touches[0].clientX; ty=e.touches[0].clientY; on=true; }, { passive:true }); el.addEventListener('touchend', function(e){ if (!on) return; on=false; var dx=e.changedTouches[0].clientX-tx; var dy=e.changedTouches[0].clientY-ty; if (Math.abs(dx)<80 || Math.abs(dy)>Math.abs(dx)) return; if (!activeReadId) return; var idx=state.quran.findIndex(function(q){return q.id===activeReadId;}); if (idx<0) return; if (dx<0 && idx<state.quran.length-1) openRead(state.quran[idx+1].id); else if (dx>0 && idx>0) openRead(state.quran[idx-1].id); }, { passive:true }); } })();
- (function checkStructure(){
+(function checkStructure(){
+  var expected = ['screen-dashboard','screen-tasbih','screen-quran','screen-night','screen-dua','screen-hadith','screen-cal','screen-quran-detail','screen-night-detail','screen-dua-detail','screen-hadith-detail','screen-form','screen-counter','screen-settings','read-mode','memorize-mode','search-overlay','nav','modal-bg','onboarding','save-indicator'];
+  var missing = [];
+  expected.forEach(function(id){ if (!document.getElementById(id)) missing.push(id); });
+  if (missing.length) console.error('⚠️ Структура — отсутствуют: ' + missing.join(', '));
+  else console.log('✓ Структура: все ключевые элементы на месте');
+})();
+(function checkInlineHandlers(){
   var attrs = ['onclick','oninput','onchange','onsubmit'];
   var problems = [];
   attrs.forEach(function(a){
@@ -3228,109 +3234,6 @@ if ('serviceWorker' in navigator) {
     location.reload();
   });
 }
-
-// ====== Единая система «Назад»: iOS edge-swipe + Android system back ======
-(function(){
-  var going = false;
-  var OVERLAY_CLOSERS = {
-    'search-overlay': 'closeSearch',
-    'read-mode':      'closeRead',
-    'memorize-mode':  'closeMemorize',
-    'modal-bg':       'closeModal'
-  };
-  var ALL_OVERLAYS = Object.keys(OVERLAY_CLOSERS);
-
-  function currentScreen() {
-    var el = document.querySelector('.screen.active');
-    return el ? el.id : null;
-  }
-  function currentOverlay() {
-    for (var i = 0; i < ALL_OVERLAYS.length; i++) {
-      var el = document.getElementById(ALL_OVERLAYS[i]);
-      if (el && el.classList.contains('active')) return ALL_OVERLAYS[i];
-    }
-    return null;
-  }
-  function closeOverlay(name) {
-    var fn = OVERLAY_CLOSERS[name];
-    if (fn && typeof window[fn] === 'function') {
-      try { window[fn](); } catch(e) {}
-    }
-  }
-
-  try {
-    var s0 = currentScreen();
-    if (s0) history.replaceState({ screen: s0 }, '');
-  } catch(e) {}
-
-  var _showScreen = window.showScreen;
-  window.showScreen = function(id) {
-    if (!going) {
-      var cur = currentScreen();
-      if (cur && cur !== id) {
-        var st = { screen: id };
-        var ov = currentOverlay();
-        if (ov) st.overlay = ov;
-        try { history.pushState(st, ''); } catch(e) {}
-      }
-    }
-    return _showScreen.apply(this, arguments);
-  };
-
-  function hookOpener(fnName, ovId) {
-    var orig = window[fnName];
-    if (typeof orig !== 'function') return;
-    window[fnName] = function() {
-      try { history.pushState({ screen: currentScreen(), overlay: ovId }, ''); } catch(e) {}
-      return orig.apply(this, arguments);
-    };
-  }
-  hookOpener('openSearch', 'search-overlay');
-  hookOpener('openRead', 'read-mode');
-  hookOpener('openMemorizeFor', 'memorize-mode');
-  hookOpener('openDay', 'modal-bg');
-
-  function hookCloser(fnName, ovId) {
-    var orig = window[fnName];
-    if (typeof orig !== 'function') return;
-    window[fnName] = function() {
-      var st = history.state;
-      if (!going && st && st.overlay === ovId) {
-        try { history.back(); } catch(e) {}
-      }
-      return orig.apply(this, arguments);
-    };
-  }
-  hookCloser('closeSearch', 'search-overlay');
-  hookCloser('closeRead', 'read-mode');
-  hookCloser('closeMemorize', 'memorize-mode');
-  hookCloser('closeModal', 'modal-bg');
-
-  window.addEventListener('popstate', function(e) {
-    var st = e.state || {};
-    going = true;
-    try {
-      var targetOverlay = st.overlay || null;
-      for (var i = 0; i < ALL_OVERLAYS.length; i++) {
-        var ov = ALL_OVERLAYS[i];
-        var el = document.getElementById(ov);
-        if (!el) continue;
-        var isOpen = el.classList.contains('active');
-        var shouldBeOpen = (ov === targetOverlay);
-        if (isOpen && !shouldBeOpen) closeOverlay(ov);
-      }
-      if (st.screen && currentScreen() !== st.screen) {
-        try { _showScreen.call(window, st.screen); } catch(err) {}
-      }
-    } finally {
-      going = false;
-    }
-  });
-
-  window.goBack = function() {
-    try { history.back(); } catch(e) {}
-  };
-})();
 
 // ====== Единая система «Назад»: iOS edge-swipe + Android system back ======
 // Каждый переход (вкладка или detail) и каждое открытие оверлея сохраняют
@@ -3437,7 +3340,37 @@ if ('serviceWorker' in navigator) {
     try { history.back(); } catch(e) {}
   };
 })();
-</script>
+
+// ====== ВРЕМЕННАЯ ДИАГНОСТИКА (удалю после вашего скриншота) ======
+(function(){
+  try {
+    var probe = document.createElement('div');
+    probe.style.cssText = 'position:absolute;bottom:0;width:0;height:env(safe-area-inset-bottom,0px);pointer-events:none;';
+    document.body.appendChild(probe);
+    var box = document.createElement('div');
+    box.id = 'iqra-debug';
+    box.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:rgba(0,0,0,.85);color:#0f0;font:10px/1.35 monospace;padding:5px 8px;z-index:9999999;pointer-events:none;white-space:pre;text-align:left;';
+    document.body.appendChild(box);
+    function measure() {
+      var nav = document.getElementById('nav');
+      var navH = nav ? nav.getBoundingClientRect().height : 0;
+      var navPB = nav ? getComputedStyle(nav).paddingBottom : '—';
+      var isIOS = document.documentElement.classList.contains('is-ios');
+      var envBottom = probe.getBoundingClientRect().height;
+      var vv = window.visualViewport ? window.visualViewport.height.toFixed(0) : '—';
+      box.textContent =
+        'VER=' + (window.APP_VERSION || '?') +
+        '  isIOS=' + isIOS +
+        '  env=safe-' + envBottom.toFixed(1) + 'px\n' +
+        'inner=' + window.innerHeight + '  vv=' + vv + '  docH=' + document.documentElement.clientHeight + '\n' +
+        'nav.h=' + navH.toFixed(1) + 'px  nav.pb=' + navPB;
+    }
+    measure();
+    setInterval(measure, 400);
+    window.addEventListener('resize', measure);
+    window.addEventListener('orientationchange', measure);
+  } catch(e) {}
+})();
 </script>
 <script data-goatcounter="https://iqra-stats.goatcounter.com/count" async src="./count.js"></script>
 </body>
