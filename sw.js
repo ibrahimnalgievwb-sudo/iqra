@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'iqra-v88';
+const CACHE_VERSION = 'iqra-v89';
 const CACHE_ASSETS = [
   './', './index.html', './manifest.json', './count.js', './fonts.css',
   './favicon.png', './apple-touch-icon.png', './icon-192.png', './icon-512.png',
@@ -28,7 +28,15 @@ self.addEventListener('install', function(event) {
       );
     })
   );
-  self.skipWaiting();
+  // НЕ вызываем self.skipWaiting() — ждём SKIP_WAITING от клиента,
+  // чтобы пользователю не приходилось закрывать вкладку вручную.
+});
+
+// Сообщение от клиента: активировать новый SW немедленно
+self.addEventListener('message', function(event) {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
 
 self.addEventListener('activate', function(event) {
