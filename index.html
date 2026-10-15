@@ -390,7 +390,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 
 .modal-bg { position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:10050; display:none; align-items:center; justify-content:center; padding:20px; }
 .modal-bg.active { display:flex; animation:fadeIn .2s; }
-.modal { background:var(--card); border-radius:22px; width:100%; max-width:440px; max-height:80vh; overflow-y:auto; padding:26px 22px; overflow-wrap: break-word; }
+.modal { background:var(--card); border-radius:22px; width:100%; max-width:440px; max-height:80vh; overflow-y:auto; padding:26px 22px calc(26px + env(safe-area-inset-bottom)); overflow-wrap: break-word; }
 .modal h2 { margin:0 0 16px; font-size:18px; }
 .modal-row { display:flex; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--border); font-size:15px; gap:10px; flex-wrap:wrap; }
 .modal-row:last-child { border-bottom:none; }
@@ -758,7 +758,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 
 .toast {
   position: fixed;
-  left: 50%; bottom: 90px;
+  left: 50%; bottom: calc(90px + env(safe-area-inset-bottom));
   transform: translateX(-50%) translateY(20px);
   background: var(--card);
   border: 1px solid var(--border);
@@ -1539,7 +1539,7 @@ html:not(.is-ios) #onboarding .ob-nav { padding-bottom: 24px !important; }
 
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v81';
+const APP_VERSION = 'iqra-v82';
 const BACKUP_SCHEMA = 2;
 const LIMITS = { tasbihs:1000, history:10000, historyDays:365, reminders:50, textLen:1000, idLen:100, targetMax:100000, cyclesMax:1000000 };
 const QURAN_USE_API = false;
