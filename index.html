@@ -1573,7 +1573,7 @@ html:not(.is-ios) body::after { display: none; }
 
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v87';
+const APP_VERSION = 'iqra-v88';
 const BACKUP_SCHEMA = 2;
 const LIMITS = { tasbihs:1000, history:10000, historyDays:365, reminders:50, textLen:1000, idLen:100, targetMax:100000, cyclesMax:1000000 };
 const QURAN_USE_API = false;
@@ -3218,29 +3218,6 @@ document.addEventListener('keydown', (e) => {
   if (mem && mem.classList.contains('active')) { closeMemorize(); return; }
 });
 (function(){ var el=document.getElementById('read-body'); if (el) { let tx=0, ty=0, on=false; el.addEventListener('touchstart', function(e){ tx=e.touches[0].clientX; ty=e.touches[0].clientY; on=true; }, { passive:true }); el.addEventListener('touchend', function(e){ if (!on) return; on=false; var dx=e.changedTouches[0].clientX-tx; var dy=e.changedTouches[0].clientY-ty; if (Math.abs(dx)<80 || Math.abs(dy)>Math.abs(dx)) return; if (!activeReadId) return; var idx=state.quran.findIndex(function(q){return q.id===activeReadId;}); if (idx<0) return; if (dx<0 && idx<state.quran.length-1) openRead(state.quran[idx+1].id); else if (dx>0 && idx>0) openRead(state.quran[idx-1].id); }, { passive:true }); } })();
-
-  document.addEventListener('touchend', function(e) {
-    if (!tracking) return;
-    tracking = false;
-    if (dragEl) return;
-    var dx = e.changedTouches[0].clientX - startX;
-    var dy = e.changedTouches[0].clientY - startY;
-    if (Math.abs(dx) < THRESHOLD) return;
-    if (Math.abs(dy) > Math.abs(dx) * 0.5) return;
-
-    var back = activeBackScreen();
-    if (back) {
-      if (dx > 0) window[BACKS[back]]();
-      return;
-    }
-
-    var cur = activeTab();
-    if (!cur) return;
-    var idx = TABS.indexOf(cur);
-    if (dx < 0 && idx < TABS.length - 1) switchTab(TABS[idx + 1]);
-    else if (dx > 0 && idx > 0) switchTab(TABS[idx - 1]);
-  }, { passive: true });
-})();
  (function checkStructure(){
   var expected = [
     'screen-dashboard','screen-tasbih','screen-quran','screen-night','screen-dua',
@@ -3302,79 +3279,116 @@ if ('serviceWorker' in navigator) {
     if (_swRefreshing) return;
     _swRefreshing = true;
     try { if (typeof showMarkToast === 'function') showMarkToast('Обновление приложения…'); } catch(e) {}
-    setTimeout(function() { location.reload(); }, 400);
+        setTimeout(function() { location.reload(); }, 400);
   });
 }
 
-(function(){ var el=document.getElementById('read-body'); if (el) { let tx=0, ty=0, on=false; el.addEventListener('touchstart', function(e){ tx=e.touches[0].clientX; ty=e.touches[0].clientY; on=true; }, { passive:true }); el.addEventListener('touchend', function(e){ if (!on) return; on=false; var dx=e.changedTouches[0].clientX-tx; var dy=e.changedTouches[0].clientY-ty; if (Math.abs(dx)<80 || Math.abs(dy)>Math.abs(dx)) return; if (!activeReadId) return; var idx=state.quran.findIndex(function(q){return q.id===activeReadId;}); if (idx<0) return; if (dx<0 && idx<state.quran.length-1) openRead(state.quran[idx+1].id); else if (dx>0 && idx>0) openRead(state.quran[idx-1].id); }, { passive:true }); } })(); (function(){ var startX=0, startY=0, tracking=false; var threshold=100; function isFullscreenOpen(){ var ids=['read-mode','memorize-mode','search-overlay']; for (var i=0;i<ids.length;i++){ var el=document.getElementById(ids[i]); if (el && el.classList.contains('active')) return ids[i]; } return null; } document.addEventListener('touchstart', function(e){ if (e.touches.length !== 1) return; startX=e.touches[0].clientX; startY=e.touches[0].clientY; tracking=true; }, { passive:true }); document.addEventListener('touchend', function(e){ if (!tracking) return; tracking=false; var dx=e.changedTouches[0].clientX-startX; var dy=e.changedTouches[0].clientY-startY; if (Math.abs(dx) < threshold || Math.abs(dy) > Math.abs(dx)*0.8) return; var current = isFullscreenOpen(); if (!current) return; if (dx > 0) { if (current === 'read-mode') closeRead(); else if (current === 'memorize-mode') closeMemorize(); else if (current === 'search-overlay') closeSearch(); } }, { passive:true }); })();(function() {
-  var startX = 0, startY = 0, tracking = false;
-  var THRESHOLD = 70;
-  var TABS = ['dashboard','tasbih','quran','night','dua','hadith','cal'];
-  var SCREENS = { 'dashboard':'screen-dashboard','tasbih':'screen-tasbih','quran':'screen-quran','night':'screen-night','dua':'screen-dua','hadith':'screen-hadith','cal':'screen-cal' };
-  var BACKS = {
-    'screen-quran-detail':  'goQuranList',
-    'screen-night-detail':  'goNightList',
-    'screen-dua-detail':    'goDuaList',
-    'screen-hadith-detail': 'goHadithList',
-    'screen-counter':       'goHome',
-    'screen-settings':      'goHome',
-    'screen-form':          'cancelForm'
+// ====== Единая система «Назад»: iOS edge-swipe + Android system back ======
+// Каждый переход (вкладка или detail) и каждое открытие оверлея сохраняют
+// состояние в history.state. При system back (Android) или нативном edge-swipe
+// (iOS) браузер шлёт popstate — восстанавливаем экран/оверлей из состояния.
+(function(){
+  var going = false;
+  var OVERLAY_CLOSERS = {
+    'search-overlay': 'closeSearch',
+    'read-mode':      'closeRead',
+    'memorize-mode':  'closeMemorize',
+    'modal-bg':       'closeModal'
+  };
+  var ALL_OVERLAYS = Object.keys(OVERLAY_CLOSERS);
+
+  function currentScreen() {
+    var el = document.querySelector('.screen.active');
+    return el ? el.id : null;
+  }
+  function currentOverlay() {
+    for (var i = 0; i < ALL_OVERLAYS.length; i++) {
+      var el = document.getElementById(ALL_OVERLAYS[i]);
+      if (el && el.classList.contains('active')) return ALL_OVERLAYS[i];
+    }
+    return null;
+  }
+  function closeOverlay(name) {
+    var fn = OVERLAY_CLOSERS[name];
+    if (fn && typeof window[fn] === 'function') {
+      try { window[fn](); } catch(e) {}
+    }
+  }
+
+  try {
+    var s0 = currentScreen();
+    if (s0) history.replaceState({ screen: s0 }, '');
+  } catch(e) {}
+
+  var _showScreen = window.showScreen;
+  window.showScreen = function(id) {
+    if (!going) {
+      var cur = currentScreen();
+      if (cur && cur !== id) {
+        var st = { screen: id };
+        var ov = currentOverlay();
+        if (ov) st.overlay = ov;
+        try { history.pushState(st, ''); } catch(e) {}
+      }
+    }
+    return _showScreen.apply(this, arguments);
   };
 
-  function activeTab() {
-    for (var i = 0; i < TABS.length; i++) {
-      var el = document.getElementById(SCREENS[TABS[i]]);
-      if (el && el.classList.contains('active')) return TABS[i];
-    }
-    return null;
+  function hookOpener(fnName, ovId) {
+    var orig = window[fnName];
+    if (typeof orig !== 'function') return;
+    window[fnName] = function() {
+      try { history.pushState({ screen: currentScreen(), overlay: ovId }, ''); } catch(e) {}
+      return orig.apply(this, arguments);
+    };
   }
-  function activeBackScreen() {
-    for (var id in BACKS) {
-      var el = document.getElementById(id);
-      if (el && el.classList.contains('active')) return id;
-    }
-    return null;
+  hookOpener('openSearch', 'search-overlay');
+  hookOpener('openRead', 'read-mode');
+  hookOpener('openMemorizeFor', 'memorize-mode');
+  hookOpener('openDay', 'modal-bg');
+
+  function hookCloser(fnName, ovId) {
+    var orig = window[fnName];
+    if (typeof orig !== 'function') return;
+    window[fnName] = function() {
+      var st = history.state;
+      if (!going && st && st.overlay === ovId) {
+        try { history.back(); } catch(e) {}
+      }
+      return orig.apply(this, arguments);
+    };
   }
-  function isBlocked() {
-    if (document.getElementById('modal-bg').classList.contains('active')) return true;
-    if (document.getElementById('read-mode').classList.contains('active')) return true;
-    if (document.getElementById('memorize-mode').classList.contains('active')) return true;
-    if (document.getElementById('search-overlay').classList.contains('active')) return true;
-    return false;
-  }
+  hookCloser('closeSearch', 'search-overlay');
+  hookCloser('closeRead', 'read-mode');
+  hookCloser('closeMemorize', 'memorize-mode');
+  hookCloser('closeModal', 'modal-bg');
 
-  document.addEventListener('touchstart', function(e) {
-    if (e.touches.length !== 1) { tracking = false; return; }
-    if (isBlocked()) { tracking = false; return; }
-    var t = e.target;
-    if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT')) { tracking = false; return; }
-    startX = e.touches[0].clientX;
-    startY = e.touches[0].clientY;
-    tracking = true;
-  }, { passive: true });
-
-  document.addEventListener('touchend', function(e) {
-    if (!tracking) return;
-    tracking = false;
-    if (dragEl) return;
-    var dx = e.changedTouches[0].clientX - startX;
-    var dy = e.changedTouches[0].clientY - startY;
-    if (Math.abs(dx) < THRESHOLD) return;
-    if (Math.abs(dy) > Math.abs(dx) * 0.5) return;
-
-    var back = activeBackScreen();
-    if (back) {
-      if (dx > 0) window[BACKS[back]]();
-      return;
+  window.addEventListener('popstate', function(e) {
+    var st = e.state || {};
+    going = true;
+    try {
+      var targetOverlay = st.overlay || null;
+      for (var i = 0; i < ALL_OVERLAYS.length; i++) {
+        var ov = ALL_OVERLAYS[i];
+        var el = document.getElementById(ov);
+        if (!el) continue;
+        var isOpen = el.classList.contains('active');
+        var shouldBeOpen = (ov === targetOverlay);
+        if (isOpen && !shouldBeOpen) closeOverlay(ov);
+      }
+      if (st.screen && currentScreen() !== st.screen) {
+        try { _showScreen.call(window, st.screen); } catch(err) {}
+      }
+    } finally {
+      going = false;
     }
+  });
 
-    var cur = activeTab();
-    if (!cur) return;
-    var idx = TABS.indexOf(cur);
-    if (dx < 0 && idx < TABS.length - 1) switchTab(TABS[idx + 1]);
-    else if (dx > 0 && idx > 0) switchTab(TABS[idx - 1]);
-  }, { passive: true });
+  window.goBack = function() {
+    try { history.back(); } catch(e) {}
+  };
 })();
+</script>
 </script>
 <script data-goatcounter="https://iqra-stats.goatcounter.com/count" async src="./count.js"></script>
 </body>
