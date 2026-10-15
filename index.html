@@ -185,23 +185,19 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   box-shadow: 0 0 0 1px var(--ar-g2), 0 0 10px rgba(212,175,55,.40);
   color: #0A0A0A;
 }
-.nav button .nav-label { font-size: 10px; line-height: 1.1; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; text-align: center; padding: 0 1px; color: var(--muted); transition: color .2s ease, font-weight .2s ease; }
+.nav button .nav-label { font-size: clamp(7.5px, 2.15vw, 10px); line-height: 1.1; font-weight: 600; white-space: nowrap; overflow: hidden; max-width: 100%; text-align: center; padding: 0; letter-spacing: 0; color: var(--muted); transition: color .2s ease, font-weight .2s ease; }
 .nav button.active .nav-label { color: var(--accent); font-weight: 700; opacity: 1; transform: translateY(0); }
-/* Адаптация под ширину экрана — подписи не обрезаются */
+/* Адаптация под ширину экрана — подписи не обрезаются, размер шрифта подстраивается автоматически */
 @media (max-width: 420px) {
-  .nav button .nav-label { font-size: 9px; letter-spacing: -0.2px; }
   .nav button .ico { width: 32px; height: 32px; padding: 4px; }
 }
 @media (max-width: 380px) {
   .nav button { min-height: 54px; padding: 4px 0; }
   .nav button .ico { width: 30px; height: 30px; padding: 4px; }
-  .nav button .nav-label { font-size: 8.5px; letter-spacing: -0.3px; }
 }
 @media (max-width: 340px) {
   .nav button .ico { width: 28px; height: 28px; padding: 3px; }
-  .nav button .nav-label { font-size: 8px; letter-spacing: -0.4px; }
 }
-
 .top-progress { position:fixed; top:0; left:0; right:0; height:3px; z-index:5; pointer-events:none; }
 .top-progress > div { height:100%; width:0%; background:var(--accent); transition: width .3s ease; }
 
@@ -1497,7 +1493,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v72';
+const APP_VERSION = 'iqra-v73';
 const BACKUP_SCHEMA = 2;
 const LIMITS = { tasbihs:1000, history:10000, historyDays:365, reminders:50, textLen:1000, idLen:100, targetMax:100000, cyclesMax:1000000 };
 const QURAN_USE_API = false;
