@@ -1524,7 +1524,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v95';
+const APP_VERSION = 'iqra-v96';
 const BACKUP_SCHEMA = 2;
 const LIMITS = { tasbihs:1000, history:10000, historyDays:365, reminders:50, textLen:1000, idLen:100, targetMax:100000, cyclesMax:1000000 };
 const QURAN_USE_API = false;
@@ -3200,38 +3200,108 @@ document.addEventListener('keydown', (e) => {
 // 2) controllerchange — как только новый SW активировался, перезагружаем
 //    страницу, чтобы пользователь мгновенно увидел новую версию.
 if ('serviceWorker' in navigator) {
+  var _swRefreshing = false;
+  var _swReg = null;
+
+  function swReload() {
+    if (_swRefreshing) return;
+    _swRefreshing = true;
+    // Тихая перезагрузка окна — вкладка остаётся открытой, кэш не трогаем
+    location.reload();
+  }
+
+  function activateWaiting(reg) {
+    if (!reg) return;
+    if (reg.waiting) {
+      try { reg.waiting.postMessage({ type: 'SKIP_WAITING' }); } catch(e) {}
+    }
+    if (reg.installing) {
+      reg.installing.addEventListener('statechange', function() {
+        if (this.state === 'installed' && reg.waiting) {
+          try { reg.waiting.postMessage({ type: 'SKIP_WAITING' }); } catch(e) {}
+        }
+      });
+    }
+  }
+
+  function handleUpdate(reg) {
+    _swReg = reg;
+    activateWaiting(reg);
+    reg.addEventListener('updatefound', function() {
+      var nw = reg.installing;
+      if (!nw) return;
+      nw.addEventListener('statechange', function() {
+        if (nw.state === 'installed' && navigator.serviceWorker.controller) {
+          try { nw.postMessage({ type: 'SKIP_WAITING' }); } catch(e) {}
+        }
+      });
+    });
+  }
+
+  // Прямая проверка: запрашиваем sw.js с сервера (в обход кэша браузера и SW)
+  // и сравниваем CACHE_VERSION с APP_VERSION. Если не совпало — форсируем
+  // обновление SW, активируем его (skipWaiting), и через controllerchange
+  // страница тихо перезагрузится. Вкладка остаётся открытой.
+  function checkForUpdates() {
+    if (!_swReg) return;
+    fetch('./sw.js?t=' + Date.now(), { cache: 'no-store' }).then(function(r) {
+      if (!r || !r.ok) return null;
+      return r.text();
+    }).then(function(text) {
+      if (!text) return;
+      var m = text.match(/const\s+CACHE_VERSION\s*=\s*['"]([^'"]+)['"]/);
+      if (!m) return;
+      var serverVer = m[1];
+      if (serverVer !== APP_VERSION) {
+        try { _swReg.update(); } catch(e) {}
+      }
+    }).catch(function() {});
+  }
+
   window.addEventListener('load', function() {
-    navigator.serviceWorker.register('./sw.js').then(function(reg) {
+    navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).then(function(reg) {
+      handleUpdate(reg);
       try { reg.update(); } catch(e) {}
-      setInterval(function() { try { reg.update(); } catch(e) {} }, 60 * 1000);
+      checkForUpdates();
+
+      // 1) Периодически: каждые 30 секунд
+      setInterval(function() {
+        try { reg.update(); } catch(e) {}
+        checkForUpdates();
+      }, 30 * 1000);
+
+      // 2) При возврате приложения в фокус (iOS/Android/PWA)
       document.addEventListener('visibilitychange', function() {
-        if (document.visibilityState === 'visible') { try { reg.update(); } catch(e) {} }
+        if (document.visibilityState === 'visible') {
+          try { reg.update(); } catch(e) {}
+          checkForUpdates();
+        }
       });
 
-      // Уже установлен waiting-воркер — просим его активироваться
-      if (reg.waiting) {
-        try { reg.waiting.postMessage({ type: 'SKIP_WAITING' }); } catch(e) {}
-      }
+      // 3) При получении фокуса окна
+      window.addEventListener('focus', function() {
+        try { reg.update(); } catch(e) {}
+        checkForUpdates();
+      });
 
-      // Появился новый воркер — после install просим активироваться
-      reg.addEventListener('updatefound', function() {
-        var nw = reg.installing;
-        if (!nw) return;
-        nw.addEventListener('statechange', function() {
-          if (nw.state === 'installed' && navigator.serviceWorker.controller) {
-            try { nw.postMessage({ type: 'SKIP_WAITING' }); } catch(e) {}
-          }
-        });
+      // 4) При восстановлении из bfcache (iOS Safari)
+      window.addEventListener('pageshow', function() {
+        checkForUpdates();
       });
     }).catch(function() {});
   });
 
-  var _swRefreshing = false;
   navigator.serviceWorker.addEventListener('controllerchange', function() {
-    if (_swRefreshing) return;
-    _swRefreshing = true;
-    // Тихая перезагрузка окна — пользователь не закрывает вкладку вручную
-    location.reload();
+    swReload();
+  });
+
+  // Сообщение от SW: новая версия активирована — перезагружаем страницу.
+  navigator.serviceWorker.addEventListener('message', function(e) {
+    if (e.data && e.data.type === 'SW_UPDATED') {
+      if (e.data.version && e.data.version !== APP_VERSION) {
+        swReload();
+      }
+    }
   });
 }
 
