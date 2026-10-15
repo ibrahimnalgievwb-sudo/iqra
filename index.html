@@ -31,13 +31,15 @@
   --accent-rgb: 255, 255, 255; --ripple:rgba(255,255,255,.18);
   --ar-g1:#FFF3B0; --ar-g2:#FFD700; --ar-g3:#B8860B;
 }
-[data-theme="light"] .ar-font {
-  -webkit-filter: drop-shadow(0 0 0.5px rgba(92,68,9,0.55));
-  filter: drop-shadow(0 0 0.5px rgba(92,68,9,0.55));
-}
-[data-theme="light"] .ico {
-  -webkit-filter: drop-shadow(0 0.5px 0.6px rgba(92,68,9,0.55));
-  filter: drop-shadow(0 0.5px 0.6px rgba(92,68,9,0.55));
+@supports (-webkit-touch-callout: none) {
+  [data-theme="light"] .ar-font {
+    -webkit-filter: drop-shadow(0 0 0.5px rgba(92,68,9,0.55));
+    filter: drop-shadow(0 0 0.5px rgba(92,68,9,0.55));
+  }
+  [data-theme="light"] .ico {
+    -webkit-filter: drop-shadow(0 0.5px 0.6px rgba(92,68,9,0.55));
+    filter: drop-shadow(0 0.5px 0.6px rgba(92,68,9,0.55));
+  }
 }
 [data-theme="mono"] {
   --bg:#0D0D0D; --card:#1C1C1C; --card2:#2A2A2A; --accent:#FFFFFF; --accent2:#E8E8E8;
@@ -1019,6 +1021,24 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   color: #FFD700;
 }
 
+/* Fallback: solid-цвет как страховка при сбое рендеринга градиента в Chrome Android */
+.btn,
+.fab,
+.icon-btn.starred,
+.search-filters .filter-chip.active,
+#onboarding .ob-option.active,
+.content-card .star-btn.active,
+.next-toast .nt-btn,
+.install-banner .ib-install {
+  background-color: var(--ar-g2) !important;
+  background-image: var(--gold-grad) !important;
+}
+.nav button.active .ico,
+.ayah-share-btn:active {
+  background-color: var(--ar-g2);
+  background-image: var(--gold-grad);
+}
+
 button, .btn, .icon-btn, .fab, .ayah-share-btn, .star-btn, .filter-chip, .preset-chip, .ob-option {
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
@@ -1498,7 +1518,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v77';
+const APP_VERSION = 'iqra-v78';
 const BACKUP_SCHEMA = 2;
 const LIMITS = { tasbihs:1000, history:10000, historyDays:365, reminders:50, textLen:1000, idLen:100, targetMax:100000, cyclesMax:1000000 };
 const QURAN_USE_API = false;
