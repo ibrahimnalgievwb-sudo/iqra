@@ -73,7 +73,7 @@ html.is-ios body {
   height:100vh;
 }
 html:not(.is-ios) body {
-  height:100svh;
+  height:100dvh;
 }
 button, input, textarea, select { font-family:inherit; color:inherit; }
 button { cursor:pointer; border:none; background:none; }
@@ -1544,11 +1544,29 @@ button::-moz-focus-inner { border: 0; padding: 0; }
   var isIOS = /iPad|iPhone|iPod/.test(ua)
            || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   if (isIOS) document.documentElement.classList.add('is-ios');
+  // Android PWA: Chrome неправильно вычисляет dvh/svh при начальной загрузке.
+// Принудительно синхронизируем высоту body с window.innerHeight.
+(function fixAndroidViewportHeight(){
+  if (document.documentElement.classList.contains('is-ios')) return;
+  function syncHeight(){
+    if (!document.body) return;
+    document.body.style.height = window.innerHeight + 'px';
+  }
+  window.addEventListener('resize', syncHeight, { passive: true });
+  window.addEventListener('orientationchange', syncHeight, { passive: true });
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', syncHeight);
+  } else {
+    syncHeight();
+  }
+  // Дополнительный пересчёт после полной загрузки (обход бага Chrome PWA)
+  window.addEventListener('load', syncHeight);
+  setTimeout(syncHeight, 50);
 })();
 
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v120';
+const APP_VERSION = 'iqra-v121';
 const BACKUP_SCHEMA = 2;
 const LIMITS = { tasbihs:1000, history:10000, historyDays:365, reminders:50, textLen:1000, idLen:100, targetMax:100000, cyclesMax:1000000 };
 const QURAN_USE_API = false;
