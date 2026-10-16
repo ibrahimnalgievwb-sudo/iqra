@@ -72,6 +72,14 @@ body {
 html.is-ios body {
   height:100vh;
 }
+html:not(.is-ios) body {
+  position:fixed;
+  top:0;
+  right:0;
+  bottom:0;
+  left:0;
+  height:auto;
+}
 button, input, textarea, select { font-family:inherit; color:inherit; }
 button { cursor:pointer; border:none; background:none; }
 input, textarea { -webkit-user-select:text; user-select:text; }
@@ -1545,7 +1553,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v117';
+const APP_VERSION = 'iqra-v118';
 const BACKUP_SCHEMA = 2;
 const LIMITS = { tasbihs:1000, history:10000, historyDays:365, reminders:50, textLen:1000, idLen:100, targetMax:100000, cyclesMax:1000000 };
 const QURAN_USE_API = false;
