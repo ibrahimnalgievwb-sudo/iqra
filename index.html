@@ -2,7 +2,7 @@
 <html lang="ru" translate="no">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; worker-src 'self'; img-src 'self' data: blob: https://iqra-stats.goatcounter.com; font-src 'self'; connect-src 'self' https://iqra-stats.goatcounter.com; object-src 'none'; base-uri 'none'; form-action 'none';">
 <meta name="referrer" content="no-referrer">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1575,13 +1575,20 @@ button::-moz-focus-inner { border: 0; padding: 0; }
   function apply(){
     raf = 0;
     var vv = window.visualViewport;
-    // При пинч-зуме (scale ≠ 1) не вмешиваемся.
+    // При пинч-зуме не вмешиваемся.
     if (vv && typeof vv.scale === 'number' && vv.scale !== 1) return;
-    var w = (vv && vv.width) ? vv.width : window.innerWidth;
+    var w, l;
+    if (vv && typeof vv.width === 'number' && vv.width > 0) {
+      w = Math.round(vv.width);
+      l = Math.round(vv.offsetLeft || 0);   // <— ключевая правка
+    } else {
+      w = window.innerWidth || document.documentElement.clientWidth;
+      l = 0;
+    }
     if (!w || w <= 0) return;
-    nav.style.left = '0px';
+    nav.style.left  = l + 'px';
     nav.style.right = 'auto';
-    nav.style.width = Math.round(w) + 'px';
+    nav.style.width = w + 'px';
   }
   function sync(){ if (!raf) raf = requestAnimationFrame(apply); }
   sync();
@@ -1592,16 +1599,18 @@ button::-moz-focus-inner { border: 0; padding: 0; }
     window.visualViewport.addEventListener('scroll', sync, { passive: true });
   }
   window.addEventListener('load', sync);
+  window.addEventListener('pageshow', sync);
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', sync);
   }
   setTimeout(sync, 200);
   setTimeout(sync, 600);
+  setTimeout(sync, 1500);
 })();
 
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v125';
+const APP_VERSION = 'iqra-v126';
 const BACKUP_SCHEMA = 2;
 const LIMITS = { tasbihs:1000, history:10000, historyDays:365, reminders:50, textLen:1000, idLen:100, targetMax:100000, cyclesMax:1000000 };
 const QURAN_USE_API = false;
