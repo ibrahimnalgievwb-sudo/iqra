@@ -1544,7 +1544,9 @@ button::-moz-focus-inner { border: 0; padding: 0; }
   var isIOS = /iPad|iPhone|iPod/.test(ua)
            || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   if (isIOS) document.documentElement.classList.add('is-ios');
-  // Android PWA: Chrome неправильно вычисляет dvh/svh при начальной загрузке.
+})();
+
+// Android PWA: Chrome неправильно вычисляет dvh/svh при начальной загрузке.
 // Принудительно синхронизируем высоту body с window.innerHeight.
 (function fixAndroidViewportHeight(){
   if (document.documentElement.classList.contains('is-ios')) return;
@@ -1566,7 +1568,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v121';
+const APP_VERSION = 'iqra-v122';
 const BACKUP_SCHEMA = 2;
 const LIMITS = { tasbihs:1000, history:10000, historyDays:365, reminders:50, textLen:1000, idLen:100, targetMax:100000, cyclesMax:1000000 };
 const QURAN_USE_API = false;
