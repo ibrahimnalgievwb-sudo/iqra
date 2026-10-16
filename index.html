@@ -68,6 +68,8 @@ body {
   overflow:hidden;
   padding-top:env(safe-area-inset-top);
   padding-bottom:0;
+  padding-left:env(safe-area-inset-left, 0px);
+  padding-right:env(safe-area-inset-right, 0px);
 }
 html.is-ios body {
   height:100vh;
@@ -189,7 +191,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .fab { position:fixed; right:20px; bottom:calc(100px + var(--nav-safe)); width:60px; height:60px; border-radius:50%; background:var(--accent); color:var(--bg); font-size:30px; font-weight:300; display:flex; align-items:center; justify-content:center; box-shadow:0 6px 20px var(--shadow); z-index:100; }
 .fab:active { transform:scale(.92); }
 
-.nav { position:fixed; left:0; right:0; bottom:0; display:flex; background:var(--card); border-top:1px solid var(--border); z-index:9999; padding-bottom:env(safe-area-inset-bottom); flex-shrink:0; height:calc(var(--nav-height) + env(safe-area-inset-bottom, 0px)); box-sizing:border-box; }
+.nav { position:fixed; left:0; right:0; bottom:0; display:flex; background:var(--card); border-top:1px solid var(--border); z-index:9999; padding-bottom:env(safe-area-inset-bottom, 0px); padding-left:env(safe-area-inset-left, 0px); padding-right:env(safe-area-inset-right, 0px); flex-shrink:0; height:calc(var(--nav-height) + env(safe-area-inset-bottom, 0px)); box-sizing:border-box; overflow:visible; }
 .nav button { flex:1; padding:4px 0 2px; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; gap:0; color:var(--muted); background:transparent; min-width:0; transition:color .2s ease; }
 .nav button {
   -webkit-transform: translateZ(0);
@@ -1568,7 +1570,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v123';
+const APP_VERSION = 'iqra-v124';
 const BACKUP_SCHEMA = 2;
 const LIMITS = { tasbihs:1000, history:10000, historyDays:365, reminders:50, textLen:1000, idLen:100, targetMax:100000, cyclesMax:1000000 };
 const QURAN_USE_API = false;
