@@ -18,6 +18,7 @@
 <link rel="apple-touch-icon" href="./apple-touch-icon.png">
 <link rel="manifest" href="./manifest.json">
 <link rel="stylesheet" href="./fonts.css">
+<script>if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1))document.documentElement.classList.add('is-ios');</script>
 <style>
 :root { --ar-scale: 1; --radius: 18px; --nav-safe: env(safe-area-inset-bottom, 0px); --nav-height: 52px; }
 [data-theme="light"] {
@@ -67,6 +68,9 @@ body {
   overflow:hidden;
   padding-top:env(safe-area-inset-top);
   padding-bottom:0;
+}
+html.is-ios body {
+  height:100vh;
 }
 button, input, textarea, select { font-family:inherit; color:inherit; }
 button { cursor:pointer; border:none; background:none; }
@@ -1541,7 +1545,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v116';
+const APP_VERSION = 'iqra-v117';
 const BACKUP_SCHEMA = 2;
 const LIMITS = { tasbihs:1000, history:10000, historyDays:365, reminders:50, textLen:1000, idLen:100, targetMax:100000, cyclesMax:1000000 };
 const QURAN_USE_API = false;
