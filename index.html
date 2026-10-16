@@ -191,7 +191,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .fab { position:fixed; right:20px; bottom:calc(100px + var(--nav-safe)); width:60px; height:60px; border-radius:50%; background:var(--accent); color:var(--bg); font-size:30px; font-weight:300; display:flex; align-items:center; justify-content:center; box-shadow:0 6px 20px var(--shadow); z-index:100; }
 .fab:active { transform:scale(.92); }
 
-.nav { width:100%; max-width:100%; display:flex; background:var(--card); border-top:1px solid var(--border); padding-bottom:env(safe-area-inset-bottom, 0px); flex-shrink:0; height:calc(var(--nav-height) + env(safe-area-inset-bottom, 0px)); box-sizing:border-box; overflow:hidden; }
+.nav { width:100%; max-width:100%; display:flex; background:var(--card); border-top:1px solid var(--border); padding-bottom:env(safe-area-inset-bottom, 0px); padding-left:max(10px, env(safe-area-inset-left, 10px)); padding-right:max(10px, env(safe-area-inset-right, 10px)); flex-shrink:0; height:calc(var(--nav-height) + env(safe-area-inset-bottom, 0px)); box-sizing:border-box; overflow:hidden; }
 .nav button { flex:1 1 0%; width:0; min-width:0; padding:4px 0 2px; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; gap:0; color:var(--muted); background:transparent; box-sizing:border-box; transition:color .2s ease; }
 .nav button .ico {
   width: 30px; height: 30px;
