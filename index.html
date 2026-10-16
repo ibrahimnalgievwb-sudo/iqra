@@ -191,7 +191,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .fab { position:fixed; right:20px; bottom:calc(100px + var(--nav-safe)); width:60px; height:60px; border-radius:50%; background:var(--accent); color:var(--bg); font-size:30px; font-weight:300; display:flex; align-items:center; justify-content:center; box-shadow:0 6px 20px var(--shadow); z-index:100; }
 .fab:active { transform:scale(.92); }
 
-.nav { position:fixed; left:0; right:0; bottom:0; width:100%; max-width:100%; display:flex; background:var(--card); border-top:1px solid var(--border); z-index:9999; padding-bottom:env(safe-area-inset-bottom, 0px); padding-left:env(safe-area-inset-left, 0px); padding-right:env(safe-area-inset-right, 0px); flex-shrink:0; height:calc(var(--nav-height) + env(safe-area-inset-bottom, 0px)); box-sizing:border-box; overflow:hidden; }
+.nav { width:100%; max-width:100%; display:flex; background:var(--card); border-top:1px solid var(--border); padding-bottom:env(safe-area-inset-bottom, 0px); flex-shrink:0; height:calc(var(--nav-height) + env(safe-area-inset-bottom, 0px)); box-sizing:border-box; overflow:hidden; }
 .nav button { flex:1 1 0%; width:0; min-width:0; padding:4px 0 2px; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; gap:0; color:var(--muted); background:transparent; box-sizing:border-box; transition:color .2s ease; }
 .nav button .ico {
   width: 30px; height: 30px;
@@ -1562,52 +1562,6 @@ button::-moz-focus-inner { border: 0; padding: 0; }
   window.addEventListener('load', syncHeight);
   setTimeout(syncHeight, 50);
 })();
-
-// Android Chrome 135+ (edge-to-edge): layout viewport может быть шире
-// visual viewport — крайние кнопки нижней навигации уходят за границы
-// видимой области. Синхронизируем ширину .nav с visualViewport.width.
-// На iOS не применяем — там safe-area уже корректен через env().
-(function syncNavViewport(){
-  if (document.documentElement.classList.contains('is-ios')) return;
-  var nav = document.getElementById('nav');
-  if (!nav) return;
-  var raf = 0;
-  function apply(){
-    raf = 0;
-    var vv = window.visualViewport;
-    // При пинч-зуме не вмешиваемся.
-    if (vv && typeof vv.scale === 'number' && vv.scale !== 1) return;
-    var w, l;
-    if (vv && typeof vv.width === 'number' && vv.width > 0) {
-      w = Math.round(vv.width);
-      l = Math.round(vv.offsetLeft || 0);   // <— ключевая правка
-    } else {
-      w = window.innerWidth || document.documentElement.clientWidth;
-      l = 0;
-    }
-    if (!w || w <= 0) return;
-    nav.style.left  = l + 'px';
-    nav.style.right = 'auto';
-    nav.style.width = w + 'px';
-  }
-  function sync(){ if (!raf) raf = requestAnimationFrame(apply); }
-  sync();
-  window.addEventListener('resize', sync, { passive: true });
-  window.addEventListener('orientationchange', sync, { passive: true });
-  if (window.visualViewport) {
-    window.visualViewport.addEventListener('resize', sync, { passive: true });
-    window.visualViewport.addEventListener('scroll', sync, { passive: true });
-  }
-  window.addEventListener('load', sync);
-  window.addEventListener('pageshow', sync);
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', sync);
-  }
-  setTimeout(sync, 200);
-  setTimeout(sync, 600);
-  setTimeout(sync, 1500);
-})();
-
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
 const APP_VERSION = 'iqra-v126';
