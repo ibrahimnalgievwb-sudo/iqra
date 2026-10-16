@@ -191,7 +191,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .fab { position:fixed; right:20px; bottom:calc(100px + var(--nav-safe)); width:60px; height:60px; border-radius:50%; background:var(--accent); color:var(--bg); font-size:30px; font-weight:300; display:flex; align-items:center; justify-content:center; box-shadow:0 6px 20px var(--shadow); z-index:100; }
 .fab:active { transform:scale(.92); }
 
-.nav { width:100%; max-width:100%; display:flex; background:var(--card); border-top:1px solid var(--border); padding-bottom:env(safe-area-inset-bottom, 0px); padding-left:max(10px, env(safe-area-inset-left, 10px)); padding-right:max(10px, env(safe-area-inset-right, 10px)); flex-shrink:0; height:calc(var(--nav-height) + env(safe-area-inset-bottom, 0px)); box-sizing:border-box; overflow:hidden; }
+.nav { width:100%; max-width:100%; display:flex; background:var(--card); border-top:1px solid var(--border); padding-bottom:env(safe-area-inset-bottom, 0px); padding-left:max(20px, env(safe-area-inset-left, 20px)); padding-right:max(20px, env(safe-area-inset-right, 20px)); flex-shrink:0; height:calc(var(--nav-height) + env(safe-area-inset-bottom, 0px)); box-sizing:border-box; overflow:hidden; }
 .nav button { flex:1 1 0%; width:0; min-width:0; padding:4px 0 2px; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; gap:0; color:var(--muted); background:transparent; box-sizing:border-box; transition:color .2s ease; }
 .nav button .ico {
   width: 30px; height: 30px;
@@ -213,7 +213,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .nav button.active .ico {
   background-color: var(--ar-g2);
   background-image: var(--gold-grad);
-  box-shadow: 0 0 0 1px var(--ar-g2), 0 0 6px rgba(212,175,55,.28);
+  box-shadow: 0 0 0 1px var(--ar-g2), 0 0 3px rgba(212,175,55,.22);
   color: #0A0A0A;
 }
 .nav button .nav-label { font-size: clamp(7.5px, 2.15vw, 10px); line-height: 1.05; font-weight: 600; white-space: nowrap; overflow: hidden; max-width: 100%; text-align: center; padding: 0; letter-spacing: 0; color: var(--muted); margin-top: 1px; transition: color .2s ease, font-weight .2s ease; }
@@ -1564,7 +1564,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v127';
+const APP_VERSION = 'iqra-v128';
 const BACKUP_SCHEMA = 2;
 const LIMITS = { tasbihs:1000, history:10000, historyDays:365, reminders:50, textLen:1000, idLen:100, targetMax:100000, cyclesMax:1000000 };
 const QURAN_USE_API = false;
