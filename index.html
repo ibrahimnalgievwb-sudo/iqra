@@ -225,8 +225,11 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 @media (max-width: 380px) {
   .nav button .ico { width: 28px; height: 28px; padding: 4px; }
 }
-@media (max-width: 340px) {
-  .nav button .ico { width: 28px; height: 28px; padding: 3px; }
+@media (max-width: 360px) {
+  .nav button .nav-label { display: none; }
+  .nav button .ico { width: 34px; height: 34px; padding: 5px; }
+  .nav button { justify-content: center; padding: 6px 0; }
+  .nav { height: calc(46px + env(safe-area-inset-bottom, 0px)); }
 }
 .top-progress { position:fixed; top:0; left:0; right:0; height:3px; z-index:5; pointer-events:none; }
 .top-progress > div { height:100%; width:0%; background:var(--accent); transition: width .3s ease; }
@@ -1058,35 +1061,38 @@ button, .btn, .icon-btn, .fab, .ayah-share-btn, .star-btn, .filter-chip, .preset
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
-  button:focus, button:focus-visible,
-.btn:focus, .btn:focus-visible,
-.icon-btn:focus, .icon-btn:focus-visible,
-.fab:focus, .fab:focus-visible,
-.ayah-share-btn:focus, .ayah-share-btn:focus-visible,
-.star-btn:focus, .star-btn:focus-visible,
-.filter-chip:focus, .filter-chip:focus-visible,
-.preset-chip:focus, .preset-chip:focus-visible,
-.ob-option:focus, .ob-option:focus-visible,
-.ob-skip:focus, .ob-skip:focus-visible,
-.nav button:focus, .nav button:focus-visible,
-.seg button:focus, .seg button:focus-visible,
-.prog-tabs button:focus, .prog-tabs button:focus-visible,
-.cal-nav button:focus, .cal-nav button:focus-visible,
-.cal-day:focus, .cal-day:focus-visible,
-.stepper button:focus, .stepper button:focus-visible,
-.reminder-row button:focus, .reminder-row button:focus-visible,
-.reminder-row .del:focus, .reminder-row .del:focus-visible,
-.time-row .del:focus, .time-row .del:focus-visible,
-.mark-item .mi-del:focus, .mark-item .mi-del:focus-visible {
-  outline: 0 !important;
-  outline-offset: 0 !important;
-  -webkit-tap-highlight-color: transparent !important;
+/* Видимый фокус на устройствах с точным вводом (мышь, тачпад, клавиатура) */
+@media (pointer: fine) {
+  button:focus-visible,
+  .btn:focus-visible,
+  .icon-btn:focus-visible,
+  .fab:focus-visible,
+  .ayah-share-btn:focus-visible,
+  .star-btn:focus-visible,
+  .filter-chip:focus-visible,
+  .preset-chip:focus-visible,
+  .ob-option:focus-visible,
+  .nav button:focus-visible,
+  .seg button:focus-visible,
+  .prog-tabs button:focus-visible,
+  .cal-nav button:focus-visible,
+  .cal-day:focus-visible,
+  .stepper button:focus-visible {
+    outline: 2px solid var(--accent) !important;
+    outline-offset: 2px !important;
+  }
 }
 button::-moz-focus-inner { border: 0; padding: 0; }
 
 /* === Единая формула safe-area через --nav-safe (см. :root) ===
    iOS = 34px (кнопки над home-индикатором), Android/ПК = 0px.
    Никаких override — переменная сама даёт нужное значение. */
+  /* Тёмная тема — слегка светлее фона, чтобы нав отделялся от контента */
+[data-theme="dark"] .nav,
+[data-theme="mono"] .nav {
+  background: #0A0A0A;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
+}
 .toast { bottom: calc(90px + var(--nav-safe)) !important; }
 .next-toast { bottom: calc(110px + var(--nav-safe)) !important; }
 .install-banner { bottom: calc(72px + var(--nav-safe)) !important; }
@@ -1563,7 +1569,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v129';
+const APP_VERSION = 'iqra-v130';
 const BACKUP_SCHEMA = 2;
 const LIMITS = { tasbihs:1000, history:10000, historyDays:365, reminders:50, textLen:1000, idLen:100, targetMax:100000, cyclesMax:1000000 };
 const QURAN_USE_API = false;
@@ -1900,8 +1906,16 @@ function pruneHistory() {
   toRemove.forEach(k => { delete state.history[k]; });
 }
 
-window.addEventListener('beforeunload', saveNow);
-window.addEventListener('pagehide', () => { if (activeReadId) { const b=document.getElementById('read-body'); if (b && state.settings.readScrolls) state.settings.readScrolls[activeReadId] = b.scrollTop||0; if (b && state.settings.readAyah) state.settings.readAyah[activeReadId] = currentAyahIdx(); } saveNow(); });
+// saveNow вызывается только через pagehide — срабатывает и на мобильных,
+// и при закрытии вкладки, и в bfcache.
+window.addEventListener('pagehide', () => {
+  if (activeReadId) {
+    const b = document.getElementById('read-body');
+    if (b && state.settings.readScrolls) state.settings.readScrolls[activeReadId] = b.scrollTop || 0;
+    if (b && state.settings.readAyah) state.settings.readAyah[activeReadId] = currentAyahIdx();
+  }
+  saveNow();
+});
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveNow(); });
 
 function pad(n){ return n<10?'0'+n:''+n; }
@@ -1926,12 +1940,25 @@ function formatHijri(date){
     return d + ' ' + monthName + ' ' + y + ' г. х.';
   } catch(e) { return ''; }
 }
-function isFavorite(id){ return Array.isArray(state.favorites) && state.favorites.includes(id); } function toggleFavorite(id){ if (!Array.isArray(state.favorites)) state.favorites=[]; const i=state.favorites.indexOf(id); if (i>=0) { state.favorites.splice(i,1); trackEvent('fav_off/' + id, 'Убрано из избранного: ' + id); if (typeof showMarkToast === 'function') showMarkToast('Удалено из избранного'); } else { state.favorites.push(id); trackEvent('fav_on/' + id, 'В избранное: ' + id); if (typeof showMarkToast === 'function') showMarkToast('Добавлено в избранное'); } save(); if (typeof renderDashMarks === 'function') renderDashMarks(); } function starClick(event, id, list){ event.stopPropagation(); toggleFavorite(id); if (list==='quran') renderQuranList(); else if (list==='dua') renderDuaList(); else if (list==='hadith') renderHadithList(); else if (list==='favorites') renderProgressFavorites(); } function detailStarClick(){ if (document.getElementById('screen-quran-detail').classList.contains('active') && activeQuranId) { toggleFavorite(activeQuranId); openQuran(activeQuranId); } else if (document.getElementById('screen-dua-detail').classList.contains('active') && activeDuaId) { toggleFavorite(activeDuaId); openDua(activeDuaId); } else if (document.getElementById('screen-hadith-detail').classList.contains('active') && activeHadithId) { toggleFavorite(activeHadithId); openHadith(activeHadithId); } } function openSearch(){ document.getElementById('search-overlay').classList.add('active'); setTimeout(()=>{ const i=document.getElementById('global-search-input'); if (i) i.focus(); }, 120); renderGlobalSearch(); } function closeSearch(){ document.getElementById('search-overlay').classList.remove('active'); const i=document.getElementById('global-search-input'); if (i) i.value=''; } function searchOpen(type, id){ closeSearch(); if (type==='quran') openQuran(id); else if (type==='dua') openDua(id); else if (type==='hadith') openHadith(id); else if (type==='tasbih') openCounter(id); } function setSearchFilter(key, value){ searchFilters[key] = value; document.querySelectorAll('#search-filters .filter-group[data-filter="' + key + '"] .filter-chip').forEach(function(b){ b.classList.toggle('active', b.dataset.value === value); }); renderGlobalSearch(); } function renderGlobalSearch() {   const q = (document.getElementById('global-search-input').value || '').toLowerCase().trim();   const el = document.getElementById('search-results');   if (!q) { el.innerHTML = '<div class="empty">Введите запрос — поиск по тасбихам, Корану, дуа и хадисам.</div>'; return; }   const score = (it) => {     const t = (it.title || '').toLowerCase();     const s = (it.subtitle || '').toLowerCase();     const tr = (it.transcription || '').toLowerCase();     const num = String(it.number || '').toLowerCase();     const ar = (it.arabic || '').toLowerCase();     const trn = (it.translation || '').toLowerCase();     let w = 0;     if (t.startsWith(q)) w += 10;     else if (t.includes(q)) w += 6;     if (num && num.includes(q)) w += 5;     if (s.includes(q)) w += 3;     if (tr.includes(q)) w += 3;     if (ar.includes(q)) w += 1;     if (trn.includes(q)) w += 1;     return w;   };   const statusOk = (it, type) => { if (type === 'tasbih') return true; return searchFilters.status === 'all' || (searchFilters.status === 'learned' && !!it.learned) || (searchFilters.status === 'unlearned' && !it.learned); };   const favOk = (it) => searchFilters.favorite === 'all' || (searchFilters.favorite === 'only' && isFavorite(it.id));   const showType = (t) => searchFilters.type === 'all' || searchFilters.type === t;   const grp = (title, items, type) => {     if (!items.length) return '';     return '<div class="progress-section-title">' + title + '</div>' + items.map(it => {       const t = it.title || it.transcription || it.arabic || '—';       const sub = it.subtitle ? '<div class="c-sub">' + esc(it.subtitle) + '</div>' : '';       const ar = it.arabic ? '<div class="c-ar ar-font">' + esc(it.arabic) + '</div>' : '';       const tr = it.translation ? '<div class="c-tr">' + esc(it.translation) + '</div>' : '';       return '<div class="content-card" onclick="searchOpen(\'' + type + '\',\'' + it.id + '\')"><div class="c-title">' + esc(t) + '</div>' + sub + ar + tr + '</div>';     }).join('');   };   const filtered = (arr, type) => arr.map(it => ({ it: it, s: score(it) })).filter(x => x.s > 0).sort((a, b) => b.s - a.s).map(x => x.it).filter(it => statusOk(it, type)).filter(favOk);   let html = '';    if (showType('tasbih')) html += grp('Тасбихи', filtered(state.tasbihs, 'tasbih'), 'tasbih');
+function isFavorite(id){ return Array.isArray(state.favorites) && state.favorites.includes(id); } function toggleFavorite(id){ if (!Array.isArray(state.favorites)) state.favorites=[]; const i=state.favorites.indexOf(id); if (i>=0) { state.favorites.splice(i,1); trackEvent('fav_off/' + id, 'Убрано из избранного: ' + id); if (typeof showMarkToast === 'function') showMarkToast('Удалено из избранного'); } else { state.favorites.push(id); trackEvent('fav_on/' + id, 'В избранное: ' + id); if (typeof showMarkToast === 'function') showMarkToast('Добавлено в избранное'); } save(); if (typeof renderDashMarks === 'function') renderDashMarks(); } function starClick(event, id, list){ event.stopPropagation(); toggleFavorite(id); if (list==='quran') renderQuranList(); else if (list==='dua') renderDuaList(); else if (list==='hadith') renderHadithList(); else if (list==='favorites') renderProgressFavorites(); } function detailStarClick(){ if (document.getElementById('screen-quran-detail').classList.contains('active') && activeQuranId) { toggleFavorite(activeQuranId); openQuran(activeQuranId); } else if (document.getElementById('screen-dua-detail').classList.contains('active') && activeDuaId) { toggleFavorite(activeDuaId); openDua(activeDuaId); } else if (document.getElementById('screen-hadith-detail').classList.contains('active') && activeHadithId) { toggleFavorite(activeHadithId); openHadith(activeHadithId); } } function openSearch(){ document.getElementById('search-overlay').classList.add('active'); setTimeout(()=>{ const i=document.getElementById('global-search-input'); if (i) i.focus(); }, 120); renderGlobalSearch(); } function closeSearch(){ document.getElementById('search-overlay').classList.remove('active'); const i=document.getElementById('global-search-input'); if (i) i.value=''; } function searchOpen(type, id){
+  // Явно закрываем оверлей без вызова closeSearch — избегаем history.back(),
+  // который может конфликтовать с pushState следующего экрана.
+  var ov = document.getElementById('search-overlay');
+  if (ov) ov.classList.remove('active');
+  var inp = document.getElementById('global-search-input');
+  if (inp) inp.value = '';
+  var res = document.getElementById('search-results');
+  if (res) res.innerHTML = '';
+  if (type==='quran') openQuran(id);
+  else if (type==='dua') openDua(id);
+  else if (type==='hadith') openHadith(id);
+  else if (type==='tasbih') openCounter(id);
+} function setSearchFilter(key, value){ searchFilters[key] = value; document.querySelectorAll('#search-filters .filter-group[data-filter="' + key + '"] .filter-chip').forEach(function(b){ b.classList.toggle('active', b.dataset.value === value); }); renderGlobalSearch(); } function renderGlobalSearch() {   const q = (document.getElementById('global-search-input').value || '').toLowerCase().trim();   const el = document.getElementById('search-results');   if (!q) { el.innerHTML = '<div class="empty">Введите запрос — поиск по тасбихам, Корану, дуа и хадисам.</div>'; return; }   const score = (it) => {     const t = (it.title || '').toLowerCase();     const s = (it.subtitle || '').toLowerCase();     const tr = (it.transcription || '').toLowerCase();     const num = String(it.number || '').toLowerCase();     const ar = (it.arabic || '').toLowerCase();     const trn = (it.translation || '').toLowerCase();     let w = 0;     if (t.startsWith(q)) w += 10;     else if (t.includes(q)) w += 6;     if (num && num.includes(q)) w += 5;     if (s.includes(q)) w += 3;     if (tr.includes(q)) w += 3;     if (ar.includes(q)) w += 1;     if (trn.includes(q)) w += 1;     return w;   };   const statusOk = (it, type) => { if (type === 'tasbih') return true; return searchFilters.status === 'all' || (searchFilters.status === 'learned' && !!it.learned) || (searchFilters.status === 'unlearned' && !it.learned); };   const favOk = (it) => searchFilters.favorite === 'all' || (searchFilters.favorite === 'only' && isFavorite(it.id));   const showType = (t) => searchFilters.type === 'all' || searchFilters.type === t;   const grp = (title, items, type) => {     if (!items.length) return '';     return '<div class="progress-section-title">' + title + '</div>' + items.map(it => {       const t = it.title || it.transcription || it.arabic || '—';       const sub = it.subtitle ? '<div class="c-sub">' + esc(it.subtitle) + '</div>' : '';       const ar = it.arabic ? '<div class="c-ar ar-font">' + esc(it.arabic) + '</div>' : '';       const tr = it.translation ? '<div class="c-tr">' + esc(it.translation) + '</div>' : '';       return '<div class="content-card" onclick="searchOpen(\'' + type + '\',\'' + it.id + '\')"><div class="c-title">' + esc(t) + '</div>' + sub + ar + tr + '</div>';     }).join('');   };   const filtered = (arr, type) => arr.map(it => ({ it: it, s: score(it) })).filter(x => x.s > 0).sort((a, b) => b.s - a.s).map(x => x.it).filter(it => statusOk(it, type)).filter(favOk);   let html = '';    if (showType('tasbih')) html += grp('Тасбихи', filtered(state.tasbihs, 'tasbih'), 'tasbih');
   if (showType('quran')) html += grp('Коран', filtered(state.quran, 'quran'), 'quran');
   if (showType('dua')) html += grp('Дуа', filtered(state.duas, 'dua'), 'dua');
   if (showType('hadith')) html += grp('Хадисы', filtered(state.hadiths, 'hadith'), 'hadith');   el.innerHTML = html || '<div class="empty">Ничего не найдено</div>'; }
 function trackEvent(name, title) {   var data = {     path: '/event/' + String(name).slice(0, 100),     title: String(title || name).slice(0, 200),     event: true   };   var tries = 0;   function attempt() {     try {       if (window.goatcounter && typeof window.goatcounter.count === 'function') {         window.goatcounter.count(data);       } else if (tries < 10) {         tries++;         setTimeout(attempt, 200);       }     } catch (e) {}   }   attempt(); } function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-function escNl(s){ return esc(s).replace(/\n/g,'<br>'); }
+function escAttr(s){ return esc(s).replace(/'/g, '&#39;'); }
 function transcriptionNote() { return `<div class="transcription-note"><svg class="ico ico-sm tn-icon" style="flex-shrink:0;opacity:.75"><use href="#i-info"/></svg><div>Транскрипция передаёт лишь <b>примерное произношение</b> и не отражает всех тонкостей арабского. Для правильного чтения следует изучить <b>таджвид</b>.</div></div>`; }
 function addToHistory(id, n) {
   const k = todayKey();
@@ -1972,10 +1999,30 @@ function ayahMarker(n) {
   var s = String(num).split('').map(function(d){ return ar[+d]; }).join('');
   return '\u06DD' + s;
 }
-const MOSCOW_LAT = 55.75, MOSCOW_LON = 37.62;
+// Регион для расчёта auto-темы. Определяется из timezone браузера.
+// Для не-Москвы берётся грубая широта по часовому поясу; точность ±30 мин.
+function _regionForTheme() {
+  var off = -new Date().getTimezoneOffset() / 60; // часы от UTC
+  // (lat, lon) по ключевым поясам РФ и постсоветского пространства
+  var table = {
+     2: { lat: 54.7, lon:  20.5 },   // Калининград
+     3: { lat: 55.75, lon: 37.62 },  // Москва
+     4: { lat: 56.3, lon:  44.0 },   // Самара/Казань
+     5: { lat: 55.0, lon:  60.0 },   // Екатеринбург/Уфа
+     6: { lat: 55.0, lon:  73.0 },   // Омск
+     7: { lat: 55.0, lon:  83.0 },   // Новосибирск/Красноярск (сокр.)
+     8: { lat: 52.3, lon: 104.3 },   // Иркутск
+     9: { lat: 48.5, lon: 135.0 },   // Владивосток
+    10: { lat: 48.5, lon: 135.0 },
+    11: { lat: 48.5, lon: 135.0 },
+    12: { lat: 48.5, lon: 135.0 }
+  };
+  return table[off] || { lat: 55.75, lon: 37.62 };
+}
 function getSunTimes(date) {
   const rad = Math.PI / 180;
-  const lat = MOSCOW_LAT * rad;
+  var region = _regionForTheme();
+  const lat = region.lat * rad;
   const start = new Date(date.getFullYear(), 0, 0);
   const diff = (date - start) + ((start.getTimezoneOffset() - date.getTimezoneOffset()) * 60000);
   const doy = Math.floor(diff / 86400000);
@@ -1985,7 +2032,7 @@ function getSunTimes(date) {
   const cosH = -Math.tan(lat) * Math.tan(decl);
   if (cosH > 1 || cosH < -1) return null;
   const H = Math.acos(cosH) / rad;
-  const noonUTC = 720 - 4 * MOSCOW_LON - eqTime;
+  const noonUTC = 720 - 4 * region.lon - eqTime;
   const tzMin = -date.getTimezoneOffset();
   return { sunriseMin: noonUTC - 4*H + tzMin, sunsetMin: noonUTC + 4*H + tzMin };
 }
@@ -2081,7 +2128,7 @@ function renderTasbih() {
     const off = C*(1-p);
     const tc = todayCountFor(t.id);
     const badge = tc>0 ? `<div class="today-badge">${tc}</div>` : '';
-    return `<div class="tasbih-card" data-id="${t.id}" onclick="cardClick(event,'${t.id}')" ontouchstart="cardTouchStart(event)" ontouchmove="cardTouchMove(event)" ontouchend="cardTouchEnd(event)" ontouchcancel="cardTouchEnd(event)">${badge}<div class="body"><div class="ar ar-font">${esc(t.arabic)}</div><div class="tr">${esc(t.transcription)}</div><div class="trn">${esc(t.translation)}</div><div class="p-row"><span>${t.current} / ${t.target}</span><span>Циклов: ${t.cycles}</span></div></div><div class="mini-ring"><svg width="52" height="52"><circle class="ring-bg" cx="26" cy="26" r="${R}" fill="none" stroke-width="3.5"/><circle class="ring-fg" cx="26" cy="26" r="${R}" fill="none" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${off}"/></svg><div class="ring-num">${Math.round(p*100)}%</div></div></div>`;
+         return '<div class="content-card" onclick="searchOpen(\'' + type + '\',\'' + it.id + '\')">... ontouchstart="cardTouchStart(event)" ontouchmove="cardTouchMove(event)" ontouchend="cardTouchEnd(event)" ontouchcancel="cardTouchEnd(event)">${badge}<div class="body"><div class="ar ar-font">${esc(t.arabic)}</div><div class="tr">${esc(t.transcription)}</div><div class="trn">${esc(t.translation)}</div><div class="p-row"><span>${t.current} / ${t.target}</span><span>Циклов: ${t.cycles}</span></div></div><div class="mini-ring"><svg width="52" height="52"><circle class="ring-bg" cx="26" cy="26" r="${R}" fill="none" stroke-width="3.5"/><circle class="ring-fg" cx="26" cy="26" r="${R}" fill="none" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${off}"/></svg><div class="ring-num">${Math.round(p*100)}%</div></div></div>`;
   }).join('');
 }
 // B1: long-press активирует drag и подавляет следующий click
@@ -2113,7 +2160,7 @@ function tap(e) {
 function showNextToast() { const idx=state.tasbihs.findIndex(x=>x.id===activeId); const next=state.tasbihs[idx+1]; if (!next) return; const toast=document.getElementById('next-toast'); document.getElementById('nt-name').textContent=next.transcription||next.translation||'—'; document.getElementById('nt-ar').textContent=next.arabic||''; toast.classList.add('show'); clearTimeout(nextToastTimer); nextToastTimer=setTimeout(()=>toast.classList.remove('show'),5000); }
 function goNext() { const idx=state.tasbihs.findIndex(x=>x.id===activeId); const next=state.tasbihs[idx+1]; document.getElementById('next-toast').classList.remove('show'); if (next) openCounter(next.id); }
 function shareCurrent(e) { if (e) e.stopPropagation(); if (activeId) shareItem('tasbih', activeId); }
-function resetCurrent(e) { if (e) e.stopPropagation(); if (!confirm('Сбросить текущий счёт?')) return; const t=getById(activeId); t.current=0; save(); updateCounterUI(); }
+async function resetCurrent(e) {   if (e) e.stopPropagation();   if (!await confirmAsync('Сбросить счёт?', 'Текущий прогресс этого тасбиха обнулится.', 'Сбросить', 'Отмена')) return;   const t = getById(activeId); t.current = 0; save(); updateCounterUI(); }
 function editCurrent(e) { if (e) e.stopPropagation(); if (activeId) openForm(activeId); }
 function goHome() { if (activeId) saveNow(); activeId=null; releaseWakeLock(); renderDashboard(); showScreen('screen-dashboard'); }
 async function requestWakeLock() { try { if ('wakeLock' in navigator) { wakeLock=await navigator.wakeLock.request('screen'); wakeLock.addEventListener('release',()=>{wakeLock=null;}); } } catch(e){} }
@@ -2133,7 +2180,7 @@ function saveForm() { const arabic=document.getElementById('f-ar').value.trim().
     // B3: лимит количества тасбихов
     if (state.tasbihs.length >= LIMITS.tasbihs) { alert('Максимум ' + LIMITS.tasbihs + ' тасбихов. Удалите старые.'); return; }
     state.tasbihs.push({id:'u'+Date.now(),arabic,transcription,translation,target,current:0,cycles:0}); } state.draft=null; save(); if (activeId) openCounter(activeId); else { renderTasbih(); showScreen('screen-tasbih'); } }
-function deleteCurrent() { if (!editingId) return; if (!confirm('Удалить этот тасбих?')) return; state.tasbihs=state.tasbihs.filter(t=>t.id!==editingId); save(); activeId=null; editingId=null; renderTasbih(); showScreen('screen-tasbih'); }
+async function deleteCurrent() {   if (!editingId) return;   if (!await confirmAsync('Удалить тасбих?', 'Это действие нельзя отменить.', 'Удалить', 'Отмена')) return;   state.tasbihs = state.tasbihs.filter(t => t.id !== editingId);   save(); activeId = null; editingId = null; renderTasbih(); showScreen('screen-tasbih'); }
 
 async function renderQuranList() {
   const el = document.getElementById('quran-list');
@@ -2324,14 +2371,15 @@ function memNext() {
   } else {
     if (memorizeStep < total - 1) { memorizeStep++; memorizeRevealed = false; renderMemorize(); }
     else {
+      var doneItem = memorizeItem;
       closeMemorize(); playChime();
       if (navigator.vibrate) navigator.vibrate([30,40,30]);
-      if (memorizeItem && memorizeItem.id) {
-        const q = getQuranById(memorizeItem.id);
-      if (q && !q.learned) { q.learned = true; q.learnedAt = todayKey(); save(); }
-        const d = getDuaById(memorizeItem.id);
+      if (doneItem && doneItem.id) {
+        const q = getQuranById(doneItem.id);
+        if (q && !q.learned) { q.learned = true; q.learnedAt = todayKey(); save(); }
+        const d = getDuaById(doneItem.id);
         if (d && !d.learned) { d.learned = true; save(); }
-        const h = getHadithById(memorizeItem.id);
+        const h = getHadithById(doneItem.id);
         if (h && !h.learned) { h.learned = true; save(); }
       }
     }
@@ -2480,7 +2528,9 @@ const MONTHS = ['Январь','Февраль','Март','Апрель','Ма�
 const DOW = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
 
 function setProgTab(t) { progTab = t; document.querySelectorAll('.prog-tabs button').forEach(b=>b.classList.toggle('active', b.dataset.pt===t)); renderProgress(); }
-function renderProgress() { if (progTab === 'overview') renderProgressOverview(); else if (progTab === 'calendar') renderProgressCalendar(); else if (progTab === 'learned') renderProgressLearned(); else if (progTab === 'favorites') renderProgressFavorites(); } function renderProgressFavorites() {   const body = document.getElementById('prog-body');   const favQ = state.quran.filter(q=>isFavorite(q.id));   const favD = state.duas.filter(d=>isFavorite(d.id));   const favH = state.hadiths.filter(h=>isFavorite(h.id));   const bms = Array.isArray(state.bookmarks) ? state.bookmarks.slice().reverse() : [];   let html = '';   if (bms.length) {     html += '<div class="settings-group"><div class="progress-section-title">Закладки</div>';     bms.forEach(b => {       html += '<div class="learned-item mark-item"><div onclick="openBookmark(\'' + b.id + '\')" style="cursor:pointer;flex:1;min-width:0"><div class="li-title">' + esc(b.label) + '</div><div class="li-sub">' + new Date(b.ts).toLocaleDateString('ru-RU') + '</div></div><button class="mi-del" onclick="removeBookmark(\'' + b.id + '\')" aria-label="Удалить">×</button></div>';     });     html += '</div>';   }   if (favQ.length) { html += `<div class="settings-group"><div class="progress-section-title">Суры и аяты</div>`; favQ.forEach(q => { html += `<div class="learned-item" onclick="openQuran('${q.id}')" style="cursor:pointer"><div><div class="li-title">${esc(q.title)}</div><div class="li-sub">${esc(q.subtitle||'')}</div></div><div class="li-check">★</div></div>`; }); html += `</div>`; }   if (favD.length) { html += `<div class="settings-group"><div class="progress-section-title">Дуа</div>`; favD.forEach(d => { html += `<div class="learned-item" onclick="openDua('${d.id}')" style="cursor:pointer"><div><div class="li-title">${esc(d.title)}</div><div class="li-sub">${esc(d.subtitle||'')}</div></div><div class="li-check">★</div></div>`; }); html += `</div>`; }   if (favH.length) { html += `<div class="settings-group"><div class="progress-section-title">Хадисы</div>`; favH.forEach(h => { html += `<div class="learned-item" onclick="openHadith('${h.id}')" style="cursor:pointer"><div><div class="li-title">${esc(h.title)}</div><div class="li-sub">${esc(h.subtitle||'')}</div></div><div class="li-check">★</div></div>`; }); html += `</div>`; }   if (!html) html = '<div class="empty">Пока пусто.<br>Нажимайте ★ на карточках и добавляйте закладки в режиме чтения.</div>';   body.innerHTML = html; }
+function renderProgress() { if (progTab === 'overview') renderProgressOverview(); else if (progTab === 'calendar') renderProgressCalendar(); else if (progTab === 'learned') renderProgressLearned(); else if (progTab === 'favorites') renderProgressFavorites(); } let _progFilter = ''; function setProgFilter(v) {   _progFilter = (v || '').toLowerCase().trim();   renderProgress(); } function _progMatch(title) {   if (!_progFilter) return true;   return String(title || '').toLowerCase().indexOf(_progFilter) >= 0; } function _progSearchHtml() {   return '<div style="padding:0 0 12px;"><div class="search-wrap"><input type="text" placeholder="Поиск по списку..." value="' + escAttr(_progFilter) + '" oninput="setProgFilter(this.value)"></div></div>'; } function renderProgressFavorites() {   const body = document.getElementById('prog-body');      const favQ = state.quran.filter(q=>isFavorite(q.id) && _progMatch(q.title));
+   const favD = state.duas.filter(d=>isFavorite(d.id) && _progMatch(d.title));
+   const favH = state.hadiths.filter(h=>isFavorite(h.id) && _progMatch(h.title));   const bms = Array.isArray(state.bookmarks) ? state.bookmarks.slice().reverse() : [];   let html = _progSearchHtml();   if (bms.length) {     html += '<div class="settings-group"><div class="progress-section-title">Закладки</div>';     bms.forEach(b => {       html += '<div class="learned-item mark-item"><div onclick="openBookmark(\'' + b.id + '\')" style="cursor:pointer;flex:1;min-width:0"><div class="li-title">' + esc(b.label) + '</div><div class="li-sub">' + new Date(b.ts).toLocaleDateString('ru-RU') + '</div></div><button class="mi-del" onclick="removeBookmark(\'' + b.id + '\')" aria-label="Удалить">×</button></div>';     });     html += '</div>';   }   if (favQ.length) { html += `<div class="settings-group"><div class="progress-section-title">Суры и аяты</div>`; favQ.forEach(q => { html += `<div class="learned-item" onclick="openQuran('${q.id}')" style="cursor:pointer"><div><div class="li-title">${esc(q.title)}</div><div class="li-sub">${esc(q.subtitle||'')}</div></div><div class="li-check">★</div></div>`; }); html += `</div>`; }   if (favD.length) { html += `<div class="settings-group"><div class="progress-section-title">Дуа</div>`; favD.forEach(d => { html += `<div class="learned-item" onclick="openDua('${d.id}')" style="cursor:pointer"><div><div class="li-title">${esc(d.title)}</div><div class="li-sub">${esc(d.subtitle||'')}</div></div><div class="li-check">★</div></div>`; }); html += `</div>`; }   if (favH.length) { html += `<div class="settings-group"><div class="progress-section-title">Хадисы</div>`; favH.forEach(h => { html += `<div class="learned-item" onclick="openHadith('${h.id}')" style="cursor:pointer"><div><div class="li-title">${esc(h.title)}</div><div class="li-sub">${esc(h.subtitle||'')}</div></div><div class="li-check">★</div></div>`; }); html += `</div>`; }   if (!html) html = '<div class="empty">Пока пусто.<br>Нажимайте ★ на карточках и добавляйте закладки в режиме чтения.</div>';   body.innerHTML = html; }
 function renderProgressOverview() {
   const body = document.getElementById('prog-body');
   let totalAll = 0, daysWithDhikr = 0, bestDay = 0, bestDayKey = '';
@@ -2579,6 +2629,30 @@ function openDay(key) {
   document.getElementById('modal-bg').classList.add('active');
 }
 function closeModal() { document.getElementById('modal-bg').classList.remove('active'); }
+  // Кастомный confirm в стиле приложения. Возвращает Promise<bool>.
+function confirmAsync(title, sub, okText, cancelText) {
+  return new Promise(function(resolve) {
+    okText = okText || 'Подтвердить';
+    cancelText = cancelText || 'Отмена';
+    var html = '<h2>' + esc(title) + '</h2>' +
+      (sub ? '<div style="font-size:14px;color:var(--muted);margin-bottom:20px;line-height:1.5">' + escNl(sub) + '</div>' : '') +
+      '<div style="display:flex;gap:10px;">' +
+        '<button class="btn secondary" id="cf-cancel">' + esc(cancelText) + '</button>' +
+        '<button class="btn" id="cf-ok">' + esc(okText) + '</button>' +
+      '</div>';
+    var modal = document.getElementById('modal-content');
+    modal.innerHTML = html;
+    document.getElementById('modal-bg').classList.add('active');
+    function done(v) {
+      document.getElementById('modal-bg').classList.remove('active');
+      resolve(v);
+    }
+    document.getElementById('cf-ok').onclick = function(){ done(true); };
+    document.getElementById('cf-cancel').onclick = function(){ done(false); };
+    var bg = document.getElementById('modal-bg');
+    bg.onclick = function(e){ if (e.target === bg) done(false); };
+  });
+}
 
 function openSettings() {
   document.getElementById('daily-goal-input').value = state.settings.dailyGoal;
@@ -2672,12 +2746,12 @@ function importData(e) {
   const f = e.target.files[0]; if (!f) return;
   if (f.size > 5 * 1024 * 1024) { alert('Файл слишком большой'); e.target.value = ''; return; }
   const r = new FileReader();
-  r.onload = () => {
+    r.onload = async () => {
     let parsed;
     try { parsed = JSON.parse(r.result); } catch(err) { alert('Файл повреждён'); e.target.value = ''; return; }
     const validated = validateImport(parsed);
     if (!validated) { alert('Файл не похож на резервную копию'); e.target.value = ''; return; }
-    if (!confirm('Импорт заменит все текущие данные. Продолжить?')) { e.target.value = ''; return; }
+    if (!await confirmAsync('Импорт данных?', 'Текущие данные будут полностью заменены.', 'Импортировать', 'Отмена')) { e.target.value = ''; return; }
 
     // Мержим миграции — не теряем локальный флаг онбординга
     const currentMigrations = state.migrations || {};
@@ -2709,9 +2783,15 @@ function importData(e) {
   };
   r.readAsText(f);
 }
-function resetAll() { if (!confirm('Удалить ВСЕ данные? Это необратимо.')) return; if (!confirm('Точно? Резервную копию можно сделать в Настройках.')) return;localStorage.removeItem(STORAGE_KEY);
-  location.reload(); }
-
+async function resetAll() {
+  if (!await confirmAsync('Удалить все данные?', 'Это необратимо. Резервную копию можно сохранить в Настройках перед сбросом.', 'Удалить всё', 'Отмена')) return;
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem('iqra_last_tasbih');
+    localStorage.removeItem('iqra_install_dismissed');
+  } catch(e) {}
+  location.reload();
+}
 function saveNavContext() {
   var activeScreenEl = document.querySelector('.screen.active');
   var ctx = {
@@ -2804,6 +2884,16 @@ function getRandomQuote() {
   return { type: 'tasbih', id: item.id, badge: 'Тасбих', title: item.transcription || item.arabic || '—', ar: item.arabic || '', tr: (item.translation || '').slice(0, 140) };
 }
 let _dashQuote = null;
+function getDailyQuote() {
+  var key = 'iqra_quote_' + todayKey();
+  try {
+    var cached = localStorage.getItem(key);
+    if (cached) return JSON.parse(cached);
+  } catch(e) {}
+  var q = getRandomQuote();
+  try { localStorage.setItem(key, JSON.stringify(q)); } catch(e) {}
+  return q;
+}
 // === MARKS: favorites + bookmarks ===
 var _toastTimer = null;
 function showMarkToast(text) {
@@ -3021,7 +3111,7 @@ function renderDashboard() {
   if (numEl) numEl.innerHTML = done + ' <span>/ ' + goal + '</span>';
   if (barEl) barEl.style.width = pct + '%';
 
-  _dashQuote = getRandomQuote();
+  _dashQuote = getDailyQuote();
   const qEl = document.getElementById('dash-quote');
   if (qEl && _dashQuote) {
     qEl.innerHTML =
@@ -3303,11 +3393,12 @@ if ('serviceWorker' in navigator) {
       try { reg.update(); } catch(e) {}
       checkForUpdates();
 
-      // 1) Периодически: каждые 30 секунд
+      // 1) Периодически: каждые 5 минут, только когда страница видима
       setInterval(function() {
+        if (document.visibilityState !== 'visible') return;
         try { reg.update(); } catch(e) {}
         checkForUpdates();
-      }, 30 * 1000);
+      }, 5 * 60 * 1000);
 
       // 2) При возврате приложения в фокус (iOS/Android/PWA)
       document.addEventListener('visibilitychange', function() {
