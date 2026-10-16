@@ -2128,7 +2128,8 @@ function renderTasbih() {
     const off = C*(1-p);
     const tc = todayCountFor(t.id);
     const badge = tc>0 ? `<div class="today-badge">${tc}</div>` : '';
-         return '<div class="content-card" onclick="searchOpen(\'' + type + '\',\'' + it.id + '\')">... ontouchstart="cardTouchStart(event)" ontouchmove="cardTouchMove(event)" ontouchend="cardTouchEnd(event)" ontouchcancel="cardTouchEnd(event)">${badge}<div class="body"><div class="ar ar-font">${esc(t.arabic)}</div><div class="tr">${esc(t.transcription)}</div><div class="trn">${esc(t.translation)}</div><div class="p-row"><span>${t.current} / ${t.target}</span><span>Циклов: ${t.cycles}</span></div></div><div class="mini-ring"><svg width="52" height="52"><circle class="ring-bg" cx="26" cy="26" r="${R}" fill="none" stroke-width="3.5"/><circle class="ring-fg" cx="26" cy="26" r="${R}" fill="none" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${off}"/></svg><div class="ring-num">${Math.round(p*100)}%</div></div></div>`;
+    const tid = escAttr(t.id);
+    return `<div class="tasbih-card" data-id="${tid}" onclick="cardClick(event,'${tid}')" ontouchstart="cardTouchStart(event)" ontouchmove="cardTouchMove(event)" ontouchend="cardTouchEnd(event)" ontouchcancel="cardTouchEnd(event)">${badge}<div class="body"><div class="ar ar-font">${esc(t.arabic)}</div><div class="tr">${esc(t.transcription)}</div><div class="trn">${esc(t.translation)}</div><div class="p-row"><span>${t.current} / ${t.target}</span><span>Циклов: ${t.cycles}</span></div></div><div class="mini-ring"><svg width="52" height="52"><circle class="ring-bg" cx="26" cy="26" r="${R}" fill="none" stroke-width="3.5"/><circle class="ring-fg" cx="26" cy="26" r="${R}" fill="none" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${off}"/></svg><div class="ring-num">${Math.round(p*100)}%</div></div></div>`;
   }).join('');
 }
 // B1: long-press активирует drag и подавляет следующий click
@@ -2203,7 +2204,7 @@ async function renderQuranList() {
     const fav = isFavorite(item.id);
     const numHtml = item.type === 'surah' ? `<div class="c-num">${item.number}</div>` : '';
     const hasNum = item.type === 'surah' ? ' has-num' : '';
-    const star = `<button class="star-btn ${fav?'active':''}" onclick="starClick(event,'${item.id}','quran')">${fav?'<svg class="ico"><use href="#i-star-filled"/></svg>':'<svg class="ico"><use href="#i-star"/></svg>'}</button>`;
+    const star = `<button class="star-btn ${fav?'active':''}" onclick="starClick(event,${escAttr(item.id)}','quran')">${fav?'<svg class="ico"><use href="#i-star-filled"/></svg>':'<svg class="ico"><use href="#i-star"/></svg>'}</button>`;
     let readBadge = '';
     if (item.type === 'surah' && state.settings.readAyah && typeof state.settings.readAyah[item.id] === 'number' && state.settings.readAyah[item.id] > 0) {
       const ayahN = state.settings.readAyah[item.id] + 1;
@@ -2449,8 +2450,8 @@ function renderDuaList() {
   if (!state.duas.length) { el.innerHTML = '<div class="empty">Пока нет дуа</div>'; return; }
   el.innerHTML = state.duas.map(d => {
     const fav = isFavorite(d.id);
-    const star = `<button class="star-btn ${fav?'active':''}" onclick="starClick(event,'${d.id}','dua')">${fav?'<svg class="ico"><use href="#i-star-filled"/></svg>':'<svg class="ico"><use href="#i-star"/></svg>'}</button>`;
-    return `<div class="content-card" onclick="openDua('${d.id}')">${star}<div class="c-title">${esc(d.title)}</div><div class="c-sub">${esc(d.subtitle||'')}</div><div class="c-ar ar-font">${esc(d.arabic)}</div><div class="c-tr">${esc(d.translation)}</div></div>`;
+    const star = `<button class="star-btn ${fav?'active':''}" onclick="starClick(event,'${escAttr(d.id)}','dua')">${fav?'<svg class="ico"><use href="#i-star-filled"/></svg>':'<svg class="ico"><use href="#i-star"/></svg>'}</button>`;
+    return `<div class="content-card" onclick="openDua('${escAttr(d.id)}')">${star}<div class="c-title">${esc(d.title)}</div><div class="c-sub">${esc(d.subtitle||'')}</div><div class="c-ar ar-font">${esc(d.arabic)}</div><div class="c-tr">${esc(d.translation)}</div></div>`;
   }).join('');
 }
 function openDua(id) {
@@ -2512,7 +2513,7 @@ function openHadith(id) {
     </div>
     ${h.note ? `<div class="note-box"><svg class="ico ico-sm" style="flex-shrink:0;color:var(--accent2)"><use href="#i-lightbulb"/></svg><div>${escNl(h.note)}</div></div>` : ''}
     <div class="detail-actions"><button class="btn" onclick="openMemorizeFor(getHadithById('${h.id}'))"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-lightbulb"/></svg>Заучить</button><button class="btn secondary" onclick="shareItem('hadith','${h.id}')"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-upload"/></svg>Поделиться</button></div>
-       <div class="learned-toggle ${h.learned?'done':''}" onclick="toggleHadithLearned('${h.id}')">
+       <div class="learned-toggle ${h.learned?'done':''}" onclick="toggleHadithLearned('${escAttr(h.id)}')">
       <div class="lt-icon">${h.learned?'✓':'<svg class="ico ico-sm"><use href="#i-book"/></svg>'}</div>
       <div class="lt-body"><div class="lt-title">${h.learned?'Изучено':'Отметить как изученный'}</div><div class="lt-sub">${h.learned?'Нажми, чтобы снять отметку':'Изучи хадис и отметь'}</div></div>
     </div>
@@ -2528,7 +2529,7 @@ const MONTHS = ['Январь','Февраль','Март','Апрель','Ма�
 const DOW = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
 
 function setProgTab(t) { progTab = t; document.querySelectorAll('.prog-tabs button').forEach(b=>b.classList.toggle('active', b.dataset.pt===t)); renderProgress(); }
-function renderProgress() { if (progTab === 'overview') renderProgressOverview(); else if (progTab === 'calendar') renderProgressCalendar(); else if (progTab === 'learned') renderProgressLearned(); else if (progTab === 'favorites') renderProgressFavorites(); } let _progFilter = ''; function setProgFilter(v) {   _progFilter = (v || '').toLowerCase().trim();   renderProgress(); } function _progMatch(title) {   if (!_progFilter) return true;   return String(title || '').toLowerCase().indexOf(_progFilter) >= 0; } function _progSearchHtml() {   return '<div style="padding:0 0 12px;"><div class="search-wrap"><input type="text" placeholder="Поиск по списку..." value="' + escAttr(_progFilter) + '" oninput="setProgFilter(this.value)"></div></div>'; } function renderProgressFavorites() {   const body = document.getElementById('prog-body');      const favQ = state.quran.filter(q=>isFavorite(q.id) && _progMatch(q.title));
+function renderProgress() { if (progTab === 'overview') renderProgressOverview(); else if (progTab === 'calendar') renderProgressCalendar(); else if (progTab === 'learned') renderProgressLearned(); else if (progTab === 'favorites') renderProgressFavorites(); } let _progFilter = ''; function setProgFilter(v) {   var inp = document.getElementById('prog-search-input');   var pos = inp ? (inp.selectionStart || 0) : 0;   _progFilter = (v || '').toLowerCase().trim();   renderProgress();   var newInp = document.getElementById('prog-search-input');   if (newInp) { newInp.focus(); try { newInp.setSelectionRange(pos, pos); } catch(e){} } } function _progMatch(title) {   if (!_progFilter) return true;   return String(title || '').toLowerCase().indexOf(_progFilter) >= 0; } function _progSearchHtml() {   return '<div style="padding:0 0 12px;"><div class="search-wrap"><input type="text" id="prog-search-input" placeholder="Поиск по списку..." value="' + escAttr(_progFilter) + '" oninput="setProgFilter(this.value)"></div></div>'; } function renderProgressFavorites() {   const body = document.getElementById('prog-body');      const favQ = state.quran.filter(q=>isFavorite(q.id) && _progMatch(q.title));
    const favD = state.duas.filter(d=>isFavorite(d.id) && _progMatch(d.title));
    const favH = state.hadiths.filter(h=>isFavorite(h.id) && _progMatch(h.title));   const bms = Array.isArray(state.bookmarks) ? state.bookmarks.slice().reverse() : [];   let html = _progSearchHtml();   if (bms.length) {     html += '<div class="settings-group"><div class="progress-section-title">Закладки</div>';     bms.forEach(b => {       html += '<div class="learned-item mark-item"><div onclick="openBookmark(\'' + b.id + '\')" style="cursor:pointer;flex:1;min-width:0"><div class="li-title">' + esc(b.label) + '</div><div class="li-sub">' + new Date(b.ts).toLocaleDateString('ru-RU') + '</div></div><button class="mi-del" onclick="removeBookmark(\'' + b.id + '\')" aria-label="Удалить">×</button></div>';     });     html += '</div>';   }   if (favQ.length) { html += `<div class="settings-group"><div class="progress-section-title">Суры и аяты</div>`; favQ.forEach(q => { html += `<div class="learned-item" onclick="openQuran('${q.id}')" style="cursor:pointer"><div><div class="li-title">${esc(q.title)}</div><div class="li-sub">${esc(q.subtitle||'')}</div></div><div class="li-check">★</div></div>`; }); html += `</div>`; }   if (favD.length) { html += `<div class="settings-group"><div class="progress-section-title">Дуа</div>`; favD.forEach(d => { html += `<div class="learned-item" onclick="openDua('${d.id}')" style="cursor:pointer"><div><div class="li-title">${esc(d.title)}</div><div class="li-sub">${esc(d.subtitle||'')}</div></div><div class="li-check">★</div></div>`; }); html += `</div>`; }   if (favH.length) { html += `<div class="settings-group"><div class="progress-section-title">Хадисы</div>`; favH.forEach(h => { html += `<div class="learned-item" onclick="openHadith('${h.id}')" style="cursor:pointer"><div><div class="li-title">${esc(h.title)}</div><div class="li-sub">${esc(h.subtitle||'')}</div></div><div class="li-check">★</div></div>`; }); html += `</div>`; }   if (!html) html = '<div class="empty">Пока пусто.<br>Нажимайте ★ на карточках и добавляйте закладки в режиме чтения.</div>';   body.innerHTML = html; }
 function renderProgressOverview() {
@@ -2606,14 +2607,14 @@ function renderProgressCalendar() {
 }
 function renderProgressLearned() {
   const body = document.getElementById('prog-body');
-  const learnedQuran = state.quran.filter(q => q.learned);
-  const learnedDuas = state.duas.filter(d => d.learned);
-  const learnedHadiths = state.hadiths.filter(h => h.learned);
-  let html = '';
+  const learnedQuran = state.quran.filter(q => q.learned && _progMatch(q.title));
+  const learnedDuas = state.duas.filter(d => d.learned && _progMatch(d.title));
+  const learnedHadiths = state.hadiths.filter(h => h.learned && _progMatch(h.title));
+  let html = _progSearchHtml();
   if (learnedQuran.length) { html += `<div class="settings-group"><div class="progress-section-title">Выученные суры и аяты</div>`; learnedQuran.forEach(q => { html += `<div class="learned-item"><div><div class="li-title">${esc(q.title)}</div><div class="li-sub">${q.learnedAt ? formatDateShort(q.learnedAt) : ''}</div></div><div class="li-check">✓</div></div>`; }); html += `</div>`; }
   if (learnedDuas.length) { html += `<div class="settings-group"><div class="progress-section-title">Выученные дуа</div>`; learnedDuas.forEach(d => { html += `<div class="learned-item"><div><div class="li-title">${esc(d.title)}</div></div><div class="li-check">✓</div></div>`; }); html += `</div>`; }
   if (learnedHadiths.length) { html += `<div class="settings-group"><div class="progress-section-title">Изученные хадисы</div>`; learnedHadiths.forEach(h => { html += `<div class="learned-item"><div><div class="li-title">${esc(h.title)}</div></div><div class="li-check">✓</div></div>`; }); html += `</div>`; }
-  if (!html) html = '<div class="empty">Пока ничего не выучено.<br>Начните с раздела «Коран» или «Дуа».</div>';
+  if (!learnedQuran.length && !learnedDuas.length && !learnedHadiths.length) {     html += '<div class="empty">Пока ничего не выучено.<br>Начните с раздела «Коран» или «Дуа».</div>';   }
   body.innerHTML = html;
 }
 function formatDateShort(key) { if (!key || !/^\d{4}-\d{2}-\d{2}$/.test(key)) return ''; const [y,m,d] = key.split('-'); return `${parseInt(d)} ${MONTHS[parseInt(m)-1].toLowerCase()} ${y}`; }
