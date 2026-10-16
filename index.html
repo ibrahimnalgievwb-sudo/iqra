@@ -182,6 +182,10 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .fab:active { transform:scale(.92); }
 
 .nav { position:fixed; bottom:0; left:0; right:0; display:flex; background:var(--card); border-top:1px solid var(--border); z-index:9999; padding-bottom:env(safe-area-inset-bottom, 0px); }
+.nav::after { content:''; position:fixed; left:0; right:0; bottom:-240px; height:240px; background:var(--card); pointer-events:none; z-index:9998; }
+@supports (-webkit-touch-callout: none) {
+  .nav { padding-bottom: max(env(safe-area-inset-bottom, 0px), 34px); }
+}
 .nav button { flex:1; padding:4px 0 2px; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; gap:0; color:var(--muted); background:transparent; min-width:0; transition:color .2s ease; }
 .nav button .ico {
   width: 30px; height: 30px;
@@ -1529,7 +1533,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v104';
+const APP_VERSION = 'iqra-v105';
 const BACKUP_SCHEMA = 2;
 const LIMITS = { tasbihs:1000, history:10000, historyDays:365, reminders:50, textLen:1000, idLen:100, targetMax:100000, cyclesMax:1000000 };
 const QURAN_USE_API = false;
