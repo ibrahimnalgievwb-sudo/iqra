@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" translate="no">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -12,6 +12,7 @@
 <meta name="theme-color" content="#FFFFFF">
 <meta name="color-scheme" content="light dark">
 <meta name="robots" content="noindex, nofollow">
+<meta name="google" content="notranslate">
 <title>Iqra | Читай</title>
 <link rel="icon" type="image/png" href="./favicon.png">
 <link rel="apple-touch-icon" href="./apple-touch-icon.png">
@@ -182,6 +183,8 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .fab:active { transform:scale(.92); }
 
 .nav { position:fixed; bottom:0; left:0; right:0; display:flex; background:var(--card); border-top:1px solid var(--border); z-index:9999; padding-bottom:env(safe-area-inset-bottom, 0px); }
+.nav::after { content:''; position:fixed; left:0; right:0; bottom:-240px; height:240px; background:var(--card); pointer-events:none; z-index:9998; }
+@supports (-webkit-touch-callout: none) { .nav { padding-bottom: max(env(safe-area-inset-bottom, 0px), 34px); } }
 .nav::after { content:''; position:fixed; left:0; right:0; bottom:-240px; height:240px; background:var(--card); pointer-events:none; z-index:9998; }
 @supports (-webkit-touch-callout: none) {
   .nav { padding-bottom: max(env(safe-area-inset-bottom, 0px), 34px); }
@@ -1533,7 +1536,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v105';
+const APP_VERSION = 'iqra-v106';
 const BACKUP_SCHEMA = 2;
 const LIMITS = { tasbihs:1000, history:10000, historyDays:365, reminders:50, textLen:1000, idLen:100, targetMax:100000, cyclesMax:1000000 };
 const QURAN_USE_API = false;
