@@ -188,15 +188,27 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   width: 30px; height: 30px;
   padding: 4px;
   box-sizing: border-box;
-  background: var(--card2);
+  background-color: var(--card2);
+  background-image: none;
   border-radius: 50%;
   box-shadow: 0 0 0 1px rgba(var(--accent-rgb), .10);
   color: var(--accent2);
-  transition: box-shadow .25s ease, background .25s ease, color .25s ease;
+  transition: box-shadow .2s ease, color .2s ease, transform .12s ease;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+.nav button:active .ico {
+  -webkit-transform: translateZ(0) scale(.92);
+  transform: translateZ(0) scale(.92);
 }
 .nav button.active .ico {
-  background: var(--gold-grad);
-  box-shadow: 0 0 0 1px var(--ar-g2), 0 0 10px rgba(212,175,55,.40);
+  background-color: var(--ar-g2);
+  background-image: var(--gold-grad);
+  box-shadow: 0 0 0 1px var(--ar-g2), 0 0 6px rgba(212,175,55,.28);
   color: #0A0A0A;
 }
 .nav button .nav-label { font-size: clamp(7.5px, 2.15vw, 10px); line-height: 1.05; font-weight: 600; white-space: nowrap; overflow: hidden; max-width: 100%; text-align: center; padding: 0; letter-spacing: 0; color: var(--muted); margin-top: 1px; transition: color .2s ease, font-weight .2s ease; }
@@ -1528,7 +1540,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v113';
+const APP_VERSION = 'iqra-v114';
 const BACKUP_SCHEMA = 2;
 const LIMITS = { tasbihs:1000, history:10000, historyDays:365, reminders:50, textLen:1000, idLen:100, targetMax:100000, cyclesMax:1000000 };
 const QURAN_USE_API = false;
