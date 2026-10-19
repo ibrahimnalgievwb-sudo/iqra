@@ -1570,7 +1570,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v132';
+const APP_VERSION = 'iqra-v133';
 const BACKUP_SCHEMA = 2;
 const LIMITS = { tasbihs:1000, history:10000, historyDays:365, reminders:50, textLen:1000, idLen:100, targetMax:100000, cyclesMax:1000000 };
 const QURAN_USE_API = false;
@@ -1904,7 +1904,17 @@ function pruneHistory() {
   if (remaining.length > LIMITS.history) {
     toRemove = toRemove.concat(remaining.slice(0, remaining.length - LIMITS.history));
   }
-  toRemove.forEach(k => { delete state.history[k]; });
+    toRemove.forEach(k => { delete state.history[k]; });
+
+  // Очистка старых ежедневных цитат (утечка localStorage)
+  try {
+    var quoteKeys = Object.keys(localStorage).filter(function(k){ return k.indexOf('iqra_quote_') === 0; });
+    if (quoteKeys.length > 7) {
+      quoteKeys.sort(); // YYYY-MM-DD сортируется хронологически
+      var toRemoveQuotes = quoteKeys.slice(0, quoteKeys.length - 7);
+      toRemoveQuotes.forEach(function(k){ localStorage.removeItem(k); });
+    }
+  } catch(e) {}
 }
 
 // saveNow вызывается только через pagehide — срабатывает и на мобильных,
@@ -1917,6 +1927,7 @@ window.addEventListener('pagehide', () => {
   }
   saveNow();
 });
+// Убрано дублирование saveNow на visibilitychange, так как pagehide уже обрабатывает сохранение
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveNow(); });
 
 function pad(n){ return n<10?'0'+n:''+n; }
@@ -2663,6 +2674,7 @@ function confirmAsync(title, sub, okText, cancelText) {
     document.getElementById('modal-bg').classList.add('active');
     
     function done(v) {
+      if (state.settings.vibrate && navigator.vibrate) navigator.vibrate(10); // Тактильный отклик
       _pendingConfirmResolve = null;
       document.getElementById('modal-bg').classList.remove('active');
       resolve(v);
