@@ -1971,6 +1971,7 @@ function isFavorite(id){ return Array.isArray(state.favorites) && state.favorite
   if (showType('hadith')) html += grp('Хадисы', filtered(state.hadiths, 'hadith'), 'hadith');   el.innerHTML = html || '<div class="empty">Ничего не найдено</div>'; }
 function trackEvent(name, title) {   var data = {     path: '/event/' + String(name).slice(0, 100),     title: String(title || name).slice(0, 200),     event: true   };   var tries = 0;   function attempt() {     try {       if (window.goatcounter && typeof window.goatcounter.count === 'function') {         window.goatcounter.count(data);       } else if (tries < 10) {         tries++;         setTimeout(attempt, 200);       }     } catch (e) {}   }   attempt(); } function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function escAttr(s){ return esc(s).replace(/'/g, '&#39;'); }
+function escNl(s){ return esc(s).replace(/\n/g,'<br>'); }
 function transcriptionNote() { return `<div class="transcription-note"><svg class="ico ico-sm tn-icon" style="flex-shrink:0;opacity:.75"><use href="#i-info"/></svg><div>Транскрипция передаёт лишь <b>примерное произношение</b> и не отражает всех тонкостей арабского. Для правильного чтения следует изучить <b>таджвид</b>.</div></div>`; }
 function addToHistory(id, n) {
   const k = todayKey();
