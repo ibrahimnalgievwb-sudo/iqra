@@ -875,6 +875,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   transition: transform .08s ease;
 }
 .icon-btn:active { transform: scale(.94); }
+.ico, .ico * { pointer-events: none; }
 .icon-btn.ghost {
   background: transparent !important;
   color: var(--gold-accent) !important;
@@ -2161,7 +2162,15 @@ function tap(e) {
 function showNextToast() { const idx=state.tasbihs.findIndex(x=>x.id===activeId); const next=state.tasbihs[idx+1]; if (!next) return; const toast=document.getElementById('next-toast'); document.getElementById('nt-name').textContent=next.transcription||next.translation||'—'; document.getElementById('nt-ar').textContent=next.arabic||''; toast.classList.add('show'); clearTimeout(nextToastTimer); nextToastTimer=setTimeout(()=>toast.classList.remove('show'),5000); }
 function goNext() { const idx=state.tasbihs.findIndex(x=>x.id===activeId); const next=state.tasbihs[idx+1]; document.getElementById('next-toast').classList.remove('show'); if (next) openCounter(next.id); }
 function shareCurrent(e) { if (e) e.stopPropagation(); if (activeId) shareItem('tasbih', activeId); }
-async function resetCurrent(e) {   if (e) e.stopPropagation();   if (!await confirmAsync('Сбросить счёт?', 'Текущий прогресс этого тасбиха обнулится.', 'Сбросить', 'Отмена')) return;   const t = getById(activeId); t.current = 0; save(); updateCounterUI(); }
+async function resetCurrent(e) {   
+  if (e) e.stopPropagation();   
+  if (!activeId) return;
+  if (!await confirmAsync('Сбросить счёт?', 'Текущий прогресс этого тасбиха обнулится.', 'Сбросить', 'Отмена')) return;   
+  const t = getById(activeId); 
+  if (t) {
+    t.current = 0; save(); updateCounterUI(); 
+  }
+}
 function editCurrent(e) { if (e) e.stopPropagation(); if (activeId) openForm(activeId); }
 function goHome() { if (activeId) saveNow(); activeId=null; releaseWakeLock(); renderDashboard(); showScreen('screen-dashboard'); }
 async function requestWakeLock() { try { if ('wakeLock' in navigator) { wakeLock=await navigator.wakeLock.request('screen'); wakeLock.addEventListener('release',()=>{wakeLock=null;}); } } catch(e){} }
@@ -2629,7 +2638,15 @@ function openDay(key) {
   document.getElementById('modal-content').innerHTML = html;
   document.getElementById('modal-bg').classList.add('active');
 }
-function closeModal() { document.getElementById('modal-bg').classList.remove('active'); }
+let _pendingConfirmResolve = null;
+function closeModal() { 
+  document.getElementById('modal-bg').classList.remove('active'); 
+  if (_pendingConfirmResolve) {
+    const r = _pendingConfirmResolve;
+    _pendingConfirmResolve = null;
+    r(false);
+  }
+}
   // Кастомный confirm в стиле приложения. Возвращает Promise<bool>.
 function confirmAsync(title, sub, okText, cancelText) {
   return new Promise(function(resolve) {
@@ -2638,16 +2655,20 @@ function confirmAsync(title, sub, okText, cancelText) {
     var html = '<h2>' + esc(title) + '</h2>' +
       (sub ? '<div style="font-size:14px;color:var(--muted);margin-bottom:20px;line-height:1.5">' + escNl(sub) + '</div>' : '') +
       '<div style="display:flex;gap:10px;">' +
-        '<button class="btn secondary" id="cf-cancel">' + esc(cancelText) + '</button>' +
-        '<button class="btn" id="cf-ok">' + esc(okText) + '</button>' +
+        '<button class="btn secondary" id="cf-cancel" style="flex:1;margin:0;">' + esc(cancelText) + '</button>' +
+        '<button class="btn" id="cf-ok" style="flex:1;margin:0;">' + esc(okText) + '</button>' +
       '</div>';
     var modal = document.getElementById('modal-content');
     modal.innerHTML = html;
     document.getElementById('modal-bg').classList.add('active');
+    
     function done(v) {
+      _pendingConfirmResolve = null;
       document.getElementById('modal-bg').classList.remove('active');
       resolve(v);
     }
+    _pendingConfirmResolve = done;
+    
     document.getElementById('cf-ok').onclick = function(){ done(true); };
     document.getElementById('cf-cancel').onclick = function(){ done(false); };
     var bg = document.getElementById('modal-bg');
