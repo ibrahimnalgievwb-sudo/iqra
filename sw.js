@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'iqra-v133';
+const CACHE_VERSION = 'iqra-v134';
 const CACHE_ASSETS = [
   './', './index.html', './manifest.json', './count.js', './fonts.css',
   './favicon.png', './apple-touch-icon.png', './icon-192.png', './icon-512.png',
@@ -17,6 +17,7 @@ const CACHE_ASSETS = [
 ];
 
 self.addEventListener('install', function(event) {
+  self.skipWaiting(); // Принудительное обновление на iOS
   event.waitUntil(
     caches.open(CACHE_VERSION).then(function(cache) {
       return Promise.allSettled(
