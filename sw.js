@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'iqra-v152';
+const CACHE_VERSION = 'iqra-v153';
 const CACHE_ASSETS = [
   './', './index.html', './manifest.json', './count.js', './fonts.css',
   './favicon.png', './apple-touch-icon.png', './icon-192.png', './icon-512.png',
@@ -17,9 +17,6 @@ const CACHE_ASSETS = [
 ];
 
 self.addEventListener('install', function(event) {
-  // Принудительное обновление на iOS: новый SW активируется сразу,
-  // не дожидаясь закрытия всех вкладок (сообщение SKIP_WAITING
-  // от клиента — дополнительный механизм для надёжности).
   self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_VERSION).then(function(cache) {
@@ -48,7 +45,6 @@ self.addEventListener('activate', function(event) {
             .map(function(k) { return caches.delete(k); })
       );
     }).then(function() {
-      // Сообщаем всем открытым клиентам о новой версии
       return self.clients.matchAll({ type: 'window' }).then(function(clients) {
         clients.forEach(function(client) {
           try { client.postMessage({ type: 'SW_UPDATED', version: CACHE_VERSION }); } catch(e) {}
