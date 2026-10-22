@@ -18,6 +18,8 @@
 <link rel="apple-touch-icon" href="./apple-touch-icon.png">
 <link rel="manifest" href="./manifest.json">
 <link rel="stylesheet" href="./fonts.css">
+<link rel="stylesheet" href="./tajweed.css">
+<script src="./tajweed.min.js" defer></script>
 <script>if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1))document.documentElement.classList.add('is-ios');</script>
 <style>
 :root {   --ar-scale: 1; --radius: 18px; --nav-safe: env(safe-area-inset-bottom, 0px); --nav-height: 52px;   /* Страховка: если data-theme не применится, будут использоваться светлые цвета */   --bg:#FFFFFF; --card:#F5F5F5; --card2:#EAEAEA; --accent:#0A0A0A; --accent2:#8B6914;   --text:#0A0A0A; --muted:#3D3D3D; --border:#C8C8C8; --shadow:rgba(0,0,0,.12);   --accent-rgb: 10, 10, 10; --ripple:rgba(10,10,10,.15);   --ar-g1:#C99414; --ar-g2:#7A5C10; --ar-g3:#4A3507;   color-scheme: light dark; } [data-theme="light"] { color-scheme: light; } [data-theme="dark"] { color-scheme: dark; } [data-theme="mono"] { color-scheme: dark; }
@@ -1584,7 +1586,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v153';
+const APP_VERSION = 'iqra-v154';
 const BACKUP_SCHEMA = 2;
 const LIMITS = { tasbihs:1000, history:10000, historyDays:365, reminders:50, textLen:1000, idLen:100, targetMax:100000, cyclesMax:1000000 };
 const QURAN_USE_API = false;
@@ -2463,23 +2465,43 @@ function openRead(id, targetAyahIdx) {
   trackEvent('read/' + id, 'Чтение: ' + item.title);
   saveLastRead('quran', id);
   document.getElementById('read-title').textContent = item.title;
+  // Таджвид: состояние берётся из настроек, по умолчанию выключен
+  if (typeof state.settings.tajweedMode !== 'boolean') state.settings.tajweedMode = false;
+  const tajweedOn = state.settings.tajweedMode;
+  const tajweedBtnHtml = item.type === 'surah' || item.type === 'ayat'
+    ? `<button class="icon-btn ghost" id="tajweed-toggle" onclick="toggleTajweed()" aria-label="Таджвид" title="${tajweedOn ? 'Скрыть таджвид' : 'Показать таджвид'}"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3v18"/><path d="M5 8h14"/><path d="M7 15h10"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/></svg></button>`
+    : '';
+  // Вставляем кнопку в шапку режима чтения (после заголовка)
+  const fsHeader = document.querySelector('#read-mode .fs-header');
+  if (fsHeader) {
+    const oldBtn = fsHeader.querySelector('#tajweed-toggle');
+    if (oldBtn) oldBtn.remove();
+    if (tajweedBtnHtml) fsHeader.insertAdjacentHTML('beforeend', tajweedBtnHtml);
+  }
   const ayahs = parseAyahs(item);
   let bismillahHtml = '';
   if (item.bismillah) {
     bismillahHtml = `<div class="bismillah-card" style="margin-bottom:20px;"><div class="b-ar ar-font">${item.bismillah.arabic}</div><div class="b-tr">${item.bismillah.transcription}</div><div class="b-trn">${item.bismillah.translation}</div></div>`;
   }
+  const ayahHtml = ayahs.map(a => {
+    let arHtml = esc(a.ar);
+    if (state.settings.tajweedMode && typeof Tajweed !== 'undefined' && typeof Tajweed.parse === 'function') {
+      try { arHtml = Tajweed.parse(a.ar); } catch(e) { arHtml = esc(a.ar); }
+    }
+    return `
+      <div class="read-ayah ${item.type==='ayat'?'ayat-mode':''}">
+        <div class="read-ayah-num">${item.type==='surah' ? a.num : (item.number||'')}</div>
+        <div class="read-ayah-ar ar-font">${arHtml}${item.type==='surah' ? ' <span class="read-ayah-marker">' + ayahMarker(a.num) + '</span>' : ''}</div>
+        ${a.tr ? `<div class="read-ayah-tr">${esc(a.tr)}</div>` : ''}
+        <div class="read-ayah-trn">${esc(a.trn)}</div>
+      </div>
+    `;
+  }).join('');
   document.getElementById('read-body').innerHTML = `
     <div class="read-surah-title">${esc(item.title)}</div>
     <div class="read-surah-sub">${esc(item.subtitle||'')}</div>
     ${bismillahHtml}
-    ${ayahs.map(a => `
-           <div class="read-ayah ${item.type==='ayat'?'ayat-mode':''}">
-        <div class="read-ayah-num">${item.type==='surah' ? a.num : (item.number||'')}</div>
-        <div class="read-ayah-ar ar-font">${esc(a.ar)}${item.type==='surah' ? ' <span class="read-ayah-marker">' + ayahMarker(a.num) + '</span>' : ''}</div>
-        ${a.tr ? `<div class="read-ayah-tr">${esc(a.tr)}</div>` : ''}
-        <div class="read-ayah-trn">${esc(a.trn)}</div>
-      </div>
-    `).join('')}
+    ${ayahHtml}
     ${transcriptionNote()}
   `;
   activeReadId = id;
@@ -2504,6 +2526,11 @@ function openRead(id, targetAyahIdx) {
   }
 }
 function closeRead() {
+  function toggleTajweed() {
+  state.settings.tajweedMode = !state.settings.tajweedMode;
+  save();
+  if (activeReadId) openRead(activeReadId, currentAyahIdx());
+}
   if (activeReadId) {
     const b = document.getElementById('read-body');
     if (b && state.settings.readScrolls) state.settings.readScrolls[activeReadId] = b.scrollTop || 0;
@@ -2659,7 +2686,7 @@ function openDua(id) {
       </div>
     </div>
     ${d.note ? `<div class="note-box"><svg class="ico ico-sm" style="flex-shrink:0;color:var(--accent2)"><use href="#i-lightbulb"/></svg><div>${escNl(d.note)}</div></div>` : ''}
-    <div class="detail-actions"><button class="btn" onclick="openMemorizeFor(getDuaById('${d.id}'))"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-lightbulb"/></svg>Заучить</button><button class="btn secondary" onclick="shareItem('dua','${d.id}')"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-upload"/></svg>Поделиться</button></div>
+    <div class="detail-actions">${d.id === 'ruqyah_guide' || d.title && d.title.toLowerCase().includes('рукья') ? '' : `<button class="btn" onclick="openMemorizeFor(getDuaById('${d.id}'))"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-lightbulb"/></svg>Заучить</button>`}<button class="btn secondary" onclick="shareItem('dua','${d.id}')"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-upload"/></svg>Поделиться</button></div>
     <div class="learned-toggle ${d.learned?'done':''}" onclick="toggleDuaLearned('${d.id}')">
       <div class="lt-icon">${d.learned?'✓':'<svg class="ico ico-sm"><use href="#i-book"/></svg>'}</div>
       <div class="lt-body"><div class="lt-title">${d.learned?'Выучено':'Отметить как выучено'}</div><div class="lt-sub">${d.learned?'Нажми, чтобы снять отметку':'Изучи дуа и отметь'}</div></div>
