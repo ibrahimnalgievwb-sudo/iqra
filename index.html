@@ -2956,6 +2956,7 @@ function importData(e) {
     mergedMigrations.quran_v16 = true;
     // Форсируем миграции контента — применим их после импорта (в следующем load()).
     mergedMigrations.ruqyahGuideFix_v1 = false;
+    mergedMigrations.ruqyahGuideFix_v2 = false;
 
     // Применяем валидированное состояние без перечитывания LS
     state = Object.assign({}, state, validated);
