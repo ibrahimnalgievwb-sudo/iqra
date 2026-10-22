@@ -1584,7 +1584,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v146';
+const APP_VERSION = 'iqra-v147';
 const BACKUP_SCHEMA = 2;
 const LIMITS = { tasbihs:1000, history:10000, historyDays:365, reminders:50, textLen:1000, idLen:100, targetMax:100000, cyclesMax:1000000 };
 const QURAN_USE_API = false;
@@ -3047,39 +3047,45 @@ function getTimeOfDay() {
   return 'Ночь';
 }
 function getRandomQuote() {
-  const available = [];
-  if (state.quran && state.quran.length) available.push('quran');
-  if (state.hadiths && state.hadiths.length) available.push('hadith');
-  if (state.duas && state.duas.length) available.push('dua');
-  if (state.tasbihs && state.tasbihs.length) available.push('tasbih');
-  if (!available.length) return null;
-  const type = available[Math.floor(Math.random() * available.length)];
-  if (type === 'quran') {
-    const item = state.quran[Math.floor(Math.random() * state.quran.length)];
+  try {
+    const available = [];
+    if (state.quran && state.quran.length) available.push('quran');
+    if (state.hadiths && state.hadiths.length) available.push('hadith');
+    if (state.duas && state.duas.length) available.push('dua');
+    if (state.tasbihs && state.tasbihs.length) available.push('tasbih');
+    if (!available.length) return null;
+    const type = available[Math.floor(Math.random() * available.length)];
+    if (type === 'quran') {
+      const item = state.quran[Math.floor(Math.random() * state.quran.length)];
+      if (!item) return null;
+      const trLines = (item.translation || '').split('\n').filter(Boolean);
+      return { type: 'quran', id: item.id, badge: 'Коран', title: item.title || '—', ar: (item.arabic || '').split('\n')[0], tr: (trLines[0] || '').slice(0, 140) };
+    }
+    if (type === 'hadith') {
+      const item = state.hadiths[Math.floor(Math.random() * state.hadiths.length)];
+      if (!item) return null;
+      return { type: 'hadith', id: item.id, badge: 'Хадис', title: item.title || '—', ar: item.arabic || '', tr: (item.translation || '').slice(0, 140) };
+    }
+    if (type === 'dua') {
+      const item = state.duas[Math.floor(Math.random() * state.duas.length)];
+      if (!item) return null;
+      return { type: 'dua', id: item.id, badge: 'Дуа', title: item.title || '—', ar: item.arabic || '', tr: (item.translation || '').slice(0, 140) };
+    }
+    const item = state.tasbihs[Math.floor(Math.random() * state.tasbihs.length)];
     if (!item) return null;
-    const trLines = (item.translation || '').split('\n').filter(Boolean);
-    return { type: 'quran', id: item.id, badge: 'Коран', title: item.title, ar: (item.arabic || '').split('\n')[0], tr: (trLines[0] || '').slice(0, 140) };
+    return { type: 'tasbih', id: item.id, badge: 'Тасбих', title: item.transcription || item.arabic || '—', ar: item.arabic || '', tr: (item.translation || '').slice(0, 140) };
+  } catch(e) {
+    return null;
   }
-  if (type === 'hadith') {
-    const item = state.hadiths[Math.floor(Math.random() * state.hadiths.length)];
-    if (!item) return null;
-    return { type: 'hadith', id: item.id, badge: 'Хадис', title: item.title, ar: item.arabic || '', tr: (item.translation || '').slice(0, 140) };
-  }
-  if (type === 'dua') {
-    const item = state.duas[Math.floor(Math.random() * state.duas.length)];
-    if (!item) return null;
-    return { type: 'dua', id: item.id, badge: 'Дуа', title: item.title, ar: item.arabic || '', tr: (item.translation || '').slice(0, 140) };
-  }
-  const item = state.tasbihs[Math.floor(Math.random() * state.tasbihs.length)];
-  if (!item) return null;
-  return { type: 'tasbih', id: item.id, badge: 'Тасбих', title: item.transcription || item.arabic || '—', ar: item.arabic || '', tr: (item.translation || '').slice(0, 140) };
 }
 let _dashQuote = null;
 function getDailyQuote() {
   var key = 'iqra_quote_' + todayKey();
   try {
     var cached = localStorage.getItem(key);
-    if (cached) return JSON.parse(cached);
+    if (cached && cached !== 'null' && cached !== 'undefined') {
+      return JSON.parse(cached);
+    }
   } catch(e) {}
   var q = getRandomQuote();
   try { localStorage.setItem(key, JSON.stringify(q)); } catch(e) {}
