@@ -1887,7 +1887,7 @@ function load() {
       migrations:{}
     };
   }
-  s.settings = Object.assign(defaultSettings(), s.settings || {});   if (s.settings.theme === 'night') s.settings.theme = 'dark';
+  s.settings = Object.assign(defaultSettings(), s.settings || {});   if (typeof s.settings.tajweedMode !== 'boolean') s.settings.tajweedMode = false;   if (s.settings.theme === 'night') s.settings.theme = 'dark';
   if (s.settings.lastRead && !s.settings.lastRead.type && s.settings.lastRead.quranId) {
     s.settings.lastRead = { type: 'quran', id: s.settings.lastRead.quranId, ts: s.settings.lastRead.ts || Date.now() };
   }
