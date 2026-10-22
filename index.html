@@ -1580,7 +1580,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v136';
+const APP_VERSION = 'iqra-v137';
 const BACKUP_SCHEMA = 2;
 const LIMITS = { tasbihs:1000, history:10000, historyDays:365, reminders:50, textLen:1000, idLen:100, targetMax:100000, cyclesMax:1000000 };
 const QURAN_USE_API = false;
@@ -3590,6 +3590,12 @@ if ('serviceWorker' in navigator) {
         var st = { screen: id };
         var ov = currentOverlay();
         if (ov) st.overlay = ov;
+        // Сохраняем контексты для восстановления при возврате
+        if (activeId) st.tasbihId = activeId;
+        if (activeQuranId) st.quranId = activeQuranId;
+        if (activeDuaId) st.duaId = activeDuaId;
+        if (activeHadithId) st.hadithId = activeHadithId;
+        if (typeof activeNightId === 'number') st.nightId = activeNightId;
         try { history.pushState(st, ''); } catch(e) {}
       }
     }
@@ -3639,6 +3645,18 @@ if ('serviceWorker' in navigator) {
         if (isOpen && !shouldBeOpen) closeOverlay(ov);
       }
       if (st.screen && currentScreen() !== st.screen) {
+        // Восстанавливаем контекст (activeId и др.) при возврате на экраны
+        if (st.screen === 'screen-counter') {
+          if (st.tasbihId) activeId = st.tasbihId;
+          else if (!activeId) {
+            try { activeId = localStorage.getItem('iqra_last_tasbih'); } catch(e) {}
+          }
+        }
+        if (st.quranId) activeQuranId = st.quranId;
+        if (st.duaId) activeDuaId = st.duaId;
+        if (st.hadithId) activeHadithId = st.hadithId;
+        if (typeof st.nightId === 'number') activeNightId = st.nightId;
+        
         try { _showScreen.call(window, st.screen); } catch(err) {}
       }
     } finally {
