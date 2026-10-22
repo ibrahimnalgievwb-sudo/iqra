@@ -1584,7 +1584,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v143';
+const APP_VERSION = 'iqra-v144';
 const BACKUP_SCHEMA = 2;
 const LIMITS = { tasbihs:1000, history:10000, historyDays:365, reminders:50, textLen:1000, idLen:100, targetMax:100000, cyclesMax:1000000 };
 const QURAN_USE_API = false;
@@ -2197,6 +2197,18 @@ function applyTheme() {
     const times = getSunTimes(now);
     let isDark;
     if (times) {
+      // День — между восходом и закатом; ночь — вне
+      isDark = nowMin < times.sunriseMin || nowMin >= times.sunsetMin;
+      } else {
+    // Проверяем системную тему телефона (iOS/Android)
+    const osDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const now = new Date();
+    const nowMin = now.getHours() * 60 + now.getMinutes();
+    const times = getSunTimes(now);
+    let isDark;
+    if (osDark) {
+      isDark = true;
+    } else if (times) {
       // День — между восходом и закатом; ночь — вне
       isDark = nowMin < times.sunriseMin || nowMin >= times.sunsetMin;
     } else {
@@ -3521,10 +3533,10 @@ if ('serviceWorker' in navigator) {
   var _swReg = null;
 
   function swReload() {
+    // Отключено для предотвращения бесконечной перезагрузки страницы
     if (_swRefreshing) return;
     _swRefreshing = true;
-    // Тихая перезагрузка окна — вкладка остаётся открытой, кэш не трогаем
-    location.reload();
+    console.log('SW: доступно обновление. Перезагрузите приложение вручную.');
   }
 
   function activateWaiting(reg) {
