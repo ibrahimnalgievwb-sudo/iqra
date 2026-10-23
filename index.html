@@ -89,10 +89,12 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 }
 
 .ar-font {
-  font-family:"Amiri","Noto Naskh Arabic","SF Arabic","Geeza Pro",serif;
+  font-family:"Noto Naskh Arabic","Amiri","SF Arabic","Geeza Pro",serif;
   font-feature-settings:"liga" 1, "calt" 1;
   line-height: 2 !important;
+  letter-spacing: normal !important;
   overflow-wrap: anywhere;
+  /* ... */
   word-wrap: break-word;
   word-break: normal;
   hyphens: none;
@@ -358,7 +360,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   line-height: 1;
 }
 .read-ayah.ayat-mode .read-ayah-num { background: var(--accent2); color: var(--bg); }
-.read-ayah-marker { display:inline-block; font-family:"Amiri","Noto Naskh Arabic","SF Arabic","Geeza Pro",serif; font-size:1em; line-height:1; color:var(--accent2); font-weight:400; margin:0 .25em; user-select:none; opacity:.95; vertical-align:middle; }
+.read-ayah-marker { display:inline-block;font-family:"Noto Naskh Arabic","Amiri","SF Arabic","Geeza Pro",serif; font-size:1em; line-height:1; color:var(--accent2); font-weight:400; margin:0 .25em; user-select:none; opacity:.95; vertical-align:middle; }
 .read-ayah-tr { font-size:15px; color:var(--muted); line-height:1.75; margin-bottom:10px; font-style:italic; overflow-wrap: anywhere; letter-spacing:0.01em; }
 .read-ayah-trn { font-size:16px; line-height:1.8; overflow-wrap: anywhere; letter-spacing:0.005em; }
 
@@ -1119,13 +1121,10 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 .tajweed-ham_wasl { color: #795548 !important; -webkit-text-fill-color: #795548 !important; }
 .tajweed-laam_shamsiyah { color: #795548 !important; -webkit-text-fill-color: #795548 !important; }
 
-/* Отключение золотого градиента при включенном таджвиде */
-.ar-font.tajweed-on {
-  background-image: none !important;
-  -webkit-background-clip: border-box !important;
-  background-clip: border-box !important;
-  -webkit-text-fill-color: var(--text);
-  color: var(--text);
+/* Защита от разрыва арабских букв при раскраске */
+.ar-font.tajweed-on span {
+  display: inline;
+  letter-spacing: inherit;
 }
 </style>
 </head>
