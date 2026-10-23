@@ -1109,6 +1109,16 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 .tajweed-iqlab { -webkit-text-fill-color: #00BCD4 !important; color: #00BCD4 !important; font-weight: 600; }
 .tajweed-qalqalah { -webkit-text-fill-color: #2196F3 !important; color: #2196F3 !important; font-weight: 600; }
 .tajweed-madd { -webkit-text-fill-color: #F44336 !important; color: #F44336 !important; }
+
+/* Отключение золотого градиента при активном таджвиде.
+   Без этого background-clip: text у .ar-font перекрывает цвета спанов. */
+.ar-font.tajweed-on {
+  background-image: none !important;
+  -webkit-background-clip: border-box !important;
+  background-clip: border-box !important;
+  -webkit-text-fill-color: var(--text);
+  color: var(--text);
+}
 </style>
 </head>
 <body>
@@ -1595,7 +1605,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v155';
+const APP_VERSION = 'iqra-v156';
 const BACKUP_SCHEMA = 2;
 const LIMITS = { tasbihs:1000, history:10000, historyDays:365, reminders:50, textLen:1000, idLen:100, targetMax:100000, cyclesMax:1000000 };
 const QURAN_USE_API = false;
@@ -2221,15 +2231,12 @@ function applyTheme() {
     document.documentElement.setAttribute('data-theme', 'dark');
     document.querySelector('meta[name=theme-color]').setAttribute('content', '#000000');
   } else {
-    // Проверяем системную тему телефона (iOS/Android)
-    const osDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    // Auto = время суток (без override от системной темы пользователя)
     const now = new Date();
     const nowMin = now.getHours() * 60 + now.getMinutes();
     const times = getSunTimes(now);
     let isDark;
-    if (osDark) {
-      isDark = true;
-    } else if (times) {
+    if (times) {
       isDark = nowMin < times.sunriseMin || nowMin >= times.sunsetMin;
     } else {
       const h = now.getHours();
@@ -2570,16 +2577,18 @@ function openRead(id, targetAyahIdx) {
     ` : ''}
   ` : '';
   const ayahHtml = ayahs.map(a => {
-    let arHtml;
+    let arHtml, arClass;
     if (state.settings.tajweedMode && isQuranText) {
+      arClass = 'ar-font tajweed-on';
       try { arHtml = detectTajweed(a.ar); } catch(e) { arHtml = esc(a.ar); }
     } else {
+      arClass = 'ar-font';
       arHtml = esc(a.ar);
     }
     return `
       <div class="read-ayah ${item.type==='ayat'?'ayat-mode':''}">
         <div class="read-ayah-num">${item.type==='surah' ? a.num : (item.number||'')}</div>
-        <div class="read-ayah-ar ar-font">${arHtml}${item.type==='surah' ? ' <span class="read-ayah-marker">' + ayahMarker(a.num) + '</span>' : ''}</div>
+        <div class="read-ayah-ar ${arClass}">${arHtml}${item.type==='surah' ? ' <span class="read-ayah-marker">' + ayahMarker(a.num) + '</span>' : ''}</div>
         ${a.tr ? `<div class="read-ayah-tr">${esc(a.tr)}</div>` : ''}
         <div class="read-ayah-trn">${esc(a.trn)}</div>
       </div>
@@ -2615,11 +2624,6 @@ function openRead(id, targetAyahIdx) {
   }
 }
 function closeRead() {
-  function toggleTajweed() {
-  state.settings.tajweedMode = !state.settings.tajweedMode;
-  save();
-  if (activeReadId) openRead(activeReadId, currentAyahIdx());
-}
   if (activeReadId) {
     const b = document.getElementById('read-body');
     if (b && state.settings.readScrolls) state.settings.readScrolls[activeReadId] = b.scrollTop || 0;
@@ -2815,7 +2819,7 @@ function openHadith(id) {
       </div>
     </div>
     ${h.note ? `<div class="note-box"><svg class="ico ico-sm" style="flex-shrink:0;color:var(--accent2)"><use href="#i-lightbulb"/></svg><div>${escNl(h.note)}</div></div>` : ''}
-       <div class="detail-actions">${d.id === 'ruqyah_guide' ? '' : `<button class="btn" onclick="openMemorizeFor(getDuaById('${d.id}'))"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-lightbulb"/></svg>Заучить</button>`}<button class="btn secondary" onclick="shareItem('dua','${d.id}')"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-upload"/></svg>Поделиться</button></div>
+       <div class="detail-actions"><button class="btn" onclick="openMemorizeFor(getHadithById('${h.id}'))"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-lightbulb"/></svg>Заучить</button><button class="btn secondary" onclick="shareItem('hadith','${h.id}')"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-upload"/></svg>Поделиться</button></div>
        <div class="learned-toggle ${h.learned?'done':''}" onclick="toggleHadithLearned('${escAttr(h.id)}')">
       <div class="lt-icon">${h.learned?'✓':'<svg class="ico ico-sm"><use href="#i-book"/></svg>'}</div>
       <div class="lt-body"><div class="lt-title">${h.learned?'Изучено':'Отметить как изученный'}</div><div class="lt-sub">${h.learned?'Нажми, чтобы снять отметку':'Изучи хадис и отметь'}</div></div>
