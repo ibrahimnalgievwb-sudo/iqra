@@ -2504,6 +2504,32 @@ function toggleQuranLearned(id) {
   openQuran(id);
 }
 function goQuranList() { activeQuranId = null; renderQuranList(); showScreen('screen-quran'); }
+function goQuranList() { activeQuranId = null; renderQuranList(); showScreen('screen-quran'); }
+
+function applyTajweedAnnotations(text, surahNum, ayahNum) {
+  if (!TAJWEED_DATA) return esc(text);
+  
+  // Ищем аят в массиве (структура mhassanrahman/quran-tajweed)
+  const verseData = TAJWEED_DATA.find(v => v.surah === surahNum && v.ayah === ayahNum);
+  if (!verseData || !verseData.annotations || !verseData.annotations.length) return esc(text);
+  
+  const rules = verseData.annotations;
+  let result = '';
+  let lastIndex = 0;
+  
+  for (const rule of rules) {
+    // Защита от выхода за границы
+    if (rule.start < lastIndex || rule.end > text.length) continue; 
+    
+    result += esc(text.substring(lastIndex, rule.start));
+    const fragment = text.substring(rule.start, rule.end);
+    result += `<span class="tajweed-${rule.rule}">${esc(fragment)}</span>`;
+    
+    lastIndex = rule.end;
+  }
+  result += esc(text.substring(lastIndex));
+  return result;
+}
 function toggleTajweed() {
   state.settings.tajweedMode = !state.settings.tajweedMode;
   save();
