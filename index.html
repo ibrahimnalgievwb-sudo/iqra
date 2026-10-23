@@ -1100,6 +1100,15 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 .next-toast { bottom: calc(110px + var(--nav-safe)) !important; }
 .install-banner { bottom: calc(72px + var(--nav-safe)) !important; }
 .modal { padding-bottom: calc(26px + var(--nav-safe)) !important; }
+
+/* === TAJWEED: цветовая кодировка правил в режиме чтения === */
+.tajweed-ghunna { -webkit-text-fill-color: #4CAF50 !important; color: #4CAF50 !important; font-weight: 600; }
+.tajweed-ikhfa { -webkit-text-fill-color: #4CAF50 !important; color: #4CAF50 !important; }
+.tajweed-idgham-ghunna { -webkit-text-fill-color: #8BC34A !important; color: #8BC34A !important; }
+.tajweed-idgham-no-ghunna { -webkit-text-fill-color: #9E9E9E !important; color: #9E9E9E !important; }
+.tajweed-iqlab { -webkit-text-fill-color: #00BCD4 !important; color: #00BCD4 !important; font-weight: 600; }
+.tajweed-qalqalah { -webkit-text-fill-color: #2196F3 !important; color: #2196F3 !important; font-weight: 600; }
+.tajweed-madd { -webkit-text-fill-color: #F44336 !important; color: #F44336 !important; }
 </style>
 </head>
 <body>
@@ -1586,7 +1595,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v154';
+const APP_VERSION = 'iqra-v155';
 const BACKUP_SCHEMA = 2;
 const LIMITS = { tasbihs:1000, history:10000, historyDays:365, reminders:50, textLen:1000, idLen:100, targetMax:100000, cyclesMax:1000000 };
 const QURAN_USE_API = false;
@@ -2460,33 +2469,112 @@ function toggleQuranLearned(id) {
 }
 function goQuranList() { activeQuranId = null; renderQuranList(); showScreen('screen-quran'); }
 
+function detectTajweed(text) {
+  if (!text || typeof text !== 'string') return '';
+  var out = '';
+  var chars = text.split('');
+  var i = 0;
+  var QALQALAH = 'قطبجد';
+  var GHUNNA = 'نم';
+  var IDG_GHUNNA = 'ينمو';
+  var IDG_NO_GHUNNA = 'لر';
+  var IKHFA = 'تثجدذزسشصضطظفقك';
+  var isDiacritic = function(c) { return /[\u064B-\u065F\u0670\u06D6-\u06ED\u0640]/.test(c); };
+  var isSpace = function(c) { return c === ' ' || c === '\n' || c === '\t'; };
+  while (i < chars.length) {
+    var c = chars[i];
+    var n = chars[i + 1] || '';
+    if (GHUNNA.indexOf(c) !== -1 && n === 'ّ') {
+      out += '<span class="tajweed-ghunna">' + esc(c + n) + '</span>';
+      i += 2; continue;
+    }
+    if (QALQALAH.indexOf(c) !== -1 && (n === 'ْ' || n === 'ّ')) {
+      out += '<span class="tajweed-qalqalah">' + esc(c + n) + '</span>';
+      i += 2; continue;
+    }
+    var noonSukun = (c === 'ن' && n === 'ْ');
+    var noonEndWord = (c === 'ن' && (isSpace(n) || n === ''));
+    var tanween = 'ًٌٍ'.indexOf(c) !== -1;
+    if (noonSukun || tanween || noonEndWord) {
+      var j;
+      if (noonSukun) {
+        j = i + 2;
+      } else if (tanween) {
+        j = i + 1;
+      } else {
+        j = i + 1;
+        while (j < chars.length && isSpace(chars[j])) j++;
+      }
+      while (j < chars.length && isDiacritic(chars[j])) j++;
+      var nx = chars[j] || '';
+      if (nx && !isSpace(nx)) {
+        var preEnd = noonSukun ? i + 2 : i + 1;
+        var pre = chars.slice(i, preEnd).join('');
+        var mid = chars.slice(preEnd, j).join('');
+        if (nx === 'ب') {
+          out += '<span class="tajweed-iqlab">' + esc(pre + mid + nx) + '</span>';
+          i = j + 1; continue;
+        }
+        if (IDG_GHUNNA.indexOf(nx) !== -1) {
+          out += '<span class="tajweed-idgham-ghunna">' + esc(pre + mid + nx) + '</span>';
+          i = j + 1; continue;
+        }
+        if (IDG_NO_GHUNNA.indexOf(nx) !== -1) {
+          out += '<span class="tajweed-idgham-no-ghunna">' + esc(pre + mid + nx) + '</span>';
+          i = j + 1; continue;
+        }
+        if (IKHFA.indexOf(nx) !== -1) {
+          out += '<span class="tajweed-ikhfa">' + esc(pre + mid + nx) + '</span>';
+          i = j + 1; continue;
+        }
+      }
+    }
+    out += esc(c);
+    i++;
+  }
+  return out;
+}
+function toggleTajweed() {
+  state.settings.tajweedMode = !state.settings.tajweedMode;
+  save();
+  if (activeReadId) {
+    var idx = currentAyahIdx();
+    openRead(activeReadId, idx);
+  }
+}
 function openRead(id, targetAyahIdx) {
   const item = getQuranById(id); if (!item) return;
   trackEvent('read/' + id, 'Чтение: ' + item.title);
   saveLastRead('quran', id);
-  document.getElementById('read-title').textContent = item.title;
-  // Таджвид: состояние берётся из настроек, по умолчанию выключен
   if (typeof state.settings.tajweedMode !== 'boolean') state.settings.tajweedMode = false;
-  const tajweedOn = state.settings.tajweedMode;
-  const tajweedBtnHtml = item.type === 'surah' || item.type === 'ayat'
-    ? `<button class="icon-btn ghost" id="tajweed-toggle" onclick="toggleTajweed()" aria-label="Таджвид" title="${tajweedOn ? 'Скрыть таджвид' : 'Показать таджвид'}"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3v18"/><path d="M5 8h14"/><path d="M7 15h10"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/></svg></button>`
-    : '';
-  // Вставляем кнопку в шапку режима чтения (после заголовка)
-  const fsHeader = document.querySelector('#read-mode .fs-header');
-  if (fsHeader) {
-    const oldBtn = fsHeader.querySelector('#tajweed-toggle');
-    if (oldBtn) oldBtn.remove();
-    if (tajweedBtnHtml) fsHeader.insertAdjacentHTML('beforeend', tajweedBtnHtml);
-  }
+  document.getElementById('read-title').textContent = item.title;
   const ayahs = parseAyahs(item);
   let bismillahHtml = '';
   if (item.bismillah) {
     bismillahHtml = `<div class="bismillah-card" style="margin-bottom:20px;"><div class="b-ar ar-font">${item.bismillah.arabic}</div><div class="b-tr">${item.bismillah.transcription}</div><div class="b-trn">${item.bismillah.translation}</div></div>`;
   }
+  const isQuranText = item.type === 'surah' || item.type === 'ayat';
+  const tajweedBar = isQuranText ? `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;margin-bottom:12px;background:var(--card);border-radius:12px;border:1px solid var(--border);">
+      <span style="font-size:13px;color:var(--muted);">Цвета таджвида</span>
+      <button class="preset-chip" onclick="toggleTajweed()" style="padding:6px 14px;font-size:12px;${state.settings.tajweedMode ? 'background:var(--gold-grad);color:#0A0A0A;border:none;font-weight:700;box-shadow:var(--gold-glow);' : ''}">${state.settings.tajweedMode ? 'Включено' : 'Выключено'}</button>
+    </div>
+    ${state.settings.tajweedMode ? `
+      <div style="display:flex;flex-wrap:wrap;gap:6px 14px;margin-bottom:16px;font-size:11px;padding:0 4px;">
+        <span><span style="display:inline-block;width:9px;height:9px;background:#4CAF50;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Гъунна / Ихфа</span>
+        <span><span style="display:inline-block;width:9px;height:9px;background:#8BC34A;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Идгам с гъунной</span>
+        <span><span style="display:inline-block;width:9px;height:9px;background:#9E9E9E;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Идгам без гъунны</span>
+        <span><span style="display:inline-block;width:9px;height:9px;background:#00BCD4;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Икъляб</span>
+        <span><span style="display:inline-block;width:9px;height:9px;background:#2196F3;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Къалькъаля</span>
+      </div>
+    ` : ''}
+  ` : '';
   const ayahHtml = ayahs.map(a => {
-    let arHtml = esc(a.ar);
-    if (state.settings.tajweedMode && typeof Tajweed !== 'undefined' && typeof Tajweed.parse === 'function') {
-      try { arHtml = Tajweed.parse(a.ar); } catch(e) { arHtml = esc(a.ar); }
+    let arHtml;
+    if (state.settings.tajweedMode && isQuranText) {
+      try { arHtml = detectTajweed(a.ar); } catch(e) { arHtml = esc(a.ar); }
+    } else {
+      arHtml = esc(a.ar);
     }
     return `
       <div class="read-ayah ${item.type==='ayat'?'ayat-mode':''}">
@@ -2500,6 +2588,7 @@ function openRead(id, targetAyahIdx) {
   document.getElementById('read-body').innerHTML = `
     <div class="read-surah-title">${esc(item.title)}</div>
     <div class="read-surah-sub">${esc(item.subtitle||'')}</div>
+    ${tajweedBar}
     ${bismillahHtml}
     ${ayahHtml}
     ${transcriptionNote()}
@@ -2726,7 +2815,7 @@ function openHadith(id) {
       </div>
     </div>
     ${h.note ? `<div class="note-box"><svg class="ico ico-sm" style="flex-shrink:0;color:var(--accent2)"><use href="#i-lightbulb"/></svg><div>${escNl(h.note)}</div></div>` : ''}
-    <div class="detail-actions"><button class="btn" onclick="openMemorizeFor(getHadithById('${h.id}'))"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-lightbulb"/></svg>Заучить</button><button class="btn secondary" onclick="shareItem('hadith','${h.id}')"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-upload"/></svg>Поделиться</button></div>
+       <div class="detail-actions">${d.id === 'ruqyah_guide' ? '' : `<button class="btn" onclick="openMemorizeFor(getDuaById('${d.id}'))"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-lightbulb"/></svg>Заучить</button>`}<button class="btn secondary" onclick="shareItem('dua','${d.id}')"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-upload"/></svg>Поделиться</button></div>
        <div class="learned-toggle ${h.learned?'done':''}" onclick="toggleHadithLearned('${escAttr(h.id)}')">
       <div class="lt-icon">${h.learned?'✓':'<svg class="ico ico-sm"><use href="#i-book"/></svg>'}</div>
       <div class="lt-body"><div class="lt-title">${h.learned?'Изучено':'Отметить как изученный'}</div><div class="lt-sub">${h.learned?'Нажми, чтобы снять отметку':'Изучи хадис и отметь'}</div></div>
