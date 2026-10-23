@@ -1101,17 +1101,25 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 .install-banner { bottom: calc(72px + var(--nav-safe)) !important; }
 .modal { padding-bottom: calc(26px + var(--nav-safe)) !important; }
 
-/* === TAJWEED: цветовая кодировка правил в режиме чтения === */
-.tajweed-ghunna { -webkit-text-fill-color: #4CAF50 !important; color: #4CAF50 !important; font-weight: 600; }
-.tajweed-ikhfa { -webkit-text-fill-color: #4CAF50 !important; color: #4CAF50 !important; }
-.tajweed-idgham-ghunna { -webkit-text-fill-color: #8BC34A !important; color: #8BC34A !important; }
-.tajweed-idgham-no-ghunna { -webkit-text-fill-color: #9E9E9E !important; color: #9E9E9E !important; }
-.tajweed-iqlab { -webkit-text-fill-color: #00BCD4 !important; color: #00BCD4 !important; font-weight: 600; }
-.tajweed-qalqalah { -webkit-text-fill-color: #2196F3 !important; color: #2196F3 !important; font-weight: 600; }
-.tajweed-madd { -webkit-text-fill-color: #F44336 !important; color: #F44336 !important; }
+/* === TAJWEED: точная цветовая кодировка из tajweed.json === */
+.tajweed-ghunna { color: #4CAF50 !important; -webkit-text-fill-color: #4CAF50 !important; font-weight: 600; }
+.tajweed-ikhfa { color: #4CAF50 !important; -webkit-text-fill-color: #4CAF50 !important; }
+.tajweed-ikhfa_shafawi { color: #D500B7 !important; -webkit-text-fill-color: #D500B7 !important; }
+.tajweed-idgham_ghunnah { color: #8BC34A !important; -webkit-text-fill-color: #8BC34A !important; }
+.tajweed-idgham_no_ghunnah { color: #9E9E9E !important; -webkit-text-fill-color: #9E9E9E !important; }
+.tajweed-idgham_shafawi { color: #8BC34A !important; -webkit-text-fill-color: #8BC34A !important; }
+.tajweed-iqlab { color: #00BCD4 !important; -webkit-text-fill-color: #00BCD4 !important; font-weight: 600; }
+.tajweed-qalqalah { color: #2196F3 !important; -webkit-text-fill-color: #2196F3 !important; font-weight: 600; }
+.tajweed-madd_2 { color: #F44336 !important; -webkit-text-fill-color: #F44336 !important; }
+.tajweed-madd_246 { color: #E91E63 !important; -webkit-text-fill-color: #E91E63 !important; }
+.tajweed-madd_muttasil { color: #D32F2F !important; -webkit-text-fill-color: #D32F2F !important; }
+.tajweed-madd_munfasil { color: #FF5722 !important; -webkit-text-fill-color: #FF5722 !important; }
+.tajweed-madd_6 { color: #B71C1C !important; -webkit-text-fill-color: #B71C1C !important; font-weight: 700; }
+.tajweed-silent { color: #9E9E9E !important; -webkit-text-fill-color: #9E9E9E !important; opacity: 0.6; }
+.tajweed-ham_wasl { color: #795548 !important; -webkit-text-fill-color: #795548 !important; }
+.tajweed-laam_shamsiyah { color: #795548 !important; -webkit-text-fill-color: #795548 !important; }
 
-/* Отключение золотого градиента при активном таджвиде.
-   Без этого background-clip: text у .ar-font перекрывает цвета спанов. */
+/* Отключение золотого градиента при включенном таджвиде */
 .ar-font.tajweed-on {
   background-image: none !important;
   -webkit-background-clip: border-box !important;
@@ -1605,7 +1613,28 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v156';
+const APP_VERSION = 'iqra-v158';
+
+// Глобальная переменная для данных таджвида
+let TAJWEED_DATA = null;
+
+// Загрузка JSON с правилами
+async function loadTajweedData() {
+  try {
+    const response = await fetch('./tajweed.json');
+    if (!response.ok) throw new Error('HTTP ' + response.status);
+    TAJWEED_DATA = await response.json();
+    console.log('✓ Данные таджвида загружены. Аятов:', TAJWEED_DATA.length);
+    
+    // Если чтение открыто, перерисовываем
+    if (activeReadId && state.settings.tajweedMode) {
+      openRead(activeReadId, currentAyahIdx());
+    }
+  } catch (e) {
+    console.warn('Не удалось загрузить tajweed.json:', e);
+  }
+}
+loadTajweedData();
 const BACKUP_SCHEMA = 2;
 const LIMITS = { tasbihs:1000, history:10000, historyDays:365, reminders:50, textLen:1000, idLen:100, targetMax:100000, cyclesMax:1000000 };
 const QURAN_USE_API = false;
@@ -2476,12 +2505,30 @@ function toggleQuranLearned(id) {
 }
 function goQuranList() { activeQuranId = null; renderQuranList(); showScreen('screen-quran'); }
 
-function detectTajweed(text) {
-  if (!text || typeof text !== 'string') return '';
-  var out = '';
-  var chars = text.split('');
-  var i = 0;
-  var QALQALAH = 'قطبجد';
+function applyTajweedAnnotations(text, surahNum, ayahNum) {
+  if (!TAJWEED_DATA) return esc(text);
+  
+  // Ищем аят в массиве (структура mhassanrahman/quran-tajweed)
+  const verseData = TAJWEED_DATA.find(v => v.surah === surahNum && v.ayah === ayahNum);
+  if (!verseData || !verseData.annotations || !verseData.annotations.length) return esc(text);
+  
+  const rules = verseData.annotations;
+  let result = '';
+  let lastIndex = 0;
+  
+  for (const rule of rules) {
+    // Защита от выхода за границы
+    if (rule.start < lastIndex || rule.end > text.length) continue; 
+    
+    result += esc(text.substring(lastIndex, rule.start));
+    const fragment = text.substring(rule.start, rule.end);
+    result += `<span class="tajweed-${rule.rule}">${esc(fragment)}</span>`;
+    
+    lastIndex = rule.end;
+  }
+  result += esc(text.substring(lastIndex));
+  return result;
+}
   var GHUNNA = 'نم';
   var IDG_GHUNNA = 'ينمو';
   var IDG_NO_GHUNNA = 'لر';
@@ -2576,11 +2623,21 @@ function openRead(id, targetAyahIdx) {
       </div>
     ` : ''}
   ` : '';
-  const ayahHtml = ayahs.map(a => {
+  const ayahHtml = ayahs.map((a, idx) => {
     let arHtml, arClass;
-    if (state.settings.tajweedMode && isQuranText) {
+    
+    let sNum = null, aNum = null;
+    if (item.type === 'surah') {
+      sNum = item.number;
+      aNum = idx + 1;
+    } else if (item.type === 'ayat' && item.number) {
+      const parts = String(item.number).split(':');
+      if (parts.length === 2) { sNum = parseInt(parts[0], 10); aNum = parseInt(parts[1], 10); }
+    }
+
+    if (state.settings.tajweedMode && isQuranText && TAJWEED_DATA && sNum && aNum) {
       arClass = 'ar-font tajweed-on';
-      try { arHtml = detectTajweed(a.ar); } catch(e) { arHtml = esc(a.ar); }
+      arHtml = applyTajweedAnnotations(a.ar, sNum, aNum);
     } else {
       arClass = 'ar-font';
       arHtml = esc(a.ar);
