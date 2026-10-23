@@ -1,0 +1,63 @@
+/* Tajweed Color Definitions (AlQuran.cloud Edition) */
+
+/* 
+   Standard Color Coding Scheme:
+   Source: https://alquran.cloud/tajweed-guide
+*/
+
+/* [h] Hamzat ul Wasl */
+.ham_wasl { color: #AAAAAA; }
+
+/* [s] Silent */
+.slnt { color: #AAAAAA; }
+
+/* [n] Normal Prolongation: 2 Vowels */
+.madda_normal { color: #537FFF; }
+
+/* [p] Permissible Prolongation: 2, 4, 6 Vowels */
+.madda_permissible { color: #4050FF; }
+
+/* [m] Necessary Prolongation: 6 Vowels */
+.madda_necessary { color: #000EBC; }
+
+/* [q] Qalaqah */
+.qlq { color: #DD0008; }
+
+/* [o] Obligatory Prolongation: 4-5 Vowels */
+.madda_obligatory { color: #2144C1; }
+
+/* [c] Ikhafa' Shafawi - With Meem */
+.ikhf_shfw { color: #D500B7; }
+
+/* [f] Ikhafa' */
+.ikhf { color: #9400A8; }
+
+/* [w] Idgham Shafawi - With Meem */
+.idghm_shfw { color: #58B800; }
+
+/* [i] Iqlab */
+.iqlb { color: #26BFFD; }
+
+/* [a] Idgham - With Ghunnah */
+.idgh_ghn { color: #169777; }
+
+/* [u] Idgham - Without Ghunnah */
+.idgh_w_ghn { color: #169200; }
+
+/* [d] & [b] Idgham - Mutajanisayn & Mutaqaribayn */
+.idgh_mus { color: #A1A1A1; }
+
+/* [g] Ghunnah: 2 Vowels */
+.ghn { color: #FF7E1E; }
+
+/* Ensure these override base colors but inherit font properties */
+span[class^="ham_"],
+span[class^="slnt"],
+span[class^="madda_"],
+span[class^="qlq"],
+span[class^="ikhf"],
+span[class^="idgh"],
+span[class^="iqlb"],
+span[class^="ghn"] {
+    display: inline-block;
+}
