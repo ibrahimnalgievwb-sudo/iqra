@@ -2517,29 +2517,31 @@ function applyTajweedAnnotations(text, surahNum, ayahNum) {
   const verseData = TAJWEED_DATA.find(v => v.surah === surahNum && v.ayah === ayahNum);
   if (!verseData || !verseData.annotations || !verseData.annotations.length) return esc(text);
   
-  // Сортируем правила по длине: сначала самые длинные, чтобы не было наложений
-  const rules = verseData.annotations
-    .map(r => ({
-      rule: r.rule,
-      fragment: text.substring(r.start, r.end)
-    }))
-    .filter(r => r.fragment && r.fragment.length > 0)
-    .sort((a, b) => b.fragment.length - a.fragment.length);
-
-  let html = esc(text);
+  // Сортируем правила по индексу начала
+  const rules = [...verseData.annotations].sort((a, b) => a.start - b.start);
   
-  // Применяем каждое правило, заменяя найденный фрагмент
+  let result = '';
+  let lastIndex = 0;
+  
   for (const rule of rules) {
+    if (rule.start < lastIndex || rule.end > text.length) continue; 
+    if (rule.end <= rule.start) continue;
+    
+    // Добавляем текст между правилами (безопасно экранированный)
+    result += esc(text.substring(lastIndex, rule.start));
+    
+    // Получаем фрагмент и экранируем его
+    const fragment = text.substring(rule.start, rule.end);
     const color = TAJWEED_COLORS[rule.rule] || 'inherit';
     const isBold = (rule.rule === 'ghunna' || rule.rule === 'iqlab' || rule.rule === 'qalqalah');
-    const span = `<span style="color:${color};-webkit-text-fill-color:${color};${isBold ? 'font-weight:600;' : ''}">${esc(rule.fragment)}</span>`;
     
-    // Заменяем только первое вхождение, чтобы не сломать остальной текст
-    // (не используем глобальный replace, чтобы не затронуть похожие фрагменты)
-    html = html.replace(esc(rule.fragment), span);
+    // Добавляем span с экранированным текстом
+    result += `<span style="color:${color};-webkit-text-fill-color:${color};${isBold ? 'font-weight:600;' : ''}">${esc(fragment)}</span>`;
+    
+    lastIndex = rule.end;
   }
-  
-  return html;
+  result += esc(text.substring(lastIndex));
+  return result;
 }
 function toggleTajweed() {
   state.settings.tajweedMode = !state.settings.tajweedMode;
