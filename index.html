@@ -1104,7 +1104,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 .modal { padding-bottom: calc(26px + var(--nav-safe)) !important; }
 
 /* === TAJWEED: точная цветовая кодировка из tajweed.json === */
-.tajweed-ghunna { color: #4CAF50 !important; -webkit-text-fill-color: #4CAF50 !important; font-weight: 600; }
+.tajweed-laam_shamsiyah { color: #795548 !important; -webkit-text-fill-color: #795548 !important; }  /* Защита от разрыва арабских букв при раскраске */ .ar-font.tajweed-on span {   display: inline;   letter-spacing: inherit; }
 .tajweed-ikhfa { color: #4CAF50 !important; -webkit-text-fill-color: #4CAF50 !important; }
 .tajweed-ikhfa_shafawi { color: #D500B7 !important; -webkit-text-fill-color: #D500B7 !important; }
 .tajweed-idgham_ghunnah { color: #8BC34A !important; -webkit-text-fill-color: #8BC34A !important; }
@@ -1117,6 +1117,22 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 .tajweed-madd_muttasil { color: #D32F2F !important; -webkit-text-fill-color: #D32F2F !important; }
 .tajweed-madd_munfasil { color: #FF5722 !important; -webkit-text-fill-color: #FF5722 !important; }
 .tajweed-madd_6 { color: #B71C1C !important; -webkit-text-fill-color: #B71C1C !important; font-weight: 700; }
+.tajweed-silent { color: #9E9E9E !important; -webkit-text-fill-color: #9E9E9E !important; opacity: 0.6; }
+.tajweed-ham_wasl { color: #795548 !important; -webkit-text-fill-color: #795548 !important; }
+/* === TAJWEED: точная цветовая кодировка из tajweed.json === */
+.tajweed-ghunna { color: #4CAF50 !important; -webkit-text-fill-color: #4CAF50 !important; }
+.tajweed-ikhfa { color: #4CAF50 !important; -webkit-text-fill-color: #4CAF50 !important; }
+.tajweed-ikhfa_shafawi { color: #D500B7 !important; -webkit-text-fill-color: #D500B7 !important; }
+.tajweed-idgham_ghunnah { color: #8BC34A !important; -webkit-text-fill-color: #8BC34A !important; }
+.tajweed-idgham_no_ghunnah { color: #9E9E9E !important; -webkit-text-fill-color: #9E9E9E !important; }
+.tajweed-idgham_shafawi { color: #8BC34A !important; -webkit-text-fill-color: #8BC34A !important; }
+.tajweed-iqlab { color: #00BCD4 !important; -webkit-text-fill-color: #00BCD4 !important; }
+.tajweed-qalqalah { color: #2196F3 !important; -webkit-text-fill-color: #2196F3 !important; }
+.tajweed-madd_2 { color: #F44336 !important; -webkit-text-fill-color: #F44336 !important; }
+.tajweed-madd_246 { color: #E91E63 !important; -webkit-text-fill-color: #E91E63 !important; }
+.tajweed-madd_muttasil { color: #D32F2F !important; -webkit-text-fill-color: #D32F2F !important; }
+.tajweed-madd_munfasil { color: #FF5722 !important; -webkit-text-fill-color: #FF5722 !important; }
+.tajweed-madd_6 { color: #B71C1C !important; -webkit-text-fill-color: #B71C1C !important; }
 .tajweed-silent { color: #9E9E9E !important; -webkit-text-fill-color: #9E9E9E !important; opacity: 0.6; }
 .tajweed-ham_wasl { color: #795548 !important; -webkit-text-fill-color: #795548 !important; }
 .tajweed-laam_shamsiyah { color: #795548 !important; -webkit-text-fill-color: #795548 !important; }
@@ -1612,18 +1628,24 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v160';
-
-// Глобальная переменная для данных таджвида
-let TAJWEED_DATA = null;
+const APP_VERSION = 'iqra-v161';
 
 // Загрузка JSON с правилами
 async function loadTajweedData() {
   try {
+    // Если tajweed.js уже загрузил данные (window.TAJWEED_DATA), используем их
+    if (window.TAJWEED_DATA) {
+      TAJWEED_DATA = window.TAJWEED_DATA;
+      console.log('✓ Данные таджвида получены из tajweed.js. Аятов:', TAJWEED_DATA.length);
+      if (activeReadId && state.settings.tajweedMode) openRead(activeReadId, currentAyahIdx());
+      return;
+    }
+    
+    // Фолбэк: прямая загрузка (если tajweed.js не справился)
     const response = await fetch('./tajweed.json');
     if (!response.ok) throw new Error('HTTP ' + response.status);
     TAJWEED_DATA = await response.json();
-    console.log('✓ Данные таджвида загружены. Аятов:', TAJWEED_DATA.length);
+    console.log('✓ Данные таджвида загружены напрямую. Аятов:', TAJWEED_DATA.length);
     
     // Если чтение открыто, перерисовываем
     if (activeReadId && state.settings.tajweedMode) {
