@@ -145,7 +145,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 }
 
 .header { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; gap:12px; min-height:56px; }
-.header h1 { font-family:"Inter", system-ui, sans-serif; font-size:20px; font-weight:600; margin:0; letter-spacing:-.02em; line-height:1.2; }
+.header h1 { font-family:"Inter", system-ui, sans-serif; font-size:var(--h1-size, 20px); font-weight:var(--h1-weight, 600); margin:0; letter-spacing:-.02em; line-height:1.2; }
 .icon-btn { width:42px; height:42px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:var(--card); color:var(--text); font-size:18px; }
 .icon-btn:active { background:var(--card2); transform:scale(.95); }
 .icon-btn.ghost { background:transparent; }  .ico {   display: inline-block;   width: 24px;   height: 24px;   fill: none;   stroke: currentColor;   stroke-width: 1.7;   stroke-linecap: round;   stroke-linejoin: round;   flex-shrink: 0;   vertical-align: middle;   transition: width .25s cubic-bezier(.16,1,.3,1), height .25s cubic-bezier(.16,1,.3,1); } .ico-sm { width: 18px; height: 18px; } .ico-md { width: 22px; height: 22px; } .ico-lg { width: 28px; height: 28px; } .ico-xl { width: 36px; height: 36px; }
@@ -1397,7 +1397,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
           <button data-theme="mono" onclick="setTheme('mono')">Моно</button>
         </div>
       </div>
-      <div class="setting-row" style="flex-direction:column; align-items:stretch; gap:10px;">
+          <div class="setting-row" style="flex-direction:column; align-items:stretch; gap:10px;">
         <div class="lbl">Размер арабского текста</div>
         <div class="seg" id="size-seg">
           <button data-size="0.85" onclick="setArSize(0.85)">S</button>
@@ -1407,6 +1407,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
         </div>
         <div class="ar-size-preview"><span class="ar ar-font" id="ar-preview">سُبْحَانَ اللَّهِ</span></div>
       </div>
+      <div class="setting-row"><div><div class="lbl">Цвета таджвида</div><div class="sub">Подсветка правил в режиме чтения</div></div><label class="toggle"><input type="checkbox" id="opt-tajweed"><span class="slider"></span></label></div>
     </div>
     <div class="settings-group">
       <div class="sg-title">Счёт</div>
@@ -1645,10 +1646,23 @@ async function loadTajweedData() {
     }
     
     // Фолбэк: прямая загрузка (если tajweed.js не справился)
-    const response = await fetch('./tajweed.json');
-    if (!response.ok) throw new Error('HTTP ' + response.status);
-    TAJWEED_DATA = await response.json();
-    console.log('✓ Данные таджвида загружены напрямую. Аятов:', TAJWEED_DATA.length);
+    try {
+      const response = await fetch('./tajweed.json');
+      if (!response.ok) throw new Error('HTTP ' + response.status);
+      TAJWEED_DATA = await response.json();
+      try { localStorage.setItem('iqra_tajweed_cache', JSON.stringify(TAJWEED_DATA)); } catch(_) {}
+      console.log('✓ Данные таджвида загружены напрямую. Аятов:', TAJWEED_DATA.length);
+    } catch (fetchErr) {
+      try {
+        const cached = localStorage.getItem('iqra_tajweed_cache');
+        if (cached) {
+          TAJWEED_DATA = JSON.parse(cached);
+          console.log('✓ Таджвид восстановлен из кэша. Аятов:', TAJWEED_DATA.length);
+        } else {
+          throw fetchErr;
+        }
+      } catch(_) { throw fetchErr; }
+    }
     
     // Если чтение открыто, перерисовываем
     if (activeReadId && state.settings.tajweedMode) {
@@ -1656,6 +1670,9 @@ async function loadTajweedData() {
     }
   } catch (e) {
     console.warn('Не удалось загрузить tajweed.json:', e);
+    setTimeout(() => {
+      if (!TAJWEED_DATA) loadTajweedData();
+    }, 2000);
   }
 }
 loadTajweedData();
@@ -2467,7 +2484,7 @@ async function renderQuranList() {
     const fav = isFavorite(item.id);
     const numHtml = item.type === 'surah' ? `<div class="c-num">${item.number}</div>` : '';
     const hasNum = item.type === 'surah' ? ' has-num' : '';
-    const star = `<button class="star-btn ${fav?'active':''}" onclick="starClick(event,'${escAttr(item.id)}','quran')">${fav?'<svg class="ico"><use href="#i-star-filled"/></svg>':'<svg class="ico"><use href="#i-star"/></svg>'}</button>`;
+    const star = `<button class="star-btn ${fav?'active':''}" aria-label="${fav?'Убрать из избранного':'Добавить в избранное'}: ${escAttr(item.title)}" onclick="starClick(event,'${escAttr(item.id)}','quran')">${fav?'<svg class="ico"><use href="#i-star-filled"/></svg>':'<svg class="ico"><use href="#i-star"/></svg>'}</button>`;
     let readBadge = '';
     if (item.type === 'surah' && state.settings.readAyah && typeof state.settings.readAyah[item.id] === 'number' && state.settings.readAyah[item.id] > 0) {
       const ayahN = state.settings.readAyah[item.id] + 1;
@@ -2549,8 +2566,8 @@ function applyTajweedAnnotations(text, surahNum, ayahNum) {
   let lastIndex = 0;
   
   for (const rule of rules) {
-    if (rule.start < lastIndex || rule.end > text.length) continue; 
-    if (rule.end <= rule.start) continue;
+    if (rule.start < lastIndex || rule.end > text.length) { console.warn('Таджвид: пропущено правило', rule.rule, 'в', surahNum + ':' + ayahNum, '(start=' + rule.start + ', end=' + rule.end + ', len=' + text.length + ')'); continue; }
+    if (rule.end <= rule.start) { console.warn('Таджвид: пустой диапазон', rule.rule, 'в', surahNum + ':' + ayahNum); continue; }
     
     // Добавляем текст между правилами (безопасно экранированный)
     result += esc(text.substring(lastIndex, rule.start));
@@ -2581,6 +2598,10 @@ function openRead(id, targetAyahIdx) {
   trackEvent('read/' + id, 'Чтение: ' + item.title);
   saveLastRead('quran', id);
   if (typeof state.settings.tajweedMode !== 'boolean') state.settings.tajweedMode = false;
+  if (state.settings.tajweedMode && !TAJWEED_DATA) {
+    if (window.TAJWEED_DATA) TAJWEED_DATA = window.TAJWEED_DATA;
+    else loadTajweedData();
+  }
   document.getElementById('read-title').textContent = item.title;
   const ayahs = parseAyahs(item);
   let bismillahHtml = '';
@@ -3019,6 +3040,7 @@ function openSettings() {
   document.getElementById('opt-sound').checked = state.settings.sound;
     document.getElementById('opt-vibrate').checked = state.settings.vibrate;
   document.getElementById('opt-goal-notify').checked = !!state.settings.goalNotify;
+  document.getElementById('opt-tajweed').checked = !!state.settings.tajweedMode;
   document.querySelectorAll('#size-seg button').forEach(b=>b.classList.toggle('active', parseFloat(b.dataset.size)===state.settings.arSize));
   renderReminders(); showScreen('screen-settings');
 }
@@ -3027,6 +3049,7 @@ document.getElementById('opt-wake').addEventListener('change', e=>{ state.settin
 document.getElementById('opt-sound').addEventListener('change', e=>{ state.settings.sound = e.target.checked; save(); if (e.target.checked) playClick(); });
 document.getElementById('opt-vibrate').addEventListener('change', e=>{ state.settings.vibrate = e.target.checked; save(); });
 document.getElementById('opt-goal-notify').addEventListener('change', e=>{ state.settings.goalNotify = e.target.checked; save(); });
+document.getElementById('opt-tajweed').addEventListener('change', e=>{ state.settings.tajweedMode = e.target.checked; save(); if (e.target.checked) loadTajweedData(); });
 function setDailyGoal(v) { state.settings.dailyGoal = Math.max(0, Math.min(1000000, parseInt(v)||0)); save(); }
 function renderReminders() { const el=document.getElementById('reminders-list'); if (!state.reminders.length) { el.innerHTML=`<div style="padding:14px 16px;color:var(--muted);font-size:13px">Пока нет напоминаний</div>`; return; } el.innerHTML = state.reminders.map((r,i)=>`<div class="reminder-row"><div class="rr-top"><input type="time" value="${r.time}" onchange="updateReminderField(${i},'time',this.value)"><label class="toggle"><input type="checkbox" ${r.on?'checked':''} onchange="toggleReminder(${i}, this.checked)"><span class="slider"></span></label><button class="del" onclick="deleteReminder(${i})">×</button></div><input type="text" value="${esc(r.message||'')}" placeholder="Сообщение (необязательно)" maxlength="200" onchange="updateReminderField(${i},'message',this.value)"></div>`).join(''); }
 function addReminder() { if (state.reminders.length >= LIMITS.reminders) { alert('Максимум '+LIMITS.reminders+' напоминаний'); return; } const t=document.getElementById('new-reminder-time').value; const mi=document.getElementById('new-reminder-msg'); const msg=(mi?mi.value:'').trim().slice(0,200); if (!t || !/^\d{2}:\d{2}$/.test(t)) return; state.reminders.push({time:t,on:true,lastFired:'',message:msg}); if (mi) mi.value=''; save(); renderReminders(); if ('Notification' in window && Notification.permission === 'default') { try { const p = Notification.requestPermission(); if (p && typeof p.catch === 'function') p.catch(function(){}); } catch(e) {} } }
@@ -3413,7 +3436,8 @@ function addBookmarkFromRead() {
   var exists = state.bookmarks.some(function(b){ return b.quranId === activeReadId && b.ayahIdx === idx; });
   if (exists) { showMarkToast('Метка уже есть на этой позиции'); return; }
   if (state.bookmarks.length >= 50) { showMarkToast('Максимум 50 меток'); return; }
-  var label = item.title + ' · позиция ' + (idx + 1);
+   var label = item.title + ' · позиция ' + (idx + 1);
+  if (label.length > 60) label = label.slice(0, 57) + '…';
   state.bookmarks.push({ id: 'bm_' + Date.now(), quranId: activeReadId, ayahIdx: idx, label: label, ts: Date.now() });
   save();
   renderDashMarks();
