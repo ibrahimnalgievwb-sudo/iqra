@@ -1628,7 +1628,10 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v161';
+const APP_VERSION = 'iqra-v162';
+  
+// Глобальная переменная для данных таджвида
+var TAJWEED_DATA = window.TAJWEED_DATA || null;
 
 // Загрузка JSON с правилами
 async function loadTajweedData() {
