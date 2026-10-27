@@ -2815,7 +2815,7 @@ function renderDuaList() {
   if (!state.duas.length) { el.innerHTML = '<div class="empty">Пока нет дуа</div>'; return; }
   el.innerHTML = state.duas.map(d => {
     const fav = isFavorite(d.id);
-    const star = `<button class="star-btn ${fav?'active':''}" onclick="starClick(event,'${escAttr(d.id)}','dua')">${fav?'<svg class="ico"><use href="#i-star-filled"/></svg>':'<svg class="ico"><use href="#i-star"/></svg>'}</button>`;
+    const star = `<button class="star-btn ${fav?'active':''}" aria-label="${fav?'Убрать из избранного':'Добавить в избранное'}: ${escAttr(d.title)}" onclick="starClick(event,'${escAttr(d.id)}','dua')">${fav?'<svg class="ico"><use href="#i-star-filled"/></svg>':'<svg class="ico"><use href="#i-star"/></svg>'}</button>`;
     return `<div class="content-card" onclick="openDua('${escAttr(d.id)}')">${star}<div class="c-title">${esc(d.title)}</div><div class="c-sub">${esc(d.subtitle||'')}</div><div class="c-ar ar-font">${esc(d.arabic)}</div><div class="c-tr">${esc(d.translation)}</div></div>`;
   }).join('');
 }
@@ -2855,7 +2855,7 @@ function renderHadithList() {
   if (!state.hadiths.length) { el.innerHTML = '<div class="empty">Пока нет хадисов</div>'; return; }
   el.innerHTML = state.hadiths.map(h => {
     const fav = isFavorite(h.id);
-    const star = `<button class="star-btn ${fav?'active':''}" onclick="starClick(event,'${h.id}','hadith')">${fav?'<svg class="ico"><use href="#i-star-filled"/></svg>':'<svg class="ico"><use href="#i-star"/></svg>'}</button>`;
+    const star = `<button class="star-btn ${fav?'active':''}" aria-label="${fav?'Убрать из избранного':'Добавить в избранное'}: ${escAttr(h.title)}" onclick="starClick(event,'${escAttr(h.id)}','hadith')">${fav?'<svg class="ico"><use href="#i-star-filled"/></svg>':'<svg class="ico"><use href="#i-star"/></svg>'}</button>`;
     return `<div class="content-card" onclick="openHadith('${h.id}')">${star}<div class="c-title">${esc(h.title)}</div><div class="c-sub">${esc(h.subtitle||'')}</div><div class="c-ar ar-font">${esc(h.arabic)}</div><div class="c-tr">${esc(h.translation)}</div></div>`;
   }).join('');
 }
