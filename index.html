@@ -1637,6 +1637,14 @@ loadTajweedData();
 const BACKUP_SCHEMA = 2;
 const LIMITS = { tasbihs:1000, history:10000, historyDays:365, reminders:50, textLen:1000, idLen:100, targetMax:100000, cyclesMax:1000000 };
 const QURAN_USE_API = false;
+const TAJWEED_COLORS = {
+  ghunna: '#4CAF50', ikhfa: '#4CAF50', ikhfa_shafawi: '#D500B7',
+  idgham_ghunnah: '#8BC34A', idgham_no_ghunnah: '#9E9E9E', idgham_shafawi: '#8BC34A',
+  iqlab: '#00BCD4', qalqalah: '#2196F3',
+  madd_2: '#F44336', madd_246: '#E91E63', madd_muttasil: '#D32F2F',
+  madd_munfasil: '#FF5722', madd_6: '#B71C1C',
+  silent: '#9E9E9E', ham_wasl: '#795548', laam_shamsiyah: '#795548'
+};
 
 const TAWHID_TASBIH = { id: 'tawhid', arabic: 'لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ', transcription: 'Ля иляха илляллаху вахдаху ля шарика ляху, ляхуль-мульку ва ляхуль-хамду, ва хува ‘аля кулли шай’ин кадир', translation: '«Нет бога, кроме одного лишь Аллаха, у Которого нет сотоварища, Ему принадлежит власть, Ему хвала, и Он всё может»', target: 10, current: 0, cycles: 0 };
 const ISTIGHFAR_TASBIH = { id:'istighfar', arabic:'أَسْتَغْفِرُ اللَّهَ', transcription:'АстагфируЛлах', translation:'Прошу прощения у Аллаха', target:100, current:0, cycles:0 };
@@ -2507,7 +2515,6 @@ function goQuranList() { activeQuranId = null; renderQuranList(); showScreen('sc
 function applyTajweedAnnotations(text, surahNum, ayahNum) {
   if (!TAJWEED_DATA) return esc(text);
   
-  // Ищем аят в массиве (структура mhassanrahman/quran-tajweed)
   const verseData = TAJWEED_DATA.find(v => v.surah === surahNum && v.ayah === ayahNum);
   if (!verseData || !verseData.annotations || !verseData.annotations.length) return esc(text);
   
@@ -2515,13 +2522,19 @@ function applyTajweedAnnotations(text, surahNum, ayahNum) {
   let result = '';
   let lastIndex = 0;
   
-  for (const rule of rules) {
-    // Защита от выхода за границы
+  // Сортируем правила по индексу начала
+  const sortedRules = [...rules].sort((a, b) => a.start - b.start);
+  
+  for (const rule of sortedRules) {
     if (rule.start < lastIndex || rule.end > text.length) continue; 
+    if (rule.end <= rule.start) continue;
     
     result += esc(text.substring(lastIndex, rule.start));
     const fragment = text.substring(rule.start, rule.end);
-    result += `<span class="tajweed-${rule.rule}">${esc(fragment)}</span>`;
+    const color = TAJWEED_COLORS[rule.rule] || 'inherit';
+    const isBold = (rule.rule === 'ghunna' || rule.rule === 'iqlab' || rule.rule === 'qalqalah');
+    
+    result += `<span style="color:${color};-webkit-text-fill-color:${color};${isBold ? 'font-weight:600;' : ''}">${esc(fragment)}</span>`;
     
     lastIndex = rule.end;
   }
