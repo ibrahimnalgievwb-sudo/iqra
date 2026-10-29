@@ -1629,7 +1629,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v162';
+const APP_VERSION = 'iqra-v163';
   
 // Глобальная переменная для данных таджвида
 var TAJWEED_DATA = window.TAJWEED_DATA || null;
@@ -2566,19 +2566,15 @@ function applyTajweedAnnotations(text, surahNum, ayahNum) {
   let lastIndex = 0;
   
   for (const rule of rules) {
-    if (rule.start < lastIndex || rule.end > text.length) { console.warn('Таджвид: пропущено правило', rule.rule, 'в', surahNum + ':' + ayahNum, '(start=' + rule.start + ', end=' + rule.end + ', len=' + text.length + ')'); continue; }
+    if (rule.start < lastIndex || rule.end > text.length) { console.warn('Таджвид: пропущено правило', rule.rule, 'в', surahNum + ':' + ayahNum); continue; }
     if (rule.end <= rule.start) { console.warn('Таджвид: пустой диапазон', rule.rule, 'в', surahNum + ':' + ayahNum); continue; }
     
-    // Добавляем текст между правилами (безопасно экранированный)
     result += esc(text.substring(lastIndex, rule.start));
     
-    // Получаем фрагмент и экранируем его
     const fragment = text.substring(rule.start, rule.end);
-    const color = TAJWEED_COLORS[rule.rule] || 'inherit';
-    const isBold = (rule.rule === 'ghunna' || rule.rule === 'iqlab' || rule.rule === 'qalqalah');
+    const className = 'tajweed-' + rule.rule;
     
-    // Добавляем span с экранированным текстом
-    result += `<span style="color:${color};-webkit-text-fill-color:${color};${isBold ? 'font-weight:600;' : ''}">${esc(fragment)}</span>`;
+    result += `<span class="${className}">${esc(fragment)}</span>`;
     
     lastIndex = rule.end;
   }
