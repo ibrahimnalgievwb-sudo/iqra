@@ -140,6 +140,10 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .screen { display:none; flex:1; flex-direction:column; min-height:0; min-width:0; width:100%; max-width:100%; }
 .screen.active { display:flex; animation:slideIn .24s cubic-bezier(.16,1,.3,1); } @keyframes slideIn { from { transform: translateX(16px); opacity: 0; } to { transform: translateX(0); opacity: 1; } } @keyframes slideUp { from { transform: translateY(24px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+@keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+@keyframes slideInLeft { from { transform: translateX(-100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+.read-slide-next { animation: slideInRight .25s ease-out; }
+.read-slide-prev { animation: slideInLeft .25s ease-out; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
@@ -1621,7 +1625,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v168';
+const APP_VERSION = 'iqra-v169';
   
 // Глобальная переменная для данных таджвида
 var TAJWEED_DATA = window.TAJWEED_DATA || null;
@@ -2581,7 +2585,7 @@ function toggleTajweed() {
     openRead(activeReadId, idx);
   }
 }
-function openRead(id, targetAyahIdx) {
+function openRead(id, targetAyahIdx, dir) {
   const item = getQuranById(id); if (!item) return;
   trackEvent('read/' + id, 'Чтение: ' + item.title);
   saveLastRead('quran', id);
@@ -2649,8 +2653,13 @@ function openRead(id, targetAyahIdx) {
     ${ayahHtml}
     ${transcriptionNote()}
   `;
-  activeReadId = id;
-  document.getElementById('read-mode').classList.add('active');
+    activeReadId = id;
+  const readMode = document.getElementById('read-mode');
+  readMode.classList.remove('read-slide-next', 'read-slide-prev');
+  void readMode.offsetWidth; // Форсируем перерисовку для сброса анимации
+  if (dir === 'next') readMode.classList.add('read-slide-next');
+  if (dir === 'prev') readMode.classList.add('read-slide-prev');
+  readMode.classList.add('active');
   saveNavContext();
   const body = document.getElementById('read-body');
   let targetIdx = null;
@@ -2903,9 +2912,9 @@ function renderProgressOverview() {
       <div style="display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;"><div class="sc-value" style="font-size:44px;">${todayTotal}</div><div style="font-size:15px; color:var(--muted); font-weight:500;">/ ${goal} · ${goalPct}%</div></div>
       <div style="margin-top:10px; height:6px; background:var(--card2); border-radius:3px; overflow:hidden;"><div style="width:${goalPct}%; height:100%; background:var(--accent); border-radius:3px;"></div></div>
     </div>
-    <div class="stat-grid">
+      <div class="stat-grid">
       <div class="stat-card"><div class="sc-label">Всего зикра</div><div class="sc-value">${totalAll}</div><div class="sc-sub">за всё время</div></div>
-      <div class="stat-card"><div class="sc-label">Дней с зикром</div><div class="sc-value">${daysWithDhikr}</div><div class="sc-sub">активных</div></div>
+      <div class="stat-card"><div class="sc-label">Серия</div><div class="sc-value">${calculateStreak()} 🔥</div><div class="sc-sub">дней подряд</div></div>
       <div class="stat-card"><div class="sc-label">Среднее в день</div><div class="sc-value">${avg}</div><div class="sc-sub">за активный день</div></div>
       <div class="stat-card"><div class="sc-label">Лучший день</div><div class="sc-value">${bestDay}</div><div class="sc-sub">${bestDayKey ? formatDateShort(bestDayKey) : '—'}</div></div>
       <div class="stat-card"><div class="sc-label">Тасбихов создано</div><div class="sc-value">${state.tasbihs.length}</div><div class="sc-sub">в списке</div></div>
@@ -3217,6 +3226,7 @@ function showScreen(id) {
 function setNav(tab) { document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab)); }
 async function switchTab(tab) {
   trackEvent('tab/' + tab, 'Вкладка: ' + tab);
+  if (state.settings.vibrate && navigator.vibrate) navigator.vibrate(10);
   if (tab==='dashboard') { renderDashboard(); showScreen('screen-dashboard'); }
   else if (tab==='tasbih') { renderTasbih(); showScreen('screen-tasbih'); }
   else if (tab==='quran') { setQuranFilter('all'); await renderQuranList(); showScreen('screen-quran'); }
@@ -3482,6 +3492,27 @@ function renderDashMarks() {
   el.onclick = function(){ switchTab('cal'); setProgTab('favorites'); };
 }
 
+function calculateStreak() {
+  let streak = 0;
+  let d = new Date();
+  if (!state.history[todayKey()] || state.history[todayKey()].total === 0) {
+    d.setDate(d.getDate() - 1);
+  }
+  while (true) {
+    const key = dateKey(d);
+    if (state.history[key] && state.history[key].total > 0) {
+      streak++;
+      d.setDate(d.getDate() - 1);
+    } else {
+      break;
+    }
+  }
+  return streak;
+}
+function refreshQuote() {
+  try { localStorage.removeItem('iqra_quote_' + todayKey()); } catch(e) {}
+  renderDashboard();
+}
 function renderDashboard() {
   const t = document.getElementById('dash-time');
   const h = document.getElementById('dash-hijri');
@@ -3501,7 +3532,7 @@ function renderDashboard() {
   const qEl = document.getElementById('dash-quote');
   if (qEl && _dashQuote) {
     qEl.innerHTML =
-      '<div class="dq-head"><span class="dq-badge">' + esc(_dashQuote.badge) + '</span><span class="dq-arrow">→</span></div>' +
+      '<div class="dq-head"><span class="dq-badge">' + esc(_dashQuote.badge) + '</span><div style="display:flex;gap:8px;align-items:center;"><button class="icon-btn ghost" style="width:24px;height:24px;padding:0;" onclick="event.stopPropagation();refreshQuote()" aria-label="Другая цитата"><svg class="ico ico-sm"><use href="#i-rotate-ccw"/></svg></button><span class="dq-arrow">→</span></div></div>' +
       '<div class="dq-title">' + esc(_dashQuote.title) + '</div>' +
       (_dashQuote.ar ? '<div class="dq-ar ar-font">' + esc(_dashQuote.ar) + '</div>' : '') +
       (_dashQuote.tr ? '<div class="dq-tr">' + esc(_dashQuote.tr) + '</div>' : '');
@@ -3513,10 +3544,9 @@ function renderDashboard() {
     for (const k in state.history) { const t = state.history[k].total; totalAll += t; if (t > 0) daysActive++; }
     statsEl.innerHTML =
       '<div class="ds-item"><div class="ds-num">' + totalAll + '</div><div class="ds-label">Всего</div></div>' +
-      '<div class="ds-item"><div class="ds-num">' + daysActive + '</div><div class="ds-label">Дней</div></div>' +
-      '<div class="ds-item"><div class="ds-num">' + state.tasbihs.length + '</div><div class="ds-label">Тасбихов</div></div>';
+      '<div class="ds-item"><div class="ds-num">' + calculateStreak() + ' 🔥</div><div class="ds-label">Серия</div></div>' +
+      '<div class="ds-item"><div class="ds-num">' + daysActive + '</div><div class="ds-label">Дней</div></div>';
   }
-
   const quickEl = document.getElementById('dash-quick');
   if (quickEl) {
     let lastId = null;
@@ -3683,7 +3713,7 @@ document.addEventListener('keydown', (e) => {
   const mem = document.getElementById('memorize-mode');
   if (mem && mem.classList.contains('active')) { closeMemorize(); return; }
 });
-(function(){ var el=document.getElementById('read-body'); if (el) { let tx=0, ty=0, on=false; el.addEventListener('touchstart', function(e){ tx=e.touches[0].clientX; ty=e.touches[0].clientY; on=true; }, { passive:true }); el.addEventListener('touchend', function(e){ if (!on) return; on=false; var dx=e.changedTouches[0].clientX-tx; var dy=e.changedTouches[0].clientY-ty; if (Math.abs(dx)<80 || Math.abs(dy)>Math.abs(dx)) return; if (!activeReadId) return; var idx=state.quran.findIndex(function(q){return q.id===activeReadId;}); if (idx<0) return; if (dx<0 && idx<state.quran.length-1) openRead(state.quran[idx+1].id); else if (dx>0 && idx>0) openRead(state.quran[idx-1].id); }, { passive:true }); } })();
+(function(){ var el=document.getElementById('read-body'); if (el) { let tx=0, ty=0, on=false; el.addEventListener('touchstart', function(e){ tx=e.touches[0].clientX; ty=e.touches[0].clientY; on=true; }, { passive:true }); el.addEventListener('touchend', function(e){ if (!on) return; on=false; var dx=e.changedTouches[0].clientX-tx; var dy=e.changedTouches[0].clientY-ty; if (Math.abs(dx)<80 || Math.abs(dy)>Math.abs(dx)) return; if (!activeReadId) return; var idx=state.quran.findIndex(function(q){return q.id===activeReadId;}); if (idx<0) return;   if (dx<0 && idx<state.quran.length-1) openRead(state.quran[idx+1].id, undefined, 'next'); else if (dx>0 && idx>0) openRead(state.quran[idx-1].id, undefined, 'prev'); }, { passive:true }); } })();
 (function checkStructure(){
   var expected = ['screen-dashboard','screen-tasbih','screen-quran','screen-night','screen-dua','screen-hadith','screen-cal','screen-quran-detail','screen-night-detail','screen-dua-detail','screen-hadith-detail','screen-form','screen-counter','screen-settings','read-mode','memorize-mode','search-overlay','nav','modal-bg','onboarding','save-indicator'];
   var missing = [];
