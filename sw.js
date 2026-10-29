@@ -1,6 +1,6 @@
 // ВАЖНО: при изменении tajweed.json, fonts.css, tajweed.js, tajweed.css
 // ОБЯЗАТЕЛЬНО поднимать CACHE_VERSION и APP_VERSION синхронно.
-const CACHE_VERSION = 'iqra-v164';
+const CACHE_VERSION = 'iqra-v165';
 const CACHE_ASSETS = [
   './', './index.html', './manifest.json', './count.js', './fonts.css',
   './tajweed.css', './tajweed.js', './tajweed.json',
