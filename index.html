@@ -1649,9 +1649,12 @@ async function loadTajweedData() {
     }
   } catch (e) {
     console.warn('Не удалось загрузить tajweed.json:', e);
-    setTimeout(() => {
-      if (!TAJWEED_DATA) loadTajweedData();
-    }, 2000);
+    if (typeof loadTajweedData._retry !== 'number') loadTajweedData._retry = 0;
+    loadTajweedData._retry++;
+    if (loadTajweedData._retry <= 3) {
+      var delay = 2000 * Math.pow(2, loadTajweedData._retry - 1);
+      setTimeout(() => { if (!TAJWEED_DATA) loadTajweedData(); }, delay);
+    }
   }
 }
 loadTajweedData();
@@ -2024,12 +2027,20 @@ function load() {
     s.quran.forEach(q => { const prev = learnedMap.get(q.id); if (prev) { q.learned = !!prev.learned; q.learnedAt = prev.learnedAt || ''; } });
     s.migrations.quran_v15 = true;
   }
-  if (!s.migrations.quran_v16 || !s.quran || s.quran.length === 0) {
+   if (!s.migrations.quran_v16 || !s.quran || s.quran.length === 0) {
     const learnedMap = new Map((s.quran || []).map(q => [q.id, { learned: q.learned, learnedAt: q.learnedAt }]));
     s.quran = JSON.parse(JSON.stringify(DEFAULT_QURAN));
     s.quran.forEach(q => { const prev = learnedMap.get(q.id); if (prev) { q.learned = !!prev.learned; q.learnedAt = prev.learnedAt || ''; } });
     s.migrations.quran_v16 = true;
   }
+  // Канонизация при каждом load: DEFAULT_QURAN — единственный источник истины (3.4).
+  // Сохраняем только пользовательские поля learned/learnedAt.
+  (function canonicalizeQuran(){
+    if (!Array.isArray(s.quran)) { s.quran = JSON.parse(JSON.stringify(DEFAULT_QURAN)); return; }
+    var learnedMap = new Map(s.quran.map(function(q){ return [q.id, { learned: q.learned, learnedAt: q.learnedAt }]; }));
+    s.quran = JSON.parse(JSON.stringify(DEFAULT_QURAN));
+    s.quran.forEach(function(q){ var prev = learnedMap.get(q.id); if (prev) { q.learned = !!prev.learned; q.learnedAt = prev.learnedAt || ''; } });
+  })();
 
   // МИГРАЦИЯ v138: Принудительное добавление Рукьи для существующих пользователей
   if (!s.migrations.addedRuqyah_v1) {
@@ -3139,10 +3150,11 @@ function importData(e) {
     // Применяем валидированное состояние без перечитывания LS
     state = Object.assign({}, state, validated);
     // Коран всегда канонический
-    state.quran = JSON.parse(JSON.stringify(DEFAULT_QURAN));
+        state.quran = JSON.parse(JSON.stringify(DEFAULT_QURAN));
     state.migrations = mergedMigrations;
 
     saveNow();
+    state = load();
     applyTheme();
     setArSize(state.settings.arSize);
     renderDashboard();
@@ -3164,6 +3176,9 @@ async function resetAll() {
     localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem('iqra_last_tasbih');
     localStorage.removeItem('iqra_install_dismissed');
+    localStorage.removeItem('iqra_tajweed_cache');
+    var _qk = Object.keys(localStorage).filter(function(k){ return k.indexOf('iqra_quote_') === 0; });
+    _qk.forEach(function(k){ localStorage.removeItem(k); });
   } catch(e) {}
   location.reload();
 }
@@ -3780,22 +3795,6 @@ if ('serviceWorker' in navigator) {
   // и сравниваем CACHE_VERSION с APP_VERSION. Если не совпало — форсируем
   // обновление SW, активируем его (skipWaiting), и через controllerchange
   // страница тихо перезагрузится. Вкладка остаётся открытой.
-  function checkForUpdates() {
-    if (!_swReg) return;
-    fetch('./sw.js?t=' + Date.now(), { cache: 'no-store' }).then(function(r) {
-      if (!r || !r.ok) return null;
-      return r.text();
-    }).then(function(text) {
-      if (!text) return;
-      var m = text.match(/const\s+CACHE_VERSION\s*=\s*['"]([^'"]+)['"]/);
-      if (!m) return;
-      var serverVer = m[1];
-      if (serverVer !== APP_VERSION) {
-        try { _swReg.update(); } catch(e) {}
-      }
-    }).catch(function() {});
-  }
-
   window.addEventListener('load', function() {
     navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).then(function(reg) {
       handleUpdate(reg);
