@@ -1,18 +1,21 @@
-.tajweed-ghunnah { color: #4CAF50; }
-.tajweed-ikhfa { color: #4CAF50; }
+/* Tajweed Color Definitions — совместимо с tajweed-* схемой (underscore) */
+/* font-weight / letter-spacing / font-family / display НЕ задаются — ломают арабскую вязь */
+
+.tajweed-ghunnah { color: #FF7E1E; }
+.tajweed-ikhfa { color: #9400A8; }
 .tajweed-ikhfa_shafawi { color: #D500B7; }
-.tajweed-idghaam_ghunnah { color: #8BC34A; }
-.tajweed-idghaam_no_ghunnah { color: #9E9E9E; }
-.tajweed-idghaam_shafawi { color: #8BC34A; }
+.tajweed-idghaam_ghunnah { color: #169777; }
+.tajweed-idghaam_no_ghunnah { color: #169200; }
+.tajweed-idghaam_shafawi { color: #58B800; }
 .tajweed-idghaam_mutajanisayn,
-.tajweed-idghaam_mutaqaribayn { color: #8BC34A; }
-.tajweed-iqlab { color: #00BCD4; }
-.tajweed-qalqalah { color: #2196F3; }
-.tajweed-madd_2 { color: #F44336; }
-.tajweed-madd_246 { color: #E91E63; }
-.tajweed-madd_muttasil { color: #D32F2F; }
-.tajweed-madd_munfasil { color: #FF5722; }
-.tajweed-madd_6 { color: #B71C1C; }
-.tajweed-silent { color: #9E9E9E; opacity: 0.6; }
-.tajweed-hamzat_wasl { color: #795548; }
-.tajweed-lam_shamsiyyah { color: #795548; }
+.tajweed-idghaam_mutaqaribayn { color: #A1A1A1; }
+.tajweed-iqlab { color: #26BFFD; }
+.tajweed-qalqalah { color: #DD0008; }
+.tajweed-madd_2 { color: #537FFF; }
+.tajweed-madd_246 { color: #4050FF; }
+.tajweed-madd_muttasil { color: #2144C1; }
+.tajweed-madd_munfasil { color: #2144C1; }
+.tajweed-madd_6 { color: #000EBC; }
+.tajweed-silent { color: #AAAAAA; opacity: 0.6; }
+.tajweed-hamzat_wasl { color: #AAAAAA; }
+.tajweed-lam_shamsiyyah { color: #AAAAAA; }
