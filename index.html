@@ -1611,7 +1611,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v172';
+const APP_VERSION = 'iqra-v173';
   
 // Глобальная переменная для данных таджвида
 var TAJWEED_DATA = window.TAJWEED_DATA || null;
@@ -2183,14 +2183,17 @@ function formatHijri(date){
   } catch(e) { return ''; }
 }
 function isFavorite(id){ return Array.isArray(state.favorites) && state.favorites.includes(id); } function toggleFavorite(id){ if (!Array.isArray(state.favorites)) state.favorites=[]; const i=state.favorites.indexOf(id); if (i>=0) { state.favorites.splice(i,1); trackEvent('fav_off/' + id, 'Убрано из избранного: ' + id); if (typeof showMarkToast === 'function') showMarkToast('Удалено из избранного'); } else { state.favorites.push(id); trackEvent('fav_on/' + id, 'В избранное: ' + id); if (typeof showMarkToast === 'function') showMarkToast('Добавлено в избранное'); } save(); if (typeof renderDashMarks === 'function') renderDashMarks(); } function starClick(event, id, list){ event.stopPropagation(); toggleFavorite(id); if (list==='quran') renderQuranList(); else if (list==='dua') renderDuaList(); else if (list==='hadith') renderHadithList(); else if (list==='favorites') renderProgressFavorites(); } function detailStarClick(){ if (document.getElementById('screen-quran-detail').classList.contains('active') && activeQuranId) { toggleFavorite(activeQuranId); openQuran(activeQuranId); } else if (document.getElementById('screen-dua-detail').classList.contains('active') && activeDuaId) { toggleFavorite(activeDuaId); openDua(activeDuaId); } else if (document.getElementById('screen-hadith-detail').classList.contains('active') && activeHadithId) { toggleFavorite(activeHadithId); openHadith(activeHadithId); } } function openSearch(){ document.getElementById('search-overlay').classList.add('active'); setTimeout(()=>{ const i=document.getElementById('global-search-input'); if (i) i.focus(); }, 120); renderGlobalSearch(); } function closeSearch(){ document.getElementById('search-overlay').classList.remove('active'); const i=document.getElementById('global-search-input'); if (i) i.value=''; } function searchOpen(type, id){
-  // Явно закрываем оверлей без вызова closeSearch — избегаем history.back(),
-  // который может конфликтовать с pushState следующего экрана.
   var ov = document.getElementById('search-overlay');
   if (ov) ov.classList.remove('active');
   var inp = document.getElementById('global-search-input');
   if (inp) inp.value = '';
   var res = document.getElementById('search-results');
   if (res) res.innerHTML = '';
+  // Не оставляем висячую запись с overlay: заменяем её на текущий экран без overlay.
+  var st = history.state;
+  if (st && st.overlay) {
+    try { history.replaceState({ screen: st.screen }, ''); } catch(e) {}
+  }
   if (type==='quran') openQuran(id);
   else if (type==='dua') openDua(id);
   else if (type==='hadith') openHadith(id);
