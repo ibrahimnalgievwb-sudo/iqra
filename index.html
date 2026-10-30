@@ -1123,6 +1123,13 @@ button::-moz-focus-inner { border: 0; padding: 0; }
   display: inline;
   letter-spacing: inherit;
 }
+/* U5: Единая палитра таджвида (совпадает с легендой) для всех тем */
+.tajweed-ghunnah, .tajweed-ghunna, .tajweed-ikhfa, .tajweed-ikhfa_shafawi { color: #4CAF50 !important; -webkit-text-fill-color: #4CAF50 !important; }
+.tajweed-idgham-ghunnah, .tajweed-idgham_shafawi { color: #8BC34A !important; -webkit-text-fill-color: #8BC34A !important; }
+.tajweed-idgham, .tajweed-idgham_mutajanisayn, .tajweed-idgham_mutaqaribayn { color: #9E9E9E !important; -webkit-text-fill-color: #9E9E9E !important; }
+.tajweed-iqlab, .tajweed-iqlab_shafawi { color: #00BCD4 !important; -webkit-text-fill-color: #00BCD4 !important; }
+.tajweed-qalqalah { color: #2196F3 !important; -webkit-text-fill-color: #2196F3 !important; }
+.tajweed-madd, .tajweed-madd_2, .tajweed-madd_4, .tajweed-madd_6 { color: #F44336 !important; -webkit-text-fill-color: #F44336 !important; }
 /* U1: копирование переводов и пояснений длинным нажатием */
 .read-ayah-trn,
 .read-ayah-tr,
@@ -1641,7 +1648,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v177';
+const APP_VERSION = 'iqra-v178';
   
 // Глобальная переменная для данных таджвида
 var TAJWEED_DATA = window.TAJWEED_DATA || null;
@@ -3155,7 +3162,9 @@ function validateImport(d) {
     clean.cycles = (typeof t.cycles === 'number' && isFinite(t.cycles) && t.cycles >= 0) ? Math.floor(t.cycles) : 0;
     return clean;
   }).filter(Boolean);
-  safe.settings = (d.settings && typeof d.settings === 'object' && !Array.isArray(d.settings)) ? d.settings : {};
+      safe.settings = (d.settings && typeof d.settings === 'object' && !Array.isArray(d.settings)) ? d.settings : {};
+      safe.settings.readScrolls = (safe.settings.readScrolls && typeof safe.settings.readScrolls === 'object' && !Array.isArray(safe.settings.readScrolls)) ? safe.settings.readScrolls : {};
+      safe.settings.readAyah = (safe.settings.readAyah && typeof safe.settings.readAyah === 'object' && !Array.isArray(safe.settings.readAyah)) ? safe.settings.readAyah : {};
   safe.history = (d.history && typeof d.history === 'object' && !Array.isArray(d.history)) ? d.history : {};
   safe.reminders = Array.isArray(d.reminders) ? d.reminders : [];
   safe.duas = Array.isArray(d.duas) ? d.duas.filter(x => x && typeof x === 'object' && safeId(x.id)).map(x => { const c = Object.assign({}, x); c.id = safeId(x.id); return c; }) : [];
@@ -3307,12 +3316,12 @@ function getRandomQuote() {
       const item = state.quran[Math.floor(Math.random() * state.quran.length)];
       if (!item) return null;
       const trLines = (item.translation || '').split('\n').filter(Boolean);
-      return { type: 'quran', id: item.id, badge: 'Коран', title: item.title || '—', ar: (item.arabic || '').split('\n')[0], tr: (trLines[0] || '').slice(0, 140) };
+                  return { type: 'hadith', id: item.id, badge: 'Хадис', title: item.title || '—', ar: item.arabic || '', tr: String(item.translation || '').replace(/\*\*/g, '').slice(0, 140) };
     }
     if (type === 'hadith') {
       const item = state.hadiths[Math.floor(Math.random() * state.hadiths.length)];
       if (!item) return null;
-      return { type: 'hadith', id: item.id, badge: 'Хадис', title: item.title || '—', ar: item.arabic || '', tr: (item.translation || '').slice(0, 140) };
+  return { type: 'hadith', id: item.id, badge: 'Хадис', title: item.title || '—', ar: item.arabic || '', tr: String(item.translation || '').replace(/\*\*/g, '').slice(0, 140) };
     }
      if (type === 'dua') {
       const pool = state.duas.filter(function(d){ return d && d.arabic && d.translation; });
