@@ -156,7 +156,7 @@
 			img.style.bottom = '0px'
 			img.style.width = '1px'
 			img.style.height = '1px'
-			img.loading = 'eager'
+			img.setAttribute('loading', 'eager')
 			img.setAttribute('alt', '')
 			img.setAttribute('aria-hidden', 'true')
 
