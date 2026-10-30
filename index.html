@@ -1123,6 +1123,37 @@ button::-moz-focus-inner { border: 0; padding: 0; }
   display: inline;
   letter-spacing: inherit;
 }
+/* U1: копирование переводов и пояснений длинным нажатием */
+.read-ayah-trn,
+.read-ayah-tr,
+.dh-text,
+.detail-hero .dh-sub,
+.note-box,
+.transcription-note,
+.mem-block .mb-text,
+.content-card .c-tr,
+.content-card .c-sub,
+.learned-item .li-title {
+  -webkit-user-select: text;
+  user-select: text;
+  -webkit-touch-callout: default;
+}
+/* U2: счётчик не резервирует место под скрытую навигацию */
+.counter {
+  padding-bottom: calc(24px + var(--nav-safe));
+}
+/* U3: на узких экранах подписи навигации остаются видимыми */
+@media (max-width: 360px) {
+  :root { --nav-height: 46px; }
+  .nav button { justify-content: flex-end; padding: 4px 0 2px; }
+  .nav button .ico { width: 28px; height: 28px; padding: 4px; }
+  .nav button .nav-label { display: block; font-size: 8.5px; letter-spacing: -0.2px; margin-top: 0; }
+}
+/* U4: увеличенная зона нажатия для избранного */
+.content-card .star-btn {
+  width: 38px;
+  height: 38px;
+}
 </style>
 </head>
 <body>
@@ -1610,7 +1641,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v176';
+const APP_VERSION = 'iqra-v177';
   
 // Глобальная переменная для данных таджвида
 var TAJWEED_DATA = window.TAJWEED_DATA || null;
@@ -2378,7 +2409,8 @@ function renderTasbih() {
   if (!items.length) { container.innerHTML = state.tasbihs.length ? '<div class="empty">Ничего не найдено</div>' : '<div class="empty">Нет тасбихов.<br>Нажмите «＋», чтобы создать свой.</div>'; return; }
   const R = 22, C = 2*Math.PI*R;
   container.innerHTML = items.map(t => {
-    const p = Math.min(1, t.current/t.target);
+    const _tg = Math.max(1, Number(t.target) || 0);
+    const p = Math.min(1, Math.max(0, (Number(t.current) || 0) / _tg));
     const off = C*(1-p);
     const tc = todayCountFor(t.id);
     const badge = tc>0 ? `<div class="today-badge">${tc}</div>` : '';
@@ -2392,7 +2424,7 @@ function cardTouchMove(e) { const card=e.currentTarget; if (!dragEl) { if (dragH
 function cardTouchEnd() { if (dragHoldTimer) { clearTimeout(dragHoldTimer); dragHoldTimer=null; } if (!dragEl) { dragId=null; return; } dragEl.classList.remove('dragging'); const ids=[...document.querySelectorAll('#cards-container .tasbih-card')].map(c=>c.dataset.id); state.tasbihs.sort((a,b)=>ids.indexOf(a.id)-ids.indexOf(b.id)); save(); dragEl=null; dragId=null; setTimeout(()=>renderTasbih(),50); setTimeout(()=>{suppressNextClick=false;},400); }
 
 function openCounter(id) { activeId=id; const t=getById(id); if (!t) return; try { localStorage.setItem('iqra_last_tasbih', id); } catch(e) {} trackEvent('tasbih/' + id, 'Тасбих: ' + id); document.getElementById('c-ar').textContent=t.arabic; document.getElementById('c-tr').textContent=t.transcription; document.getElementById('c-trn').textContent=t.translation; document.getElementById('c-target').textContent='из '+t.target; updateCounterUI(); showScreen('screen-counter'); if (state.settings.wakeLock) requestWakeLock(); }
-function updateCounterUI() { const t=getById(activeId); if (!t) return; const numEl=document.getElementById('c-num'); numEl.textContent=t.current; const done=t.current>=t.target; numEl.classList.toggle('done', done); document.getElementById('c-cycles').textContent='Циклов: '+t.cycles; const R=44, C=2*Math.PI*R; const p=Math.min(1,t.current/t.target); document.getElementById('c-ring').setAttribute('stroke-dashoffset', C*(1-p)); document.getElementById('top-progress-bar').style.width=(p*100)+'%'; }
+function updateCounterUI() { const t=getById(activeId); if (!t) return; const numEl=document.getElementById('c-num'); numEl.textContent=t.current; const done=t.current>=t.target; numEl.classList.toggle('done', done); document.getElementById('c-cycles').textContent='Циклов: '+t.cycles; const R=44, C=2*Math.PI*R; const _tg=Math.max(1, Number(t.target)||0); const p=Math.min(1, Math.max(0, (Number(t.current)||0)/_tg)); document.getElementById('c-ring').setAttribute('stroke-dashoffset', C*(1-p)); document.getElementById('top-progress-bar').style.width=(p*100)+'%'; }
 function tap(e) {
   const t=getById(activeId); if (!t) return;
   const area=document.getElementById('counter-area'); const rect=area.getBoundingClientRect();
@@ -3282,10 +3314,11 @@ function getRandomQuote() {
       if (!item) return null;
       return { type: 'hadith', id: item.id, badge: 'Хадис', title: item.title || '—', ar: item.arabic || '', tr: (item.translation || '').slice(0, 140) };
     }
-    if (type === 'dua') {
-      const item = state.duas[Math.floor(Math.random() * state.duas.length)];
-      if (!item) return null;
-      return { type: 'dua', id: item.id, badge: 'Дуа', title: item.title || '—', ar: item.arabic || '', tr: (item.translation || '').slice(0, 140) };
+     if (type === 'dua') {
+      const pool = state.duas.filter(function(d){ return d && d.arabic && d.translation; });
+      if (!pool.length) return null;
+      const item = pool[Math.floor(Math.random() * pool.length)];
+      return { type: 'dua', id: item.id, badge: 'Дуа', title: item.title || '—', ar: item.arabic || '', tr: String(item.translation || '').replace(/\*\*/g, '').slice(0, 140) };
     }
     const item = state.tasbihs[Math.floor(Math.random() * state.tasbihs.length)];
     if (!item) return null;
