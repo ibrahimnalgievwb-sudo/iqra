@@ -117,8 +117,10 @@
 			return 'localhost'
 		if (!goatcounter.allow_local && location.protocol === 'file:')
 			return 'localfile'
-		if (localStorage && localStorage.getItem('skipgc') === 't')
-			return 'disabled with #toggle-goatcounter'
+			try {
+			if (localStorage && localStorage.getItem('skipgc') === 't')
+				return 'disabled with #toggle-goatcounter'
+		} catch(e) {}
 		return false
 	}
 
@@ -236,14 +238,16 @@
 
 	// Make it easy to skip your own views.
 	if (location.hash === '#toggle-goatcounter') {
-		if (localStorage.getItem('skipgc') === 't') {
-			localStorage.removeItem('skipgc', 't')
-			alert('GoatCounter tracking is now ENABLED in this browser.')
-		}
-		else {
-			localStorage.setItem('skipgc', 't')
-			alert('GoatCounter tracking is now DISABLED in this browser until ' + location + ' is loaded again.')
-		}
+		try {
+			if (localStorage.getItem('skipgc') === 't') {
+				localStorage.removeItem('skipgc', 't')
+				alert('GoatCounter tracking is now ENABLED in this browser.')
+			}
+			else {
+				localStorage.setItem('skipgc', 't')
+				alert('GoatCounter tracking is now DISABLED in this browser until ' + location + ' is loaded again.')
+			}
+		} catch(e) {}
 	}
 
 	if (!goatcounter.no_onload)
