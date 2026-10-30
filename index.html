@@ -1132,8 +1132,8 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 .tajweed-idghaam_shafawi { color: #8BC34A !important; -webkit-text-fill-color: #8BC34A !important; }
 .tajweed-idghaam_mutajanisayn,
 .tajweed-idghaam_mutaqaribayn { color: #8BC34A !important; -webkit-text-fill-color: #8BC34A !important; }
-.tajweed-iqlab { color: #00BCD4 !important; -webkit-text-fill-color: #00BCD4 !important; font-weight: 600; }
-.tajweed-qalqalah { color: #2196F3 !important; -webkit-text-fill-color: #2196F3 !important; font-weight: 600; }
+.tajweed-iqlab { color: #00BCD4 !important; -webkit-text-fill-color: #00BCD4 !important; }
+.tajweed-qalqalah { color: #2196F3 !important; -webkit-text-fill-color: #2196F3 !important; }
 .tajweed-madd_2 { color: #F44336 !important; -webkit-text-fill-color: #F44336 !important; }
 .tajweed-madd_246 { color: #E91E63 !important; -webkit-text-fill-color: #E91E63 !important; }
 .tajweed-madd_muttasil { color: #D32F2F !important; -webkit-text-fill-color: #D32F2F !important; }
@@ -1629,7 +1629,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v170';
+const APP_VERSION = 'iqra-v171';
   
 // Глобальная переменная для данных таджвида
 var TAJWEED_DATA = window.TAJWEED_DATA || null;
@@ -2394,8 +2394,14 @@ function tap(e) {
   const t=getById(activeId); if (!t) return;
   const area=document.getElementById('counter-area'); const rect=area.getBoundingClientRect();
   const r=document.createElement('div'); r.className='ripple'; r.style.left=(e.clientX-rect.left)+'px'; r.style.top=(e.clientY-rect.top)+'px'; area.appendChild(r); setTimeout(()=>r.remove(),600);
-  const completed = t.current + 1 >= t.target;
-  if (t.current >= t.target) { t.cycles += 1; t.current = 1; } else { t.current += 1; }
+  let completed = false;
+  if (t.current >= t.target) {
+    t.cycles += 1;
+    t.current = 1;
+  } else {
+    t.current += 1;
+    if (t.current >= t.target) completed = true;
+  }
   const _k = todayKey();
   const prevTotal = (state.history[_k] && state.history[_k].total) || 0;
   addToHistory(t.id, 1); updateCounterUI(); save();
@@ -2556,19 +2562,20 @@ function applyTajweedAnnotations(text, surahNum, ayahNum) {
   const verseData = TAJWEED_DATA.find(v => v.surah === surahNum && v.ayah === ayahNum);
   if (!verseData || !verseData.annotations || !verseData.annotations.length) return esc(text);
   
-  // Сортируем правила по индексу начала
-  const rules = [...verseData.annotations].sort((a, b) => a.start - b.start);
+  // Сортируем по началу, затем по концу — детерминированный порядок при одинаковом start
+  const rules = [...verseData.annotations].sort((a, b) => (a.start - b.start) || (a.end - b.end));
   
   let result = '';
   let lastIndex = 0;
   
   for (const rule of rules) {
-    if (rule.start < lastIndex || rule.end > text.length) { console.warn('Таджвид: пропущено правило', rule.rule, 'в', surahNum + ':' + ayahNum); continue; }
-    if (rule.end <= rule.start) { console.warn('Таджвид: пустой диапазон', rule.rule, 'в', surahNum + ':' + ayahNum); continue; }
+    if (rule.end > text.length) { console.warn('Таджвид: правило за пределами текста', rule.rule, 'в', surahNum + ':' + ayahNum); continue; }
+    var rStart = rule.start < lastIndex ? lastIndex : rule.start;
+    if (rule.end <= rStart) { continue; }
     
-    result += esc(text.substring(lastIndex, rule.start));
+    result += esc(text.substring(lastIndex, rStart));
     
-    const fragment = text.substring(rule.start, rule.end);
+    const fragment = text.substring(rStart, rule.end);
     const className = 'tajweed-' + rule.rule;
     
     result += `<span class="${className}">${esc(fragment)}</span>`;
@@ -2621,13 +2628,16 @@ function openRead(id, targetAyahIdx, dir) {
   const ayahHtml = ayahs.map((a, idx) => {
     let arHtml, arClass;
     
-    let sNum = null, aNum = null;
+     let sNum = null, aNum = null;
     if (item.type === 'surah') {
       sNum = item.number;
       aNum = idx + 1;
     } else if (item.type === 'ayat' && item.number) {
-      const parts = String(item.number).split(':');
-      if (parts.length === 2) { sNum = parseInt(parts[0], 10); aNum = parseInt(parts[1], 10); }
+      const _m = String(item.number).match(/^(\d+):(\d+)(?:-(\d+))?$/);
+      if (_m) {
+        sNum = parseInt(_m[1], 10);
+        aNum = parseInt(_m[2], 10) + idx;
+      }
     }
 
     if (state.settings.tajweedMode && isQuranText && TAJWEED_DATA && sNum && aNum) {
@@ -3913,7 +3923,13 @@ if ('serviceWorker' in navigator) {
     var orig = window[fnName];
     if (typeof orig !== 'function') return;
     window[fnName] = function() {
-      try { history.pushState({ screen: currentScreen(), overlay: ovId }, ''); } catch(e) {}
+      if (!going) {
+        var st = { screen: currentScreen(), overlay: ovId };
+        if (ovId === 'read-mode' && arguments[0]) st.readQuranId = arguments[0];
+        else if (ovId === 'memorize-mode' && arguments[0] && arguments[0].id) st.memId = arguments[0].id;
+        else if (ovId === 'modal-bg' && arguments[0]) st.modalKey = arguments[0];
+        try { history.pushState(st, ''); } catch(e) {}
+      }
       return orig.apply(this, arguments);
     };
   }
@@ -3951,18 +3967,36 @@ if ('serviceWorker' in navigator) {
         var shouldBeOpen = (ov === targetOverlay);
         if (isOpen && !shouldBeOpen) closeOverlay(ov);
       }
-      if (st.screen && currentScreen() !== st.screen) {
-        // ФИКС iOS: Восстанавливаем контекст экрана ДО отрисовки
-        if (st.screen === 'screen-counter') {
-          if (st.tasbihId) activeId = st.tasbihId;
-          else if (!activeId) { try { activeId = localStorage.getItem('iqra_last_tasbih'); } catch(e) {} }
+      if (st.screen === 'screen-quran-detail' && st.quranId) {
+        if (activeQuranId !== st.quranId || currentScreen() !== 'screen-quran-detail') openQuran(st.quranId);
+      } else if (st.screen === 'screen-dua-detail' && st.duaId) {
+        if (activeDuaId !== st.duaId || currentScreen() !== 'screen-dua-detail') openDua(st.duaId);
+      } else if (st.screen === 'screen-hadith-detail' && st.hadithId) {
+        if (activeHadithId !== st.hadithId || currentScreen() !== 'screen-hadith-detail') openHadith(st.hadithId);
+      } else if (st.screen === 'screen-night-detail' && typeof st.nightId === 'number') {
+        if (activeNightId !== st.nightId || currentScreen() !== 'screen-night-detail') openNight(st.nightId);
+      } else if (st.screen === 'screen-counter' && st.tasbihId) {
+        if (activeId !== st.tasbihId || currentScreen() !== 'screen-counter') {
+          activeId = st.tasbihId;
+          openCounter(st.tasbihId);
         }
-        if (st.quranId) activeQuranId = st.quranId;
-        if (st.duaId) activeDuaId = st.duaId;
-        if (st.hadithId) activeHadithId = st.hadithId;
-        if (typeof st.nightId === 'number') activeNightId = st.nightId;
-        
+      } else if (st.screen && currentScreen() !== st.screen) {
         try { _showScreen.call(window, st.screen); } catch(err) {}
+      }
+      if (targetOverlay) {
+        var ovEl = document.getElementById(targetOverlay);
+        if (ovEl && !ovEl.classList.contains('active')) {
+          if (targetOverlay === 'search-overlay') {
+            openSearch();
+          } else if (targetOverlay === 'read-mode' && st.readQuranId) {
+            openRead(st.readQuranId);
+          } else if (targetOverlay === 'memorize-mode' && st.memId) {
+            var memItem = getQuranById(st.memId) || getDuaById(st.memId) || getHadithById(st.memId);
+            if (memItem) openMemorizeFor(memItem);
+          } else if (targetOverlay === 'modal-bg' && st.modalKey) {
+            openDay(st.modalKey);
+          }
+        }
       }
     } finally {
       going = false;
