@@ -75,7 +75,9 @@ self.addEventListener('fetch', function(event) {
         }
         return res;
       }).catch(function() {
-        return caches.match(req);
+        return caches.match(req).then(function(cached) {
+          return cached || new Response('{}', { status: 503, headers: { 'Content-Type': 'application/json' } });
+        });
       })
     );
     return;
