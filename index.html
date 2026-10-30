@@ -3799,32 +3799,23 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).then(function(reg) {
       handleUpdate(reg);
       try { reg.update(); } catch(e) {}
-      checkForUpdates();
 
       // 1) Периодически: каждые 5 минут, только когда страница видима
       setInterval(function() {
         if (document.visibilityState !== 'visible') return;
         try { reg.update(); } catch(e) {}
-        checkForUpdates();
       }, 5 * 60 * 1000);
 
       // 2) При возврате приложения в фокус (iOS/Android/PWA)
       document.addEventListener('visibilitychange', function() {
         if (document.visibilityState === 'visible') {
           try { reg.update(); } catch(e) {}
-          checkForUpdates();
         }
       });
 
       // 3) При получении фокуса окна
       window.addEventListener('focus', function() {
         try { reg.update(); } catch(e) {}
-        checkForUpdates();
-      });
-
-      // 4) При восстановлении из bfcache (iOS Safari)
-      window.addEventListener('pageshow', function() {
-        checkForUpdates();
       });
     }).catch(function() {});
   });
