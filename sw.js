@@ -1,6 +1,4 @@
-// ВАЖНО: при изменении tajweed.json, fonts.css, tajweed.js, tajweed.css
-// ОБЯЗАТЕЛЬНО поднимать CACHE_VERSION и APP_VERSION синхронно.
-const CACHE_VERSION = 'iqra-v171';
+const CACHE_VERSION = 'iqra-v170';
 const CACHE_ASSETS = [
   './', './index.html', './manifest.json', './count.js', './fonts.css',
   './tajweed.css', './tajweed.js', './tajweed.json',
@@ -33,7 +31,6 @@ self.addEventListener('install', function(event) {
     })
   );
 });
-// Сообщение от клиента: активировать новый SW немедленно
 self.addEventListener('message', function(event) {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
@@ -55,6 +52,10 @@ self.addEventListener('activate', function(event) {
       });
     }).then(function() {
       return self.clients.claim();
+    }).then(function() {
+      if (self.registration.navigationPreload) {
+        return self.registration.navigationPreload.enable();
+      }
     })
   );
 });
@@ -65,7 +66,7 @@ self.addEventListener('fetch', function(event) {
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
 
-  if (req.mode === 'navigate' || req.destination === 'document') {
+  if (url.pathname.endsWith('.json')) {
     event.respondWith(
       fetch(req).then(function(res) {
         if (res && res.status === 200) {
@@ -74,16 +75,32 @@ self.addEventListener('fetch', function(event) {
         }
         return res;
       }).catch(function() {
-        return caches.match(req).then(function(r) {
-          if (r) return r;
-          return caches.match('./index.html').then(function(r2) {
-            return r2 || new Response('Offline', {
-              status: 503,
-              headers: { 'Content-Type': 'text/plain; charset=utf-8' }
-            });
-          });
-        });
+        return caches.match(req);
       })
+    );
+    return;
+  }
+
+  if (req.mode === 'navigate' || req.destination === 'document') {
+    event.respondWith(
+      (async function() {
+        try {
+          const preloadResponse = await event.preloadResponse;
+          if (preloadResponse) return preloadResponse;
+          const networkResponse = await fetch(req);
+          if (networkResponse && networkResponse.status === 200) {
+             const copy = networkResponse.clone();
+             caches.open(CACHE_VERSION).then(function(c) { c.put(req, copy); });
+          }
+          return networkResponse;
+        } catch (error) {
+          const cachedResponse = await caches.match(req);
+          if (cachedResponse) return cachedResponse;
+          const fallbackResponse = await caches.match('./index.html');
+          if (fallbackResponse) return fallbackResponse;
+          return new Response('Offline', { status: 503, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
+        }
+      })()
     );
     return;
   }
