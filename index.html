@@ -1611,7 +1611,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v173';
+const APP_VERSION = 'iqra-v175';
   
 // Глобальная переменная для данных таджвида
 var TAJWEED_DATA = window.TAJWEED_DATA || null;
@@ -1661,14 +1661,7 @@ loadTajweedData();
 const BACKUP_SCHEMA = 2;
 const LIMITS = { tasbihs:1000, history:10000, historyDays:365, reminders:50, textLen:1000, idLen:100, targetMax:100000, cyclesMax:1000000 };
 const QURAN_USE_API = false;
-const TAJWEED_COLORS = {
-  ghunna: '#4CAF50', ikhfa: '#4CAF50', ikhfa_shafawi: '#D500B7',
-  idgham_ghunnah: '#8BC34A', idgham_no_ghunnah: '#9E9E9E', idgham_shafawi: '#8BC34A',
-  iqlab: '#00BCD4', qalqalah: '#2196F3',
-  madd_2: '#F44336', madd_246: '#E91E63', madd_muttasil: '#D32F2F',
-  madd_munfasil: '#FF5722', madd_6: '#B71C1C',
-  silent: '#9E9E9E', ham_wasl: '#795548', laam_shamsiyah: '#795548'
-};
+// TAJWEED_COLORS: цвета таджвида — в tajweed.css (единственный источник истины).
 const TAWHID_TASBIH = { id: 'tawhid', arabic: 'لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ', transcription: 'Ля иляха илляллаху вахдаху ля шарика ляху, ляхуль-мульку ва ляхуль-хамду, ва хува ‘аля кулли шай’ин кадир', translation: '«Нет бога, кроме одного лишь Аллаха, у Которого нет сотоварища, Ему принадлежит власть, Ему хвала, и Он всё может»', target: 10, current: 0, cycles: 0 };
 const ISTIGHFAR_TASBIH = { id:'istighfar', arabic:'أَسْتَغْفِرُ اللَّهَ', transcription:'АстагфируЛлах', translation:'Прошу прощения у Аллаха', target:100, current:0, cycles:0 };
 const DEFAULT_TASBIHS = [TAWHID_TASBIH, ISTIGHFAR_TASBIH,
@@ -2237,7 +2230,22 @@ function parseAyahs(item) {
   const tr = (item.transcription||'').split('\n').map(s=>s.trim());
   const trn = (item.translation||'').split('\n').map(s=>s.trim());
   const isSurah = item.type === 'surah';
-  return ar.map((line, i) => ({ num: isSurah ? (i+1) : (item.number || ''), ar: line, tr: tr[i] || '', trn: trn[i] || '' }));
+  let perLineNum = null;
+  if (!isSurah && item.number) {
+    const m = String(item.number).match(/^(\d+):(\d+)(?:-(\d+))?$/);
+    if (m) {
+      const surahN = m[1], start = parseInt(m[2], 10);
+      perLineNum = ar.map((_, i) => surahN + ':' + (start + i));
+    }
+  }
+  return ar.map((line, i) => ({
+    num: isSurah ? (i+1) : (perLineNum ? perLineNum[i] : (item.number || '')),
+    ar: line, tr: tr[i] || '', trn: trn[i] || ''
+  }));
+}
+function perLineNumbered(item) {
+  if (!item || item.type === 'surah' || !item.number) return false;
+  return /^\d+:\d+(?:-\d+)?$/.test(String(item.number));
 }
 function ayahMarker(n) {
   var num = (typeof n === 'number') ? n : parseInt(String(n).replace(/[^\d]/g, ''), 10);
@@ -2529,8 +2537,8 @@ function openQuran(id) {
     ${bismillahHtml}
     <div style="height:16px"></div>
     ${ayahs.map((a, idx) => `
-      <div class="read-ayah ${item.type==='ayat'?'ayat-mode':''}">
-        <div class="read-ayah-num">${item.type==='surah' ? a.num : (item.number||'')}</div>
+       <div class="read-ayah ${item.type==='ayat'?'ayat-mode':''}">
+        <div class="read-ayah-num">${a.num}</div>
         <div class="read-ayah-ar ar-font">${esc(a.ar)}${item.type==='surah' ? ' <span class="read-ayah-marker">' + ayahMarker(a.num) + '</span>' : ''}</div>
         ${a.tr ? `<div class="read-ayah-tr">${esc(a.tr)}</div>` : ''}
                <div class="read-ayah-trn">${esc(a.trn)}</div>
@@ -2604,7 +2612,7 @@ function openRead(id, targetAyahIdx, dir) {
   if (item.bismillah) {
     bismillahHtml = `<div class="bismillah-card" style="margin-bottom:20px;"><div class="b-ar ar-font">${item.bismillah.arabic}</div><div class="b-tr">${item.bismillah.transcription}</div><div class="b-trn">${item.bismillah.translation}</div></div>`;
   }
-  const isQuranText = item.type === 'surah' || item.type === 'ayat';
+  const isQuranText = item.type === 'surah' || item.type === 'ayat' || item.type === 'ruqyah';
   const tajweedBar = isQuranText ? `
     <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;margin-bottom:12px;background:var(--card);border-radius:12px;border:1px solid var(--border);">
       <span style="font-size:13px;color:var(--muted);">Цвета таджвида</span>
@@ -2624,11 +2632,11 @@ function openRead(id, targetAyahIdx, dir) {
   const ayahHtml = ayahs.map((a, idx) => {
     let arHtml, arClass;
     
-     let sNum = null, aNum = null;
+      let sNum = null, aNum = null;
     if (item.type === 'surah') {
       sNum = item.number;
       aNum = idx + 1;
-    } else if (item.type === 'ayat' && item.number) {
+    } else if ((item.type === 'ayat' || item.type === 'ruqyah') && item.number) {
       const _m = String(item.number).match(/^(\d+):(\d+)(?:-(\d+))?$/);
       if (_m) {
         sNum = parseInt(_m[1], 10);
@@ -2644,8 +2652,8 @@ function openRead(id, targetAyahIdx, dir) {
       arHtml = esc(a.ar);
     }
     return `
-      <div class="read-ayah ${item.type==='ayat'?'ayat-mode':''}">
-        <div class="read-ayah-num">${item.type==='surah' ? a.num : (item.number||'')}</div>
+        <div class="read-ayah ${item.type==='ayat'?'ayat-mode':''}">
+        <div class="read-ayah-num">${a.num}</div>
         <div class="read-ayah-ar ${arClass}">${arHtml}${item.type==='surah' ? ' <span class="read-ayah-marker">' + ayahMarker(a.num) + '</span>' : ''}</div>
         ${a.tr ? `<div class="read-ayah-tr">${esc(a.tr)}</div>` : ''}
         <div class="read-ayah-trn">${esc(a.trn)}</div>
@@ -2788,8 +2796,8 @@ function openNight(idx) {
       <div class="dh-sub">${esc(item.subtitle||'')} ${n.times>1?' · Читать '+n.times+' раза':''}</div>
     </div>
     ${ayahs.map(a => `
-           <div class="read-ayah ${item.type==='ayat'?'ayat-mode':''}">
-        <div class="read-ayah-num">${item.type==='surah' ? a.num : (item.number||'')}</div>
+                <div class="read-ayah ${item.type==='ayat'?'ayat-mode':''}">
+        <div class="read-ayah-num">${a.num}</div>
         <div class="read-ayah-ar ar-font">${esc(a.ar)}${item.type==='surah' ? ' <span class="read-ayah-marker">' + ayahMarker(a.num) + '</span>' : ''}</div>
         ${a.tr ? `<div class="read-ayah-tr">${esc(a.tr)}</div>` : ''}
         <div class="read-ayah-trn">${esc(a.trn)}</div>
