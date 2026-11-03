@@ -1753,7 +1753,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v193';
+const APP_VERSION = 'iqra-v194';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2744,8 +2744,7 @@ function toggleQuranLearned(id) {
 }
 function goQuranList() { activeQuranId = null; renderQuranList(); showScreen('screen-quran'); }
 
-function applyTajweedAnnotations(text, surahNum, ayahNum) {
-  const TAJWEED_RULES_META = {
+const TAJWEED_RULES_META = {
   'ghunnah': { name: 'Гъунна', desc: 'Носовой звук при чтении букв с шаддой.', color: '#FF7E1E' },
   'ikhfa': { name: 'Ихфа', desc: 'Смягчение звука «н» перед определёнными буквами.', color: '#9400A8' },
   'ikhfa_shafawi': { name: 'Ихфа шафави', desc: 'Смягчение звука «м» перед буквой «б».', color: '#D500B7' },
@@ -2765,6 +2764,8 @@ function applyTajweedAnnotations(text, surahNum, ayahNum) {
   'lam_shamsiyyah': { name: 'Лям шамсийя', desc: 'Служебный знак, ассимиляция «л».', color: '#AAAAAA' },
   'silent': { name: 'Тихий', desc: 'Служебный знак, не произносится.', color: '#AAAAAA' }
 };
+
+function applyTajweedAnnotations(text, surahNum, ayahNum) {
   if (!TAJWEED_DATA) return esc(text);
   
   const verseData = TAJWEED_DATA.find(v => v.surah === surahNum && v.ayah === ayahNum);
