@@ -404,7 +404,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 
 .read-surah-title { font-size:24px; font-weight:700; margin-bottom:4px; text-align:center; overflow-wrap: break-word; }
 .read-surah-sub { font-size:13px; color:var(--muted); text-align:center; margin-bottom:24px; overflow-wrap: break-word; }
-.read-ayah { background:var(--card); border-radius:18px; padding:18px 20px; margin-bottom:14px; box-shadow:0 2px 8px var(--shadow); position:relative; overflow-wrap: anywhere; width:100%; max-width:100%; box-sizing:border-box; }
+.read-ayah { background:var(--card); border-radius:18px; padding:18px 20px; margin-bottom:14px; box-shadow:0 2px 8px var(--shadow); position:relative; overflow-wrap: anywhere; width:100%; max-width:100%; box-sizing:border-box; scroll-margin-top: 72px; }
 /* НОВОЕ: полноценный стиль номера аята (кружок) */
 .read-ayah-num {
   display: inline-flex;
@@ -1167,6 +1167,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 /* U1: копирование переводов и пояснений длинным нажатием */
 .read-ayah-trn,
 .read-ayah-tr,
+.read-ayah-ar,
 .dh-text,
 .detail-hero .dh-sub,
 .note-box,
@@ -1178,6 +1179,10 @@ button::-moz-focus-inner { border: 0; padding: 0; }
   -webkit-user-select: text;
   user-select: text;
   -webkit-touch-callout: default;
+}
+/* QA: Фикс перетаскивания на ПК и блокировка скролла при драге */
+.tasbih-card.dragging {
+  touch-action: none;
 }
 /* U2: счётчик не резервирует место под скрытую навигацию */
 .counter {
@@ -1721,7 +1726,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v186';
+const APP_VERSION = 'iqra-v187';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2502,13 +2507,44 @@ function renderTasbih() {
     const tc = todayCountFor(t.id);
     const badge = tc>0 ? `<div class="today-badge">${tc}</div>` : '';
     const tid = escAttr(t.id);
-    return `<div class="tasbih-card" data-id="${tid}" onclick="cardClick(event,'${tid}')" ontouchstart="cardTouchStart(event)" ontouchmove="cardTouchMove(event)" ontouchend="cardTouchEnd(event)" ontouchcancel="cardTouchEnd(event)">${badge}<div class="body"><div class="ar ar-font">${esc(t.arabic)}</div><div class="tr">${esc(t.transcription)}</div><div class="trn">${esc(t.translation)}</div><div class="p-row"><span>${t.current} / ${t.target}</span><span>Циклов: ${t.cycles}</span></div></div><div class="mini-ring"><svg width="52" height="52"><circle class="ring-bg" cx="26" cy="26" r="${R}" fill="none" stroke-width="3.5"/><circle class="ring-fg" cx="26" cy="26" r="${R}" fill="none" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${off}"/></svg><div class="ring-num">${Math.round(p*100)}%</div></div></div>`;
+      return `<div class="tasbih-card" data-id="${tid}" onclick="cardClick(event,'${tid}')" onpointerdown="cardPointerDown(event)" onpointermove="cardPointerMove(event)" onpointerup="cardPointerUp(event)" onpointercancel="cardPointerUp(event)" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();cardClick(event,'${tid}');}">${badge}<div class="body"><div class="ar ar-font">${esc(t.arabic)}</div><div class="tr">${esc(t.transcription)}</div><div class="trn">${esc(t.translation)}</div><div class="p-row"><span>${t.current} / ${t.target}</span><span>Циклов: ${t.cycles}</span></div></div><div class="mini-ring"><svg width="52" height="52"><circle class="ring-bg" cx="26" cy="26" r="${R}" fill="none" stroke-width="3.5"/><circle class="ring-fg" cx="26" cy="26" r="${R}" fill="none" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${off}"/></svg><div class="ring-num">${Math.round(p*100)}%</div></div></div>`;
   }).join('');
 }
-// B1: long-press активирует drag и подавляет следующий click
-function cardTouchStart(e) { const card=e.currentTarget; dragId=card.dataset.id; card._startY=e.touches[0].clientY; dragHoldTimer=setTimeout(()=>{dragEl=card; card.classList.add('dragging'); suppressNextClick=true; if (navigator.vibrate) navigator.vibrate(15);},450); }
-function cardTouchMove(e) { const card=e.currentTarget; if (!dragEl) { if (dragHoldTimer && Math.abs(e.touches[0].clientY-(card._startY||0))>8) { clearTimeout(dragHoldTimer); dragHoldTimer=null; } return; } e.preventDefault(); const y=e.touches[0].clientY; const container=document.getElementById('cards-container'); const cards=[...container.querySelectorAll('.tasbih-card:not(.dragging)')]; let before=null; for (const c of cards) { const r=c.getBoundingClientRect(); if (y<r.top+r.height/2) { before=c; break; } } if (before) container.insertBefore(dragEl,before); else container.appendChild(dragEl); }
-function cardTouchEnd() { if (dragHoldTimer) { clearTimeout(dragHoldTimer); dragHoldTimer=null; } if (!dragEl) { dragId=null; return; } dragEl.classList.remove('dragging'); const ids=[...document.querySelectorAll('#cards-container .tasbih-card')].map(c=>c.dataset.id); state.tasbihs.sort((a,b)=>ids.indexOf(a.id)-ids.indexOf(b.id)); save(); dragEl=null; dragId=null; setTimeout(()=>renderTasbih(),50); setTimeout(()=>{suppressNextClick=false;},400); }
+// QA: Pointer Events (поддержка мыши и тача, a11y клавиатуры)
+let dragStartY = 0, isMouseDrag = false;
+function cardPointerDown(e) {
+  if (e.pointerType === 'mouse' && e.button !== 0) return;
+  const card = e.currentTarget; dragId = card.dataset.id; dragStartY = e.clientY; isMouseDrag = (e.pointerType === 'mouse');
+  try { card.setPointerCapture(e.pointerId); } catch(_) {}
+  if (isMouseDrag) {
+    dragEl = card; card.classList.add('dragging'); suppressNextClick = true;
+  } else {
+    dragHoldTimer = setTimeout(() => { dragEl = card; card.classList.add('dragging'); suppressNextClick = true; if (navigator.vibrate) navigator.vibrate(15); }, 450);
+  }
+}
+function cardPointerMove(e) {
+  if (!dragEl) {
+    if (dragHoldTimer && Math.abs(e.clientY - dragStartY) > 8) { clearTimeout(dragHoldTimer); dragHoldTimer = null; }
+    return;
+  }
+  e.preventDefault();
+  const y = e.clientY; const container = document.getElementById('cards-container');
+  const cards = [...container.querySelectorAll('.tasbih-card:not(.dragging)')];
+  let before = null;
+  for (const c of cards) { const r = c.getBoundingClientRect(); if (y < r.top + r.height / 2) { before = c; break; } }
+  if (before) container.insertBefore(dragEl, before); else container.appendChild(dragEl);
+}
+function cardPointerUp(e) {
+  if (dragHoldTimer) { clearTimeout(dragHoldTimer); dragHoldTimer = null; }
+  if (!dragEl) { dragId = null; return; }
+  try { e.currentTarget.releasePointerCapture(e.pointerId); } catch(_) {}
+  dragEl.classList.remove('dragging');
+  const ids = [...document.querySelectorAll('#cards-container .tasbih-card')].map(c => c.dataset.id);
+  state.tasbihs.sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id));
+  save(); dragEl = null; dragId = null;
+  setTimeout(() => renderTasbih(), 50);
+  setTimeout(() => { suppressNextClick = false; }, 400);
+}
 
 function openCounter(id) { activeId=id; const t=getById(id); if (!t) return; try { localStorage.setItem('iqra_last_tasbih', id); } catch(e) {} trackEvent('tasbih/' + id, 'Тасбих: ' + id); document.getElementById('c-ar').textContent=t.arabic; document.getElementById('c-tr').textContent=t.transcription; document.getElementById('c-trn').textContent=t.translation; document.getElementById('c-target').textContent='из '+t.target; updateCounterUI(); showScreen('screen-counter'); if (state.settings.wakeLock) requestWakeLock(); }
 function updateCounterUI() { const t=getById(activeId); if (!t) return; const numEl=document.getElementById('c-num'); numEl.textContent=t.current; const done=t.current>=t.target; numEl.classList.toggle('done', done); document.getElementById('c-cycles').textContent='Циклов: '+t.cycles; const R=44, C=2*Math.PI*R; const _tg=Math.max(1, Number(t.target)||0); const p=Math.min(1, Math.max(0, (Number(t.current)||0)/_tg)); document.getElementById('c-ring').setAttribute('stroke-dashoffset', C*(1-p)); document.getElementById('top-progress-bar').style.width=(p*100)+'%'; }
