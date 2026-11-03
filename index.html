@@ -177,8 +177,8 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .content-card:active, .tasbih-card:active, .dash-quote:active, .dash-marks:active, .dash-quick:active { transform:scale(.98); border-color: var(--gold-accent); box-shadow: 0 0 16px rgba(212,175,55,.2); }
 .read-ayah-num { background: rgba(212,175,55,.15); color: var(--gold-accent); border: 1px solid rgba(212,175,55,.3); }
 .read-ayah.ayat-mode .read-ayah-num { background: var(--gold-grad); color: #000; }
-.toggle input:checked + .slider { background: var(--gold-grad); }
-.toggle input:checked + .slider::before { transform:translateX(20px); background: #000; box-shadow: none; }
+.toggle input:checked + .slider { background: var(--gold-grad); box-shadow: var(--gold-glow-sm); }
+.toggle input:checked + .slider::before { transform:translateX(20px); background: #0A0A0A; box-shadow: 0 1px 3px rgba(0,0,0,.4); }
 .seg button.active, .prog-tabs button.active { background: var(--gold-grad); color: #0A0A0A; font-weight: 700; box-shadow: var(--gold-glow-sm); }
 .nav button.active .nav-label { color: var(--gold-accent); font-weight: 700; }
 .field input:focus, .field textarea:focus { border-color: var(--gold-accent); box-shadow: 0 0 8px rgba(212,175,55,.2); }
@@ -251,9 +251,8 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 
 .empty { text-align:center; color:var(--muted); padding:60px 20px; font-size:15px; line-height:1.6; }
 
-.fab { position:fixed; right:20px; bottom:calc(100px + var(--nav-safe)); width:60px; height:60px; border-radius:50%; background:var(--accent); color:var(--bg); font-size:30px; font-weight:300; display:flex; align-items:center; justify-content:center; box-shadow:0 6px 20px var(--shadow); z-index:100; }
-.fab:active { transform:scale(.92); }
-
+.fab { position:fixed; right:20px; bottom:calc(100px + var(--nav-safe)); width:60px; height:60px; border-radius:50%; background:var(--gold-grad); color:#0A0A0A; font-size:30px; font-weight:300; display:flex; align-items:center; justify-content:center; box-shadow:var(--gold-glow); z-index:100; transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-base) var(--ease-out); }
+.fab:active { transform:scale(.92); box-shadow:var(--gold-glow-sm); }
 .nav { width:100%; max-width:100%; display:flex; background:var(--card); border-top:1px solid var(--border); padding-bottom:env(safe-area-inset-bottom, 0px); padding-left:max(20px, env(safe-area-inset-left, 20px)); padding-right:max(20px, env(safe-area-inset-right, 20px)); flex-shrink:0; height:calc(var(--nav-height) + env(safe-area-inset-bottom, 0px)); box-sizing:border-box; overflow:hidden; }
 .nav button { flex:1 1 0%; width:0; min-width:0; padding:4px 0 2px; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; gap:0; color:var(--muted); background:transparent; box-sizing:border-box; transition:color .2s ease; }
 .nav button .ico {
@@ -901,123 +900,101 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   background: transparent; color: var(--muted); border: none;
 }
 
-/* === LOGO-STYLE BUTTONS v4: единый блеск с арабским текстом === */
+/* === PREMIUM BUTTONS v5: Единый премиальный стиль Black/White/Gold === */
 :root {
-  --gold-grad: linear-gradient(135deg, var(--ar-g1) 0%, var(--ar-g2) 35%, var(--ar-g3) 55%, var(--ar-g2) 78%, var(--ar-g1) 100%);
-  --gold-grad-light: linear-gradient(135deg, var(--ar-g1) 0%, var(--ar-g2) 35%, var(--ar-g3) 55%, var(--ar-g2) 78%, var(--ar-g1) 100%);
-  --gold-accent: var(--ar-g2);
-  --gold-accent-light: var(--ar-g1);
-  --gold-glow: 0 2px 8px rgba(212,175,55,.30), 0 1px 2px rgba(0,0,0,.18);
-  --gold-glow-sm: 0 1px 4px rgba(212,175,55,.38);
-  --gold-glow-lg: 0 4px 20px rgba(212,175,55,.55);
-  --gold-soft: rgba(212,175,55,.12);
-  --gold-star: #e6b445;
-  --gold-inner: inset 0 1px 0 rgba(255,243,176,.18), inset 0 -1px 0 rgba(139,105,20,.22);
+  --gold-grad: linear-gradient(135deg, #FFF3B0 0%, #FFD700 30%, #D4AF37 55%, #FFD700 78%, #FFF3B0 100%);
+  --gold-accent: #D4AF37;
+  --gold-accent-light: #FFD700;
+  --gold-glow: 0 4px 16px rgba(212,175,55,.35), inset 0 1px 1px rgba(255,255,255,.4);
+  --gold-glow-sm: 0 2px 8px rgba(212,175,55,.4);
+  --gold-soft: rgba(212,175,55,.15);
+  --gold-star: #FFD700;
+  --gold-inner: inset 0 1px 1px rgba(255,255,255,.5), inset 0 -1px 2px rgba(0,0,0,.2);
   --danger: #C96A5A;
 }
 .btn {
-  background-color: var(--ar-g2) !important;
-  background-image: var(--gold-grad) !important;
+  background: var(--gold-grad) !important;
   color: #0A0A0A !important;
   border: none !important;
-  font-weight: 700;
-  box-shadow: var(--gold-glow), var(--gold-inner);
-  transition: transform .1s ease, box-shadow .15s ease;
+  font-weight: 800 !important;
+  letter-spacing: 0.02em;
+  border-radius: 14px !important;
+  box-shadow: var(--gold-glow) !important;
+  transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
 }
-.btn:active { transform: scale(.97); box-shadow: var(--gold-glow-sm); }
-
+.btn:active { transform: scale(.96); box-shadow: var(--gold-glow-sm) !important; }
 .btn.secondary {
-  background: var(--card) !important;
-  color: var(--gold-accent) !important;
-  border: none !important;
-  box-shadow: 0 1px 4px rgba(0,0,0,.18), var(--gold-inner);
+  background: transparent !important;
+  color: var(--text) !important;
+  border: 1.5px solid var(--gold-accent) !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,.1) !important;
 }
-
+.btn.secondary:active { background: var(--gold-soft) !important; }
 .btn.danger {
-  background: var(--card) !important;
-  color: var(--danger) !important;
-  border: none !important;
+  background: rgba(255, 77, 77, 0.1) !important;
+  color: #FF4D4D !important;
+  border: 1.5px solid rgba(255, 77, 77, 0.3) !important;
+  box-shadow: none !important;
 }
-
 .icon-btn {
   background: var(--card) !important;
   color: var(--gold-accent) !important;
-  border: none !important;
-  transition: transform .08s ease;
+  border: 1.5px solid transparent !important;
+  background-clip: padding-box !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,.15) !important;
+  transition: transform var(--dur-fast) var(--ease-out), border-color var(--dur-base) var(--ease-out);
 }
-.icon-btn:active { transform: scale(.94); }
-.ico, .ico * { pointer-events: none; }
-.icon-btn.ghost {
-  background: transparent !important;
-  color: var(--gold-accent) !important;
-  box-shadow: none !important;
-}
-.icon-btn.starred {
-  background-color: var(--ar-g2) !important;
-  background-image: var(--gold-grad) !important;
-  color: #0A0A0A !important;
-  box-shadow: var(--gold-glow), var(--gold-inner);
-}
-.seg, .stepper, .prog-tabs {
-  background: var(--card) !important;
-  border: none !important;
-}
-
-.preset-chip,
-.cal-nav button,
-.mark-item .mi-del,
-.reminder-row .del,
-.time-row .del {
+.icon-btn:active { transform: scale(.92); border-color: var(--gold-accent) !important; }
+.icon-btn.ghost { background: transparent !important; border: none !important; box-shadow: none !important; }
+.icon-btn.starred { background: var(--gold-grad) !important; color: #000 !important; box-shadow: var(--gold-glow) !important; }
+.seg, .stepper, .prog-tabs { background: var(--card) !important; border: 1px solid rgba(212,175,55,.15) !important; }
+.preset-chip, .cal-nav button, .mark-item .mi-del, .reminder-row .del, .time-row .del {
   background: var(--card) !important;
   color: var(--gold-accent) !important;
-  border: none !important;
+  border: 1px solid rgba(212,175,55,.2) !important;
 }
-.mark-item .mi-del,
-.reminder-row .del,
-.time-row .del { color: var(--danger) !important; }
-
+.mark-item .mi-del, .reminder-row .del, .time-row .del { color: var(--danger) !important; }
 .search-filters .filter-chip {
   background: var(--card) !important;
   color: var(--muted) !important;
-  border: none !important;
+  border: 1px solid rgba(212,175,55,.2) !important;
 }
 .search-filters .filter-chip.active {
   background: var(--gold-grad) !important;
   color: #0A0A0A !important;
-  font-weight: 700 !important;
-  box-shadow: var(--gold-glow), var(--gold-inner);
+  font-weight: 800 !important;
+  border-color: transparent !important;
+  box-shadow: var(--gold-glow-sm) !important;
 }
-
 #onboarding .ob-option {
   background: var(--card) !important;
   color: var(--text) !important;
-  border: none !important;
+  border: 1px solid rgba(212,175,55,.2) !important;
 }
 #onboarding .ob-option.active {
   background: var(--gold-grad) !important;
   color: #0A0A0A !important;
-  font-weight: 700 !important;
-  box-shadow: var(--gold-glow), var(--gold-inner);
+  font-weight: 800 !important;
+  border-color: transparent !important;
+  box-shadow: var(--gold-glow-sm) !important;
 }
-
 .content-card .star-btn {
   background: var(--gold-soft) !important;
   color: var(--gold-accent) !important;
-  border: none !important;
+  border: 1px solid rgba(212,175,55,.3) !important;
 }
 .content-card .star-btn.active {
   background: var(--gold-grad) !important;
   color: #0A0A0A !important;
-  box-shadow: var(--gold-glow), var(--gold-inner);
+  border-color: transparent !important;
+  box-shadow: var(--gold-glow-sm) !important;
 }
-
 .next-toast .nt-btn {
   background: var(--gold-grad) !important;
   color: #0A0A0A !important;
   border: none !important;
-  box-shadow: var(--gold-glow), var(--gold-inner);
+  box-shadow: var(--gold-glow-sm) !important;
 }
-
 .ayah-share-btn {
   display: inline-flex;
   align-items: center;
@@ -1026,89 +1003,86 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   padding: 8px 14px;
   border-radius: 12px;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 800;
   background: transparent;
   color: var(--gold-accent);
   border: 1.5px solid var(--gold-accent);
   cursor: pointer;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
-  transition: transform .08s ease, background .15s ease, color .15s ease;
+  transition: transform .1s var(--ease-out), background .15s ease, color .15s ease;
 }
 .ayah-share-btn:active {
   transform: scale(.95);
   background: var(--gold-grad);
   color: #0A0A0A;
+  border-color: transparent;
 }
 
-/* === LIGHT THEME: чёрный фон + золотые грани + усиленный блеск === */
+/* === LIGHT THEME: глубокий чёрный + золото (как логотип) === */
 [data-theme="light"] .btn,
 [data-theme="light"] .btn.secondary {
   background: linear-gradient(#0A0A0A, #0A0A0A) padding-box,
-              var(--gold-grad-light) border-box !important;
+              var(--gold-grad) border-box !important;
   border: 2px solid transparent !important;
-  color: var(--gold-accent-light) !important;
-  box-shadow: 0 4px 18px rgba(139,105,20,.48),
-              0 1px 4px rgba(0,0,0,.30),
-              inset 0 1px 0 rgba(255,230,128,.40),
-              inset 0 -1px 0 rgba(92,68,9,.42) !important;
+  color: #FFD700 !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,.2), inset 0 1px 0 rgba(255,215,0,.2) !important;
 }
 [data-theme="light"] .btn:active,
 [data-theme="light"] .btn.secondary:active {
-  box-shadow: 0 2px 8px rgba(139,105,20,.55),
-              inset 0 1px 0 rgba(255,230,128,.40) !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,.3) !important;
+  transform: scale(.96);
 }
 [data-theme="light"] .btn.danger {
   background: #FFFFFF !important;
   color: #A04434 !important;
-  box-shadow: 0 1px 4px rgba(0,0,0,.08) !important;
+  border: 1.5px solid rgba(160,68,52,.3) !important;
+  box-shadow: none !important;
 }
 [data-theme="light"] .icon-btn {
   background: linear-gradient(#0A0A0A, #0A0A0A) padding-box,
-              var(--gold-grad-light) border-box !important;
-  border: 1.6px solid transparent !important;
-  color: var(--gold-accent-light) !important;
-  box-shadow: 0 2px 10px rgba(139,105,20,.38),
-              inset 0 1px 0 rgba(255,230,128,.35) !important;
+              var(--gold-grad) border-box !important;
+  border: 1.5px solid transparent !important;
+  color: #FFD700 !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,.15) !important;
 }
 [data-theme="light"] .icon-btn.ghost {
   background: transparent !important;
   border: none !important;
-  color: var(--gold-accent-light) !important;
+  color: var(--gold-accent) !important;
   box-shadow: none !important;
 }
 [data-theme="light"] .icon-btn.starred {
   background: linear-gradient(#0A0A0A, #0A0A0A) padding-box,
-              var(--gold-grad-light) border-box !important;
-  border: 1.6px solid transparent !important;
+              var(--gold-grad) border-box !important;
+  border: 1.5px solid transparent !important;
   color: #FFD700 !important;
 }
 [data-theme="light"] .fab {
   background: linear-gradient(#0A0A0A, #0A0A0A) padding-box,
-              var(--gold-grad-light) border-box !important;
-  border: 2.2px solid transparent !important;
+              var(--gold-grad) border-box !important;
+  border: 2px solid transparent !important;
   color: #FFD700 !important;
-  box-shadow: 0 4px 20px rgba(139,105,20,.52),
-              inset 0 1px 0 rgba(255,230,128,.40) !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,.25) !important;
 }
 [data-theme="light"] .search-filters .filter-chip.active,
 [data-theme="light"] #onboarding .ob-option.active,
 [data-theme="light"] .next-toast .nt-btn {
   background: linear-gradient(#0A0A0A, #0A0A0A) padding-box,
-              var(--gold-grad-light) border-box !important;
+              var(--gold-grad) border-box !important;
   color: #FFD700 !important;
-  border: 1.6px solid transparent !important;
-  box-shadow: 0 2px 10px rgba(139,105,20,.42),
-              inset 0 1px 0 rgba(255,230,128,.35) !important;
+  border: 1.5px solid transparent !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,.2) !important;
 }
 [data-theme="light"] .ayah-share-btn {
-  color: var(--gold-accent-light);
-  border-color: var(--gold-accent-light);
+  color: var(--gold-accent);
+  border-color: var(--gold-accent);
 }
 [data-theme="light"] .ayah-share-btn:active {
   background: linear-gradient(#0A0A0A, #0A0A0A) padding-box,
-              var(--gold-grad-light) border-box;
+              var(--gold-grad) border-box;
   color: #FFD700;
+  border-color: transparent;
 }
 
 /* Fallback: solid-цвет как страховка при сбое рендеринга градиента в Chrome Android */
@@ -1747,7 +1721,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v185';
+const APP_VERSION = 'iqra-v186';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
