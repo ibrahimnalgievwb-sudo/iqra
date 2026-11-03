@@ -24,6 +24,16 @@
   <link rel="stylesheet" href="./tajweed.css">
 </noscript>
 <script>if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1))document.documentElement.classList.add('is-ios');</script>
+<script>
+window.addEventListener('error', function(e) {
+  var splash = document.getElementById('splash-screen');
+  if (splash) splash.style.display = 'none';
+  var errDiv = document.createElement('div');
+  errDiv.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:#000;color:#D4AF37;z-index:999999;display:flex;align-items:center;justify-content:center;text-align:center;padding:20px;font-family:sans-serif;flex-direction:column;';
+  errDiv.innerHTML = '<h2 style="margin-bottom:10px;">Ошибка загрузки</h2><p style="font-size:14px;color:#fff;">Обновите приложение (сбросьте кэш).</p><p style="font-size:12px;margin-top:20px;opacity:.5;">' + (e.message || 'Syntax Error') + '</p>';
+  document.body.appendChild(errDiv);
+});
+</script>
 <style>
 :root {   --ar-scale: 1; --radius: 18px; --radius-lg: 22px; --radius-sm: 12px; --nav-safe: env(safe-area-inset-bottom, 0px); --nav-height: 52px;   /* Motion tokens (премиальные переходы) */   --dur-fast: 120ms; --dur-base: 220ms; --dur-slow: 380ms;   --ease-out: cubic-bezier(.16,1,.3,1); --ease-in-out: cubic-bezier(.4,0,.2,1); --ease-bounce: cubic-bezier(.34,1.56,.64,1);   /* Premium shadow stack (Black/White/Gold) */   --shadow-sm: 0 1px 2px rgba(0,0,0,.06), 0 1px 3px rgba(0,0,0,.08);   --shadow-md: 0 4px 12px rgba(0,0,0,.10), 0 2px 4px rgba(0,0,0,.06);   --shadow-lg: 0 12px 32px rgba(0,0,0,.16), 0 4px 8px rgba(0,0,0,.08);   --shadow-gold: 0 4px 16px rgba(212,175,55,.22), 0 2px 6px rgba(212,175,55,.12);   /* Tap feedback */   --tap-scale: .97; --tap-opacity: .82;   /* Страховка: если data-theme не применится, будут использоваться светлые цвета */   --bg:#FFFFFF; --card:#F5F5F5; --card2:#EAEAEA; --accent:#0A0A0A; --accent2:#8B6914;   --text:#0A0A0A; --muted:#3D3D3D; --border:#C8C8C8; --shadow:rgba(0,0,0,.12);   --accent-rgb: 10, 10, 10; --ripple:rgba(10,10,10,.15);   --ar-g1:#C99414; --ar-g2:#7A5C10; --ar-g3:#4A3507;   color-scheme: light dark; } [data-theme="light"] { color-scheme: light; } [data-theme="dark"] { color-scheme: dark; } [data-theme="mono"] { color-scheme: dark; }
 [data-theme="light"] {
@@ -1737,7 +1747,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v184';
+const APP_VERSION = 'iqra-v185';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
