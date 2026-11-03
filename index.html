@@ -854,22 +854,30 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   position: fixed;
   left: 50%; bottom: calc(90px + env(safe-area-inset-bottom));
   transform: translateX(-50%) translateY(20px);
-  background: var(--card);
+  background: rgba(10, 10, 10, 0.95); /* Премиальный темный фон */
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border: 1.5px solid var(--gold-accent);
-  border-radius: 14px;
-  padding: 10px 18px;
-  font-size: 13px;
+  border-radius: 30px; /* Форма пилюли */
+  padding: 10px 22px;
+  font-size: 14px;
   font-weight: 700;
-  color: var(--gold-accent);
-  box-shadow: 0 8px 24px rgba(0,0,0,.4), var(--gold-glow-sm);
+  color: #FFD700; /* Золотой текст */
+  box-shadow: 0 8px 32px rgba(0,0,0,.6), 0 0 16px rgba(212,175,55,.2);
   opacity: 0;
-  transition: opacity .25s ease, transform .25s ease;
-  z-index: 10060; /* Выше всех оверлеев (read-mode, modal-bg) */
+  transition: opacity .3s var(--ease-out), transform .3s var(--ease-bounce);
+  z-index: 99999; /* Абсолютный верх, поверх любого оверлея */
   pointer-events: none;
   white-space: nowrap;
   max-width: 90vw;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+[data-theme="light"] .toast {
+  background: rgba(255, 255, 255, 0.95);
+  color: #0A0A0A;
+  border: 1.5px solid var(--gold-accent);
+  box-shadow: 0 8px 32px rgba(0,0,0,.15), 0 0 16px rgba(212,175,55,.3);
 }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
@@ -983,12 +991,24 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   background: var(--gold-soft) !important;
   color: var(--gold-accent) !important;
   border: 1px solid rgba(212,175,55,.3) !important;
+  transition: transform var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out) !important;
+}
+.content-card .star-btn:active {
+  transform: scale(0.85) !important;
+  background: var(--gold-grad) !important;
+  color: #0A0A0A !important;
 }
 .content-card .star-btn.active {
   background: var(--gold-grad) !important;
   color: #0A0A0A !important;
   border-color: transparent !important;
   box-shadow: var(--gold-glow-sm) !important;
+}
+/* Золотой отклик при нажатии на иконки навигации */
+.icon-btn:active, .ayah-share-btn:active {
+  background: var(--gold-grad) !important;
+  color: #0A0A0A !important;
+  border-color: transparent !important;
 }
 .next-toast .nt-btn {
   background: var(--gold-grad) !important;
@@ -1727,7 +1747,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v189';
+const APP_VERSION = 'iqra-v190';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2298,7 +2318,7 @@ function formatHijri(date){
     return d + ' ' + monthName + ' ' + y + ' г. х.';
   } catch(e) { return ''; }
 }
-function isFavorite(id){ return Array.isArray(state.favorites) && state.favorites.includes(id); } function toggleFavorite(id){ if (!Array.isArray(state.favorites)) state.favorites=[]; const i=state.favorites.indexOf(id); if (i>=0) { state.favorites.splice(i,1); trackEvent('fav_off/' + id, 'Убрано из избранного: ' + id); if (typeof showMarkToast === 'function') showMarkToast('Удалено из избранного'); } else { state.favorites.push(id); trackEvent('fav_on/' + id, 'В избранное: ' + id); if (typeof showMarkToast === 'function') showMarkToast('Добавлено в избранное'); } save(); if (typeof renderDashMarks === 'function') renderDashMarks(); } function starClick(event, id, list){ event.stopPropagation(); toggleFavorite(id); if (list==='quran') renderQuranList(); else if (list==='dua') renderDuaList(); else if (list==='hadith') renderHadithList(); else if (list==='favorites') renderProgressFavorites(); } function detailStarClick(){ if (document.getElementById('screen-quran-detail').classList.contains('active') && activeQuranId) { toggleFavorite(activeQuranId); openQuran(activeQuranId); } else if (document.getElementById('screen-dua-detail').classList.contains('active') && activeDuaId) { toggleFavorite(activeDuaId); openDua(activeDuaId); } else if (document.getElementById('screen-hadith-detail').classList.contains('active') && activeHadithId) { toggleFavorite(activeHadithId); openHadith(activeHadithId); } } function openSearch(){ document.getElementById('search-overlay').classList.add('active'); setTimeout(()=>{ const i=document.getElementById('global-search-input'); if (i) i.focus(); }, 120); renderGlobalSearch(); } function closeSearch(){ document.getElementById('search-overlay').classList.remove('active'); const i=document.getElementById('global-search-input'); if (i) i.value=''; } function searchOpen(type, id){
+function isFavorite(id){ return Array.isArray(state.favorites) && state.favorites.includes(id); } function toggleFavorite(id){ if (!Array.isArray(state.favorites)) state.favorites=[]; const i=state.favorites.indexOf(id); if (i>=0) { state.favorites.splice(i,1); trackEvent('fav_off/' + id, 'Убрано из избранного: ' + id); if (typeof showMarkToast === 'function') showMarkToast('Удалено из избранного'); } else { state.favorites.push(id); trackEvent('fav_on/' + id, 'В избранное: ' + id); if (typeof showMarkToast === 'function') showMarkToast('Сохранено в избранное'); } if (state.settings.vibrate && navigator.vibrate) navigator.vibrate(15); save(); if (typeof renderDashMarks === 'function') renderDashMarks(); } function starClick(event, id, list){ event.stopPropagation(); toggleFavorite(id); if (list==='quran') renderQuranList(); else if (list==='dua') renderDuaList(); else if (list==='hadith') renderHadithList(); else if (list==='favorites') renderProgressFavorites(); } function detailStarClick(){ if (document.getElementById('screen-quran-detail').classList.contains('active') && activeQuranId) { toggleFavorite(activeQuranId); openQuran(activeQuranId); } else if (document.getElementById('screen-dua-detail').classList.contains('active') && activeDuaId) { toggleFavorite(activeDuaId); openDua(activeDuaId); } else if (document.getElementById('screen-hadith-detail').classList.contains('active') && activeHadithId) { toggleFavorite(activeHadithId); openHadith(activeHadithId); } } function openSearch(){ document.getElementById('search-overlay').classList.add('active'); setTimeout(()=>{ const i=document.getElementById('global-search-input'); if (i) i.focus(); }, 120); renderGlobalSearch(); } function closeSearch(){ document.getElementById('search-overlay').classList.remove('active'); const i=document.getElementById('global-search-input'); if (i) i.value=''; } function searchOpen(type, id){
   var ov = document.getElementById('search-overlay');
   if (ov) ov.classList.remove('active');
   var inp = document.getElementById('global-search-input');
