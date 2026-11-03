@@ -1769,7 +1769,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v195';
+const APP_VERSION = 'iqra-v196';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2844,16 +2844,24 @@ function openRead(id, targetAyahIdx, dir) {
     bismillahHtml = `<div class="bismillah-card" style="margin-bottom:20px;"><div class="b-ar ar-font">${item.bismillah.arabic}</div><div class="b-tr">${item.bismillah.transcription}</div><div class="b-trn">${item.bismillah.translation}</div></div>`;
   }
   const isQuranText = item.type === 'surah' || item.type === 'ayat' || item.type === 'ruqyah';
-  const tajweedBar = isQuranText ? `
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;margin-bottom:12px;background:var(--card);border-radius:12px;border:1px solid rgba(212,175,55,.3);box-shadow: var(--shadow-sm);">
-      <span style="font-size:13px;color:var(--text);font-weight:600;display:flex;align-items:center;gap:6px;"><svg class="ico ico-sm" style="color:var(--gold-accent)"><use href="#i-info"/></svg> Таджвид</span>
-      <button class="preset-chip" onclick="toggleTajweed()" style="padding:6px 14px;font-size:12px;${state.settings.tajweedMode ? 'background:var(--gold-grad);color:#0A0A0A;border:none;font-weight:700;box-shadow:var(--gold-glow);' : ''}">${state.settings.tajweedMode ? 'Включено' : 'Выключено'}</button>
-    </div>
-     ${state.settings.tajweedMode ? `
-      <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));gap:10px 14px;margin-bottom:16px;font-size:11px;padding:12px;background:rgba(212,175,55,.05);border:1px dashed rgba(212,175,55,.3);border-radius:12px;">
-        ${Object.entries(TAJWEED_RULES_META).map(([rule, r]) => `<div style="display:flex;align-items:baseline;gap:6px;"><span class="tajweed-${rule}" style="display:inline-block;width:8px;height:8px;background:currentColor;border-radius:2px;flex-shrink:0;margin-top:4px;"></span><span style="color:var(--text);"><b>${r.name}</b> — ${r.desc}</span></div>`).join('')}
-      </div>
-    ` : ''}
+  let tajweedBar = '';
+  if (isQuranText) {
+    let legendHtml = '';
+    if (state.settings.tajweedMode) {
+      let rulesList = '';
+      Object.keys(TAJWEED_RULES_META).forEach(function(k) {
+        const r = TAJWEED_RULES_META[k];
+        rulesList += '<div style="display:flex;align-items:baseline;gap:6px;"><span class="tajweed-' + k + '" style="display:inline-block;width:8px;height:8px;background:currentColor;border-radius:2px;flex-shrink:0;margin-top:4px;"></span><span style="color:var(--text);"><b>' + r.name + '</b> — ' + r.desc + '</span></div>';
+      });
+      legendHtml = '<div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));gap:10px 14px;margin-bottom:16px;font-size:11px;padding:12px;background:rgba(212,175,55,.05);border:1px dashed rgba(212,175,55,.3);border-radius:12px;">' + rulesList + '</div>';
+    }
+    let btnStyle = state.settings.tajweedMode ? 'background:var(--gold-grad);color:#0A0A0A;border:none;font-weight:700;box-shadow:var(--gold-glow);' : '';
+    let btnText = state.settings.tajweedMode ? 'Включено' : 'Выключено';
+    tajweedBar = '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;margin-bottom:12px;background:var(--card);border-radius:12px;border:1px solid rgba(212,175,55,.3);box-shadow: var(--shadow-sm);">' +
+      '<span style="font-size:13px;color:var(--text);font-weight:600;display:flex;align-items:center;gap:6px;"><svg class="ico ico-sm" style="color:var(--gold-accent)"><use href="#i-info"/></svg> Таджвид</span>' +
+      '<button class="preset-chip" onclick="toggleTajweed()" style="padding:6px 14px;font-size:12px;' + btnStyle + '">' + btnText + '</button>' +
+    '</div>' + legendHtml;
+  }
   const ayahHtml = ayahs.map((a, idx) => {
     let arHtml, arClass;
     let appliedRulesHtml = '';
@@ -2874,15 +2882,18 @@ function openRead(id, targetAyahIdx, dir) {
       arClass = 'ar-font tajweed-on';
       arHtml = applyTajweedAnnotations(a.ar, sNum, aNum);
       
-      const verseData = TAJWEED_DATA.find(v => v.surah === sNum && v.ayah === aNum);
+    const verseData = TAJWEED_DATA.find(v => v.surah === sNum && v.ayah === aNum);
       if (verseData && verseData.annotations) {
         const uniqueRules = [...new Set(verseData.annotations.map(x => x.rule))];
-        const ruleNamesHtml = uniqueRules.map(r => {
-          const meta = TAJWEED_RULES_META[r];
-          return `<span class="tajweed-${r}" style="font-weight:700;">${meta ? meta.name : r}</span>`;
+        let ruleNamesHtml = uniqueRules.map(function(r) {
+          let displayName = r;
+          if (TAJWEED_RULES_META[r]) {
+            displayName = TAJWEED_RULES_META[r].name;
+          }
+          return '<span class="tajweed-' + r + '" style="font-weight:700;">' + displayName + '</span>';
         }).join(' <span style="color:var(--muted);">·</span> ');
         if (ruleNamesHtml) {
-          appliedRulesHtml = `<div class="ayah-tajweed-info"><svg class="ico ico-sm" style="opacity:.6;color:var(--gold-accent);"><use href="#i-info"/></svg><span>${ruleNamesHtml}</span></div>`;
+          appliedRulesHtml = '<div class="ayah-tajweed-info"><svg class="ico ico-sm" style="opacity:.6;color:var(--gold-accent);"><use href="#i-info"/></svg><span>' + ruleNamesHtml + '</span></div>';
         }
       }
     } else {
