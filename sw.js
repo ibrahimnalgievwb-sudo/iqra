@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'iqra-v197';
+const CACHE_VERSION = 'iqra-v198';
 const CACHE_ASSETS = [
   './', './index.html', './manifest.json', './count.js', './fonts.css',
   './tajweed.json',
@@ -19,17 +19,14 @@ const CACHE_ASSETS = [
 
 self.addEventListener('install', function(event) {
   self.skipWaiting();
-  event.waitUntil(
-    caches.open(CACHE_VERSION).then(function(cache) {
-      return Promise.allSettled(
-        CACHE_ASSETS.map(function(url) {
-          return cache.add(url).catch(function(err) {
-            console.warn('SW: failed to cache', url, err);
-          });
-        })
-      );
-    })
-  );
+  event.waitUntil((async function() {
+    const cache = await caches.open(CACHE_VERSION);
+    try {
+      await Promise.all(CACHE_ASSETS.map(url => cache.add(url)));
+    } catch (err) {
+      console.warn('SW: failed to cache asset (quota or network)', err);
+    }
+  })());
 });
 self.addEventListener('message', function(event) {
   if (event.data && event.data.type === 'SKIP_WAITING') {
@@ -38,26 +35,23 @@ self.addEventListener('message', function(event) {
 });
 
 self.addEventListener('activate', function(event) {
-  event.waitUntil(
-    caches.keys().then(function(keys) {
-      return Promise.all(
-        keys.filter(function(k) { return k !== CACHE_VERSION; })
-            .map(function(k) { return caches.delete(k); })
-      );
-    }).then(function() {
-      return self.clients.matchAll({ type: 'window' }).then(function(clients) {
-        clients.forEach(function(client) {
-          try { client.postMessage({ type: 'SW_UPDATED', version: CACHE_VERSION }); } catch(e) {}
-        });
+  event.waitUntil((async function() {
+    const keys = await caches.keys();
+    await Promise.all(keys.filter(k => k !== CACHE_VERSION).map(k => caches.delete(k)));
+    
+    try {
+      const clients = await self.clients.matchAll({ type: 'window' });
+      clients.forEach(client => {
+        try { client.postMessage({ type: 'SW_UPDATED', version: CACHE_VERSION }); } catch(e) {}
       });
-    }).then(function() {
-      return self.clients.claim();
-    }).then(function() {
+      await self.clients.claim();
       if (self.registration.navigationPreload) {
-        return self.registration.navigationPreload.enable();
+        await self.registration.navigationPreload.enable();
       }
-    })
-  );
+    } catch (e) {
+      console.warn('SW: activation step failed', e);
+    }
+  })());
 });
 
 self.addEventListener('fetch', function(event) {
