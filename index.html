@@ -25,7 +25,7 @@
 </noscript>
 <script>if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1))document.documentElement.classList.add('is-ios');</script>
 <style>
-:root {   --ar-scale: 1; --radius: 18px; --nav-safe: env(safe-area-inset-bottom, 0px); --nav-height: 52px;   /* Страховка: если data-theme не применится, будут использоваться светлые цвета */   --bg:#FFFFFF; --card:#F5F5F5; --card2:#EAEAEA; --accent:#0A0A0A; --accent2:#8B6914;   --text:#0A0A0A; --muted:#3D3D3D; --border:#C8C8C8; --shadow:rgba(0,0,0,.12);   --accent-rgb: 10, 10, 10; --ripple:rgba(10,10,10,.15);   --ar-g1:#C99414; --ar-g2:#7A5C10; --ar-g3:#4A3507;   color-scheme: light dark; } [data-theme="light"] { color-scheme: light; } [data-theme="dark"] { color-scheme: dark; } [data-theme="mono"] { color-scheme: dark; }
+:root {   --ar-scale: 1; --radius: 18px; --radius-lg: 22px; --radius-sm: 12px; --nav-safe: env(safe-area-inset-bottom, 0px); --nav-height: 52px;   /* Motion tokens (премиальные переходы) */   --dur-fast: 120ms; --dur-base: 220ms; --dur-slow: 380ms;   --ease-out: cubic-bezier(.16,1,.3,1); --ease-in-out: cubic-bezier(.4,0,.2,1); --ease-bounce: cubic-bezier(.34,1.56,.64,1);   /* Premium shadow stack (Black/White/Gold) */   --shadow-sm: 0 1px 2px rgba(0,0,0,.06), 0 1px 3px rgba(0,0,0,.08);   --shadow-md: 0 4px 12px rgba(0,0,0,.10), 0 2px 4px rgba(0,0,0,.06);   --shadow-lg: 0 12px 32px rgba(0,0,0,.16), 0 4px 8px rgba(0,0,0,.08);   --shadow-gold: 0 4px 16px rgba(212,175,55,.22), 0 2px 6px rgba(212,175,55,.12);   /* Tap feedback */   --tap-scale: .97; --tap-opacity: .82;   /* Страховка: если data-theme не применится, будут использоваться светлые цвета */   --bg:#FFFFFF; --card:#F5F5F5; --card2:#EAEAEA; --accent:#0A0A0A; --accent2:#8B6914;   --text:#0A0A0A; --muted:#3D3D3D; --border:#C8C8C8; --shadow:rgba(0,0,0,.12);   --accent-rgb: 10, 10, 10; --ripple:rgba(10,10,10,.15);   --ar-g1:#C99414; --ar-g2:#7A5C10; --ar-g3:#4A3507;   color-scheme: light dark; } [data-theme="light"] { color-scheme: light; } [data-theme="dark"] { color-scheme: dark; } [data-theme="mono"] { color-scheme: dark; }
 [data-theme="light"] {
   --bg:#FFFFFF; --card:#F5F5F5; --card2:#EAEAEA; --accent:#0A0A0A; --accent2:#8B6914;
   --text:#0A0A0A; --muted:#3D3D3D; --border:#C8C8C8; --shadow:rgba(0,0,0,.12);
@@ -64,7 +64,25 @@ html, body {
   -webkit-touch-callout:none;
   -webkit-text-size-adjust:100%;
   text-size-adjust:100%;
+  text-rendering: optimizeLegibility;
 }
+/* Премиальный тап-отклик и плавность на всех устройствах */
+button, .btn, .icon-btn, .fab, .ayah-share-btn, .star-btn, .filter-chip, .preset-chip, .ob-option, .tasbih-card, .content-card, .dash-quote, .dash-quick, .continue-card, .cal-day, .nav button {
+  transition: transform var(--dur-fast) var(--ease-out), opacity var(--dur-fast) var(--ease-out), box-shadow var(--dur-base) var(--ease-out), background-color var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out);
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  will-change: transform, opacity;
+}
+button:active, .btn:active, .icon-btn:active, .star-btn:active, .filter-chip:active, .preset-chip:active, .ob-option:active, .cal-day:active, .nav button:active {
+  transform: scale(var(--tap-scale));
+  opacity: var(--tap-opacity);
+}
+/* Видимый фокус для клавиатуры (a11y — строго лучше) */
+:focus-visible { outline: 2px solid var(--gold-accent, var(--ar-g2)); outline-offset: 2px; border-radius: 6px; }
+/* Индикатор прокрутки на iOS-скроллах — не мешает, но помогает */
+.list, .content-list, .detail-body, .fs-body, .cal, .settings, .form { scroll-behavior: smooth; scrollbar-width: thin; scrollbar-color: rgba(var(--accent-rgb), .25) transparent; }
+.list::-webkit-scrollbar, .content-list::-webkit-scrollbar, .detail-body::-webkit-scrollbar, .fs-body::-webkit-scrollbar, .cal::-webkit-scrollbar, .settings::-webkit-scrollbar, .form::-webkit-scrollbar { width: 6px; }
+.list::-webkit-scrollbar-thumb, .content-list::-webkit-scrollbar-thumb, .detail-body::-webkit-scrollbar-thumb, .fs-body::-webkit-scrollbar-thumb, .cal::-webkit-scrollbar-thumb, .settings::-webkit-scrollbar-thumb, .form::-webkit-scrollbar-thumb { background: rgba(var(--accent-rgb), .22); border-radius: 3px; }
 html { height:100%; overflow:hidden; }
 body {
   height:100%;
@@ -142,7 +160,10 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 }
 .screen { display:none; flex:1; flex-direction:column; min-height:0; min-width:0; width:100%; max-width:100%; }
 /* === UNIFIED GOLD/BLACK/WHITE THEME OVERRIDES === */
-.content-card, .tasbih-card, .detail-hero, .settings-group, .bismillah-card, .modal, .read-ayah, .dash-quote, .dash-marks, .dash-progress, .dash-greeting, .dash-stats, .dash-quick, .continue-card, .daily-goal, .cal-grid, .bar-chart, .stat, .stat-card { border: 1px solid rgba(212,175,55,.25); box-shadow: 0 4px 16px rgba(0,0,0,.4), inset 0 1px 0 rgba(212,175,55,.1); }
+.content-card, .tasbih-card, .detail-hero, .settings-group, .bismillah-card, .modal, .read-ayah, .dash-quote, .dash-marks, .dash-progress, .dash-greeting, .dash-stats, .dash-quick, .continue-card, .daily-goal, .cal-grid, .bar-chart, .stat, .stat-card { border: 1px solid rgba(212,175,55,.28); box-shadow: var(--shadow-md), inset 0 1px 0 rgba(212,175,55,.12); background-image: linear-gradient(180deg, rgba(255,255,255,0), rgba(0,0,0,.015)); }
+[data-theme="dark"] .content-card, [data-theme="dark"] .tasbih-card, [data-theme="dark"] .dash-quote, [data-theme="dark"] .dash-quick, [data-theme="dark"] .continue-card, [data-theme="dark"] .read-ayah, [data-theme="dark"] .detail-hero { background-image: linear-gradient(180deg, rgba(255,255,255,.015), rgba(0,0,0,.10)); border-color: rgba(212,175,55,.32); }
+.content-card:hover, .tasbih-card:hover, .dash-quote:hover, .dash-quick:hover, .continue-card:hover { border-color: rgba(212,175,55,.55); box-shadow: var(--shadow-lg), inset 0 1px 0 rgba(212,175,55,.18); }
+.content-card:active, .tasbih-card:active, .dash-quote:active, .dash-marks:active, .dash-quick:active, .continue-card:active { transform: scale(.975); border-color: var(--gold-accent, var(--ar-g2)); box-shadow: var(--shadow-gold), inset 0 1px 0 rgba(212,175,55,.2); }
 .content-card:active, .tasbih-card:active, .dash-quote:active, .dash-marks:active, .dash-quick:active { transform:scale(.98); border-color: var(--gold-accent); box-shadow: 0 0 16px rgba(212,175,55,.2); }
 .read-ayah-num { background: rgba(212,175,55,.15); color: var(--gold-accent); border: 1px solid rgba(212,175,55,.3); }
 .read-ayah.ayat-mode .read-ayah-num { background: var(--gold-grad); color: #000; }
@@ -234,20 +255,25 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   border-radius: 50%;
   box-shadow: 0 0 0 1px rgba(var(--accent-rgb), .10);
   color: var(--accent2);
-  transition: box-shadow .2s ease, color .2s ease;
+  transition: box-shadow var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out), background-image var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-bounce);
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
   overflow: visible;
 }
 .nav button:active .ico {
   box-shadow: 0 0 0 2px rgba(var(--accent-rgb), .22);
+  transform: scale(.92);
 }
 .nav button.active .ico {
   background-color: var(--ar-g2);
   background-image: var(--gold-grad);
-  box-shadow: 0 0 0 1px var(--ar-g2), 0 0 3px rgba(212,175,55,.22);
+  box-shadow: 0 0 0 1.5px var(--ar-g2), 0 4px 12px rgba(212,175,55,.35), inset 0 1px 0 rgba(255,243,176,.35);
   color: #0A0A0A;
+  transform: translateY(-1px) scale(1.03);
 }
+/* Плавное появление индикатора активной вкладки */
+.nav button .ico { animation: navIn var(--dur-slow) var(--ease-out) both; }
+@keyframes navIn { from { opacity:.4; transform: scale(.94); } to { opacity:1; transform: scale(1); } }
 .nav button .nav-label { font-size: clamp(7.5px, 2.15vw, 10px); line-height: 1.05; font-weight: 600; white-space: nowrap; overflow: hidden; max-width: 100%; text-align: center; padding: 0; letter-spacing: 0; color: var(--muted); margin-top: 1px; transition: color .2s ease, font-weight .2s ease; }
 .nav button.active .nav-label { color: var(--accent); font-weight: 700; opacity: 1; transform: translateY(0); }
 /* Адаптация под ширину экрана — подписи не обрезаются, размер шрифта подстраивается автоматически */
@@ -1711,7 +1737,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v182';
+const APP_VERSION = 'iqra-v183';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
