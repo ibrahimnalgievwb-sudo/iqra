@@ -423,7 +423,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .read-ayah.ayat-mode .read-ayah-num { background: var(--accent2); color: var(--bg); }
 .read-ayah-marker { display:inline-block;font-family:"Noto Naskh Arabic","Amiri","SF Arabic","Geeza Pro",serif; font-size:1em; line-height:1; color:var(--accent2); font-weight:400; margin:0 .25em; user-select:none; opacity:.95; vertical-align:middle; }
 .read-ayah-tr { font-size:15px; color:var(--muted); line-height:1.75; margin-bottom:10px; font-style:italic; overflow-wrap: anywhere; letter-spacing:0.01em; }
-.read-ayah-trn { font-size:16px; line-height:1.8; overflow-wrap: anywhere; letter-spacing:0.005em; }
+.ayah-tajweed-info { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); margin-top: 12px; padding-top: 10px; border-top: 1px dashed rgba(212,175,55,.3); font-weight: 500; }
 
 .bismillah-card {
   background: var(--card);
@@ -1753,7 +1753,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v192';
+const APP_VERSION = 'iqra-v193';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2745,6 +2745,26 @@ function toggleQuranLearned(id) {
 function goQuranList() { activeQuranId = null; renderQuranList(); showScreen('screen-quran'); }
 
 function applyTajweedAnnotations(text, surahNum, ayahNum) {
+  const TAJWEED_RULES_META = {
+  'ghunnah': { name: 'Гъунна', desc: 'Носовой звук при чтении букв с шаддой.', color: '#FF7E1E' },
+  'ikhfa': { name: 'Ихфа', desc: 'Смягчение звука «н» перед определёнными буквами.', color: '#9400A8' },
+  'ikhfa_shafawi': { name: 'Ихфа шафави', desc: 'Смягчение звука «м» перед буквой «б».', color: '#D500B7' },
+  'idghaam_ghunnah': { name: 'Идгам с гъунной', desc: 'Слияние «н» со следующей буквой с носовым звуком.', color: '#169777' },
+  'idghaam_no_ghunnah': { name: 'Идгам без гъунны', desc: 'Слияние «н» со следующей буквой без носового звука.', color: '#169200' },
+  'idghaam_shafawi': { name: 'Идгам шафави', desc: 'Слияние «м» со следующей «м».', color: '#58B800' },
+  'idghaam_mutajanisayn': { name: 'Идгам мутаджанисайн', desc: 'Слияние близких по артикуляции букв.', color: '#A1A1A1' },
+  'idghaam_mutaqaribayn': { name: 'Идгам мутакарибайн', desc: 'Слияние близких по артикуляции букв.', color: '#A1A1A1' },
+  'iqlab': { name: 'Икъляб', desc: 'Замена «н» на «м» с носовым оттенком перед буквой «б».', color: '#26BFFD' },
+  'qalqalah': { name: 'Къалькъаля', desc: 'Упругий «отскок» при чтении букв ق ط ب ج د с сукуном.', color: '#DD0008' },
+  'madd_2': { name: 'Мадд 2', desc: 'Естественное удлинение гласного на 2 счёта.', color: '#537FFF' },
+  'madd_246': { name: 'Мадд 2/4/6', desc: 'Удлинение на 2, 4 или 6 счётов (дозволенное).', color: '#4050FF' },
+  'madd_muttasil': { name: 'Мадд муттасиль', desc: 'Обязательное удлинение на 4-5 счётов при встрече с хамзой.', color: '#2144C1' },
+  'madd_munfasil': { name: 'Мадд мунфасиль', desc: 'Дозволенное удлинение на 4-5 счётов при встрече с хамзой.', color: '#2144C1' },
+  'madd_6': { name: 'Мадд 6', desc: 'Обязательное удлинение на 6 счётов.', color: '#000EBC' },
+  'hamzat_wasl': { name: 'Хамзат уасл', desc: 'Служебный знак, не произносится в чтении.', color: '#AAAAAA' },
+  'lam_shamsiyyah': { name: 'Лям шамсийя', desc: 'Служебный знак, ассимиляция «л».', color: '#AAAAAA' },
+  'silent': { name: 'Тихий', desc: 'Служебный знак, не произносится.', color: '#AAAAAA' }
+};
   if (!TAJWEED_DATA) return esc(text);
   
   const verseData = TAJWEED_DATA.find(v => v.surah === surahNum && v.ayah === ayahNum);
@@ -2808,31 +2828,19 @@ function openRead(id, targetAyahIdx, dir) {
   }
   const isQuranText = item.type === 'surah' || item.type === 'ayat' || item.type === 'ruqyah';
   const tajweedBar = isQuranText ? `
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;margin-bottom:12px;background:var(--card);border-radius:12px;border:1px solid var(--border);">
-      <span style="font-size:13px;color:var(--muted);">Цвета таджвида</span>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;margin-bottom:12px;background:var(--card);border-radius:12px;border:1px solid rgba(212,175,55,.3);box-shadow: var(--shadow-sm);">
+      <span style="font-size:13px;color:var(--text);font-weight:600;display:flex;align-items:center;gap:6px;"><svg class="ico ico-sm" style="color:var(--gold-accent)"><use href="#i-info"/></svg> Таджвид</span>
       <button class="preset-chip" onclick="toggleTajweed()" style="padding:6px 14px;font-size:12px;${state.settings.tajweedMode ? 'background:var(--gold-grad);color:#0A0A0A;border:none;font-weight:700;box-shadow:var(--gold-glow);' : ''}">${state.settings.tajweedMode ? 'Включено' : 'Выключено'}</button>
     </div>
     ${state.settings.tajweedMode ? `
-            <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));gap:8px 12px;margin-bottom:16px;font-size:11px;padding:0 4px;">
-        <div style="display:flex;align-items:baseline;gap:6px;"><span style="display:inline-block;width:9px;height:9px;background:#FF7E1E;border-radius:2px;flex-shrink:0;margin-top:4px;"></span><span><b>Гъунна</b> — носовой звук при чтении букв с шаддой.</span></div>
-        <div style="display:flex;align-items:baseline;gap:6px;"><span style="display:inline-block;width:9px;height:9px;background:#9400A8;border-radius:2px;flex-shrink:0;margin-top:4px;"></span><span><b>Ихфа</b> — смягчение звука «н» перед определёнными буквами.</span></div>
-        <div style="display:flex;align-items:baseline;gap:6px;"><span style="display:inline-block;width:9px;height:9px;background:#D500B7;border-radius:2px;flex-shrink:0;margin-top:4px;"></span><span><b>Ихфа шафави</b> — смягчение звука «м» перед буквой «б».</span></div>
-        <div style="display:flex;align-items:baseline;gap:6px;"><span style="display:inline-block;width:9px;height:9px;background:#169777;border-radius:2px;flex-shrink:0;margin-top:4px;"></span><span><b>Идгам с гъунной</b> — слияние «н» со следующей буквой с носовым звуком.</span></div>
-        <div style="display:flex;align-items:baseline;gap:6px;"><span style="display:inline-block;width:9px;height:9px;background:#169200;border-radius:2px;flex-shrink:0;margin-top:4px;"></span><span><b>Идгам без гъунны</b> — слияние «н» со следующей буквой без носового звука.</span></div>
-        <div style="display:flex;align-items:baseline;gap:6px;"><span style="display:inline-block;width:9px;height:9px;background:#58B800;border-radius:2px;flex-shrink:0;margin-top:4px;"></span><span><b>Идгам шафави</b> — слияние «м» со следующей «м».</span></div>
-        <div style="display:flex;align-items:baseline;gap:6px;"><span style="display:inline-block;width:9px;height:9px;background:#A1A1A1;border-radius:2px;flex-shrink:0;margin-top:4px;"></span><span><b>Идгам мутаджанисайн / мутакарибайн</b> — слияние близких по артикуляции букв.</span></div>
-        <div style="display:flex;align-items:baseline;gap:6px;"><span style="display:inline-block;width:9px;height:9px;background:#26BFFD;border-radius:2px;flex-shrink:0;margin-top:4px;"></span><span><b>Икъляб</b> — замена «н» на «м» с носовым оттенком перед буквой «б».</span></div>
-        <div style="display:flex;align-items:baseline;gap:6px;"><span style="display:inline-block;width:9px;height:9px;background:#DD0008;border-radius:2px;flex-shrink:0;margin-top:4px;"></span><span><b>Къалькъаля</b> — упругий «отскок» при чтении букв ق ط ب ج د с сукуном.</span></div>
-        <div style="display:flex;align-items:baseline;gap:6px;"><span style="display:inline-block;width:9px;height:9px;background:#537FFF;border-radius:2px;flex-shrink:0;margin-top:4px;"></span><span><b>Мадд 2</b> — естественное удлинение гласного на 2 счёта.</span></div>
-        <div style="display:flex;align-items:baseline;gap:6px;"><span style="display:inline-block;width:9px;height:9px;background:#4050FF;border-radius:2px;flex-shrink:0;margin-top:4px;"></span><span><b>Мадд 2/4/6</b> — удлинение на 2, 4 или 6 счётов (дозволенное).</span></div>
-        <div style="display:flex;align-items:baseline;gap:6px;"><span style="display:inline-block;width:9px;height:9px;background:#2144C1;border-radius:2px;flex-shrink:0;margin-top:4px;"></span><span><b>Мадд муттасиль / мунфасиль</b> — удлинение на 4–5 счётов при встрече с хамзой.</span></div>
-        <div style="display:flex;align-items:baseline;gap:6px;"><span style="display:inline-block;width:9px;height:9px;background:#000EBC;border-radius:2px;flex-shrink:0;margin-top:4px;"></span><span><b>Мадд 6</b> — обязательное удлинение на 6 счётов.</span></div>
-        <div style="display:flex;align-items:baseline;gap:6px;"><span style="display:inline-block;width:9px;height:9px;background:#AAAAAA;border-radius:2px;flex-shrink:0;margin-top:4px;"></span><span><b>Хамзат уасл / лям шамсийя / тихий</b> — служебные знаки, не произносятся в чтении.</span></div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));gap:10px 14px;margin-bottom:16px;font-size:11px;padding:12px;background:rgba(212,175,55,.05);border:1px dashed rgba(212,175,55,.3);border-radius:12px;">
+        ${Object.values(TAJWEED_RULES_META).map(r => `<div style="display:flex;align-items:baseline;gap:6px;"><span style="display:inline-block;width:8px;height:8px;background:${r.color};border-radius:2px;flex-shrink:0;"></span><span style="color:var(--text);"><b>${r.name}</b> — ${r.desc}</span></div>`).join('')}
       </div>
     ` : ''}
   ` : '';
   const ayahHtml = ayahs.map((a, idx) => {
     let arHtml, arClass;
+    let appliedRulesHtml = '';
     
       let sNum = null, aNum = null;
     if (item.type === 'surah') {
@@ -2849,6 +2857,15 @@ function openRead(id, targetAyahIdx, dir) {
     if (state.settings.tajweedMode && isQuranText && TAJWEED_DATA && sNum && aNum) {
       arClass = 'ar-font tajweed-on';
       arHtml = applyTajweedAnnotations(a.ar, sNum, aNum);
+      
+      const verseData = TAJWEED_DATA.find(v => v.surah === sNum && v.ayah === aNum);
+      if (verseData && verseData.annotations) {
+        const uniqueRules = [...new Set(verseData.annotations.map(x => x.rule))];
+        const ruleNames = uniqueRules.map(r => TAJWEED_RULES_META[r] ? TAJWEED_RULES_META[r].name : r);
+        if (ruleNames.length > 0) {
+          appliedRulesHtml = `<div class="ayah-tajweed-info"><svg class="ico ico-sm" style="opacity:.6;color:var(--gold-accent);"><use href="#i-info"/></svg><span>${ruleNames.join(' · ')}</span></div>`;
+        }
+      }
     } else {
       arClass = 'ar-font';
       arHtml = esc(a.ar);
@@ -2859,6 +2876,7 @@ function openRead(id, targetAyahIdx, dir) {
         <div class="read-ayah-ar ${arClass}">${arHtml}${item.type==='surah' ? ' <span class="read-ayah-marker">' + ayahMarker(a.num) + '</span>' : ''}</div>
         ${a.tr ? `<div class="read-ayah-tr">${esc(a.tr)}</div>` : ''}
         <div class="read-ayah-trn">${esc(a.trn)}</div>
+        ${appliedRulesHtml}
       </div>
     `;
   }).join('');
