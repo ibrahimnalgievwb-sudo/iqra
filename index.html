@@ -140,20 +140,8 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .tasbih-card .ar,
 .content-card .c-ar,
 .preview-card .pv-ar { min-height: 1.8em; }
-.read-ayah-ar {
-  font-size:calc(30px * var(--ar-scale));
-  line-height: 2;
-  direction:rtl; text-align:right;
-  padding-bottom: 18px;
-  margin-bottom: 14px;
-  border-bottom: 1px dashed var(--border);
-  overflow-wrap: anywhere;
-  word-break: normal;
-  min-height: calc(64px * var(--ar-scale));
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
-}
+.read-ayah-ar { font-size:calc(30px * var(--ar-scale)); line-height: 2; direction:rtl; text-align:right; padding-bottom: 12px; margin-bottom: 10px; border-bottom: 1px dashed var(--border); overflow-wrap: anywhere; word-break: normal; min-height: calc(64px * var(--ar-scale)); width: 100%; max-width: 100%; box-sizing: border-box; }
+@media (max-width: 420px) { .read-ayah { margin-bottom: 8px; padding: 12px 14px; } .read-ayah-ar { padding-bottom: 10px; margin-bottom: 8px; } }
 .counter .ar { line-height: 2.6 !important; }
 .mem-block .mb-ar { line-height: 2; min-height: calc(64px * var(--ar-scale)); }
 .bismillah-card .b-ar { line-height: 2; min-height: calc(56px * var(--ar-scale)); }
@@ -403,7 +391,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 
 .read-surah-title { font-size:24px; font-weight:700; margin-bottom:4px; text-align:center; overflow-wrap: break-word; }
 .read-surah-sub { font-size:13px; color:var(--muted); text-align:center; margin-bottom:24px; overflow-wrap: break-word; }
-.read-ayah { background:var(--card); border-radius:18px; padding:18px 20px; margin-bottom:14px; box-shadow:0 2px 8px var(--shadow); position:relative; overflow-wrap: anywhere; width:100%; max-width:100%; box-sizing:border-box; scroll-margin-top: 72px; }
+.read-ayah { background:var(--card); border-radius:18px; padding:14px 16px; margin-bottom:10px; box-shadow:0 2px 8px var(--shadow); position:relative; overflow-wrap: anywhere; width:100%; max-width:100%; box-sizing:border-box; scroll-margin-top: 72px; }
 /* НОВОЕ: полноценный стиль номера аята (кружок) */
 .read-ayah-num {
   display: inline-flex;
@@ -1175,10 +1163,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
   color: var(--text) !important;
 }
 /* Защита от разрыва арабских букв при раскраске */
-.ar-font.tajweed-on span {
-  display: inline;
-  letter-spacing: inherit;
-}
+.ar-font.tajweed-on span { display: inline; letter-spacing: inherit; text-shadow: 0 0 1px currentColor; }
 /* U5: Единая палитра таджвида (Тёмная тема — базовая, максимальный контраст) */
 .tajweed-ghunnah { color: #FF8A3D !important; -webkit-text-fill-color: #FF8A3D !important; }
 .tajweed-ikhfa { color: #C44DFF !important; -webkit-text-fill-color: #C44DFF !important; }
@@ -1772,7 +1757,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v198';
+const APP_VERSION = 'iqra-v199';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2786,28 +2771,19 @@ const TAJWEED_RULES_META = {
 
 function applyTajweedAnnotations(text, surahNum, ayahNum) {
   if (!TAJWEED_DATA) return esc(text);
-  
   const verseData = TAJWEED_DATA.find(v => v.surah === surahNum && v.ayah === ayahNum);
   if (!verseData || !verseData.annotations || !verseData.annotations.length) return esc(text);
-  
-  // Сортируем по началу, затем по концу — детерминированный порядок при одинаковом start
   const rules = [...verseData.annotations].sort((a, b) => (a.start - b.start) || (a.end - b.end));
-  
   let result = '';
   let lastIndex = 0;
-  
   for (const rule of rules) {
-    if (rule.end > text.length) { console.warn('Таджвид: правило за пределами текста', rule.rule, 'в', surahNum + ':' + ayahNum); continue; }
+    if (rule.end > text.length) { continue; }
     var rStart = rule.start < lastIndex ? lastIndex : rule.start;
     if (rule.end <= rStart) { continue; }
-    
     result += esc(text.substring(lastIndex, rStart));
-    
     const fragment = text.substring(rStart, rule.end);
     const className = 'tajweed-' + rule.rule;
-    
     result += `<span class="${className}">${esc(fragment)}</span>`;
-    
     lastIndex = rule.end;
   }
   result += esc(text.substring(lastIndex));
