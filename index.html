@@ -1535,9 +1535,9 @@ button::-moz-focus-inner { border: 0; padding: 0; }
   <div class="fs-body" id="read-body" onscroll="toggleScrollTop()"></div>
   <button class="fs-scroll-top" id="btn-scroll-top" onclick="scrollToTopRead()" aria-label="Наверх"><svg class="ico"><use href="#i-arrow-left" style="transform:rotate(90deg)"/></svg></button>
   <div class="fs-bottom-nav">
-    <button onclick="readPrevSurah()" aria-label="Предыдущая сура"><svg class="ico"><use href="#i-arrow-left"/></svg></button>
+    <button onclick="readPrevSurah()" aria-label="Предыдущая сура" id="btn-prev-surah"><svg class="ico"><use href="#i-arrow-left"/></svg></button>
     <button onclick="addBookmarkFromRead()" aria-label="Добавить метку"><svg class="ico"><use href="#i-bookmark"/></svg></button>
-    <button onclick="readNextSurah()" aria-label="Следующая сура"><svg class="ico" style="transform:rotate(180deg)"><use href="#i-arrow-left"/></svg></button>
+    <button onclick="readNextSurah()" aria-label="Следующая сура" id="btn-next-surah"><svg class="ico" style="transform:rotate(180deg)"><use href="#i-arrow-left"/></svg></button>
   </div>
 </div>
 
@@ -1726,7 +1726,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v187';
+const APP_VERSION = 'iqra-v188';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2832,7 +2832,7 @@ function openRead(id, targetAyahIdx, dir) {
     ${ayahHtml}
     ${transcriptionNote()}
   `;
-    activeReadId = id;
+  activeReadId = id;
   const readMode = document.getElementById('read-mode');
   readMode.classList.remove('read-slide-next', 'read-slide-prev');
   void readMode.offsetWidth; // Форсируем перерисовку для сброса анимации
@@ -2840,6 +2840,12 @@ function openRead(id, targetAyahIdx, dir) {
   if (dir === 'prev') readMode.classList.add('read-slide-prev');
   readMode.classList.add('active');
   document.getElementById('btn-scroll-top').classList.remove('visible');
+  // QA: Блокировка кнопок навигации на границах списка
+  var idx = state.quran.findIndex(function(q){ return q.id === id; });
+  var prevBtn = document.getElementById('btn-prev-surah');
+  var nextBtn = document.getElementById('btn-next-surah');
+  if (prevBtn) { prevBtn.style.opacity = idx === 0 ? '0.3' : '1'; prevBtn.style.pointerEvents = idx === 0 ? 'none' : 'auto'; }
+  if (nextBtn) { nextBtn.style.opacity = idx === state.quran.length - 1 ? '0.3' : '1'; nextBtn.style.pointerEvents = idx === state.quran.length - 1 ? 'none' : 'auto'; }
   saveNavContext();
   const body = document.getElementById('read-body');
   let targetIdx = null;
