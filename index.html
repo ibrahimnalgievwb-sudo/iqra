@@ -1176,21 +1176,37 @@ button::-moz-focus-inner { border: 0; padding: 0; }
   display: inline;
   letter-spacing: inherit;
 }
-/* U5: Единая палитра таджвида (имена классов = rule из tajweed.json, цвета = tajweed.css v1) */
+/* U5: Единая палитра таджвида (Тёмная тема — базовая, яркая для контраста) */
 .tajweed-ghunnah { color: #FF7E1E !important; -webkit-text-fill-color: #FF7E1E !important; }
-.tajweed-ikhfa { color: #9400A8 !important; -webkit-text-fill-color: #9400A8 !important; }
-.tajweed-ikhfa_shafawi { color: #D500B7 !important; -webkit-text-fill-color: #D500B7 !important; }
-.tajweed-idghaam_ghunnah { color: #169777 !important; -webkit-text-fill-color: #169777 !important; }
-.tajweed-idghaam_no_ghunnah { color: #169200 !important; -webkit-text-fill-color: #169200 !important; }
-.tajweed-idghaam_shafawi { color: #58B800 !important; -webkit-text-fill-color: #58B800 !important; }
-.tajweed-idghaam_mutajanisayn, .tajweed-idghaam_mutaqaribayn { color: #A1A1A1 !important; -webkit-text-fill-color: #A1A1A1 !important; }
-.tajweed-iqlab { color: #26BFFD !important; -webkit-text-fill-color: #26BFFD !important; }
-.tajweed-qalqalah { color: #DD0008 !important; -webkit-text-fill-color: #DD0008 !important; }
-.tajweed-madd_2 { color: #537FFF !important; -webkit-text-fill-color: #537FFF !important; }
-.tajweed-madd_246 { color: #4050FF !important; -webkit-text-fill-color: #4050FF !important; }
-.tajweed-madd_muttasil, .tajweed-madd_munfasil { color: #2144C1 !important; -webkit-text-fill-color: #2144C1 !important; }
-.tajweed-madd_6 { color: #000EBC !important; -webkit-text-fill-color: #000EBC !important; }
-.tajweed-silent, .tajweed-hamzat_wasl, .tajweed-lam_shamsiyyah { color: #AAAAAA !important; -webkit-text-fill-color: #AAAAAA !important; }
+.tajweed-ikhfa { color: #A800C2 !important; -webkit-text-fill-color: #A800C2 !important; }
+.tajweed-ikhfa_shafawi { color: #E000C0 !important; -webkit-text-fill-color: #E000C0 !important; }
+.tajweed-idghaam_ghunnah { color: #1BBF96 !important; -webkit-text-fill-color: #1BBF96 !important; }
+.tajweed-idghaam_no_ghunnah { color: #20B520 !important; -webkit-text-fill-color: #20B520 !important; }
+.tajweed-idghaam_shafawi { color: #6CD100 !important; -webkit-text-fill-color: #6CD100 !important; }
+.tajweed-idghaam_mutajanisayn, .tajweed-idghaam_mutaqaribayn { color: #C4C4C4 !important; -webkit-text-fill-color: #C4C4C4 !important; }
+.tajweed-iqlab { color: #36D6FF !important; -webkit-text-fill-color: #36D6FF !important; }
+.tajweed-qalqalah { color: #FF3B3B !important; -webkit-text-fill-color: #FF3B3B !important; }
+.tajweed-madd_2 { color: #7397FF !important; -webkit-text-fill-color: #7397FF !important; }
+.tajweed-madd_246 { color: #6677FF !important; -webkit-text-fill-color: #6677FF !important; }
+.tajweed-madd_muttasil, .tajweed-madd_munfasil { color: #4D6BFF !important; -webkit-text-fill-color: #4D6BFF !important; }
+.tajweed-madd_6 { color: #3A55FF !important; -webkit-text-fill-color: #3A55FF !important; }
+.tajweed-silent, .tajweed-hamzat_wasl, .tajweed-lam_shamsiyyah { color: #E0E0E0 !important; -webkit-text-fill-color: #E0E0E0 !important; }
+
+/* U5: Светлая тема (затемнение для контраста на белом) */
+[data-theme="light"] .tajweed-ghunnah { color: #D86A00 !important; -webkit-text-fill-color: #D86A00 !important; }
+[data-theme="light"] .tajweed-ikhfa { color: #7A0090 !important; -webkit-text-fill-color: #7A0090 !important; }
+[data-theme="light"] .tajweed-ikhfa_shafawi { color: #B00098 !important; -webkit-text-fill-color: #B00098 !important; }
+[data-theme="light"] .tajweed-idghaam_ghunnah { color: #117A5E !important; -webkit-text-fill-color: #117A5E !important; }
+[data-theme="light"] .tajweed-idghaam_no_ghunnah { color: #107A10 !important; -webkit-text-fill-color: #107A10 !important; }
+[data-theme="light"] .tajweed-idghaam_shafawi { color: #489B00 !important; -webkit-text-fill-color: #489B00 !important; }
+[data-theme="light"] .tajweed-idghaam_mutajanisayn, [data-theme="light"] .tajweed-idghaam_mutaqaribayn { color: #666666 !important; -webkit-text-fill-color: #666666 !important; }
+[data-theme="light"] .tajweed-iqlab { color: #0090C4 !important; -webkit-text-fill-color: #0090C4 !important; }
+[data-theme="light"] .tajweed-qalqalah { color: #C00000 !important; -webkit-text-fill-color: #C00000 !important; }
+[data-theme="light"] .tajweed-madd_2 { color: #3D5FFF !important; -webkit-text-fill-color: #3D5FFF !important; }
+[data-theme="light"] .tajweed-madd_246 { color: #2A3CFF !important; -webkit-text-fill-color: #2A3CFF !important; }
+[data-theme="light"] .tajweed-madd_muttasil, [data-theme="light"] .tajweed-madd_munfasil { color: #1933B8 !important; -webkit-text-fill-color: #1933B8 !important; }
+[data-theme="light"] .tajweed-madd_6 { color: #000A90 !important; -webkit-text-fill-color: #000A90 !important; }
+[data-theme="light"] .tajweed-silent, [data-theme="light"] .tajweed-hamzat_wasl, [data-theme="light"] .tajweed-lam_shamsiyyah { color: #777777 !important; -webkit-text-fill-color: #777777 !important; }
 /* U1: копирование переводов и пояснений длинным нажатием */
 .read-ayah-trn,
 .read-ayah-tr,
@@ -1753,7 +1769,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v194';
+const APP_VERSION = 'iqra-v195';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2833,12 +2849,11 @@ function openRead(id, targetAyahIdx, dir) {
       <span style="font-size:13px;color:var(--text);font-weight:600;display:flex;align-items:center;gap:6px;"><svg class="ico ico-sm" style="color:var(--gold-accent)"><use href="#i-info"/></svg> Таджвид</span>
       <button class="preset-chip" onclick="toggleTajweed()" style="padding:6px 14px;font-size:12px;${state.settings.tajweedMode ? 'background:var(--gold-grad);color:#0A0A0A;border:none;font-weight:700;box-shadow:var(--gold-glow);' : ''}">${state.settings.tajweedMode ? 'Включено' : 'Выключено'}</button>
     </div>
-    ${state.settings.tajweedMode ? `
+     ${state.settings.tajweedMode ? `
       <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));gap:10px 14px;margin-bottom:16px;font-size:11px;padding:12px;background:rgba(212,175,55,.05);border:1px dashed rgba(212,175,55,.3);border-radius:12px;">
-        ${Object.values(TAJWEED_RULES_META).map(r => `<div style="display:flex;align-items:baseline;gap:6px;"><span style="display:inline-block;width:8px;height:8px;background:${r.color};border-radius:2px;flex-shrink:0;"></span><span style="color:var(--text);"><b>${r.name}</b> — ${r.desc}</span></div>`).join('')}
+        ${Object.entries(TAJWEED_RULES_META).map(([rule, r]) => `<div style="display:flex;align-items:baseline;gap:6px;"><span class="tajweed-${rule}" style="display:inline-block;width:8px;height:8px;background:currentColor;border-radius:2px;flex-shrink:0;margin-top:4px;"></span><span style="color:var(--text);"><b>${r.name}</b> — ${r.desc}</span></div>`).join('')}
       </div>
     ` : ''}
-  ` : '';
   const ayahHtml = ayahs.map((a, idx) => {
     let arHtml, arClass;
     let appliedRulesHtml = '';
@@ -2862,9 +2877,12 @@ function openRead(id, targetAyahIdx, dir) {
       const verseData = TAJWEED_DATA.find(v => v.surah === sNum && v.ayah === aNum);
       if (verseData && verseData.annotations) {
         const uniqueRules = [...new Set(verseData.annotations.map(x => x.rule))];
-        const ruleNames = uniqueRules.map(r => TAJWEED_RULES_META[r] ? TAJWEED_RULES_META[r].name : r);
-        if (ruleNames.length > 0) {
-          appliedRulesHtml = `<div class="ayah-tajweed-info"><svg class="ico ico-sm" style="opacity:.6;color:var(--gold-accent);"><use href="#i-info"/></svg><span>${ruleNames.join(' · ')}</span></div>`;
+        const ruleNamesHtml = uniqueRules.map(r => {
+          const meta = TAJWEED_RULES_META[r];
+          return `<span class="tajweed-${r}" style="font-weight:700;">${meta ? meta.name : r}</span>`;
+        }).join(' <span style="color:var(--muted);">·</span> ');
+        if (ruleNamesHtml) {
+          appliedRulesHtml = `<div class="ayah-tajweed-info"><svg class="ico ico-sm" style="opacity:.6;color:var(--gold-accent);"><use href="#i-info"/></svg><span>${ruleNamesHtml}</span></div>`;
         }
       }
     } else {
