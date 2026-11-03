@@ -855,15 +855,16 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   left: 50%; bottom: calc(90px + env(safe-area-inset-bottom));
   transform: translateX(-50%) translateY(20px);
   background: var(--card);
-  border: 1px solid var(--border);
+  border: 1.5px solid var(--gold-accent);
   border-radius: 14px;
   padding: 10px 18px;
   font-size: 13px;
-  color: var(--text);
-  box-shadow: 0 6px 20px var(--shadow);
+  font-weight: 700;
+  color: var(--gold-accent);
+  box-shadow: 0 8px 24px rgba(0,0,0,.4), var(--gold-glow-sm);
   opacity: 0;
   transition: opacity .25s ease, transform .25s ease;
-  z-index: 9998;
+  z-index: 10060; /* Выше всех оверлеев (read-mode, modal-bg) */
   pointer-events: none;
   white-space: nowrap;
   max-width: 90vw;
@@ -1726,7 +1727,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v188';
+const APP_VERSION = 'iqra-v189';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2601,9 +2602,8 @@ function openForm(id) { editingId=id||null; const t=id?getById(id):null; documen
 function cancelForm() { if (activeId) showScreen('screen-counter'); else { renderTasbih(); showScreen('screen-tasbih'); } }
 function stepTarget(d){ const el=document.getElementById('f-target'); el.value=Math.max(1,(parseInt(el.value)||1)+d); updatePreview(); }
 function saveForm() { const arabic=document.getElementById('f-ar').value.trim().slice(0,LIMITS.textLen); const transcription=document.getElementById('f-tr').value.trim().slice(0,LIMITS.textLen); const translation=document.getElementById('f-trn').value.trim().slice(0,LIMITS.textLen); const target=Math.max(1,Math.min(LIMITS.targetMax,parseInt(document.getElementById('f-target').value)||33)); if (!arabic && !transcription && !translation) { alert('Заполните хотя бы одно поле'); return; } if (editingId) { const t=getById(editingId); t.arabic=arabic; t.transcription=transcription; t.translation=translation; t.target=target; if (t.current>target) { t.current=0; t.cycles=0; } } else {
-    // B3: лимит количества тасбихов
     if (state.tasbihs.length >= LIMITS.tasbihs) { alert('Максимум ' + LIMITS.tasbihs + ' тасбихов. Удалите старые.'); return; }
-    state.tasbihs.push({id:'u'+Date.now(),arabic,transcription,translation,target,current:0,cycles:0}); } state.draft=null; save(); if (activeId) openCounter(activeId); else { renderTasbih(); showScreen('screen-tasbih'); } }
+    state.tasbihs.push({id:'u'+Date.now(),arabic,transcription,translation,target,current:0,cycles:0}); } state.draft=null; save(); if (state.settings.vibrate && navigator.vibrate) navigator.vibrate(15); showMarkToast('Сохранено'); if (activeId) openCounter(activeId); else { renderTasbih(); showScreen('screen-tasbih'); } }
 async function deleteCurrent() {   if (!editingId) return;   if (!await confirmAsync('Удалить тасбих?', 'Это действие нельзя отменить.', 'Удалить', 'Отмена')) return;   state.tasbihs = state.tasbihs.filter(t => t.id !== editingId);   save(); activeId = null; editingId = null; renderTasbih(); showScreen('screen-tasbih'); }
 
 async function renderQuranList() {
@@ -3284,6 +3284,7 @@ function exportCSV() {
   a.click();
   setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
   showMarkToast('Статистика сохранена');
+  if (state.settings.vibrate && navigator.vibrate) navigator.vibrate(15);
 }
 function exportData() {
   const payload = Object.assign({}, state, {
@@ -3299,6 +3300,7 @@ function exportData() {
   a.click();
   setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
   showMarkToast('Бэкап сохранён');
+  if (state.settings.vibrate && navigator.vibrate) navigator.vibrate(15);
 }
 function validateImport(d) {
   if (!d || typeof d !== 'object' || Array.isArray(d)) return null;
@@ -3645,14 +3647,15 @@ function addBookmarkFromRead() {
   var idx = currentAyahIdx();
   if (!Array.isArray(state.bookmarks)) state.bookmarks = [];
   var exists = state.bookmarks.some(function(b){ return b.quranId === activeReadId && b.ayahIdx === idx; });
-  if (exists) { showMarkToast('Метка уже есть на этой позиции'); return; }
-  if (state.bookmarks.length >= 50) { showMarkToast('Максимум 50 меток'); return; }
+  if (exists) { showMarkToast('Метка уже есть на этой позиции'); if (state.settings.vibrate && navigator.vibrate) navigator.vibrate(10); return; }
+  if (state.bookmarks.length >= 50) { showMarkToast('Максимум 50 меток'); if (state.settings.vibrate && navigator.vibrate) navigator.vibrate(10); return; }
    var label = item.title + ' · позиция ' + (idx + 1);
   if (label.length > 60) label = label.slice(0, 57) + '…';
   state.bookmarks.push({ id: 'bm_' + Date.now(), quranId: activeReadId, ayahIdx: idx, label: label, ts: Date.now() });
   save();
   renderDashMarks();
   showMarkToast('Метка добавлена');
+  if (state.settings.vibrate && navigator.vibrate) navigator.vibrate(15);
 }
 
 function removeBookmark(bmId) {
