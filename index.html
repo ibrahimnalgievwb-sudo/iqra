@@ -2813,21 +2813,21 @@ function openRead(id, targetAyahIdx, dir) {
       <button class="preset-chip" onclick="toggleTajweed()" style="padding:6px 14px;font-size:12px;${state.settings.tajweedMode ? 'background:var(--gold-grad);color:#0A0A0A;border:none;font-weight:700;box-shadow:var(--gold-glow);' : ''}">${state.settings.tajweedMode ? 'Включено' : 'Выключено'}</button>
     </div>
     ${state.settings.tajweedMode ? `
-         <div style="display:flex;flex-wrap:wrap;gap:6px 14px;margin-bottom:16px;font-size:11px;padding:0 4px;">
-        <span><span style="display:inline-block;width:9px;height:9px;background:#FF7E1E;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Гъунна</span>
-        <span><span style="display:inline-block;width:9px;height:9px;background:#9400A8;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Ихфа</span>
-        <span><span style="display:inline-block;width:9px;height:9px;background:#D500B7;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Ихфа шафави</span>
-        <span><span style="display:inline-block;width:9px;height:9px;background:#169777;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Идгам с гъунной</span>
-        <span><span style="display:inline-block;width:9px;height:9px;background:#169200;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Идгам без гъунны</span>
-        <span><span style="display:inline-block;width:9px;height:9px;background:#58B800;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Идгам шафави</span>
-        <span><span style="display:inline-block;width:9px;height:9px;background:#A1A1A1;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Идгам мутаджанисайн / мутакарибайн</span>
-        <span><span style="display:inline-block;width:9px;height:9px;background:#26BFFD;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Икъляб</span>
-        <span><span style="display:inline-block;width:9px;height:9px;background:#DD0008;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Къалькъаля</span>
-        <span><span style="display:inline-block;width:9px;height:9px;background:#537FFF;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Мадд 2</span>
-        <span><span style="display:inline-block;width:9px;height:9px;background:#4050FF;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Мадд 2/4/6</span>
-        <span><span style="display:inline-block;width:9px;height:9px;background:#2144C1;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Мадд муттасиль / мунфасиль</span>
-        <span><span style="display:inline-block;width:9px;height:9px;background:#000EBC;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Мадд 6</span>
-        <span><span style="display:inline-block;width:9px;height:9px;background:#AAAAAA;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Хамзат уасл / лям шамсийя / тихий</span>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));gap:8px 12px;margin-bottom:16px;font-size:11px;padding:0 4px;">
+        <div style="display:flex;align-items:baseline;gap:6px;"><span style="display:inline-block;width:9px;height:9px;background:#FF7E1E;border-radius:2px;flex-shrink:0;margin-top:4px;"></span><span><b>Гъунна</b> — носовой звук при чтении букв с шаддой.</span></div>
+        <div style="display:flex;align-items:baseline;gap:6px;"><span style="display:inline-block;width:9px;height:9px;background:#9400A8;border-radius:2px;flex-shrink:0;margin-top:4px;"></span><span><b>Ихфа</b> — смягчение звука «н» перед определёнными буквами.</span></div>
+        <div style="display:flex;align-items:baseline;gap:6px;"><span style="display:inline-block;width:9px;height:9px;background:#D500B7;border-radius:2px;flex-shrink:0;margin-top:4px;"></span><span><b>Ихфа шафави</b> — смягчение звука «м» перед буквой «б».</span></div>
+        <div style="display:flex;align-items:baseline;gap:6px;"><span style="display:inline-block;width:9px;height:9px;background:#169777;border-radius:2px;flex-shrink:0;margin-top:4px;"></span><span><b>Идгам с гъунной</b> — слияние «н» со следующей буквой с носовым звуком.</span></div>
+        <div style="display:flex;align-items:baseline;gap:6px;"><span style="display:inline-block;width:9px;height:9px;background:#169200;border-radius:2px;flex-shrink:0;margin-top:4px;"></span><span><b>Идгам без гъунны</b> — слияние «н» со следующей буквой без носового звука.</span></div>
+        <div style="display:flex;align-items:baseline;gap:6px;"><span style="display:inline-block;width:9px;height:9px;background:#58B800;border-radius:2px;flex-shrink:0;margin-top:4px;"></span><span><b>Идгам шафави</b> — слияние «м» со следующей «м».</span></div>
+        <div style="display:flex;align-items:baseline;gap:6px;"><span style="display:inline-block;width:9px;height:9px;background:#A1A1A1;border-radius:2px;flex-shrink:0;margin-top:4px;"></span><span><b>Идгам мутаджанисайн / мутакарибайн</b> — слияние близких по артикуляции букв.</span></div>
+        <div style="display:flex;align-items:baseline;gap:6px;"><span style="display:inline-block;width:9px;height:9px;background:#26BFFD;border-radius:2px;flex-shrink:0;margin-top:4px;"></span><span><b>Икъляб</b> — замена «н» на «м» с носовым оттенком перед буквой «б».</span></div>
+        <div style="display:flex;align-items:baseline;gap:6px;"><span style="display:inline-block;width:9px;height:9px;background:#DD0008;border-radius:2px;flex-shrink:0;margin-top:4px;"></span><span><b>Къалькъаля</b> — упругий «отскок» при чтении букв ق ط ب ج د с сукуном.</span></div>
+        <div style="display:flex;align-items:baseline;gap:6px;"><span style="display:inline-block;width:9px;height:9px;background:#537FFF;border-radius:2px;flex-shrink:0;margin-top:4px;"></span><span><b>Мадд 2</b> — естественное удлинение гласного на 2 счёта.</span></div>
+        <div style="display:flex;align-items:baseline;gap:6px;"><span style="display:inline-block;width:9px;height:9px;background:#4050FF;border-radius:2px;flex-shrink:0;margin-top:4px;"></span><span><b>Мадд 2/4/6</b> — удлинение на 2, 4 или 6 счётов (дозволенное).</span></div>
+        <div style="display:flex;align-items:baseline;gap:6px;"><span style="display:inline-block;width:9px;height:9px;background:#2144C1;border-radius:2px;flex-shrink:0;margin-top:4px;"></span><span><b>Мадд муттасиль / мунфасиль</b> — удлинение на 4–5 счётов при встрече с хамзой.</span></div>
+        <div style="display:flex;align-items:baseline;gap:6px;"><span style="display:inline-block;width:9px;height:9px;background:#000EBC;border-radius:2px;flex-shrink:0;margin-top:4px;"></span><span><b>Мадд 6</b> — обязательное удлинение на 6 счётов.</span></div>
+        <div style="display:flex;align-items:baseline;gap:6px;"><span style="display:inline-block;width:9px;height:9px;background:#AAAAAA;border-radius:2px;flex-shrink:0;margin-top:4px;"></span><span><b>Хамзат уасл / лям шамсийя / тихий</b> — служебные знаки, не произносятся в чтении.</span></div>
       </div>
     ` : ''}
   ` : '';
