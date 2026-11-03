@@ -141,6 +141,27 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   letter-spacing: -0.01em;
 }
 .screen { display:none; flex:1; flex-direction:column; min-height:0; min-width:0; width:100%; max-width:100%; }
+/* === UNIFIED GOLD/BLACK/WHITE THEME OVERRIDES === */
+.content-card, .tasbih-card, .detail-hero, .settings-group, .bismillah-card, .modal, .read-ayah, .dash-quote, .dash-marks, .dash-progress, .dash-greeting, .dash-stats, .dash-quick, .continue-card, .daily-goal, .cal-grid, .bar-chart, .stat, .stat-card { border: 1px solid rgba(212,175,55,.25); box-shadow: 0 4px 16px rgba(0,0,0,.4), inset 0 1px 0 rgba(212,175,55,.1); }
+.content-card:active, .tasbih-card:active, .dash-quote:active, .dash-marks:active, .dash-quick:active { transform:scale(.98); border-color: var(--gold-accent); box-shadow: 0 0 16px rgba(212,175,55,.2); }
+.read-ayah-num { background: rgba(212,175,55,.15); color: var(--gold-accent); border: 1px solid rgba(212,175,55,.3); }
+.read-ayah.ayat-mode .read-ayah-num { background: var(--gold-grad); color: #000; }
+.toggle input:checked + .slider { background: var(--gold-grad); }
+.toggle input:checked + .slider::before { transform:translateX(20px); background: #000; box-shadow: none; }
+.seg button.active, .prog-tabs button.active { background: var(--gold-grad); color: #0A0A0A; font-weight: 700; box-shadow: var(--gold-glow-sm); }
+.nav button.active .nav-label { color: var(--gold-accent); font-weight: 700; }
+.field input:focus, .field textarea:focus { border-color: var(--gold-accent); box-shadow: 0 0 8px rgba(212,175,55,.2); }
+.learned-toggle.done { background: rgba(212,175,55,.1); border-color: var(--gold-accent); }
+.learned-toggle.done .lt-icon { background: var(--gold-grad); color: #000; }
+.cal-day.has-count { background: rgba(212,175,55,.15); border: 1px solid rgba(212,175,55,.3); }
+.dg-bar > div, .dp-bar > div, .top-progress > div, .bar-chart .bar, .mem-progress > div { background: var(--gold-grad); }
+.mini-ring .ring-fg, .counter .ring-fg { stroke: var(--gold-accent); }
+.stat-card .sc-value { color: var(--gold-accent); }
+.stat-card { grid-column: span 2; background: linear-gradient(135deg, rgba(212,175,55,.15), rgba(212,175,55,.05)) !important; }
+.btn.danger { background: transparent; color:#ff4d4d; border: 1px solid rgba(255,77,77,.3); }
+.btn.danger:active { background: rgba(255,77,77,.15); }
+.bismillah-card { border: 1px dashed var(--gold-accent); }
+/* ============================================== */
 .screen.active { display:flex; animation:slideIn .24s cubic-bezier(.16,1,.3,1); } @keyframes slideIn { from { transform: translateX(16px); opacity: 0; } to { transform: translateX(0); opacity: 1; } } @keyframes slideUp { from { transform: translateY(24px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
 @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
@@ -1648,7 +1669,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v178';
+const APP_VERSION = 'iqra-v179';
   
 // Глобальная переменная для данных таджвида
 var TAJWEED_DATA = window.TAJWEED_DATA || null;
@@ -3072,7 +3093,9 @@ function confirmAsync(title, sub, okText, cancelText) {
     function done(v) {
       if (state.settings.vibrate && navigator.vibrate) navigator.vibrate(10); // Тактильный отклик
       _pendingConfirmResolve = null;
-      document.getElementById('modal-bg').classList.remove('active');
+      var bg = document.getElementById('modal-bg');
+      bg.onclick = null;
+      bg.classList.remove('active');
       resolve(v);
     }
     _pendingConfirmResolve = done;
@@ -3312,11 +3335,11 @@ function getRandomQuote() {
     if (state.tasbihs && state.tasbihs.length) available.push('tasbih');
     if (!available.length) return null;
     const type = available[Math.floor(Math.random() * available.length)];
-    if (type === 'quran') {
+       if (type === 'quran') {
       const item = state.quran[Math.floor(Math.random() * state.quran.length)];
       if (!item) return null;
       const trLines = (item.translation || '').split('\n').filter(Boolean);
-                  return { type: 'hadith', id: item.id, badge: 'Хадис', title: item.title || '—', ar: item.arabic || '', tr: String(item.translation || '').replace(/\*\*/g, '').slice(0, 140) };
+      return { type: 'quran', id: item.id, badge: 'Коран', title: item.title || '—', ar: (item.arabic || '').split('\n')[0], tr: (trLines[0] || '').slice(0, 140) };
     }
     if (type === 'hadith') {
       const item = state.hadiths[Math.floor(Math.random() * state.hadiths.length)];
