@@ -1737,7 +1737,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v183';
+const APP_VERSION = 'iqra-v184';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -3932,7 +3932,6 @@ function renderReview() {
   }
   document.getElementById('review-body').innerHTML = html;
   document.getElementById('review-next').textContent = reviewIndex === reviewQueue.length - 1 ? 'Завершить ✓' : 'Далее →';
-}
 }
 function revealReview() { reviewRevealed = true; renderReview(); }
 function reviewNext() { reviewIndex++; reviewRevealed = false; renderReview(); }
