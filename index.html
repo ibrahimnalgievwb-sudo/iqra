@@ -1178,13 +1178,21 @@ button::-moz-focus-inner { border: 0; padding: 0; }
   display: inline;
   letter-spacing: inherit;
 }
-/* U5: Единая палитра таджвида (совпадает с легендой) для всех тем */
-.tajweed-ghunnah, .tajweed-ghunna, .tajweed-ikhfa, .tajweed-ikhfa_shafawi { color: #4CAF50 !important; -webkit-text-fill-color: #4CAF50 !important; }
-.tajweed-idgham-ghunnah, .tajweed-idgham_shafawi { color: #8BC34A !important; -webkit-text-fill-color: #8BC34A !important; }
-.tajweed-idgham, .tajweed-idgham_mutajanisayn, .tajweed-idgham_mutaqaribayn { color: #9E9E9E !important; -webkit-text-fill-color: #9E9E9E !important; }
-.tajweed-iqlab, .tajweed-iqlab_shafawi { color: #00BCD4 !important; -webkit-text-fill-color: #00BCD4 !important; }
-.tajweed-qalqalah { color: #2196F3 !important; -webkit-text-fill-color: #2196F3 !important; }
-.tajweed-madd, .tajweed-madd_2, .tajweed-madd_4, .tajweed-madd_6 { color: #F44336 !important; -webkit-text-fill-color: #F44336 !important; }
+/* U5: Единая палитра таджвида (имена классов = rule из tajweed.json, цвета = tajweed.css v1) */
+.tajweed-ghunnah { color: #FF7E1E !important; -webkit-text-fill-color: #FF7E1E !important; }
+.tajweed-ikhfa { color: #9400A8 !important; -webkit-text-fill-color: #9400A8 !important; }
+.tajweed-ikhfa_shafawi { color: #D500B7 !important; -webkit-text-fill-color: #D500B7 !important; }
+.tajweed-idghaam_ghunnah { color: #169777 !important; -webkit-text-fill-color: #169777 !important; }
+.tajweed-idghaam_no_ghunnah { color: #169200 !important; -webkit-text-fill-color: #169200 !important; }
+.tajweed-idghaam_shafawi { color: #58B800 !important; -webkit-text-fill-color: #58B800 !important; }
+.tajweed-idghaam_mutajanisayn, .tajweed-idghaam_mutaqaribayn { color: #A1A1A1 !important; -webkit-text-fill-color: #A1A1A1 !important; }
+.tajweed-iqlab { color: #26BFFD !important; -webkit-text-fill-color: #26BFFD !important; }
+.tajweed-qalqalah { color: #DD0008 !important; -webkit-text-fill-color: #DD0008 !important; }
+.tajweed-madd_2 { color: #537FFF !important; -webkit-text-fill-color: #537FFF !important; }
+.tajweed-madd_246 { color: #4050FF !important; -webkit-text-fill-color: #4050FF !important; }
+.tajweed-madd_muttasil, .tajweed-madd_munfasil { color: #2144C1 !important; -webkit-text-fill-color: #2144C1 !important; }
+.tajweed-madd_6 { color: #000EBC !important; -webkit-text-fill-color: #000EBC !important; }
+.tajweed-silent, .tajweed-hamzat_wasl, .tajweed-lam_shamsiyyah { color: #AAAAAA !important; -webkit-text-fill-color: #AAAAAA !important; }
 /* U1: копирование переводов и пояснений длинным нажатием */
 .read-ayah-trn,
 .read-ayah-tr,
@@ -1747,7 +1755,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v190';
+const APP_VERSION = 'iqra-v191';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2442,15 +2450,19 @@ function _clearInlinePalette() {
 function applyTheme() {
   const t = state.settings.theme;
   _clearInlinePalette();
+  function setMetaTheme(color) {
+    var el = document.querySelector('meta[name=theme-color]');
+    if (el) el.setAttribute('content', color);
+  }
   if (t === 'mono') {
     document.documentElement.setAttribute('data-theme', 'mono');
-    document.querySelector('meta[name=theme-color]').setAttribute('content', '#0D0D0D');
+    setMetaTheme('#0D0D0D');
   } else if (t === 'light') {
     document.documentElement.setAttribute('data-theme', 'light');
-    document.querySelector('meta[name=theme-color]').setAttribute('content', '#FFFFFF');
+    setMetaTheme('#FFFFFF');
   } else if (t === 'dark') {
     document.documentElement.setAttribute('data-theme', 'dark');
-    document.querySelector('meta[name=theme-color]').setAttribute('content', '#000000');
+    setMetaTheme('#000000');
   } else {
     // Auto = время суток (без override от системной темы пользователя)
     const now = new Date();
@@ -2464,7 +2476,7 @@ function applyTheme() {
       isDark = (h >= 19 || h < 6);
     }
     document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
-    document.querySelector('meta[name=theme-color]').setAttribute('content', isDark ? '#000000' : '#FFFFFF');
+    setMetaTheme(isDark ? '#000000' : '#FFFFFF');
   }
   document.querySelectorAll('#theme-seg button').forEach(b=>b.classList.toggle('active', b.dataset.theme===t));
 }
@@ -2803,13 +2815,21 @@ function openRead(id, targetAyahIdx, dir) {
       <button class="preset-chip" onclick="toggleTajweed()" style="padding:6px 14px;font-size:12px;${state.settings.tajweedMode ? 'background:var(--gold-grad);color:#0A0A0A;border:none;font-weight:700;box-shadow:var(--gold-glow);' : ''}">${state.settings.tajweedMode ? 'Включено' : 'Выключено'}</button>
     </div>
     ${state.settings.tajweedMode ? `
-      <div style="display:flex;flex-wrap:wrap;gap:6px 14px;margin-bottom:16px;font-size:11px;padding:0 4px;">
-        <span><span style="display:inline-block;width:9px;height:9px;background:#4CAF50;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Гъунна / Ихфа</span>
-        <span><span style="display:inline-block;width:9px;height:9px;background:#8BC34A;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Идгам с гъунной</span>
-        <span><span style="display:inline-block;width:9px;height:9px;background:#9E9E9E;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Идгам без гъунны</span>
-        <span><span style="display:inline-block;width:9px;height:9px;background:#00BCD4;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Икъляб</span>
-              <span><span style="display:inline-block;width:9px;height:9px;background:#2196F3;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Къалькъаля</span>
-        <span><span style="display:inline-block;width:9px;height:9px;background:#F44336;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Мадд (удлинение)</span>
+         <div style="display:flex;flex-wrap:wrap;gap:6px 14px;margin-bottom:16px;font-size:11px;padding:0 4px;">
+        <span><span style="display:inline-block;width:9px;height:9px;background:#FF7E1E;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Гъунна</span>
+        <span><span style="display:inline-block;width:9px;height:9px;background:#9400A8;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Ихфа</span>
+        <span><span style="display:inline-block;width:9px;height:9px;background:#D500B7;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Ихфа шафави</span>
+        <span><span style="display:inline-block;width:9px;height:9px;background:#169777;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Идгам с гъунной</span>
+        <span><span style="display:inline-block;width:9px;height:9px;background:#169200;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Идгам без гъунны</span>
+        <span><span style="display:inline-block;width:9px;height:9px;background:#58B800;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Идгам шафави</span>
+        <span><span style="display:inline-block;width:9px;height:9px;background:#A1A1A1;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Идгам мутаджанисайн / мутакарибайн</span>
+        <span><span style="display:inline-block;width:9px;height:9px;background:#26BFFD;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Икъляб</span>
+        <span><span style="display:inline-block;width:9px;height:9px;background:#DD0008;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Къалькъаля</span>
+        <span><span style="display:inline-block;width:9px;height:9px;background:#537FFF;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Мадд 2</span>
+        <span><span style="display:inline-block;width:9px;height:9px;background:#4050FF;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Мадд 2/4/6</span>
+        <span><span style="display:inline-block;width:9px;height:9px;background:#2144C1;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Мадд муттасиль / мунфасиль</span>
+        <span><span style="display:inline-block;width:9px;height:9px;background:#000EBC;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Мадд 6</span>
+        <span><span style="display:inline-block;width:9px;height:9px;background:#AAAAAA;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Хамзат уасл / лям шамсийя / тихий</span>
       </div>
     ` : ''}
   ` : '';
@@ -4076,6 +4096,7 @@ if ('serviceWorker' in navigator) {
     if (_swRefreshing) return;
     _swRefreshing = true;
     console.log('SW: доступно обновление. Перезагрузите приложение вручную.');
+    setTimeout(function(){ _swRefreshing = false; }, 30000);
   }
 
   function activateWaiting(reg) {
