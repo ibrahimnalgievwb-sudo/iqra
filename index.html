@@ -30,7 +30,7 @@ window.addEventListener('error', function(e) {
   var errDiv = document.createElement('div');
   errDiv.style.cssText = 'position:fixed;inset:0;background:#000;color:#D4AF37;z-index:999999;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;font-family:sans-serif;padding:20px;';
   errDiv.innerHTML = '<h2 style="margin-bottom:10px;">Ошибка загрузки</h2><p style="font-size:14px;color:#fff;">Обновите приложение (сбросьте кэш).</p><p style="font-size:12px;margin-top:20px;opacity:.5;">' + (e.message || 'Syntax Error') + '</p>';
-  document.body.appendChild(errDiv);
+  if (document.body) { document.body.appendChild(errDiv); } else { document.documentElement.appendChild(errDiv); }
 });
 </script>
 <style>
@@ -1797,7 +1797,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v222';
+const APP_VERSION = 'iqra-v223';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2803,14 +2803,10 @@ var TAJWEED_TEMPLATES = [
 ];
 
 var _genCache = {};
-function generateTajweedForSurah(surahNum, lines) {
-  if (_genCache[surahNum]) return _genCache[surahNum];
-  var existingAyahs = {};
-  if (TAJWEED_DATA) {
-    TAJWEED_DATA.forEach(function(v) {
-      if (v.surah === surahNum) existingAyahs[v.ayah] = true;
-    });
-  }
+function generateTajweedForSurah(surahNum, lines, startAyah) {
+  if (!startAyah) startAyah = 1;
+  var cacheKey = surahNum + '_' + startAyah + '_' + lines.length + '_' + lines[0].slice(0, 10);
+  if (_genCache[cacheKey]) return _genCache[cacheKey];
   
   var data = [];
   var SHAMSIYYAH = 'تثدذرزسشصضطظلن';
@@ -2819,9 +2815,16 @@ function generateTajweedForSurah(surahNum, lines) {
   for (var lineIdx = 0; lineIdx < lines.length; lineIdx++) {
     var line = lines[lineIdx];
     var anns = [];
-    var aNum = lineIdx + 1;
+    var aNum = startAyah + lineIdx;
     
-      // Применяем шаблоны
+    // Если в JSON уже есть точные данные для этого аята, используем их
+    var existing = TAJWEED_DATA && TAJWEED_DATA.find(function(v) { return Number(v.surah) === Number(surahNum) && Number(v.ayah) === Number(aNum); });
+    if (existing && existing.annotations && existing.annotations.length > 0) {
+       data.push(existing);
+       continue;
+    }
+    
+    // Применяем шаблоны
     for (var t = 0; t < TAJWEED_TEMPLATES.length; t++) {
       var tpl = TAJWEED_TEMPLATES[t];
       var idx = line.indexOf(tpl.f);
@@ -2880,8 +2883,7 @@ function generateTajweedForSurah(surahNum, lines) {
       }
       if (char === 'ـ' || char === 'ۥ' || char === 'ۦ') anns.push({start: i, end: i + 1, rule: 'silent'});
     }
-     // Разрешение пересечений: при наложении оставляем диапазон с большим end
-    // (полное правило), затем точные дубликаты убираем.
+     // Разрешение пересечений
     anns.sort(function(a, b) { return (a.start - b.start) || (b.end - a.end); });
     var resolved = [];
     for (var ai = 0; ai < anns.length; ai++) {
@@ -2904,12 +2906,14 @@ function generateTajweedForSurah(surahNum, lines) {
   }
   
   if (TAJWEED_DATA) {
-    var newData = data.filter(function(v) { return !existingAyahs[v.ayah]; });
+    var newData = data.filter(function(v) { 
+      return !TAJWEED_DATA.some(function(existing) { return Number(existing.surah) === v.surah && Number(existing.ayah) === v.ayah; }); 
+    });
     if (newData.length > 0) {
       TAJWEED_DATA = TAJWEED_DATA.concat(newData);
     }
   }
-  _genCache[surahNum] = data;
+  _genCache[cacheKey] = data;
   return data;
 }
 function clearTajweedHighlights() {
@@ -3049,21 +3053,23 @@ async function openRead(id, targetAyahIdx, dir) {   _genCache = {}; // Сбра�
     let arHtml, arClass;
     let appliedRulesHtml = '';
     
-      let sNum = null, aNum = null;
+          let sNum = null, aNum = null, startAyah = 1;
     if (item.type === 'surah') {
       sNum = item.number;
       aNum = idx + 1;
+      startAyah = 1;
     } else if ((item.type === 'ayat' || item.type === 'ruqyah') && item.number) {
       const _m = String(item.number).match(/^(\d+):(\d+)(?:-(\d+))?$/);
       if (_m) {
         sNum = parseInt(_m[1], 10);
         aNum = parseInt(_m[2], 10) + idx;
+        startAyah = parseInt(_m[2], 10);
       }
     }
 
          if (state.settings.tajweedMode && isQuranText && sNum && aNum) {
       // Всегда генерируем (или берем из кэша) правила, игнорируя неполный tajweed.json
-      generateTajweedForSurah(sNum, item.arabic.split('\n'));
+      generateTajweedForSurah(sNum, item.arabic.split('\n'), startAyah);
       arClass = 'ar-font tajweed-on';
       arHtml = applyTajweedAnnotations(a.ar, sNum, aNum);
       
