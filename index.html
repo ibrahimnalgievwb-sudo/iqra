@@ -1797,7 +1797,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v220';
+const APP_VERSION = 'iqra-v221';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2979,8 +2979,10 @@ function applyTajweedAnnotations(text, surahNum, ayahNum) {
     if (e <= s) continue;
     if (s > cursor) out += esc(text.slice(cursor, s));
     out += '<span class="tajweed-' + ann.rule + '">' + esc(text.slice(s, e)) + '</span>';
-    cursor = e;
+        cursor = e;
   }
+  return out;
+}
   if (cursor < text.length) out += esc(text.slice(cursor));
   return out;
 }
