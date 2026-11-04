@@ -2792,6 +2792,7 @@ const TAJWEED_HIGHLIGHT_SUPPORTED = (function() {
 var _genCache = {};
 function generateTajweedForSurah(surahNum, lines) {
   if (_genCache[surahNum]) return _genCache[surahNum];
+  var isAlreadyLoaded = TAJWEED_DATA && TAJWEED_DATA.some(function(v){ return v.surah === surahNum; });
   var data = [];
   var SHAMSIYYAH = 'تثدذرزسشصضطظلن';
   var QALQALAH = 'قطبجد';
@@ -2815,8 +2816,14 @@ function generateTajweedForSurah(surahNum, lines) {
         else if (next === 'ب') anns.push({start: i, end: i + 3, rule: 'iqlab'});
       }
     }
-    data.push({ surah: surahNum, ayah: aNum, annotations: anns });
+       data.push({ surah: surahNum, ayah: aNum, annotations: anns });
   }
+  
+  // Если данных для этой суры не было в tajweed.json, добавляем сгенерированные
+  if (!isAlreadyLoaded && TAJWEED_DATA) {
+      TAJWEED_DATA = TAJWEED_DATA.concat(data);
+  }
+  
   _genCache[surahNum] = data;
   return data;
 }
@@ -2992,8 +2999,9 @@ async function openRead(id, targetAyahIdx, dir) {
       }
     }
 
-        if (state.settings.tajweedMode && isQuranText && sNum && aNum) {
-      var _gen = generateTajweedForSurah(sNum, item.arabic.split('\n'));
+         if (state.settings.tajweedMode && isQuranText && sNum && aNum) {
+      // Всегда генерируем (или берем из кэша) правила, игнорируя неполный tajweed.json
+      generateTajweedForSurah(sNum, item.arabic.split('\n'));
       arClass = 'ar-font tajweed-on';
       arHtml = applyTajweedAnnotations(a.ar, sNum, aNum);
       
