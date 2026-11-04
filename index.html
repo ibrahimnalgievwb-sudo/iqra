@@ -1234,7 +1234,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 [data-theme="light"] .tajweed-madd_246 { color: #8E24AA !important; -webkit-text-fill-color: #8E24AA !important; }
 [data-theme="light"] .tajweed-madd_muttasil, [data-theme="light"] .tajweed-madd_munfasil { color: #D81B60 !important; -webkit-text-fill-color: #D81B60 !important; }
 [data-theme="light"] .tajweed-madd_6 { color: #B8860B !important; -webkit-text-fill-color: #B8860B !important; }
-[data-theme="light"] .tajweed-silent, [data-theme="light"] .tajweed-hamzat_wasl, [data-theme="light"] .tajweed-lam_shamsiyyah { color: #757575 !important; -webkit-text-fill-color: #757575 !important; }
+[data-theme="light"] .tajweed-silent, [data-theme="light"] .tajweed-hamzat_wasl, [data-theme="light"] .tajweed-lam_shamsiyyah { color: #757575 !important; -webkit-text-fill-color: #757575 !important; } .tajweed-madd_6 { color: #FFD700 !important; -webkit-text-fill-color: #FFD700 !important; } [data-theme="light"] .tajweed-madd_6 { color: #B8860B !important; -webkit-text-fill-color: #B8860B !important; }
 /* U1: копирование переводов и пояснений длинным нажатием */
 .read-ayah-trn,
 .read-ayah-tr,
@@ -1797,7 +1797,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v214';
+const APP_VERSION = 'iqra-v215';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2789,28 +2789,54 @@ const TAJWEED_HIGHLIGHT_SUPPORTED = (function() {
   } catch(e) { return false; }
 })();
 
+// Словарь точных шаблонов для сложных правил (Мадд 6, Идгам, Калькаля)
+var TAJWEED_TEMPLATES = [
+  { f: 'الضَّآلِّينَ', r: 'madd_6' }, { f: 'وَلَا ٱلضَّآلِّينَ', r: 'madd_6' }, { f: 'ٱلضَّآلِّينَ', r: 'madd_6' },
+  { f: 'ٱلضَّآلِّين', r: 'madd_6' }, { f: 'ٱلضَّآلِّينَ', r: 'madd_6' }, { f: 'ٱلضَّآلِّينَ', r: 'madd_6' },
+  { f: 'عَلَيْهِمْ غَيْرِ', r: 'idghaam_ghunnah' }, { f: 'مِن دُونِ', r: 'idghaam_ghunnah' },
+  { f: 'مِن دُونِ', r: 'idghaam_ghunnah' }, { f: 'مِن دُونِ', r: 'idghaam_ghunnah' },
+  { f: 'يَنصُرُكُم مِّن', r: 'idghaam_ghunnah' }, { f: 'قَدْ جَاءَنَا', r: 'qalqalah' },
+  { f: 'قَدْ جَاءَنَا', r: 'qalqalah' }, { f: 'أَلَمْ يَجْعَلْ', r: 'qalqalah' },
+  { f: 'أَلَمْ نَشْرَحْ', r: 'qalqalah' }, { f: 'أَلَمْ نَشْرَحْ', r: 'qalqalah' },
+  { f: 'مِن شَرِّ', r: 'ikhfa' }, { f: 'مِن شَرِّ', r: 'ikhfa' }, { f: 'مِن شَرِّ', r: 'ikhfa' },
+  { f: 'عَن صَلَاتِهِمْ', r: 'ikhfa' }, { f: 'أَنفُسَهُمْ', r: 'ikhfa' },
+  { f: 'أَنفُسَهُمْ', r: 'ikhfa' }, { f: 'أَنفُسَهُمْ', r: 'ikhfa' }
+];
+
 var _genCache = {};
 function generateTajweedForSurah(surahNum, lines) {
   if (_genCache[surahNum]) return _genCache[surahNum];
-  // Проверяем, какие аяты этой суры УЖЕ есть в tajweed.json
   var existingAyahs = {};
   if (TAJWEED_DATA) {
     TAJWEED_DATA.forEach(function(v) {
       if (v.surah === surahNum) existingAyahs[v.ayah] = true;
     });
   }
+  
   var data = [];
   var SHAMSIYYAH = 'تثدذرزسشصضطظلن';
   var QALQALAH = 'قطبجد';
+  
   for (var lineIdx = 0; lineIdx < lines.length; lineIdx++) {
     var line = lines[lineIdx];
     var anns = [];
     var aNum = lineIdx + 1;
+    
+    // Применяем шаблоны
+    for (var t = 0; t < TAJWEED_TEMPLATES.length; t++) {
+      var tpl = TAJWEED_TEMPLATES[t];
+      var idx = line.indexOf(tpl.f);
+      while (idx !== -1) {
+        anns.push({start: idx, end: idx + tpl.f.length, rule: tpl.r});
+        idx = line.indexOf(tpl.f, idx + 1);
+      }
+    }
+    
+    // Базовые правила
     for (var i = 0; i < line.length; i++) {
       var char = line[i];
       if (char === 'ٱ') anns.push({start: i, end: i + 1, rule: 'hamzat_wasl'});
       if (char === 'ل' && i + 1 < line.length && SHAMSIYYAH.indexOf(line[i+1]) > -1) anns.push({start: i, end: i + 1, rule: 'lam_shamsiyyah'});
-      
       if (char === 'ا' || char === 'ى' || char === 'ٰ') anns.push({start: i, end: i + 1, rule: 'madd_2'});
       if ((char === 'ن' || char === 'م') && i + 1 < line.length && line[i+1] === 'ّ') anns.push({start: i, end: i + 2, rule: 'ghunnah'});
       if (QALQALAH.indexOf(char) > -1 && i + 1 < line.length && line[i+1] === 'ْ') anns.push({start: i, end: i + 2, rule: 'qalqalah'});
@@ -2822,10 +2848,15 @@ function generateTajweedForSurah(surahNum, lines) {
         else if (next === 'ب') anns.push({start: i, end: i + 3, rule: 'iqlab'});
       }
     }
-       data.push({ surah: surahNum, ayah: aNum, annotations: anns });
+    
+    // Дедупликация (если шаблон и база дали одинаковые индексы)
+    anns = anns.filter(function(v, index, self) {
+      return index === self.findIndex(function(t) { return t.start === v.start && t.end === v.end; });
+    });
+    
+    data.push({ surah: surahNum, ayah: aNum, annotations: anns });
   }
   
-   // Добавляем в tajweed.json только те аяты, которых там не хватает
   if (TAJWEED_DATA) {
     var newData = data.filter(function(v) { return !existingAyahs[v.ayah]; });
     if (newData.length > 0) {
@@ -2835,7 +2866,6 @@ function generateTajweedForSurah(surahNum, lines) {
   _genCache[surahNum] = data;
   return data;
 }
-
 function clearTajweedHighlights() {
   if (!TAJWEED_HIGHLIGHT_SUPPORTED) return;
   try {
