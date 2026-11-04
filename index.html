@@ -1156,11 +1156,12 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 
 /* === TAJWEED: точная цветовая кодировка из tajweed.json === */
 .ar-font.tajweed-on {
+  background: none !important;
   background-image: none !important;
-  -webkit-background-clip: border-box !important;
-  background-clip: border-box !important;
-  color: var(--text) !important;
+  -webkit-background-clip: initial !important;
+  background-clip: initial !important;
   -webkit-text-fill-color: var(--text) !important;
+  color: var(--text) !important;
 }
 .ar-font.tajweed-on::selection {
   background: rgba(212,175,55,.3);
@@ -1801,7 +1802,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v228';
+const APP_VERSION = 'iqra-v229';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2840,11 +2841,12 @@ function generateTajweedForSurah(surahNum, lines, startAyah) {
     var anns = [];
     var aNum = startAyah + lineIdx;
     
-    // Если в JSON уже есть точные данные для этого аята, используем их
+       // Если в JSON уже есть данные для этого аята, добавляем их к сгенерированным (не пропускаем генерацию)
     var existing = TAJWEED_DATA && TAJWEED_DATA.find(function(v) { return Number(v.surah) === Number(surahNum) && Number(v.ayah) === Number(aNum); });
     if (existing && existing.annotations && existing.annotations.length > 0) {
-       data.push(existing);
-       continue;
+       existing.annotations.forEach(function(ann) {
+           anns.push({start: ann.start, end: ann.end, rule: ann.rule});
+       });
     }
     
     // Применяем шаблоны
