@@ -149,8 +149,6 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   text-rendering: geometricPrecision;
   max-width: 100%;
   min-width: 0;
-  color: var(--text) !important;
-  -webkit-text-fill-color: var(--text) !important;
   padding: 10px 0;
   display: block;
   overflow: visible;
@@ -1752,7 +1750,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v240';
+const APP_VERSION = 'iqra-v241';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2761,11 +2759,7 @@ const TAJWEED_RULES_META = {
   'silent': { name: 'Тихий', desc: 'Не произносится.', example: 'ـ', color: '#A0A0A0' }
 };
 
-const TAJWEED_HIGHLIGHT_SUPPORTED = (function() {
-  try {
-    return !!(window.CSS && CSS.highlights && window.Highlight && window.Range && typeof document.createRange === 'function');
-  } catch(e) { return false; }
-})();
+const TAJWEED_HIGHLIGHT_SUPPORTED = false; // Принудительно используем span-рендеринг (стабильно во всех браузерах, без багов Safari)
 
 // Словарь шаблонов удален, так как он нарушал посимвольную разметку и красил целые слова
 var TAJWEED_TEMPLATES = [];
@@ -3007,10 +3001,9 @@ function applyTajweedAnnotations(text, surahNum, ayahNum) {
     if (s < 0) s = 0;
     if (e > text.length) e = text.length;
 
-    // Защита лигатуры LAM-ALEF (расширяем границы, чтобы не было обрезки)
-    if (s > 0 && (text[s] === 'آ' || text[s] === 'ا') && text[s-1] === 'ل') s = s - 1;
-    if (e < text.length && text[e-1] === 'ل' && (text[e] === 'ا' || text[e] === 'آ')) e = e + 1;
-    if (e < text.length && (text[e-1] === 'ا' || text[e-1] === 'آ') && text[e] === 'ل') e = e + 1;
+      // Защита лигатуры LAM-ALEF (расширяем границы, чтобы не было обрезки на iOS)
+    if (s > 0 && text[s] === 'آ' && text[s-1] === 'ل') s = s - 1;
+    if (e < text.length && text[e-1] === 'ل' && text[e] === 'آ') e = e + 1;
 
     if (s < cursor) s = cursor;
     if (e <= s) continue;
