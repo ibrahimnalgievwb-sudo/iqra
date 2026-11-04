@@ -1188,8 +1188,6 @@ button::-moz-focus-inner { border: 0; padding: 0; }
   word-spacing: normal !important; 
   margin: 0 !important; 
   padding: 0 !important;
-  -webkit-text-stroke: 0.01px transparent !important; /* Защита от обрезки глифов */
-  unicode-bidi: isolate !important; /* Защита от разрыва лигатур */
 }
 /* U1: копирование переводов и пояснений длинным нажатием */
 .read-ayah-trn,
@@ -1754,7 +1752,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v239';
+const APP_VERSION = 'iqra-v240';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2894,11 +2892,15 @@ function generateTajweedForSurah(surahNum, lines, startAyah) {
     data.push({ surah: surahNum, ayah: aNum, annotations: anns });
   }
   
-  // Сохраняем в TAJWEED_DATA только новые записи, НЕ ЗАТИРАЯ существующий JSON
+  // Сохраняем в TAJWEED_DATA, принудительно обновляя 1:7
   if (TAJWEED_DATA) {
     data.forEach(function(newEntry) {
       var idx = TAJWEED_DATA.findIndex(function(v) { return Number(v.surah) === Number(newEntry.surah) && Number(v.ayah) === Number(newEntry.ayah); });
-      if (idx === -1) {
+      if (idx !== -1) {
+        if (newEntry.surah === 1 && newEntry.ayah === 7) {
+          TAJWEED_DATA[idx] = newEntry;
+        }
+      } else {
         TAJWEED_DATA.push(newEntry);
       }
     });
@@ -2994,29 +2996,28 @@ function applyTajweedAnnotations(text, surahNum, ayahNum) {
   if (!verseData || !verseData.annotations || !verseData.annotations.length) return esc(text);
   
   var rules = verseData.annotations.slice().sort(function(a, b) { return (a.start - b.start) || (a.end - b.end); });
-  var normalized = [];
-  var lastEnd = 0;
-  
-  rules.forEach(function(ann) {
-    var s = Math.max(ann.start, lastEnd);
-    var e = Math.min(ann.end, text.length);
-    if (e <= s) return;
-    
-    // Защита лигатуры LAM-ALEF
-    if (text[s] === 'ل' && (text[s+1] === 'ا' || text[s+1] === 'آ')) e = Math.max(e, s + 2);
-    if (text[e-1] === 'ا' && text[e-2] === 'ل') s = Math.min(s, e - 2);
-
-    normalized.push({ start: s, end: e, rule: ann.rule });
-    lastEnd = e;
-  });
-
   var out = '';
   var cursor = 0;
-  for (var i = 0; i < normalized.length; i++) {
-    var ann = normalized[i];
-    if (ann.start > cursor) out += esc(text.slice(cursor, ann.start));
-    out += '<span class="tajweed-' + ann.rule + '">' + esc(text.slice(ann.start, ann.end)) + '</span>';
-    cursor = ann.end;
+  
+  for (var i = 0; i < rules.length; i++) {
+    var ann = rules[i];
+    var s = ann.start;
+    var e = ann.end;
+    
+    if (s < 0) s = 0;
+    if (e > text.length) e = text.length;
+
+    // Защита лигатуры LAM-ALEF (расширяем границы, чтобы не было обрезки)
+    if (s > 0 && (text[s] === 'آ' || text[s] === 'ا') && text[s-1] === 'ل') s = s - 1;
+    if (e < text.length && text[e-1] === 'ل' && (text[e] === 'ا' || text[e] === 'آ')) e = e + 1;
+    if (e < text.length && (text[e-1] === 'ا' || text[e-1] === 'آ') && text[e] === 'ل') e = e + 1;
+
+    if (s < cursor) s = cursor;
+    if (e <= s) continue;
+    
+    if (s > cursor) out += esc(text.slice(cursor, s));
+    out += '<span class="tajweed-' + ann.rule + '">' + esc(text.slice(s, e)) + '</span>';
+    cursor = e;
   }
   if (cursor < text.length) out += esc(text.slice(cursor));
   return out;
@@ -3180,7 +3181,6 @@ function closeRead() {
     if (state.settings.readAyah && b) state.settings.readAyah[activeReadId] = currentAyahIdx();
     save();
   }
-  clearTajweedHighlights();
   document.getElementById('read-mode').classList.remove('active');
   document.getElementById('btn-scroll-top').classList.remove('visible');
   activeReadId = null;
