@@ -140,7 +140,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .tasbih-card .ar,
 .content-card .c-ar,
 .preview-card .pv-ar { min-height: 1.8em; }
-.read-ayah-ar { font-size:calc(30px * var(--ar-scale)); line-height: 2; direction:rtl; text-align:right; padding-bottom: 12px; margin-bottom: 10px; border-bottom: 1px dashed var(--border); overflow-wrap: anywhere; word-break: normal; min-height: calc(64px * var(--ar-scale)); width: 100%; max-width: 100%; box-sizing: border-box; }
+.read-ayah-ar { font-size:calc(30px * var(--ar-scale)); line-height: 2; direction:rtl; text-align:right !important; padding-bottom: 12px; margin-bottom: 10px; border-bottom: 1px dashed var(--border); overflow-wrap: anywhere; word-break: normal; word-spacing: normal !important; letter-spacing: normal !important; min-height: calc(64px * var(--ar-scale)); width: 100%; max-width: 100%; box-sizing: border-box; }
 @media (max-width: 420px) { .read-ayah { margin-bottom: 12px; padding: 14px 16px; border-radius: 14px; } .read-ayah-ar { padding-bottom: 12px; margin-bottom: 10px; min-height: calc(56px * var(--ar-scale)); } }
 .counter .ar { line-height: 2.6 !important; }
 .mem-block .mb-ar { line-height: 2; min-height: calc(64px * var(--ar-scale)); }
@@ -1163,7 +1163,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
   color: var(--text) !important;
 }
 /* Защита от разрыва арабских букв при раскраске */
-.ar-font.tajweed-on span { display: inline; letter-spacing: inherit; }
+.ar-font.tajweed-on span { display: inline; letter-spacing: normal !important; word-spacing: normal !important; }
 /* U5: Единая палитра таджвида (Тёмная тема — базовая, максимальный контраст) */
 .tajweed-ghunnah { color: #FF8A3D !important; -webkit-text-fill-color: #FF8A3D !important; }
 .tajweed-ikhfa { color: #C44DFF !important; -webkit-text-fill-color: #C44DFF !important; }
@@ -1757,7 +1757,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v202';
+const APP_VERSION = 'iqra-v203';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2767,7 +2767,10 @@ function applyTajweedAnnotations(text, surahNum, ayahNum) {
     result += esc(text.substring(lastIndex, rStart));
     const fragment = text.substring(rStart, rule.end);
     const className = 'tajweed-' + rule.rule;
-    result += `<span class="${className}">${esc(fragment)}</span>`;
+    // Добавляем ZWJ (U+200D) для сохранения соединения арабских букв через границы span
+    const prefix = (fragment.length && !/^\s/.test(fragment)) ? '\u200D' : '';
+    const suffix = (fragment.length && !/\s$/.test(fragment)) ? '\u200D' : '';
+    result += `${prefix}<span class="${className}">${esc(fragment)}</span>${suffix}`;
     lastIndex = rule.end;
   }
   result += esc(text.substring(lastIndex));
