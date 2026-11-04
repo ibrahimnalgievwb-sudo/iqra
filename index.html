@@ -1797,7 +1797,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v218';
+const APP_VERSION = 'iqra-v219';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2880,8 +2880,7 @@ function generateTajweedForSurah(surahNum, lines) {
       }
       if (char === 'ـ' || char === 'ۥ' || char === 'ۦ') anns.push({start: i, end: i + 1, rule: 'silent'});
     }
-    
-    // Разрешение пересечений: при наложении оставляем диапазон с большим end
+     // Разрешение пересечений: при наложении оставляем диапазон с большим end
     // (полное правило), затем точные дубликаты убираем.
     anns.sort(function(a, b) { return (a.start - b.start) || (b.end - a.end); });
     var resolved = [];
