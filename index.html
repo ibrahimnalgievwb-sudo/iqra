@@ -1797,7 +1797,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v215';
+const APP_VERSION = 'iqra-v216';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2791,8 +2791,7 @@ const TAJWEED_HIGHLIGHT_SUPPORTED = (function() {
 
 // Словарь точных шаблонов для сложных правил (Мадд 6, Идгам, Калькаля)
 var TAJWEED_TEMPLATES = [
-  { f: 'الضَّآلِّينَ', r: 'madd_6' }, { f: 'وَلَا ٱلضَّآلِّينَ', r: 'madd_6' }, { f: 'ٱلضَّآلِّينَ', r: 'madd_6' },
-  { f: 'ٱلضَّآلِّين', r: 'madd_6' }, { f: 'ٱلضَّآلِّينَ', r: 'madd_6' }, { f: 'ٱلضَّآلِّينَ', r: 'madd_6' },
+  { f: 'ٱلضَّآلِّينَ', r: 'madd_6' }, { f: 'ٱلضَّآلِّين', r: 'madd_6' },
   { f: 'عَلَيْهِمْ غَيْرِ', r: 'idghaam_ghunnah' }, { f: 'مِن دُونِ', r: 'idghaam_ghunnah' },
   { f: 'مِن دُونِ', r: 'idghaam_ghunnah' }, { f: 'مِن دُونِ', r: 'idghaam_ghunnah' },
   { f: 'يَنصُرُكُم مِّن', r: 'idghaam_ghunnah' }, { f: 'قَدْ جَاءَنَا', r: 'qalqalah' },
@@ -2822,13 +2821,22 @@ function generateTajweedForSurah(surahNum, lines) {
     var anns = [];
     var aNum = lineIdx + 1;
     
-    // Применяем шаблоны
+      // Применяем шаблоны
     for (var t = 0; t < TAJWEED_TEMPLATES.length; t++) {
       var tpl = TAJWEED_TEMPLATES[t];
       var idx = line.indexOf(tpl.f);
       while (idx !== -1) {
         anns.push({start: idx, end: idx + tpl.f.length, rule: tpl.r});
         idx = line.indexOf(tpl.f, idx + 1);
+      }
+    }
+    
+    // Специальный фикс для Мадд 6 (Аль-Фатиха 1:7)
+    if (surahNum === 1 && aNum === 7) {
+      var madd6Word = 'ٱلضَّآلِّينَ';
+      var madd6Idx = line.indexOf(madd6Word);
+      if (madd6Idx !== -1) {
+        anns.push({start: madd6Idx, end: madd6Idx + madd6Word.length, rule: 'madd_6'});
       }
     }
     
