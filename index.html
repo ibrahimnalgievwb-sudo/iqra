@@ -1802,7 +1802,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v231';
+const APP_VERSION = 'iqra-v232';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2225,9 +2225,9 @@ function load() {
   })();
 
    // Очистка старого кэша таджвида (из-за сдвига индексов в прошлых версиях)
-  if (!s.migrations.tajweedCacheFix_v1) {
+  if (!s.migrations.tajweedCacheFix_v2) {
     try { localStorage.removeItem('iqra_tajweed_cache'); } catch(e) {}
-    s.migrations.tajweedCacheFix_v1 = true;
+    s.migrations.tajweedCacheFix_v2 = true;
   }
 
   // МИГРАЦИЯ v138: Принудительное добавление Рукьи для существующих пользователей
@@ -2817,9 +2817,8 @@ const TAJWEED_HIGHLIGHT_SUPPORTED = (function() {
   } catch(e) { return false; }
 })();
 
-// Словарь точных шаблонов для сложных правил (Мадд 6, Идгам, Калькаля)
+// Словарь точных шаблонов для сложных правил (Идгам, Калькаля)
 var TAJWEED_TEMPLATES = [
-  { f: 'ٱلضَّآلِّينَ', r: 'madd_6' }, { f: 'ٱلضَّآلِّين', r: 'madd_6' },
   { f: 'عَلَيْهِمْ غَيْرِ', r: 'idghaam_ghunnah' }, { f: 'مِن دُونِ', r: 'idghaam_ghunnah' },
   { f: 'يَنصُرُكُم مِّن', r: 'idghaam_ghunnah' }, { f: 'قَدْ جَاءَنَا', r: 'qalqalah' },
   { f: 'أَلَمْ يَجْعَلْ', r: 'qalqalah' }, { f: 'أَلَمْ نَشْرَحْ', r: 'qalqalah' },
@@ -2861,12 +2860,13 @@ function generateTajweedForSurah(surahNum, lines, startAyah) {
     
        // Специальный фикс для Мадд 6 (Аль-Фатиха 1:7)
     if (surahNum === 1 && aNum === 7) {
-      var parts = line.split(' ');
-      var lastWord = parts[parts.length - 1];
-      var lastWordIdx = line.lastIndexOf(lastWord);
-      if (lastWordIdx !== -1) {
-        // Принудительно применяем madd_6 на последнее слово
-        anns.push({start: lastWordIdx, end: lastWordIdx + lastWord.length, rule: 'madd_6'});
+      var madd6Word = 'ٱلضَّآلِّينَ';
+      var madd6Idx = line.indexOf(madd6Word);
+      if (madd6Idx !== -1) {
+        var alefIdx = line.indexOf('آ', madd6Idx);
+        if (alefIdx !== -1) {
+          anns.push({start: alefIdx, end: alefIdx + 1, rule: 'madd_6'});
+        }
       }
     }
     
