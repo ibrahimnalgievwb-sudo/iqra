@@ -1797,7 +1797,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v211';
+const APP_VERSION = 'iqra-v212';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2789,7 +2789,9 @@ const TAJWEED_HIGHLIGHT_SUPPORTED = (function() {
   } catch(e) { return false; }
 })();
 
+var _genCache = {};
 function generateTajweedForSurah(surahNum, lines) {
+  if (_genCache[surahNum]) return _genCache[surahNum];
   var data = [];
   var SHAMSIYYAH = 'تثدذرزسشصضطظلن';
   var QALQALAH = 'قطبجد';
@@ -2813,15 +2815,9 @@ function generateTajweedForSurah(surahNum, lines) {
         else if (next === 'ب') anns.push({start: i, end: i + 3, rule: 'iqlab'});
       }
     }
-    if (anns.length > 0) {
-      data.push({ surah: surahNum, ayah: aNum, annotations: anns });
-    }
+    data.push({ surah: surahNum, ayah: aNum, annotations: anns });
   }
-  
-  if (data.length > 0 && TAJWEED_DATA) {
-    TAJWEED_DATA = TAJWEED_DATA.concat(data);
-    try { localStorage.setItem('iqra_tajweed_cache', JSON.stringify(TAJWEED_DATA)); } catch(_) {}
-  }
+  _genCache[surahNum] = data;
   return data;
 }
   var data = [];
@@ -2920,23 +2916,7 @@ function applyTajweedRangesToElement(containerEl, surahNum, ayahNum) {
 
 function applyTajweedAnnotations(text, surahNum, ayahNum) {
   if (TAJWEED_HIGHLIGHT_SUPPORTED) return esc(text);
-  if (!TAJWEED_DATA) return esc(text);
-  var verseData = TAJWEED_DATA.find(function(v) { return Number(v.surah) === Number(surahNum) && Number(v.ayah) === Number(ayahNum); });
-  if (!verseData || !verseData.annotations || !verseData.annotations.length) return esc(text);
-  var rules = verseData.annotations.slice().sort(function(a, b) { return (a.start - b.start) || (a.end - b.end); });
-  var result = '';
-  var lastIndex = 0;
-  for (var i = 0; i < rules.length; i++) {
-    var rule = rules[i];
-    if (rule.end > text.length) continue;
-    var rStart = rule.start < lastIndex ? lastIndex : rule.start;
-    if (rule.end <= rStart) continue;
-    result += esc(text.substring(lastIndex, rStart));
-    result += '<span class="tajweed-' + rule.rule + '">' + esc(text.substring(rStart, rule.end)) + '</span>';
-    lastIndex = rule.end;
-  }
-  result += esc(text.substring(lastIndex));
-  return result;
+  return esc(text);
 }
 function toggleTajweed() {
   state.settings.tajweedMode = !state.settings.tajweedMode;
@@ -3012,17 +2992,8 @@ async function openRead(id, targetAyahIdx, dir) {
       }
     }
 
-      if (state.settings.tajweedMode && isQuranText && sNum && aNum) {
-      if (!TAJWEED_DATA) TAJWEED_DATA = [];
-      var _verseData = TAJWEED_DATA.find(v => v.surah === sNum && v.ayah === aNum);
-      if (!_verseData || !_verseData.annotations || !_verseData.annotations.length) {
-          var _gen = generateTajweedForSurah(sNum, item.arabic.split('\n'));
-          var _newData = _gen.find(v => v.surah === sNum && v.ayah === aNum);
-          if (_newData) {
-              TAJWEED_DATA.push(_newData);
-              _verseData = _newData;
-          }
-      }
+        if (state.settings.tajweedMode && isQuranText && sNum && aNum) {
+      var _gen = generateTajweedForSurah(sNum, item.arabic.split('\n'));
       arClass = 'ar-font tajweed-on';
       arHtml = applyTajweedAnnotations(a.ar, sNum, aNum);
       
