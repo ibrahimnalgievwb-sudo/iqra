@@ -1797,7 +1797,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v219';
+const APP_VERSION = 'iqra-v220';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2963,6 +2963,27 @@ function applyTajweedRangesToElement(containerEl, surahNum, ayahNum) {
 }
 
 function applyTajweedAnnotations(text, surahNum, ayahNum) {
+  if (TAJWEED_HIGHLIGHT_SUPPORTED) return esc(text);
+  if (!TAJWEED_DATA) return esc(text);
+  var verseData = TAJWEED_DATA.find(function(v) {
+    return Number(v.surah) === Number(surahNum) && Number(v.ayah) === Number(ayahNum);
+  });
+  if (!verseData || !verseData.annotations || !verseData.annotations.length) return esc(text);
+  var rules = verseData.annotations.slice().sort(function(a, b) { return (a.start - b.start) || (a.end - b.end); });
+  var out = '';
+  var cursor = 0;
+  for (var i = 0; i < rules.length; i++) {
+    var ann = rules[i];
+    var s = Math.max(ann.start, cursor);
+    var e = Math.min(ann.end, text.length);
+    if (e <= s) continue;
+    if (s > cursor) out += esc(text.slice(cursor, s));
+    out += '<span class="tajweed-' + ann.rule + '">' + esc(text.slice(s, e)) + '</span>';
+    cursor = e;
+  }
+  if (cursor < text.length) out += esc(text.slice(cursor));
+  return out;
+}
 function toggleTajweed() {
   state.settings.tajweedMode = !state.settings.tajweedMode;
   save();
