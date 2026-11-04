@@ -1160,19 +1160,54 @@ button::-moz-focus-inner { border: 0; padding: 0; }
   -webkit-background-clip: border-box !important;
   background-clip: border-box !important;
   color: var(--text) !important;
-  /* Удалено -webkit-text-fill-color: currentColor !important; */
+  -webkit-text-fill-color: currentColor !important;
 }
+/* PRIMARY: CSS Custom Highlight API — не разрывает арабские лигатуры */
+::highlight(tajweed-ghunnah) { color: #FF8A3D; -webkit-text-fill-color: #FF8A3D; }
+::highlight(tajweed-ikhfa) { color: #C44DFF; -webkit-text-fill-color: #C44DFF; }
+::highlight(tajweed-ikhfa_shafawi) { color: #FF4DD2; -webkit-text-fill-color: #FF4DD2; }
+::highlight(tajweed-idghaam_ghunnah) { color: #2EE6A8; -webkit-text-fill-color: #2EE6A8; }
+::highlight(tajweed-idghaam_no_ghunnah) { color: #4DFF4D; -webkit-text-fill-color: #4DFF4D; }
+::highlight(tajweed-idghaam_shafawi) { color: #A8FF4D; -webkit-text-fill-color: #A8FF4D; }
+::highlight(tajweed-idghaam_mutajanisayn) { color: #D4D4D4; -webkit-text-fill-color: #D4D4D4; }
+::highlight(tajweed-idghaam_mutaqaribayn) { color: #D4D4D4; -webkit-text-fill-color: #D4D4D4; }
+::highlight(tajweed-iqlab) { color: #4DD2FF; -webkit-text-fill-color: #4DD2FF; }
+::highlight(tajweed-qalqalah) { color: #FF4D4D; -webkit-text-fill-color: #FF4D4D; }
+::highlight(tajweed-madd_2) { color: #00D2FF; -webkit-text-fill-color: #00D2FF; }
+::highlight(tajweed-madd_246) { color: #B388FF; -webkit-text-fill-color: #B388FF; }
+::highlight(tajweed-madd_muttasil) { color: #FF4081; -webkit-text-fill-color: #FF4081; }
+::highlight(tajweed-madd_munfasil) { color: #FF4081; -webkit-text-fill-color: #FF4081; }
+::highlight(tajweed-madd_6) { color: #FFD700; -webkit-text-fill-color: #FFD700; }
+::highlight(tajweed-silent) { color: #A0A0A0; -webkit-text-fill-color: #A0A0A0; }
+::highlight(tajweed-hamzat_wasl) { color: #A0A0A0; -webkit-text-fill-color: #A0A0A0; }
+::highlight(tajweed-lam_shamsiyyah) { color: #A0A0A0; -webkit-text-fill-color: #A0A0A0; }
+[data-theme="light"] ::highlight(tajweed-ghunnah) { color: #C45A00; -webkit-text-fill-color: #C45A00; }
+[data-theme="light"] ::highlight(tajweed-ikhfa) { color: #8A00B8; -webkit-text-fill-color: #8A00B8; }
+[data-theme="light"] ::highlight(tajweed-ikhfa_shafawi) { color: #C4008A; -webkit-text-fill-color: #C4008A; }
+[data-theme="light"] ::highlight(tajweed-idghaam_ghunnah) { color: #008A5E; -webkit-text-fill-color: #008A5E; }
+[data-theme="light"] ::highlight(tajweed-idghaam_no_ghunnah) { color: #008A00; -webkit-text-fill-color: #008A00; }
+[data-theme="light"] ::highlight(tajweed-idghaam_shafawi) { color: #5A8A00; -webkit-text-fill-color: #5A8A00; }
+[data-theme="light"] ::highlight(tajweed-idghaam_mutajanisayn) { color: #5A5A5A; -webkit-text-fill-color: #5A5A5A; }
+[data-theme="light"] ::highlight(tajweed-idghaam_mutaqaribayn) { color: #5A5A5A; -webkit-text-fill-color: #5A5A5A; }
+[data-theme="light"] ::highlight(tajweed-iqlab) { color: #008AB8; -webkit-text-fill-color: #008AB8; }
+[data-theme="light"] ::highlight(tajweed-qalqalah) { color: #C40000; -webkit-text-fill-color: #C40000; }
+[data-theme="light"] ::highlight(tajweed-madd_2) { color: #007BB5; -webkit-text-fill-color: #007BB5; }
+[data-theme="light"] ::highlight(tajweed-madd_246) { color: #8E24AA; -webkit-text-fill-color: #8E24AA; }
+[data-theme="light"] ::highlight(tajweed-madd_muttasil) { color: #D81B60; -webkit-text-fill-color: #D81B60; }
+[data-theme="light"] ::highlight(tajweed-madd_munfasil) { color: #D81B60; -webkit-text-fill-color: #D81B60; }
+[data-theme="light"] ::highlight(tajweed-madd_6) { color: #B8860B; -webkit-text-fill-color: #B8860B; }
+[data-theme="light"] ::highlight(tajweed-silent) { color: #757575; -webkit-text-fill-color: #757575; }
+[data-theme="light"] ::highlight(tajweed-hamzat_wasl) { color: #757575; -webkit-text-fill-color: #757575; }
+[data-theme="light"] ::highlight(tajweed-lam_shamsiyyah) { color: #757575; -webkit-text-fill-color: #757575; }
+/* FALLBACK: span-based (для браузеров без CSS Custom Highlight API) */
 .ar-font.tajweed-on span { 
   display: inline; 
   letter-spacing: normal !important; 
   word-spacing: normal !important; 
-  text-rendering: optimizeLegibility; 
-  -webkit-font-feature-settings: "liga" 1, "calt" 1; 
   margin: 0 !important; 
   padding: 0 !important; 
-  -webkit-text-fill-color: currentColor !important; /* Принудительно берёт цвет из класса tajweed-* */
+  -webkit-text-fill-color: currentColor !important;
 }
-/* U5: Единая палитра таджвида (Тёмная тема — базовая, максимальный контраст) */
 .tajweed-ghunnah { color: #FF8A3D !important; -webkit-text-fill-color: #FF8A3D !important; }
 .tajweed-ikhfa { color: #C44DFF !important; -webkit-text-fill-color: #C44DFF !important; }
 .tajweed-ikhfa_shafawi { color: #FF4DD2 !important; -webkit-text-fill-color: #FF4DD2 !important; }
@@ -1187,8 +1222,6 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 .tajweed-madd_muttasil, .tajweed-madd_munfasil { color: #FF4081 !important; -webkit-text-fill-color: #FF4081 !important; }
 .tajweed-madd_6 { color: #FFD700 !important; -webkit-text-fill-color: #FFD700 !important; }
 .tajweed-silent, .tajweed-hamzat_wasl, .tajweed-lam_shamsiyyah { color: #A0A0A0 !important; -webkit-text-fill-color: #A0A0A0 !important; }
-
-/* U5: Светлая тема (насыщенные тёмные оттенки для контраста на белом) */
 [data-theme="light"] .tajweed-ghunnah { color: #C45A00 !important; -webkit-text-fill-color: #C45A00 !important; }
 [data-theme="light"] .tajweed-ikhfa { color: #8A00B8 !important; -webkit-text-fill-color: #8A00B8 !important; }
 [data-theme="light"] .tajweed-ikhfa_shafawi { color: #C4008A !important; -webkit-text-fill-color: #C4008A !important; }
@@ -1765,7 +1798,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v206';
+const APP_VERSION = 'iqra-v207';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2761,22 +2794,77 @@ const TAJWEED_RULES_META = {
   'silent': { name: 'Тихий', desc: 'Не произносится.', example: 'ـ', color: '#A0A0A0' }
 };
 
+const TAJWEED_HIGHLIGHT_SUPPORTED = (function() {
+  try {
+    return !!(window.CSS && CSS.highlights && window.Highlight && window.Range && typeof document.createRange === 'function');
+  } catch(e) { return false; }
+})();
+
+function clearTajweedHighlights() {
+  if (!TAJWEED_HIGHLIGHT_SUPPORTED) return;
+  try {
+    var names = [];
+    CSS.highlights.forEach(function(_, name) {
+      if (name.indexOf('tajweed-') === 0) names.push(name);
+    });
+    for (var i = 0; i < names.length; i++) CSS.highlights.delete(names[i]);
+  } catch(e) {}
+}
+
+function applyTajweedRangesToElement(containerEl, surahNum, ayahNum) {
+  if (!TAJWEED_HIGHLIGHT_SUPPORTED || !TAJWEED_DATA) return;
+  var verseData = TAJWEED_DATA.find(function(v) { return Number(v.surah) === Number(surahNum) && Number(v.ayah) === Number(ayahNum); });
+  if (!verseData || !verseData.annotations || !verseData.annotations.length) return;
+  var textNode = null;
+  for (var i = 0; i < containerEl.childNodes.length; i++) {
+    if (containerEl.childNodes[i].nodeType === 3) { textNode = containerEl.childNodes[i]; break; }
+  }
+  if (!textNode) return;
+  var textLen = textNode.length;
+  var rules = verseData.annotations.slice().sort(function(a, b) { return (a.start - b.start) || (a.end - b.end); });
+  var lastEnd = 0;
+  var byRule = {};
+  for (var k = 0; k < rules.length; k++) {
+    var ann = rules[k];
+    var s = Math.max(ann.start, lastEnd);
+    var e = Math.min(ann.end, textLen);
+    if (e <= s) continue;
+    lastEnd = e;
+    if (!byRule[ann.rule]) byRule[ann.rule] = [];
+    byRule[ann.rule].push([s, e]);
+  }
+  for (var ruleName in byRule) {
+    if (!Object.prototype.hasOwnProperty.call(byRule, ruleName)) continue;
+    var hlName = 'tajweed-' + ruleName;
+    var hl = CSS.highlights.get(hlName);
+    if (!hl) { hl = new Highlight(); CSS.highlights.set(hlName, hl); }
+    var ranges = byRule[ruleName];
+    for (var j = 0; j < ranges.length; j++) {
+      try {
+        var r = document.createRange();
+        r.setStart(textNode, ranges[j][0]);
+        r.setEnd(textNode, ranges[j][1]);
+        hl.add(r);
+      } catch(err) {}
+    }
+  }
+}
+
 function applyTajweedAnnotations(text, surahNum, ayahNum) {
+  if (TAJWEED_HIGHLIGHT_SUPPORTED) return esc(text);
   if (!TAJWEED_DATA) return esc(text);
-  const verseData = TAJWEED_DATA.find(v => Number(v.surah) === Number(surahNum) && Number(v.ayah) === Number(ayahNum));
+  var verseData = TAJWEED_DATA.find(function(v) { return Number(v.surah) === Number(surahNum) && Number(v.ayah) === Number(ayahNum); });
   if (!verseData || !verseData.annotations || !verseData.annotations.length) return esc(text);
-  const rules = [...verseData.annotations].sort((a, b) => (a.start - b.start) || (a.end - b.end));
-  let result = '';
-  let lastIndex = 0;
-  for (const rule of rules) {
-    if (rule.end > text.length) { continue; }
+  var rules = verseData.annotations.slice().sort(function(a, b) { return (a.start - b.start) || (a.end - b.end); });
+  var result = '';
+  var lastIndex = 0;
+  for (var i = 0; i < rules.length; i++) {
+    var rule = rules[i];
+    if (rule.end > text.length) continue;
     var rStart = rule.start < lastIndex ? lastIndex : rule.start;
-    if (rule.end <= rStart) { continue; }
-    
+    if (rule.end <= rStart) continue;
     result += esc(text.substring(lastIndex, rStart));
-    const fragment = text.substring(rStart, rule.end);
-    result += `<span class="tajweed-${rule.rule}">${esc(fragment)}</span>`;
-    
+    result += '<span class="tajweed-' + rule.rule + '">' + esc(text.substring(rStart, rule.end)) + '</span>';
     lastIndex = rule.end;
   }
   result += esc(text.substring(lastIndex));
@@ -2878,10 +2966,10 @@ async function openRead(id, targetAyahIdx, dir) {
       arClass = 'ar-font';
       arHtml = esc(a.ar);
     }
-    return `
+     return `
         <div class="read-ayah ${item.type==='ayat'?'ayat-mode':''}">
         <div class="read-ayah-num">${a.num}</div>
-        <div class="read-ayah-ar ${arClass}">${arHtml}${item.type==='surah' ? ' <span class="read-ayah-marker">' + ayahMarker(a.num) + '</span>' : ''}</div>
+        <div class="read-ayah-ar ${arClass}" data-surah="${sNum != null ? sNum : ''}" data-ayah="${aNum != null ? aNum : ''}">${arHtml}${item.type==='surah' ? ' <span class="read-ayah-marker">' + ayahMarker(a.num) + '</span>' : ''}</div>
         ${a.tr ? `<div class="read-ayah-tr">${esc(a.tr)}</div>` : ''}
         <div class="read-ayah-trn">${esc(a.trn)}</div>
         ${appliedRulesHtml}
@@ -2896,6 +2984,17 @@ async function openRead(id, targetAyahIdx, dir) {
     ${ayahHtml}
     ${transcriptionNote()}
   `;
+  clearTajweedHighlights();
+  if (state.settings.tajweedMode && isQuranText && TAJWEED_DATA && TAJWEED_HIGHLIGHT_SUPPORTED) {
+    try {
+      var _arEls = document.querySelectorAll('#read-body .read-ayah-ar.tajweed-on[data-surah]');
+      _arEls.forEach(function(el) {
+        var _s = parseInt(el.getAttribute('data-surah'), 10);
+        var _a = parseInt(el.getAttribute('data-ayah'), 10);
+        if (_s && _a) applyTajweedRangesToElement(el, _s, _a);
+      });
+    } catch(_e) { console.warn('Tajweed highlight error:', _e); }
+  }
   activeReadId = id;
   const readMode = document.getElementById('read-mode');
   readMode.classList.remove('read-slide-next', 'read-slide-prev');
@@ -2936,12 +3035,12 @@ function closeRead() {
     if (state.settings.readAyah && b) state.settings.readAyah[activeReadId] = currentAyahIdx();
     save();
   }
+  clearTajweedHighlights();
   document.getElementById('read-mode').classList.remove('active');
   document.getElementById('btn-scroll-top').classList.remove('visible');
   activeReadId = null;
   saveNavContext();
 }
-
 function openMemorizeFor(item) {
   memorizeItem = item;
   memorizeAyahs = parseAyahs(item);
