@@ -1159,7 +1159,8 @@ button::-moz-focus-inner { border: 0; padding: 0; }
   background-image: none !important;
   -webkit-background-clip: border-box !important;
   background-clip: border-box !important;
-  color: var(--text);
+  color: var(--text) !important;
+  -webkit-text-fill-color: var(--text) !important;
 }
 /* PRIMARY: CSS Custom Highlight API — не разрывает арабские лигатуры */
 ::highlight(tajweed-ghunnah) { color: #FF8A3D !important; -webkit-text-fill-color: #FF8A3D !important; }
@@ -1797,7 +1798,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v225';
+const APP_VERSION = 'iqra-v226';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2865,9 +2866,10 @@ function generateTajweedForSurah(surahNum, lines, startAyah) {
       // Базовые правила
     for (var i = 0; i < line.length; i++) {
       var char = line[i];
-      if (char === 'ٱ') anns.push({start: i, end: i + 1, rule: 'hamzat_wasl'});
+          if (char === 'ٱ') anns.push({start: i, end: i + 1, rule: 'hamzat_wasl'});
       if (char === 'ل' && i + 1 < line.length && SHAMSIYYAH.indexOf(line[i+1]) > -1) anns.push({start: i, end: i + 1, rule: 'lam_shamsiyyah'});
-      if (char === 'ا' || char === 'ى' || char === 'ٰ') anns.push({start: i, end: i + 1, rule: 'madd_2'});
+      // Красим только огласовку (даггер алиф), чтобы не ломать соединение букв
+      if (char === 'ٰ') anns.push({start: i, end: i + 1, rule: 'madd_2'});
       if (char === 'آ') anns.push({start: i, end: i + 1, rule: 'madd_246'});
       if ((char === 'ن' || char === 'م') && i + 1 < line.length && line[i+1] === 'ّ') anns.push({start: i, end: i + 2, rule: 'ghunnah'});
       if (QALQALAH.indexOf(char) > -1 && i + 1 < line.length && line[i+1] === 'ْ') anns.push({start: i, end: i + 2, rule: 'qalqalah'});
