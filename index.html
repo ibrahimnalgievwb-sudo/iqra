@@ -1797,7 +1797,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v212';
+const APP_VERSION = 'iqra-v213';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2792,7 +2792,13 @@ const TAJWEED_HIGHLIGHT_SUPPORTED = (function() {
 var _genCache = {};
 function generateTajweedForSurah(surahNum, lines) {
   if (_genCache[surahNum]) return _genCache[surahNum];
-  var isAlreadyLoaded = TAJWEED_DATA && TAJWEED_DATA.some(function(v){ return v.surah === surahNum; });
+  // Проверяем, какие аяты этой суры УЖЕ есть в tajweed.json
+  var existingAyahs = {};
+  if (TAJWEED_DATA) {
+    TAJWEED_DATA.forEach(function(v) {
+      if (v.surah === surahNum) existingAyahs[v.ayah] = true;
+    });
+  }
   var data = [];
   var SHAMSIYYAH = 'تثدذرزسشصضطظلن';
   var QALQALAH = 'قطبجد';
@@ -2819,11 +2825,13 @@ function generateTajweedForSurah(surahNum, lines) {
        data.push({ surah: surahNum, ayah: aNum, annotations: anns });
   }
   
-  // Если данных для этой суры не было в tajweed.json, добавляем сгенерированные
-  if (!isAlreadyLoaded && TAJWEED_DATA) {
-      TAJWEED_DATA = TAJWEED_DATA.concat(data);
+   // Добавляем в tajweed.json только те аяты, которых там не хватает
+  if (TAJWEED_DATA) {
+    var newData = data.filter(function(v) { return !existingAyahs[v.ayah]; });
+    if (newData.length > 0) {
+      TAJWEED_DATA = TAJWEED_DATA.concat(newData);
+    }
   }
-  
   _genCache[surahNum] = data;
   return data;
 }
