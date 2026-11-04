@@ -1160,7 +1160,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
   background-image: none !important;
   -webkit-background-clip: border-box !important;
   background-clip: border-box !important;
-  -webkit-text-fill-color: currentColor !important;
+  -webkit-text-fill-color: var(--text) !important;
   color: var(--text) !important;
 }
 .ar-font.tajweed-on::selection {
@@ -1802,7 +1802,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v229';
+const APP_VERSION = 'iqra-v230';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2932,15 +2932,16 @@ function generateTajweedForSurah(surahNum, lines, startAyah) {
     
     data.push({ surah: surahNum, ayah: aNum, annotations: anns });
   }
-  
-  if (TAJWEED_DATA) {
-    var newData = data.filter(function(v) { 
-      return !TAJWEED_DATA.some(function(existing) { return Number(existing.surah) === v.surah && Number(existing.ayah) === v.ayah; }); 
-    });
-    if (newData.length > 0) {
-      TAJWEED_DATA = TAJWEED_DATA.concat(newData);
+    if (TAJWEED_DATA) {
+      data.forEach(function(newEntry) {
+        var idx = TAJWEED_DATA.findIndex(function(v) { return Number(v.surah) === Number(newEntry.surah) && Number(v.ayah) === Number(newEntry.ayah); });
+        if (idx !== -1) {
+          TAJWEED_DATA[idx] = newEntry; // Заменяем старые данные на сгенерированные
+        } else {
+          TAJWEED_DATA.push(newEntry);
+        }
+      });
     }
-  }
   _genCache[cacheKey] = data;
   return data;
 }
@@ -2969,11 +2970,32 @@ function applyTajweedRangesToElement(containerEl, surahNum, ayahNum) {
   var lastEnd = 0;
   var byRule = {};
 
+  function snapToGrapheme(text, start, end) {
+      if (start < 0) start = 0;
+      if (end > text.length) end = text.length;
+      if (start >= end) return [start, end];
+      while (start > 0 && /[\u064B-\u065F\u0610-\u061A\u0670\u06D6-\u06ED\u0640\u06DD]/.test(text[start])) {
+          start--;
+      }
+      while (end < text.length && /[\u064B-\u065F\u0610-\u061A\u0670\u06D6-\u06ED\u0640\u06DD]/.test(text[end])) {
+          end++;
+      }
+      return [start, end];
+  }
+
   for (var k = 0; k < rules.length; k++) {
     var ann = rules[k];
     var s = Math.max(ann.start, lastEnd);
     var e = Math.min(ann.end, textLen);
     if (e <= s) continue;
+
+    var snapped = snapToGrapheme(textNode.textContent, s, e);
+    s = snapped[0];
+    e = snapped[1];
+
+    if (s < lastEnd) s = lastEnd;
+    if (e <= s) continue;
+
     lastEnd = e;
     if (!byRule[ann.rule]) byRule[ann.rule] = [];
     byRule[ann.rule].push([s, e]);
