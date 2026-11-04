@@ -1797,7 +1797,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v224';
+const APP_VERSION = 'iqra-v225';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2218,6 +2218,12 @@ function load() {
     s.quran = cloneData(DEFAULT_QURAN);
     s.quran.forEach(function(q){ var prev = learnedMap.get(q.id); if (prev) { q.learned = !!prev.learned; q.learnedAt = prev.learnedAt || ''; } });
   })();
+
+   // Очистка старого кэша таджвида (из-за сдвига индексов в прошлых версиях)
+  if (!s.migrations.tajweedCacheFix_v1) {
+    try { localStorage.removeItem('iqra_tajweed_cache'); } catch(e) {}
+    s.migrations.tajweedCacheFix_v1 = true;
+  }
 
   // МИГРАЦИЯ v138: Принудительное добавление Рукьи для существующих пользователей
   if (!s.migrations.addedRuqyah_v1) {
@@ -3001,9 +3007,6 @@ function applyTajweedAnnotations(text, surahNum, ayahNum) {
   if (cursor < text.length) out += esc(text.slice(cursor));
   return out;
 }
-  if (cursor < text.length) out += esc(text.slice(cursor));
-  return out;
-}
 function toggleTajweed() {
   state.settings.tajweedMode = !state.settings.tajweedMode;
   save();
@@ -3023,7 +3026,6 @@ function readNextSurah() {
   if (idx >= 0 && idx < state.quran.length - 1) openRead(state.quran[idx + 1].id, undefined, 'next');
 }
 async function openRead(id, targetAyahIdx, dir) {   _genCache = {}; // Сбрасываем кэш генератора при каждом открытии, чтобы индексы пересчитывались
-  try { localStorage.removeItem('iqra_tajweed_cache'); } catch(e) {} // Очищаем старый кэш, чтобы избежать ошибок со сдвигом индексов
   const item = getQuranById(id); if (!item) return;
   trackEvent('read/' + id, 'Чтение: ' + item.title);
   saveLastRead('quran', id);
