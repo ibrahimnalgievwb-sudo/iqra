@@ -1797,7 +1797,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v223';
+const APP_VERSION = 'iqra-v224';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -1808,21 +1808,38 @@ function cloneData(obj) {
   
 // Глобальная переменная для данных таджвида
 var TAJWEED_DATA = window.TAJWEED_DATA || null;
+var _tajweedFetchPromise = null;
 
 // Загрузка JSON с правилами (полностью локальная, без сервера)
-function loadTajweedData() {
+async function loadTajweedData() {
   if (TAJWEED_DATA && TAJWEED_DATA.length) return;
-  try {
-    var cached = localStorage.getItem('iqra_tajweed_cache');
-    if (cached) {
-      TAJWEED_DATA = JSON.parse(cached);
-      console.log('✓ Таджвид восстановлен из кэша. Аятов:', TAJWEED_DATA.length);
-    } else {
+  if (_tajweedFetchPromise) return _tajweedFetchPromise;
+  _tajweedFetchPromise = (async function() {
+    try {
+      var cached = localStorage.getItem('iqra_tajweed_cache');
+      if (cached) {
+        TAJWEED_DATA = JSON.parse(cached);
+        console.log('✓ Таджвид восстановлен из кэша. Аятов:', TAJWEED_DATA.length);
+      } else {
+        try {
+          var res = await fetch('./tajweed.json');
+          if (res.ok) {
+            TAJWEED_DATA = await res.json();
+            try { localStorage.setItem('iqra_tajweed_cache', JSON.stringify(TAJWEED_DATA)); } catch(e) {}
+          } else {
+            TAJWEED_DATA = [];
+          }
+        } catch(e) {
+          TAJWEED_DATA = [];
+        }
+      }
+    } catch(e) {
       TAJWEED_DATA = [];
+    } finally {
+      _tajweedFetchPromise = null;
     }
-  } catch(e) {
-    TAJWEED_DATA = [];
-  }
+  })();
+  return _tajweedFetchPromise;
 }
 loadTajweedData();
 const BACKUP_SCHEMA = 2;
@@ -2793,13 +2810,9 @@ const TAJWEED_HIGHLIGHT_SUPPORTED = (function() {
 var TAJWEED_TEMPLATES = [
   { f: 'ٱلضَّآلِّينَ', r: 'madd_6' }, { f: 'ٱلضَّآلِّين', r: 'madd_6' },
   { f: 'عَلَيْهِمْ غَيْرِ', r: 'idghaam_ghunnah' }, { f: 'مِن دُونِ', r: 'idghaam_ghunnah' },
-  { f: 'مِن دُونِ', r: 'idghaam_ghunnah' }, { f: 'مِن دُونِ', r: 'idghaam_ghunnah' },
   { f: 'يَنصُرُكُم مِّن', r: 'idghaam_ghunnah' }, { f: 'قَدْ جَاءَنَا', r: 'qalqalah' },
-  { f: 'قَدْ جَاءَنَا', r: 'qalqalah' }, { f: 'أَلَمْ يَجْعَلْ', r: 'qalqalah' },
-  { f: 'أَلَمْ نَشْرَحْ', r: 'qalqalah' }, { f: 'أَلَمْ نَشْرَحْ', r: 'qalqalah' },
-  { f: 'مِن شَرِّ', r: 'ikhfa' }, { f: 'مِن شَرِّ', r: 'ikhfa' }, { f: 'مِن شَرِّ', r: 'ikhfa' },
-  { f: 'عَن صَلَاتِهِمْ', r: 'ikhfa' }, { f: 'أَنفُسَهُمْ', r: 'ikhfa' },
-  { f: 'أَنفُسَهُمْ', r: 'ikhfa' }, { f: 'أَنفُسَهُمْ', r: 'ikhfa' }
+  { f: 'أَلَمْ يَجْعَلْ', r: 'qalqalah' }, { f: 'أَلَمْ نَشْرَحْ', r: 'qalqalah' },
+  { f: 'مِن شَرِّ', r: 'ikhfa' }, { f: 'عَن صَلَاتِهِمْ', r: 'ikhfa' }, { f: 'أَنفُسَهُمْ', r: 'ikhfa' }
 ];
 
 var _genCache = {};
@@ -3010,6 +3023,7 @@ function readNextSurah() {
   if (idx >= 0 && idx < state.quran.length - 1) openRead(state.quran[idx + 1].id, undefined, 'next');
 }
 async function openRead(id, targetAyahIdx, dir) {   _genCache = {}; // Сбрасываем кэш генератора при каждом открытии, чтобы индексы пересчитывались
+  try { localStorage.removeItem('iqra_tajweed_cache'); } catch(e) {} // Очищаем старый кэш, чтобы избежать ошибок со сдвигом индексов
   const item = getQuranById(id); if (!item) return;
   trackEvent('read/' + id, 'Чтение: ' + item.title);
   saveLastRead('quran', id);
