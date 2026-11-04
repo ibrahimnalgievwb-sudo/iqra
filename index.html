@@ -137,6 +137,20 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   -webkit-text-fill-color: transparent;
   color: transparent;
 }
+.ar-typo {
+  font-family:"Noto Naskh Arabic","Amiri","SF Arabic","Geeza Pro",serif;
+  font-feature-settings:"liga" 1, "calt" 1;
+  letter-spacing: normal !important;
+  overflow-wrap: anywhere;
+  word-wrap: break-word;
+  word-break: normal;
+  hyphens: none;
+  text-rendering: optimizeLegibility;
+  max-width: 100%;
+  min-width: 0;
+  color: var(--text) !important;
+  -webkit-text-fill-color: var(--text) !important;
+}
 .tasbih-card .ar,
 .content-card .c-ar,
 .preview-card .pv-ar { min-height: 1.8em; }
@@ -1155,7 +1169,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 .modal { padding-bottom: calc(26px + var(--nav-safe)) !important; }
 
 /* === TAJWEED: точная цветовая кодировка из tajweed.json === */
-.ar-font.tajweed-on {
+.ar-font.tajweed-on, .ar-typo.tajweed-on {
   background: none !important;
   background-image: none !important;
   -webkit-background-clip: border-box !important;
@@ -1163,7 +1177,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
   -webkit-text-fill-color: var(--text) !important;
   color: var(--text) !important;
 }
-.ar-font.tajweed-on::selection {
+.ar-font.tajweed-on::selection, .ar-typo.tajweed-on::selection {
   background: rgba(212,175,55,.3);
 }
 /* PRIMARY: CSS Custom Highlight API — не разрывает арабские лигатуры */
@@ -1204,7 +1218,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 [data-theme="light"] ::highlight(tajweed-hamzat_wasl) { color: #757575 !important; -webkit-text-fill-color: #757575 !important; }
 [data-theme="light"] ::highlight(tajweed-lam_shamsiyyah) { color: #757575 !important; -webkit-text-fill-color: #757575 !important; }
 /* FALLBACK: span-based (для браузеров без CSS Custom Highlight API) */
-.ar-font.tajweed-on span { 
+.ar-font.tajweed-on span, .ar-typo.tajweed-on span { 
   display: inline; 
   letter-spacing: normal !important; 
   word-spacing: normal !important; 
@@ -1802,7 +1816,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v232';
+const APP_VERSION = 'iqra-v233';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -3119,7 +3133,7 @@ async function openRead(id, targetAyahIdx, dir) {   _genCache = {}; // Сбра�
          if (state.settings.tajweedMode && isQuranText && sNum && aNum) {
       // Всегда генерируем (или берем из кэша) правила, игнорируя неполный tajweed.json
       generateTajweedForSurah(sNum, item.arabic.split('\n'), startAyah);
-      arClass = 'ar-font tajweed-on';
+      arClass = 'ar-typo tajweed-on';
       arHtml = applyTajweedAnnotations(a.ar, sNum, aNum);
       
       const verseData = TAJWEED_DATA.find(v => v.surah === sNum && v.ayah === aNum);
