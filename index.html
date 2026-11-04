@@ -1809,29 +1809,19 @@ function cloneData(obj) {
 // Глобальная переменная для данных таджвида
 var TAJWEED_DATA = window.TAJWEED_DATA || null;
 
-// Загрузка JSON с правилами
-async function loadTajweedData() {
+// Загрузка JSON с правилами (полностью локальная, без сервера)
+function loadTajweedData() {
   if (TAJWEED_DATA && TAJWEED_DATA.length) return;
   try {
-    const response = await fetch('./tajweed.json?v=' + APP_VERSION, { cache: 'reload' });
-    if (!response.ok) throw new Error('HTTP ' + response.status);
-    TAJWEED_DATA = await response.json();
-    try { localStorage.setItem('iqra_tajweed_cache', JSON.stringify(TAJWEED_DATA)); } catch(_) {}
-    console.log('✓ Данные таджвида загружены с сервера. Аятов:', TAJWEED_DATA.length);
-  } catch (fetchErr) {
-    if (window.TAJWEED_DATA) {
-      TAJWEED_DATA = window.TAJWEED_DATA;
-      console.log('✓ Данные таджвида получены из tajweed.js (офлайн).');
+    var cached = localStorage.getItem('iqra_tajweed_cache');
+    if (cached) {
+      TAJWEED_DATA = JSON.parse(cached);
+      console.log('✓ Таджвид восстановлен из кэша. Аятов:', TAJWEED_DATA.length);
     } else {
-      const cached = localStorage.getItem('iqra_tajweed_cache');
-      if (cached) {
-        TAJWEED_DATA = JSON.parse(cached);
-        console.log('✓ Таджвид восстановлен из кэша.');
-      } else {
-        TAJWEED_DATA = [];
-        console.warn('Таджвид: данные не загружены.');
-      }
+      TAJWEED_DATA = [];
     }
+  } catch(e) {
+    TAJWEED_DATA = [];
   }
 }
 loadTajweedData();
@@ -2798,65 +2788,42 @@ const TAJWEED_HIGHLIGHT_SUPPORTED = (function() {
     return !!(window.CSS && CSS.highlights && window.Highlight && window.Range && typeof document.createRange === 'function');
   } catch(e) { return false; }
 })();
-  function generateTajweedForSurah(surahNum, lines) {
-    // Временная функция для генерации полного tajweed.json (выполняется 1 раз в консоли)
-window.downloadFullTajweed = function() {
-  var fullData = [];
+
+function generateTajweedForSurah(surahNum, lines) {
+  var data = [];
   var SHAMSIYYAH = 'تثدذرزسشصضطظلن';
   var QALQALAH = 'قطبجد';
-  
-  state.quran.forEach(function(item) {
-    if (!item.arabic) return;
-    var lines = item.arabic.split('\n').filter(function(l){ return l.trim().length > 0; });
-    
-    // Пропускаем не-коранические тексты (например, рукья-гайд)
-    if (item.type === 'dua' || item.id === 'ruqyah_guide') return;
-
-    lines.forEach(function(line, lineIdx) {
-      var anns = [];
-      var aNum = lineIdx + 1;
-      var sNum = item.number || 1;
-      if (typeof item.number === 'string' && item.number.indexOf(':') > -1) {
-        var parts = item.number.split(':');
-        sNum = parseInt(parts[0], 10);
-        aNum = parseInt(parts[1], 10) + lineIdx;
-      }
+  for (var lineIdx = 0; lineIdx < lines.length; lineIdx++) {
+    var line = lines[lineIdx];
+    var anns = [];
+    var aNum = lineIdx + 1;
+    for (var i = 0; i < line.length; i++) {
+      var char = line[i];
+      if (char === 'ٱ') anns.push({start: i, end: i + 1, rule: 'hamzat_wasl'});
+      if (char === 'ل' && i + 1 < line.length && SHAMSIYYAH.indexOf(line[i+1]) > -1) anns.push({start: i, end: i + 1, rule: 'lam_shamsiyyah'});
       
-      for (var i = 0; i < line.length; i++) {
-        var char = line[i];
-        if (char === 'ٱ') anns.push({start: i, end: i + 1, rule: 'hamzat_wasl'});
-        if (char === 'ل' && i + 1 < line.length && SHAMSIYYAH.indexOf(line[i+1]) > -1) anns.push({start: i, end: i + 1, rule: 'lam_shamsiyyah'});
-        
-        if (char === 'ا' || char === 'ى' || char === 'ٰ') anns.push({start: i, end: i + 1, rule: 'madd_2'});
-        if ((char === 'ن' || char === 'م') && i + 1 < line.length && line[i+1] === 'ّ') anns.push({start: i, end: i + 2, rule: 'ghunnah'});
-        if (QALQALAH.indexOf(char) > -1 && i + 1 < line.length && line[i+1] === 'ْ') anns.push({start: i, end: i + 2, rule: 'qalqalah'});
-        if ((char === 'ي' || char === 'و') && i + 1 < line.length && line[i+1] === 'ْ') anns.push({start: i, end: i + 2, rule: 'madd_246'});
-        if (char === 'ن' && i + 1 < line.length && line[i+1] === 'ْ' && i + 2 < line.length) {
-          var next = line[i+2];
-          if ('تثجدذزسشصضطظفقك'.indexOf(next) > -1) anns.push({start: i, end: i + 3, rule: 'ikhfa'});
-          else if ('يرملون'.indexOf(next) > -1) anns.push({start: i, end: i + 3, rule: 'idghaam_ghunnah'});
-          else if (next === 'ب') anns.push({start: i, end: i + 3, rule: 'iqlab'});
-        }
+      if (char === 'ا' || char === 'ى' || char === 'ٰ') anns.push({start: i, end: i + 1, rule: 'madd_2'});
+      if ((char === 'ن' || char === 'م') && i + 1 < line.length && line[i+1] === 'ّ') anns.push({start: i, end: i + 2, rule: 'ghunnah'});
+      if (QALQALAH.indexOf(char) > -1 && i + 1 < line.length && line[i+1] === 'ْ') anns.push({start: i, end: i + 2, rule: 'qalqalah'});
+      if ((char === 'ي' || char === 'و') && i + 1 < line.length && line[i+1] === 'ْ') anns.push({start: i, end: i + 2, rule: 'madd_246'});
+      if (char === 'ن' && i + 1 < line.length && line[i+1] === 'ْ' && i + 2 < line.length) {
+        var next = line[i+2];
+        if ('تثجدذزسشصضطظفقك'.indexOf(next) > -1) anns.push({start: i, end: i + 3, rule: 'ikhfa'});
+        else if ('يرملون'.indexOf(next) > -1) anns.push({start: i, end: i + 3, rule: 'idghaam_ghunnah'});
+        else if (next === 'ب') anns.push({start: i, end: i + 3, rule: 'iqlab'});
       }
-      if (anns.length > 0) {
-        fullData.push({ surah: parseInt(sNum, 10), ayah: parseInt(aNum, 10), annotations: anns });
-      }
-    });
-  });
-
-  var blob = new Blob([JSON.stringify(fullData, null, 2)], { type: 'application/json' });
-  var url = URL.createObjectURL(blob);
-  var a = document.createElement('a');
-  a.href = url;
-  a.download = 'tajweed.json';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+    }
+    if (anns.length > 0) {
+      data.push({ surah: surahNum, ayah: aNum, annotations: anns });
+    }
+  }
   
-  console.log('✅ Полный tajweed.json сгенерирован и скачан! (' + fullData.length + ' записей)');
-  alert('Файл tajweed.json успешно скачан. Замените им старый файл в папке с приложением и обновите страницу.');
-};
+  if (data.length > 0 && TAJWEED_DATA) {
+    TAJWEED_DATA = TAJWEED_DATA.concat(data);
+    try { localStorage.setItem('iqra_tajweed_cache', JSON.stringify(TAJWEED_DATA)); } catch(_) {}
+  }
+  return data;
+}
   var data = [];
   var SHAMSIYYAH = 'تثدذرزسشصضطظلن';
   var QALQALAH = 'قطبجد';
