@@ -1167,7 +1167,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 .install-banner { bottom: calc(72px + var(--nav-safe)) !important; }
 .modal { padding-bottom: calc(26px + var(--nav-safe)) !important; }
 
-/* === TAJWEED: точная цветовая кодировка из tajweed.json === */
+/* === TAJWEED: подсветка (word-level, shaping не рвётся) === */
 .ar-font.tajweed-on, .ar-typo.tajweed-on {
   background: none !important;
   background-image: none !important;
@@ -1179,7 +1179,6 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 .ar-font.tajweed-on::selection, .ar-typo.tajweed-on::selection {
   background: rgba(212,175,55,.3);
 }
-/* PRIMARY: Span-based rendering (Safe for WebKit & Blink) */
 .ar-font.tajweed-on span, .ar-typo.tajweed-on span { 
   display: inline; 
   letter-spacing: normal !important; 
@@ -1187,6 +1186,24 @@ button::-moz-focus-inner { border: 0; padding: 0; }
   margin: 0 !important; 
   padding: 0 !important;
 }
+.ar-font.tajweed-on .tajweed-ghunnah, .ar-typo.tajweed-on .tajweed-ghunnah { color: #FF8A3D !important; -webkit-text-fill-color: #FF8A3D !important; }
+.ar-font.tajweed-on .tajweed-ikhfa, .ar-typo.tajweed-on .tajweed-ikhfa { color: #C44DFF !important; -webkit-text-fill-color: #C44DFF !important; }
+.ar-font.tajweed-on .tajweed-ikhfa_shafawi, .ar-typo.tajweed-on .tajweed-ikhfa_shafawi { color: #FF4DD2 !important; -webkit-text-fill-color: #FF4DD2 !important; }
+.ar-font.tajweed-on .tajweed-idghaam_ghunnah, .ar-typo.tajweed-on .tajweed-idghaam_ghunnah { color: #2EE6A8 !important; -webkit-text-fill-color: #2EE6A8 !important; }
+.ar-font.tajweed-on .tajweed-idghaam_no_ghunnah, .ar-typo.tajweed-on .tajweed-idghaam_no_ghunnah { color: #4DFF4D !important; -webkit-text-fill-color: #4DFF4D !important; }
+.ar-font.tajweed-on .tajweed-idghaam_shafawi, .ar-typo.tajweed-on .tajweed-idghaam_shafawi { color: #A8FF4D !important; -webkit-text-fill-color: #A8FF4D !important; }
+.ar-font.tajweed-on .tajweed-idghaam_mutajanisayn, .ar-typo.tajweed-on .tajweed-idghaam_mutajanisayn { color: #D4D4D4 !important; -webkit-text-fill-color: #D4D4D4 !important; }
+.ar-font.tajweed-on .tajweed-idghaam_mutaqaribayn, .ar-typo.tajweed-on .tajweed-idghaam_mutaqaribayn { color: #D4D4D4 !important; -webkit-text-fill-color: #D4D4D4 !important; }
+.ar-font.tajweed-on .tajweed-iqlab, .ar-typo.tajweed-on .tajweed-iqlab { color: #4DD2FF !important; -webkit-text-fill-color: #4DD2FF !important; }
+.ar-font.tajweed-on .tajweed-qalqalah, .ar-typo.tajweed-on .tajweed-qalqalah { color: #FF4D4D !important; -webkit-text-fill-color: #FF4D4D !important; }
+.ar-font.tajweed-on .tajweed-madd_2, .ar-typo.tajweed-on .tajweed-madd_2 { color: #00D2FF !important; -webkit-text-fill-color: #00D2FF !important; }
+.ar-font.tajweed-on .tajweed-madd_246, .ar-typo.tajweed-on .tajweed-madd_246 { color: #B388FF !important; -webkit-text-fill-color: #B388FF !important; }
+.ar-font.tajweed-on .tajweed-madd_muttasil, .ar-typo.tajweed-on .tajweed-madd_muttasil { color: #FF4081 !important; -webkit-text-fill-color: #FF4081 !important; }
+.ar-font.tajweed-on .tajweed-madd_munfasil, .ar-typo.tajweed-on .tajweed-madd_munfasil { color: #FF4081 !important; -webkit-text-fill-color: #FF4081 !important; }
+.ar-font.tajweed-on .tajweed-madd_6, .ar-typo.tajweed-on .tajweed-madd_6 { color: #FFD700 !important; -webkit-text-fill-color: #FFD700 !important; }
+.ar-font.tajweed-on .tajweed-hamzat_wasl, .ar-typo.tajweed-on .tajweed-hamzat_wasl { color: #A0A0A0 !important; -webkit-text-fill-color: #A0A0A0 !important; }
+.ar-font.tajweed-on .tajweed-lam_shamsiyyah, .ar-typo.tajweed-on .tajweed-lam_shamsiyyah { color: #A0A0A0 !important; -webkit-text-fill-color: #A0A0A0 !important; }
+.ar-font.tajweed-on .tajweed-silent, .ar-typo.tajweed-on .tajweed-silent { color: #A0A0A0 !important; -webkit-text-fill-color: #A0A0A0 !important; }
 /* U1: копирование переводов и пояснений длинным нажатием */
 .read-ayah-trn,
 .read-ayah-tr,
@@ -1750,7 +1767,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v241';
+const APP_VERSION = 'iqra-v242';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2988,31 +3005,51 @@ function applyTajweedAnnotations(text, surahNum, ayahNum) {
     return Number(v.surah) === Number(surahNum) && Number(v.ayah) === Number(ayahNum);
   });
   if (!verseData || !verseData.annotations || !verseData.annotations.length) return esc(text);
-  
-  var rules = verseData.annotations.slice().sort(function(a, b) { return (a.start - b.start) || (a.end - b.end); });
-  var out = '';
-  var cursor = 0;
-  
-  for (var i = 0; i < rules.length; i++) {
-    var ann = rules[i];
-    var s = ann.start;
-    var e = ann.end;
-    
-    if (s < 0) s = 0;
-    if (e > text.length) e = text.length;
 
-      // Защита лигатуры LAM-ALEF (расширяем границы, чтобы не было обрезки на iOS)
-    if (s > 0 && text[s] === 'آ' && text[s-1] === 'ل') s = s - 1;
-    if (e < text.length && text[e-1] === 'ل' && text[e] === 'آ') e = e + 1;
-
-    if (s < cursor) s = cursor;
-    if (e <= s) continue;
-    
-    if (s > cursor) out += esc(text.slice(cursor, s));
-    out += '<span class="tajweed-' + ann.rule + '">' + esc(text.slice(s, e)) + '</span>';
-    cursor = e;
+  // Карта: индекс символа → правило таджвида
+  var charRule = new Array(text.length);
+  for (var c = 0; c < text.length; c++) charRule[c] = null;
+  for (var a = 0; a < verseData.annotations.length; a++) {
+    var ann = verseData.annotations[a];
+    var s0 = Math.max(0, ann.start);
+    var e0 = Math.min(text.length, ann.end);
+    for (var k = s0; k < e0; k++) charRule[k] = ann.rule;
   }
-  if (cursor < text.length) out += esc(text.slice(cursor));
+
+  // Разбиваем текст на СЛОВА. Правило применяем к целому слову.
+  // Внутри слова shaping не разрывается — работает на всех движках (включая WebKit).
+  // Если в слове несколько правил — берём доминирующее (по числу символов).
+  var out = '';
+  var i = 0;
+  while (i < text.length) {
+    if (text[i] === ' ' || text[i] === '\n') {
+      out += (text[i] === '\n') ? '<br>' : ' ';
+      i++;
+      continue;
+    }
+    var j = i;
+    while (j < text.length && text[j] !== ' ' && text[j] !== '\n') j++;
+    var word = text.slice(i, j);
+    var counts = {};
+    var order = [];
+    for (var m = i; m < j; m++) {
+      var r = charRule[m];
+      if (r) {
+        if (!counts[r]) { counts[r] = 0; order.push(r); }
+        counts[r]++;
+      }
+    }
+    if (order.length === 0) {
+      out += esc(word);
+    } else {
+      var dominant = order[0];
+      for (var o = 1; o < order.length; o++) {
+        if (counts[order[o]] > counts[dominant]) dominant = order[o];
+      }
+      out += '<span class="tajweed-' + dominant + '">' + esc(word) + '</span>';
+    }
+    i = j;
+  }
   return out;
 }
 function toggleTajweed() {
