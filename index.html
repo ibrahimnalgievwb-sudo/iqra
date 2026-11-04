@@ -1158,9 +1158,9 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 .ar-font.tajweed-on {
   background: none !important;
   background-image: none !important;
-  -webkit-background-clip: initial !important;
-  background-clip: initial !important;
-  -webkit-text-fill-color: var(--text) !important;
+  -webkit-background-clip: border-box !important;
+  background-clip: border-box !important;
+  -webkit-text-fill-color: currentColor !important;
   color: var(--text) !important;
 }
 .ar-font.tajweed-on::selection {
@@ -2859,12 +2859,14 @@ function generateTajweedForSurah(surahNum, lines, startAyah) {
       }
     }
     
-    // Специальный фикс для Мадд 6 (Аль-Фатиха 1:7)
+       // Специальный фикс для Мадд 6 (Аль-Фатиха 1:7)
     if (surahNum === 1 && aNum === 7) {
-      var madd6Word = 'ٱلضَّآلِّينَ';
-      var madd6Idx = line.indexOf(madd6Word);
-      if (madd6Idx !== -1) {
-        anns.push({start: madd6Idx, end: madd6Idx + madd6Word.length, rule: 'madd_6'});
+      var parts = line.split(' ');
+      var lastWord = parts[parts.length - 1];
+      var lastWordIdx = line.lastIndexOf(lastWord);
+      if (lastWordIdx !== -1) {
+        // Принудительно применяем madd_6 на последнее слово
+        anns.push({start: lastWordIdx, end: lastWordIdx + lastWord.length, rule: 'madd_6'});
       }
     }
     
@@ -2967,44 +2969,10 @@ function applyTajweedRangesToElement(containerEl, surahNum, ayahNum) {
   var lastEnd = 0;
   var byRule = {};
 
-  // Разбиваем на графемные кластеры, чтобы не разрывать буквы и лигатуры
-  var segmenter;
-  if (typeof Intl !== 'undefined' && Intl.Segmenter) {
-      segmenter = new Intl.Segmenter('ar', { granularity: 'grapheme' });
-  }
-  var segments = [];
-  if (segmenter) {
-      segments = Array.from(segmenter.segment(textNode.textContent));
-  }
-
-  function getSafeStart(index) {
-      if (!segments.length) return index;
-      for (var i = segments.length - 1; i >= 0; i--) {
-          if (segments[i].index <= index) return segments[i].index;
-      }
-      return index;
-  }
-  function getSafeEnd(index) {
-      if (!segments.length) return index;
-      for (var i = 0; i < segments.length; i++) {
-          if (segments[i].index + segments[i].segment.length >= index) {
-              return segments[i].index + segments[i].segment.length;
-          }
-      }
-      return index;
-  }
-
   for (var k = 0; k < rules.length; k++) {
     var ann = rules[k];
     var s = Math.max(ann.start, lastEnd);
     var e = Math.min(ann.end, textLen);
-    if (e <= s) continue;
-
-    if (segments.length) {
-        s = getSafeStart(s);
-        e = getSafeEnd(e);
-    }
-
     if (e <= s) continue;
     lastEnd = e;
     if (!byRule[ann.rule]) byRule[ann.rule] = [];
