@@ -1757,7 +1757,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v200';
+const APP_VERSION = 'iqra-v201';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -1771,42 +1771,26 @@ var TAJWEED_DATA = window.TAJWEED_DATA || null;
 
 // Загрузка JSON с правилами
 async function loadTajweedData() {
+  if (TAJWEED_DATA && TAJWEED_DATA.length) return;
   try {
-    // 1. Приоритет: свежий JSON с сервера
-    try {
-      const response = await fetch('./tajweed.json?t=' + Date.now(), { cache: 'no-store' });
-      if (!response.ok) throw new Error('HTTP ' + response.status);
-      TAJWEED_DATA = await response.json();
-      try { localStorage.setItem('iqra_tajweed_cache', JSON.stringify(TAJWEED_DATA)); } catch(_) {}
-      console.log('✓ Данные таджвида загружены с сервера. Аятов:', TAJWEED_DATA.length);
-    } catch (fetchErr) {
-      // 2. Если сети нет, пробуем tajweed.js
-      if (window.TAJWEED_DATA) {
-        TAJWEED_DATA = window.TAJWEED_DATA;
-        console.log('✓ Данные таджвида получены из tajweed.js (офлайн). Аятов:', TAJWEED_DATA.length);
+    const response = await fetch('./tajweed.json?v=' + APP_VERSION, { cache: 'reload' });
+    if (!response.ok) throw new Error('HTTP ' + response.status);
+    TAJWEED_DATA = await response.json();
+    try { localStorage.setItem('iqra_tajweed_cache', JSON.stringify(TAJWEED_DATA)); } catch(_) {}
+    console.log('✓ Данные таджвида загружены с сервера. Аятов:', TAJWEED_DATA.length);
+  } catch (fetchErr) {
+    if (window.TAJWEED_DATA) {
+      TAJWEED_DATA = window.TAJWEED_DATA;
+      console.log('✓ Данные таджвида получены из tajweed.js (офлайн).');
+    } else {
+      const cached = localStorage.getItem('iqra_tajweed_cache');
+      if (cached) {
+        TAJWEED_DATA = JSON.parse(cached);
+        console.log('✓ Таджвид восстановлен из кэша.');
       } else {
-        // 3. Если нет и его, берем из localStorage
-        const cached = localStorage.getItem('iqra_tajweed_cache');
-        if (cached) {
-          TAJWEED_DATA = JSON.parse(cached);
-          console.log('✓ Таджвид восстановлен из кэша. Аятов:', TAJWEED_DATA.length);
-        } else {
-          throw fetchErr;
-        }
+        TAJWEED_DATA = [];
+        console.warn('Таджвид: данные не загружены.');
       }
-    }
-    
-    // Если чтение открыто, перерисовываем
-    if (activeReadId && state.settings.tajweedMode) {
-      openRead(activeReadId, currentAyahIdx());
-    }
-  } catch (e) {
-    console.warn('Не удалось загрузить tajweed.json:', e);
-    if (typeof loadTajweedData._retry !== 'number') loadTajweedData._retry = 0;
-    loadTajweedData._retry++;
-    if (loadTajweedData._retry <= 3) {
-      var delay = 2000 * Math.pow(2, loadTajweedData._retry - 1);
-      setTimeout(() => { if (!TAJWEED_DATA) loadTajweedData(); }, delay);
     }
   }
 }
@@ -2807,14 +2791,14 @@ function readNextSurah() {
   var idx = state.quran.findIndex(function(q){ return q.id === activeReadId; });
   if (idx >= 0 && idx < state.quran.length - 1) openRead(state.quran[idx + 1].id, undefined, 'next');
 }
-function openRead(id, targetAyahIdx, dir) {
+async function openRead(id, targetAyahIdx, dir) {
   const item = getQuranById(id); if (!item) return;
   trackEvent('read/' + id, 'Чтение: ' + item.title);
   saveLastRead('quran', id);
   if (typeof state.settings.tajweedMode !== 'boolean') state.settings.tajweedMode = false;
   if (state.settings.tajweedMode && !TAJWEED_DATA) {
     if (window.TAJWEED_DATA) TAJWEED_DATA = window.TAJWEED_DATA;
-    else loadTajweedData();
+    else await loadTajweedData();
   }
   document.getElementById('read-title').textContent = item.title;
   const ayahs = parseAyahs(item);
