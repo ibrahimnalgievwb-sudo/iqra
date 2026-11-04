@@ -140,7 +140,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .tasbih-card .ar,
 .content-card .c-ar,
 .preview-card .pv-ar { min-height: 1.8em; }
-.read-ayah-ar { font-size:calc(30px * var(--ar-scale)); line-height: 1.5 !important; direction:rtl; text-align:right !important; text-align-last: right !important; padding-bottom: 8px; margin-bottom: 8px; border-bottom: 1px dashed var(--border); overflow-wrap: anywhere; word-break: normal; word-spacing: normal !important; letter-spacing: normal !important; min-height: auto !important; width: 100%; max-width: 100%; box-sizing: border-box; white-space: pre-wrap; }
+.read-ayah-ar { font-size:calc(30px * var(--ar-scale)); line-height: 1.6 !important; direction:rtl; text-align:right !important; text-align-last: right !important; padding-bottom: 10px; margin-bottom: 10px; border-bottom: 1px dashed var(--border); overflow-wrap: anywhere; word-break: normal; word-spacing: normal !important; letter-spacing: normal !important; min-height: auto !important; width: 100%; max-width: 100%; box-sizing: border-box; }
 @media (max-width: 420px) { .read-ayah { margin-bottom: 12px; padding: 14px 16px; border-radius: 14px; } .read-ayah-ar { padding-bottom: 12px; margin-bottom: 10px; min-height: calc(56px * var(--ar-scale)); } }
 .counter .ar { line-height: 2.6 !important; }
 .mem-block .mb-ar { line-height: 2; min-height: calc(64px * var(--ar-scale)); }
@@ -1159,10 +1159,9 @@ button::-moz-focus-inner { border: 0; padding: 0; }
   background-image: none !important;
   -webkit-background-clip: border-box !important;
   background-clip: border-box !important;
-  -webkit-text-fill-color: currentColor !important;
   color: var(--text) !important;
+  /* Удалено -webkit-text-fill-color: currentColor !important; */
 }
-/* Защита от разрыва арабских букв при раскраске */
 .ar-font.tajweed-on span { 
   display: inline; 
   letter-spacing: normal !important; 
@@ -1171,7 +1170,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
   -webkit-font-feature-settings: "liga" 1, "calt" 1; 
   margin: 0 !important; 
   padding: 0 !important; 
-  -webkit-text-fill-color: currentColor !important; /* КРИТИЧЕСКИ ВАЖНО: берет цвет из класса tajweed-* */
+  -webkit-text-fill-color: currentColor !important; /* Принудительно берёт цвет из класса tajweed-* */
 }
 /* U5: Единая палитра таджвида (Тёмная тема — базовая, максимальный контраст) */
 .tajweed-ghunnah { color: #FF8A3D !important; -webkit-text-fill-color: #FF8A3D !important; }
@@ -1766,7 +1765,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v205';
+const APP_VERSION = 'iqra-v206';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2774,15 +2773,9 @@ function applyTajweedAnnotations(text, surahNum, ayahNum) {
     var rStart = rule.start < lastIndex ? lastIndex : rule.start;
     if (rule.end <= rStart) { continue; }
     
-    // Добавляем ZWJ (\u200D) на стыках, чтобы буквы не разрывались и не появлялись пробелы
-    const beforeText = text.substring(lastIndex, rStart);
+    result += esc(text.substring(lastIndex, rStart));
     const fragment = text.substring(rStart, rule.end);
-    
-    // Если перед span есть текст и это не пробел, добавляем ZWJ перед span
-    if (beforeText && !/\s$/.test(beforeText)) result += esc(beforeText) + '\u200D';
-    else result += esc(beforeText);
-
-    result += `<span class="tajweed-${rule.rule}">\u200D${esc(fragment)}\u200D</span>`;
+    result += `<span class="tajweed-${rule.rule}">${esc(fragment)}</span>`;
     
     lastIndex = rule.end;
   }
