@@ -140,7 +140,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .tasbih-card .ar,
 .content-card .c-ar,
 .preview-card .pv-ar { min-height: 1.8em; }
-.read-ayah-ar { font-size:calc(30px * var(--ar-scale)); line-height: 2; direction:rtl; text-align:right !important; text-align-last: right !important; padding-bottom: 12px; margin-bottom: 10px; border-bottom: 1px dashed var(--border); overflow-wrap: anywhere; word-break: normal; word-spacing: normal !important; letter-spacing: normal !important; min-height: calc(64px * var(--ar-scale)); width: 100%; max-width: 100%; box-sizing: border-box; white-space: pre-wrap; }
+.read-ayah-ar { font-size:calc(30px * var(--ar-scale)); line-height: 1.5 !important; direction:rtl; text-align:right !important; text-align-last: right !important; padding-bottom: 8px; margin-bottom: 8px; border-bottom: 1px dashed var(--border); overflow-wrap: anywhere; word-break: normal; word-spacing: normal !important; letter-spacing: normal !important; min-height: auto !important; width: 100%; max-width: 100%; box-sizing: border-box; white-space: pre-wrap; }
 @media (max-width: 420px) { .read-ayah { margin-bottom: 12px; padding: 14px 16px; border-radius: 14px; } .read-ayah-ar { padding-bottom: 12px; margin-bottom: 10px; min-height: calc(56px * var(--ar-scale)); } }
 .counter .ar { line-height: 2.6 !important; }
 .mem-block .mb-ar { line-height: 2; min-height: calc(64px * var(--ar-scale)); }
@@ -1163,7 +1163,16 @@ button::-moz-focus-inner { border: 0; padding: 0; }
   color: var(--text) !important;
 }
 /* Защита от разрыва арабских букв при раскраске */
-.ar-font.tajweed-on span { display: inline; letter-spacing: normal !important; word-spacing: normal !important; text-rendering: optimizeLegibility; -webkit-font-feature-settings: "liga" 1, "calt" 1; margin: 0 !important; padding: 0 !important; }
+.ar-font.tajweed-on span { 
+  display: inline; 
+  letter-spacing: normal !important; 
+  word-spacing: normal !important; 
+  text-rendering: optimizeLegibility; 
+  -webkit-font-feature-settings: "liga" 1, "calt" 1; 
+  margin: 0 !important; 
+  padding: 0 !important; 
+  -webkit-text-fill-color: currentColor !important; /* КРИТИЧЕСКИ ВАЖНО: берет цвет из класса tajweed-* */
+}
 /* U5: Единая палитра таджвида (Тёмная тема — базовая, максимальный контраст) */
 .tajweed-ghunnah { color: #FF8A3D !important; -webkit-text-fill-color: #FF8A3D !important; }
 .tajweed-ikhfa { color: #C44DFF !important; -webkit-text-fill-color: #C44DFF !important; }
@@ -1757,7 +1766,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v204';
+const APP_VERSION = 'iqra-v205';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2755,7 +2764,7 @@ const TAJWEED_RULES_META = {
 
 function applyTajweedAnnotations(text, surahNum, ayahNum) {
   if (!TAJWEED_DATA) return esc(text);
-  const verseData = TAJWEED_DATA.find(v => v.surah === surahNum && v.ayah === ayahNum);
+  const verseData = TAJWEED_DATA.find(v => Number(v.surah) === Number(surahNum) && Number(v.ayah) === Number(ayahNum));
   if (!verseData || !verseData.annotations || !verseData.annotations.length) return esc(text);
   const rules = [...verseData.annotations].sort((a, b) => (a.start - b.start) || (a.end - b.end));
   let result = '';
@@ -2764,10 +2773,17 @@ function applyTajweedAnnotations(text, surahNum, ayahNum) {
     if (rule.end > text.length) { continue; }
     var rStart = rule.start < lastIndex ? lastIndex : rule.start;
     if (rule.end <= rStart) { continue; }
-    result += esc(text.substring(lastIndex, rStart));
+    
+    // Добавляем ZWJ (\u200D) на стыках, чтобы буквы не разрывались и не появлялись пробелы
+    const beforeText = text.substring(lastIndex, rStart);
     const fragment = text.substring(rStart, rule.end);
-    const className = 'tajweed-' + rule.rule;
-    result += `<span class="${className}">${esc(fragment)}</span>`;
+    
+    // Если перед span есть текст и это не пробел, добавляем ZWJ перед span
+    if (beforeText && !/\s$/.test(beforeText)) result += esc(beforeText) + '\u200D';
+    else result += esc(beforeText);
+
+    result += `<span class="tajweed-${rule.rule}">\u200D${esc(fragment)}\u200D</span>`;
+    
     lastIndex = rule.end;
   }
   result += esc(text.substring(lastIndex));
