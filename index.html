@@ -1797,7 +1797,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v221';
+const APP_VERSION = 'iqra-v222';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2961,34 +2961,6 @@ function applyTajweedRangesToElement(containerEl, surahNum, ayahNum) {
     }
   }
 }
-  var rules = verseData.annotations.slice().sort(function(a, b) { return (a.start - b.start) || (a.end - b.end); });
-  var lastEnd = 0;
-  var byRule = {};
-  for (var k = 0; k < rules.length; k++) {
-    var ann = rules[k];
-    var s = Math.max(ann.start, lastEnd);
-    var e = Math.min(ann.end, textLen);
-    if (e <= s) continue;
-    lastEnd = e;
-    if (!byRule[ann.rule]) byRule[ann.rule] = [];
-    byRule[ann.rule].push([s, e]);
-  }
-  for (var ruleName in byRule) {
-    if (!Object.prototype.hasOwnProperty.call(byRule, ruleName)) continue;
-    var hlName = 'tajweed-' + ruleName;
-    var hl = CSS.highlights.get(hlName);
-    if (!hl) { hl = new Highlight(); CSS.highlights.set(hlName, hl); }
-    var ranges = byRule[ruleName];
-    for (var j = 0; j < ranges.length; j++) {
-      try {
-        var r = document.createRange();
-        r.setStart(textNode, ranges[j][0]);
-        r.setEnd(textNode, ranges[j][1]);
-        hl.add(r);
-      } catch(err) {}
-    }
-  }
-}
 
 function applyTajweedAnnotations(text, surahNum, ayahNum) {
   if (TAJWEED_HIGHLIGHT_SUPPORTED) return esc(text);
@@ -3007,8 +2979,9 @@ function applyTajweedAnnotations(text, surahNum, ayahNum) {
     if (e <= s) continue;
     if (s > cursor) out += esc(text.slice(cursor, s));
     out += '<span class="tajweed-' + ann.rule + '">' + esc(text.slice(s, e)) + '</span>';
-        cursor = e;
+    cursor = e;
   }
+  if (cursor < text.length) out += esc(text.slice(cursor));
   return out;
 }
   if (cursor < text.length) out += esc(text.slice(cursor));
