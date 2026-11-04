@@ -1162,6 +1162,9 @@ button::-moz-focus-inner { border: 0; padding: 0; }
   color: var(--text) !important;
   -webkit-text-fill-color: var(--text) !important;
 }
+.ar-font.tajweed-on::selection {
+  background: rgba(212,175,55,.3);
+}
 /* PRIMARY: CSS Custom Highlight API — не разрывает арабские лигатуры */
 ::highlight(tajweed-ghunnah) { color: #FF8A3D !important; -webkit-text-fill-color: #FF8A3D !important; }
 ::highlight(tajweed-ikhfa) { color: #C44DFF !important; -webkit-text-fill-color: #C44DFF !important; }
@@ -1798,7 +1801,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v226';
+const APP_VERSION = 'iqra-v228';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2866,9 +2869,9 @@ function generateTajweedForSurah(surahNum, lines, startAyah) {
       // Базовые правила
     for (var i = 0; i < line.length; i++) {
       var char = line[i];
-          if (char === 'ٱ') anns.push({start: i, end: i + 1, rule: 'hamzat_wasl'});
+      if (char === 'ٱ') anns.push({start: i, end: i + 1, rule: 'hamzat_wasl'});
       if (char === 'ل' && i + 1 < line.length && SHAMSIYYAH.indexOf(line[i+1]) > -1) anns.push({start: i, end: i + 1, rule: 'lam_shamsiyyah'});
-      // Красим только огласовку (даггер алиф), чтобы не ломать соединение букв
+      // Красим только огласовку, чтобы не ломать соединение базовых букв
       if (char === 'ٰ') anns.push({start: i, end: i + 1, rule: 'madd_2'});
       if (char === 'آ') anns.push({start: i, end: i + 1, rule: 'madd_246'});
       if ((char === 'ن' || char === 'م') && i + 1 < line.length && line[i+1] === 'ّ') anns.push({start: i, end: i + 2, rule: 'ghunnah'});
@@ -2961,15 +2964,51 @@ function applyTajweedRangesToElement(containerEl, surahNum, ayahNum) {
   var rules = verseData.annotations.slice().sort(function(a, b) { return (a.start - b.start) || (a.end - b.end); });
   var lastEnd = 0;
   var byRule = {};
+
+  // Разбиваем на графемные кластеры, чтобы не разрывать буквы и лигатуры
+  var segmenter;
+  if (typeof Intl !== 'undefined' && Intl.Segmenter) {
+      segmenter = new Intl.Segmenter('ar', { granularity: 'grapheme' });
+  }
+  var segments = [];
+  if (segmenter) {
+      segments = Array.from(segmenter.segment(textNode.textContent));
+  }
+
+  function getSafeStart(index) {
+      if (!segments.length) return index;
+      for (var i = segments.length - 1; i >= 0; i--) {
+          if (segments[i].index <= index) return segments[i].index;
+      }
+      return index;
+  }
+  function getSafeEnd(index) {
+      if (!segments.length) return index;
+      for (var i = 0; i < segments.length; i++) {
+          if (segments[i].index + segments[i].segment.length >= index) {
+              return segments[i].index + segments[i].segment.length;
+          }
+      }
+      return index;
+  }
+
   for (var k = 0; k < rules.length; k++) {
     var ann = rules[k];
     var s = Math.max(ann.start, lastEnd);
     var e = Math.min(ann.end, textLen);
     if (e <= s) continue;
+
+    if (segments.length) {
+        s = getSafeStart(s);
+        e = getSafeEnd(e);
+    }
+
+    if (e <= s) continue;
     lastEnd = e;
     if (!byRule[ann.rule]) byRule[ann.rule] = [];
     byRule[ann.rule].push([s, e]);
   }
+  
   for (var ruleName in byRule) {
     if (!Object.prototype.hasOwnProperty.call(byRule, ruleName)) continue;
     var hlName = 'tajweed-' + ruleName;
