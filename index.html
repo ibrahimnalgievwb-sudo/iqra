@@ -1159,54 +1159,53 @@ button::-moz-focus-inner { border: 0; padding: 0; }
   background-image: none !important;
   -webkit-background-clip: border-box !important;
   background-clip: border-box !important;
-  color: var(--text) !important;
-  -webkit-text-fill-color: currentColor !important;
+  color: var(--text);
+  -webkit-text-fill-color: var(--text);
 }
 /* PRIMARY: CSS Custom Highlight API — не разрывает арабские лигатуры */
-::highlight(tajweed-ghunnah) { color: #FF8A3D; -webkit-text-fill-color: #FF8A3D; }
-::highlight(tajweed-ikhfa) { color: #C44DFF; -webkit-text-fill-color: #C44DFF; }
-::highlight(tajweed-ikhfa_shafawi) { color: #FF4DD2; -webkit-text-fill-color: #FF4DD2; }
-::highlight(tajweed-idghaam_ghunnah) { color: #2EE6A8; -webkit-text-fill-color: #2EE6A8; }
-::highlight(tajweed-idghaam_no_ghunnah) { color: #4DFF4D; -webkit-text-fill-color: #4DFF4D; }
-::highlight(tajweed-idghaam_shafawi) { color: #A8FF4D; -webkit-text-fill-color: #A8FF4D; }
-::highlight(tajweed-idghaam_mutajanisayn) { color: #D4D4D4; -webkit-text-fill-color: #D4D4D4; }
-::highlight(tajweed-idghaam_mutaqaribayn) { color: #D4D4D4; -webkit-text-fill-color: #D4D4D4; }
-::highlight(tajweed-iqlab) { color: #4DD2FF; -webkit-text-fill-color: #4DD2FF; }
-::highlight(tajweed-qalqalah) { color: #FF4D4D; -webkit-text-fill-color: #FF4D4D; }
-::highlight(tajweed-madd_2) { color: #00D2FF; -webkit-text-fill-color: #00D2FF; }
-::highlight(tajweed-madd_246) { color: #B388FF; -webkit-text-fill-color: #B388FF; }
-::highlight(tajweed-madd_muttasil) { color: #FF4081; -webkit-text-fill-color: #FF4081; }
-::highlight(tajweed-madd_munfasil) { color: #FF4081; -webkit-text-fill-color: #FF4081; }
-::highlight(tajweed-madd_6) { color: #FFD700; -webkit-text-fill-color: #FFD700; }
-::highlight(tajweed-silent) { color: #A0A0A0; -webkit-text-fill-color: #A0A0A0; }
-::highlight(tajweed-hamzat_wasl) { color: #A0A0A0; -webkit-text-fill-color: #A0A0A0; }
-::highlight(tajweed-lam_shamsiyyah) { color: #A0A0A0; -webkit-text-fill-color: #A0A0A0; }
-[data-theme="light"] ::highlight(tajweed-ghunnah) { color: #C45A00; -webkit-text-fill-color: #C45A00; }
-[data-theme="light"] ::highlight(tajweed-ikhfa) { color: #8A00B8; -webkit-text-fill-color: #8A00B8; }
-[data-theme="light"] ::highlight(tajweed-ikhfa_shafawi) { color: #C4008A; -webkit-text-fill-color: #C4008A; }
-[data-theme="light"] ::highlight(tajweed-idghaam_ghunnah) { color: #008A5E; -webkit-text-fill-color: #008A5E; }
-[data-theme="light"] ::highlight(tajweed-idghaam_no_ghunnah) { color: #008A00; -webkit-text-fill-color: #008A00; }
-[data-theme="light"] ::highlight(tajweed-idghaam_shafawi) { color: #5A8A00; -webkit-text-fill-color: #5A8A00; }
-[data-theme="light"] ::highlight(tajweed-idghaam_mutajanisayn) { color: #5A5A5A; -webkit-text-fill-color: #5A5A5A; }
-[data-theme="light"] ::highlight(tajweed-idghaam_mutaqaribayn) { color: #5A5A5A; -webkit-text-fill-color: #5A5A5A; }
-[data-theme="light"] ::highlight(tajweed-iqlab) { color: #008AB8; -webkit-text-fill-color: #008AB8; }
-[data-theme="light"] ::highlight(tajweed-qalqalah) { color: #C40000; -webkit-text-fill-color: #C40000; }
-[data-theme="light"] ::highlight(tajweed-madd_2) { color: #007BB5; -webkit-text-fill-color: #007BB5; }
-[data-theme="light"] ::highlight(tajweed-madd_246) { color: #8E24AA; -webkit-text-fill-color: #8E24AA; }
-[data-theme="light"] ::highlight(tajweed-madd_muttasil) { color: #D81B60; -webkit-text-fill-color: #D81B60; }
-[data-theme="light"] ::highlight(tajweed-madd_munfasil) { color: #D81B60; -webkit-text-fill-color: #D81B60; }
-[data-theme="light"] ::highlight(tajweed-madd_6) { color: #B8860B; -webkit-text-fill-color: #B8860B; }
-[data-theme="light"] ::highlight(tajweed-silent) { color: #757575; -webkit-text-fill-color: #757575; }
-[data-theme="light"] ::highlight(tajweed-hamzat_wasl) { color: #757575; -webkit-text-fill-color: #757575; }
-[data-theme="light"] ::highlight(tajweed-lam_shamsiyyah) { color: #757575; -webkit-text-fill-color: #757575; }
+::highlight(tajweed-ghunnah) { color: #FF8A3D !important; -webkit-text-fill-color: #FF8A3D !important; }
+::highlight(tajweed-ikhfa) { color: #C44DFF !important; -webkit-text-fill-color: #C44DFF !important; }
+::highlight(tajweed-ikhfa_shafawi) { color: #FF4DD2 !important; -webkit-text-fill-color: #FF4DD2 !important; }
+::highlight(tajweed-idghaam_ghunnah) { color: #2EE6A8 !important; -webkit-text-fill-color: #2EE6A8 !important; }
+::highlight(tajweed-idghaam_no_ghunnah) { color: #4DFF4D !important; -webkit-text-fill-color: #4DFF4D !important; }
+::highlight(tajweed-idghaam_shafawi) { color: #A8FF4D !important; -webkit-text-fill-color: #A8FF4D !important; }
+::highlight(tajweed-idghaam_mutajanisayn) { color: #D4D4D4 !important; -webkit-text-fill-color: #D4D4D4 !important; }
+::highlight(tajweed-idghaam_mutaqaribayn) { color: #D4D4D4 !important; -webkit-text-fill-color: #D4D4D4 !important; }
+::highlight(tajweed-iqlab) { color: #4DD2FF !important; -webkit-text-fill-color: #4DD2FF !important; }
+::highlight(tajweed-qalqalah) { color: #FF4D4D !important; -webkit-text-fill-color: #FF4D4D !important; }
+::highlight(tajweed-madd_2) { color: #00D2FF !important; -webkit-text-fill-color: #00D2FF !important; }
+::highlight(tajweed-madd_246) { color: #B388FF !important; -webkit-text-fill-color: #B388FF !important; }
+::highlight(tajweed-madd_muttasil) { color: #FF4081 !important; -webkit-text-fill-color: #FF4081 !important; }
+::highlight(tajweed-madd_munfasil) { color: #FF4081 !important; -webkit-text-fill-color: #FF4081 !important; }
+::highlight(tajweed-madd_6) { color: #FFD700 !important; -webkit-text-fill-color: #FFD700 !important; }
+::highlight(tajweed-silent) { color: #A0A0A0 !important; -webkit-text-fill-color: #A0A0A0 !important; }
+::highlight(tajweed-hamzat_wasl) { color: #A0A0A0 !important; -webkit-text-fill-color: #A0A0A0 !important; }
+::highlight(tajweed-lam_shamsiyyah) { color: #A0A0A0 !important; -webkit-text-fill-color: #A0A0A0 !important; }
+[data-theme="light"] ::highlight(tajweed-ghunnah) { color: #C45A00 !important; -webkit-text-fill-color: #C45A00 !important; }
+[data-theme="light"] ::highlight(tajweed-ikhfa) { color: #8A00B8 !important; -webkit-text-fill-color: #8A00B8 !important; }
+[data-theme="light"] ::highlight(tajweed-ikhfa_shafawi) { color: #C4008A !important; -webkit-text-fill-color: #C4008A !important; }
+[data-theme="light"] ::highlight(tajweed-idghaam_ghunnah) { color: #008A5E !important; -webkit-text-fill-color: #008A5E !important; }
+[data-theme="light"] ::highlight(tajweed-idghaam_no_ghunnah) { color: #008A00 !important; -webkit-text-fill-color: #008A00 !important; }
+[data-theme="light"] ::highlight(tajweed-idghaam_shafawi) { color: #5A8A00 !important; -webkit-text-fill-color: #5A8A00 !important; }
+[data-theme="light"] ::highlight(tajweed-idghaam_mutajanisayn) { color: #5A5A5A !important; -webkit-text-fill-color: #5A5A5A !important; }
+[data-theme="light"] ::highlight(tajweed-idghaam_mutaqaribayn) { color: #5A5A5A !important; -webkit-text-fill-color: #5A5A5A !important; }
+[data-theme="light"] ::highlight(tajweed-iqlab) { color: #008AB8 !important; -webkit-text-fill-color: #008AB8 !important; }
+[data-theme="light"] ::highlight(tajweed-qalqalah) { color: #C40000 !important; -webkit-text-fill-color: #C40000 !important; }
+[data-theme="light"] ::highlight(tajweed-madd_2) { color: #007BB5 !important; -webkit-text-fill-color: #007BB5 !important; }
+[data-theme="light"] ::highlight(tajweed-madd_246) { color: #8E24AA !important; -webkit-text-fill-color: #8E24AA !important; }
+[data-theme="light"] ::highlight(tajweed-madd_muttasil) { color: #D81B60 !important; -webkit-text-fill-color: #D81B60 !important; }
+[data-theme="light"] ::highlight(tajweed-madd_munfasil) { color: #D81B60 !important; -webkit-text-fill-color: #D81B60 !important; }
+[data-theme="light"] ::highlight(tajweed-madd_6) { color: #B8860B !important; -webkit-text-fill-color: #B8860B !important; }
+[data-theme="light"] ::highlight(tajweed-silent) { color: #757575 !important; -webkit-text-fill-color: #757575 !important; }
+[data-theme="light"] ::highlight(tajweed-hamzat_wasl) { color: #757575 !important; -webkit-text-fill-color: #757575 !important; }
+[data-theme="light"] ::highlight(tajweed-lam_shamsiyyah) { color: #757575 !important; -webkit-text-fill-color: #757575 !important; }
 /* FALLBACK: span-based (для браузеров без CSS Custom Highlight API) */
 .ar-font.tajweed-on span { 
   display: inline; 
   letter-spacing: normal !important; 
   word-spacing: normal !important; 
   margin: 0 !important; 
-  padding: 0 !important; 
-  -webkit-text-fill-color: currentColor !important;
+  padding: 0 !important;
 }
 .tajweed-ghunnah { color: #FF8A3D !important; -webkit-text-fill-color: #FF8A3D !important; }
 .tajweed-ikhfa { color: #C44DFF !important; -webkit-text-fill-color: #C44DFF !important; }
@@ -1798,7 +1797,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v207';
+const APP_VERSION = 'iqra-v208';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
