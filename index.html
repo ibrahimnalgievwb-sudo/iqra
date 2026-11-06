@@ -3099,6 +3099,7 @@ function readNextSurah() {
   if (idx >= 0 && idx < state.quran.length - 1) openRead(state.quran[idx + 1].id, undefined, 'next');
 }
 async function openRead(id, targetAyahIdx, dir) {   _genCache = {}; // Сбрасываем кэш генератора при каждом открытии, чтобы индексы пересчитывались
+  _canvasCache.clear(); // Очищаем кэш Canvas от предыдущих сур (защита от утечки памяти)
   const item = getQuranById(id); if (!item) return;
   trackEvent('read/' + id, 'Чтение: ' + item.title);
   saveLastRead('quran', id);
