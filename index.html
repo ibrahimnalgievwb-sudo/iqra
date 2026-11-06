@@ -1265,6 +1265,38 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 .fs-bottom-nav button { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; padding: 0; margin: 0; background: var(--card2); color: var(--gold-accent); border: none; }
 .fs-bottom-nav button:active { background: var(--gold-grad); color: #000; }
 /* ========================================== */
+<style>
+/* === CANVAS TAJWEED RENDERER === */
+.read-ayah-canvas-container {
+  position: relative;
+  width: 100%;
+  direction: rtl;
+  margin-bottom: 10px;
+  min-height: 80px;
+}
+.read-ayah-canvas-container canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  direction: rtl;
+  pointer-events: none;
+}
+.read-ayah-canvas-container .canvas-fallback {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  pointer-events: none;
+  user-select: text;
+  -webkit-user-select: text;
+  direction: rtl;
+  font-family: "Noto Naskh Arabic", "Amiri", serif;
+  line-height: 2.2;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
 </style>
 </head>
 <body>
@@ -1783,7 +1815,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v245';
+const APP_VERSION = 'iqra-v246';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2799,230 +2831,109 @@ var TAJWEED_TEMPLATES = [];
 
 var _genCache = {};
 
-// Возвращаем потерянную функцию генератора
-function generateTajweedForSurah(surahNum, lines, startAyah) {
-  if (!startAyah) startAyah = 1;
-  var cacheKey = surahNum + '_' + startAyah + '_' + lines.length + '_' + lines[0].slice(0, 10);
-  if (_genCache[cacheKey]) return _genCache[cacheKey];
-  
-  var data = [];
-  var SHAMSIYYAH = 'تثدذرزسشصضطظلن';
-  var QALQALAH = 'قطبجد';
-  
-  for (var lineIdx = 0; lineIdx < lines.length; lineIdx++) {
-    var line = lines[lineIdx];
-    var aNum = startAyah + lineIdx;
-    var anns = [];
-    
-    for (var i = 0; i < line.length; i++) {
-      var char = line[i];
-      var next = line[i+1];
-      var prev = line[i-1];
+// ============================================================
+// HARFBUZZ CANVAS RENDERER
+// ============================================================
 
-      if (char === 'ٱ') anns.push({start: i, end: i + 1, rule: 'hamzat_wasl'});
-      
-      if (char === 'ل' && next && SHAMSIYYAH.indexOf(next) > -1) {
-        anns.push({start: i, end: i + 1, rule: 'lam_shamsiyyah'});
-      }
-      
-      // Madd Tabee'i (Dagger Alef)
-      if (char === 'ٰ') {
-         anns.push({start: i, end: i + 1, rule: 'madd_2'});
-      }
-      
-      // Alef with Maddah (Madd 6 or Madd 246)
-      if (char === 'آ') {
-        var isMadd6 = false;
-        if (next === 'ّ' || next === 'ء' || next === 'ئ' || next === 'ؤ') {
-          isMadd6 = true;
-        } else if (next === 'ل' && line[i+2] === 'ّ') { // Для 1:7
-          isMadd6 = true;
-        }
-        if (isMadd6) {
-          anns.push({start: i, end: i + 1, rule: 'madd_6'});
-        } else {
-          anns.push({start: i, end: i + 1, rule: 'madd_246'});
-        }
-      }
-      
-      // Ghunnah (Noon/Meem Mushaddad)
-      if ((char === 'ن' || char === 'م') && next === 'ّ') {
-        anns.push({start: i, end: i + 2, rule: 'ghunnah'});
-      }
-      
-      // Qalqalah
-      if (QALQALAH.indexOf(char) > -1 && next === 'ْ') {
-        anns.push({start: i, end: i + 2, rule: 'qalqalah'});
-      }
-      
-      // Madd Lin (Ya/Waw with Sukun preceded by Fatha)
-      if ((char === 'ي' || char === 'و') && next === 'ْ' && prev === 'َ') {
-        anns.push({start: i, end: i + 2, rule: 'madd_246'});
-      }
-      
-      // Noon Saakin & Tanween
-      var isNoonSaakin = (char === 'ن' && next === 'ْ');
-      var isTanween = ('ًٌٍ'.indexOf(char) > -1);
-      if (isNoonSaakin || isTanween) {
-        var j = i + 1;
-        if (isNoonSaakin) j = i + 2;
-        while (j < line.length && 'َُِّْ'.indexOf(line[j]) > -1) j++;
-        var nextN = line[j];
-        if (nextN) {
-          var endIdx = (isNoonSaakin ? j + 1 : i + 1);
-          if ('يرملون'.indexOf(nextN) > -1) {
-            var ruleIdgham = (nextN === 'ل' || nextN === 'ر') ? 'idghaam_no_ghunnah' : 'idghaam_ghunnah';
-            anns.push({start: i, end: endIdx, rule: ruleIdgham});
-          } else if ('تثجدذزسشصضطظفقك'.indexOf(nextN) > -1) {
-            anns.push({start: i, end: endIdx, rule: 'ikhfa'});
-          } else if (nextN === 'ب') {
-            anns.push({start: i, end: endIdx, rule: 'iqlab'});
-          }
-        }
-      }
-      
-      // Meem Saakin
-      if (char === 'م' && next === 'ْ' && i + 2 < line.length) {
-        var nextM = line[i+2];
-        if (nextM === 'ب') anns.push({start: i, end: i + 3, rule: 'ikhfa_shafawi'});
-        else if (nextM === 'م') anns.push({start: i, end: i + 3, rule: 'idghaam_shafawi'});
-      }
-      
-      // Idgham Mutajanisayn / Mutaqaribayn
-      if (next === 'ْ' && i + 2 < line.length) {
-        var c1 = char, c2 = line[i+2];
-        var mutajanis = ['بت', 'طد', 'ذظ', 'ثذ'];
-        var mutaqarib = ['لق', 'قك', 'لم'];
-        for (var mi = 0; mi < mutajanis.length; mi++) {
-          if (mutajanis[mi][0] === c1 && mutajanis[mi][1] === c2) { anns.push({start: i, end: i + 2, rule: 'idghaam_mutajanisayn'}); break; }
-        }
-        for (var mqi = 0; mqi < mutaqarib.length; mqi++) {
-          if (mutaqarib[mqi][0] === c1 && mutaqarib[mqi][1] === c2) { anns.push({start: i, end: i + 2, rule: 'idghaam_mutaqaribayn'}); break; }
-        }
-      }
-      
-      // Madd Muttasil / Munfasil
-      if ((char === 'ا' || char === 'و' || char === 'ي') && next && (next === 'ء' || next === 'ئ' || next === 'ؤ')) {
-        if (prev === 'َ' || prev === 'ُ' || prev === 'ِ') {
-          anns.push({start: i - 1, end: i + 2, rule: 'madd_muttasil'});
-        }
-      }
-      
-      if (char === 'ـ' || char === 'ۥ' || char === 'ۦ') anns.push({start: i, end: i + 1, rule: 'silent'});
-    }
+let _hbFont = null;
+let _hbReady = false;
+const _canvasCache = new Map(); // кэш: `${surah}:${ayah}` -> canvas
+
+async function initHarfBuzz() {
+  if (_hbReady || !window.hb) return;
+  try {
+    const wasmResponse = await fetch('./lib/hb/harfbuzz.wasm');
+    if (!wasmResponse.ok) throw new Error('harfbuzz.wasm not found');
+    const wasmModule = await WebAssembly.instantiateStreaming(wasmResponse, {});
     
-    // Разрешение пересечений
-    anns.sort(function(a, b) { return (a.start - b.start) || (b.end - a.end); });
-    var resolved = [];
-    for (var ai = 0; ai < anns.length; ai++) {
-      var cur = anns[ai];
-      var skip = false;
-      for (var rj = 0; rj < resolved.length; rj++) {
-        var prevAnn = resolved[rj];
-        if (cur.start >= prevAnn.start && cur.end <= prevAnn.end) { skip = true; break; }
-        if (cur.start < prevAnn.end && cur.end > prevAnn.start) {
-          if (cur.end > prevAnn.end) { resolved[rj] = cur; }
-          skip = true;
+    if (window.hb && typeof window.hb.init === 'function') {
+        await window.hb.init(wasmModule.instance.exports);
+    }
+
+    const fontResponse = await fetch('./fonts/noto-naskh-arabic-v44-arabic_latin-regular.woff2');
+    if (!fontResponse.ok) throw new Error('Font not found');
+    const fontBuffer = await fontResponse.arrayBuffer();
+
+    const blob = new window.hb.Blob(fontBuffer);
+    const face = new window.hb.Face(blob);
+    _hbFont = new window.hb.Font(face);
+    _hbReady = true;
+    console.log('✓ HarfBuzz ready');
+  } catch (e) {
+    console.error('HarfBuzz init failed:', e);
+    _hbReady = false;
+  }
+}
+
+function renderAyahToCanvas(text, surah, ayah, fontSize, defaultColor) {
+  if (!_hbReady || !_hbFont) {
+    const c = document.createElement('canvas');
+    c.width = 1; c.height = 1;
+    return c;
+  }
+  try {
+    const buffer = new window.hb.Buffer();
+    buffer.addText(text);
+    buffer.guessSegmentProperties();
+    window.hb.shape(_hbFont, buffer);
+
+    const glyphInfos = buffer.getGlyphInfos();
+    const glyphPositions = buffer.getGlyphPositions();
+
+    let totalWidth = 0;
+    for (const pos of glyphPositions) totalWidth += pos.xAdvance;
+    const totalHeight = fontSize * 2.2;
+
+    const dpr = window.devicePixelRatio || 1;
+    const canvas = document.createElement('canvas');
+    canvas.width = totalWidth * dpr;
+    canvas.height = totalHeight * dpr;
+    canvas.style.width = totalWidth + 'px';
+    canvas.style.height = totalHeight + 'px';
+
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, totalWidth, totalHeight);
+
+    const verseData = (window.TAJWEED_DATA || []).find(v => Number(v.surah) === surah && Number(v.ayah) === ayah);
+    const annotations = verseData ? verseData.annotations : [];
+
+    let xCursor = totalWidth;
+    const baselineY = totalHeight * 0.75;
+
+    for (let i = 0; i < glyphInfos.length; i++) {
+      const info = glyphInfos[i];
+      const pos = glyphPositions[i];
+
+      let color = defaultColor;
+      for (const ann of annotations) {
+        if (info.cluster >= ann.start && info.cluster < ann.end) {
+          const meta = TAJWEED_RULES_META[ann.rule];
+          if (meta) color = meta.color;
           break;
         }
       }
-      if (!skip) resolved.push(cur);
+
+      const glyphId = info.codepoint;
+      const svgPath = _hbFont.glyphToPath(glyphId);
+      const path = new Path2D(svgPath);
+
+      ctx.save();
+      ctx.translate(xCursor + (pos.xOffset || 0), baselineY + (pos.yOffset || 0));
+      ctx.fillStyle = color;
+      ctx.fill(path);
+      ctx.restore();
+
+      xCursor -= pos.xAdvance;
     }
-    anns = resolved;
-    
-    data.push({ surah: surahNum, ayah: aNum, annotations: anns });
+    buffer.destroy();
+    return canvas;
+  } catch (e) {
+    console.error('Canvas render error:', e);
+    const c = document.createElement('canvas');
+    c.width = 1; c.height = 1;
+    return c;
   }
-  
-  if (!window.TAJWEED_DATA) window.TAJWEED_DATA = [];
-  data.forEach(function(newEntry) {
-    var idx = window.TAJWEED_DATA.findIndex(function(v) { return Number(v.surah) === Number(newEntry.surah) && Number(v.ayah) === Number(newEntry.ayah); });
-    if (idx !== -1) {
-      window.TAJWEED_DATA[idx] = newEntry;
-    } else {
-      window.TAJWEED_DATA.push(newEntry);
-    }
-  });
-  _genCache[cacheKey] = data;
-  return data;
-}
-
-// Единая безопасная функция применения подсветки
-function applyTajweedRangesToElement(containerEl, surahNum, ayahNum) {
-  if (!window.CSS || !CSS.highlights || typeof Highlight === 'undefined') return;
-  if (!window.TAJWEED_DATA) return;
-  
-  var verseData = window.TAJWEED_DATA.find(function(v) { return Number(v.surah) === Number(surahNum) && Number(v.ayah) === Number(ayahNum); });
-  if (!verseData || !verseData.annotations || !verseData.annotations.length) return;
-  var textNode = null;
-  for (var i = 0; i < containerEl.childNodes.length; i++) {
-    if (containerEl.childNodes[i].nodeType === 3) { textNode = containerEl.childNodes[i]; break; }
-  }
-  if (!textNode) return;
-  var textLen = textNode.length;
-  var rules = verseData.annotations.slice().sort(function(a, b) { return (a.start - b.start) || (a.end - b.end); });
-  var byRule = {};
-
-  function snapToGrapheme(text, start, end) {
-      if (start < 0) start = 0;
-      if (end > text.length) end = text.length;
-      if (start >= end) return [start, end];
-      
-      while (start > 0 && /[\u064B-\u065F\u0610-\u061A\u0670\u06D6-\u06ED\u0640\u06DD]/.test(text[start])) {
-          start--;
-      }
-      while (end < text.length && /[\u064B-\u065F\u0610-\u061A\u0670\u06D6-\u06ED\u0640\u06DD]/.test(text[end])) {
-          end++;
-      }
-      return [start, end];
-  }
-
-  // Безопасная очистка старых хайлайтов
-  try {
-    var names = [];
-    CSS.highlights.forEach(function(_, name) {
-      if (name.indexOf('tajweed-') === 0) names.push(name);
-    });
-    for (var i = 0; i < names.length; i++) CSS.highlights.delete(names[i]);
-  } catch(e) {}
-
-  for (var k = 0; k < rules.length; k++) {
-    var ann = rules[k];
-    var s = ann.start;
-    var e = ann.end;
-    if (e <= s) continue;
-
-    var snapped = snapToGrapheme(textNode.textContent, s, e);
-    s = snapped[0];
-    e = snapped[1];
-    if (e <= s) continue;
-
-    if (!byRule[ann.rule]) byRule[ann.rule] = [];
-    byRule[ann.rule].push([s, e]);
-  }
-  
-  for (var ruleName in byRule) {
-    if (!Object.prototype.hasOwnProperty.call(byRule, ruleName)) continue;
-    try {
-      var hlName = 'tajweed-' + ruleName;
-      var hl = new Highlight();
-      var ranges = byRule[ruleName];
-      for (var j = 0; j < ranges.length; j++) {
-        var r = document.createRange();
-        r.setStart(textNode, ranges[j][0]);
-        r.setEnd(textNode, ranges[j][1]);
-        hl.add(r);
-      }
-      CSS.highlights.set(hlName, hl);
-    } catch(err) {
-      console.warn('Tajweed highlight error:', err);
-    }
-  }
-}
-
-function applyTajweedAnnotations(text, surahNum, ayahNum) {
-  // Возвращаем чистый текст. Подсветка будет применена через CSS Custom Highlight API 
-  // на уровне DOM-узлов (функция applyTajweedRangesToElement), что сохраняет лигатуры.
-  return esc(text);
 }
 function toggleTajweed() {
   state.settings.tajweedMode = !state.settings.tajweedMode;
@@ -3049,8 +2960,9 @@ async function openRead(id, targetAyahIdx, dir) {   _genCache = {}; // Сбра�
   if (typeof state.settings.tajweedMode !== 'boolean') state.settings.tajweedMode = false;
   if (state.settings.tajweedMode && !TAJWEED_DATA) {
     if (window.TAJWEED_DATA) TAJWEED_DATA = window.TAJWEED_DATA;
-    else await loadTajweedData();
+    else TAJWEED_DATA = []; 
   }
+  await initHarfBuzz();
   document.getElementById('read-title').textContent = item.title;
   const ayahs = parseAyahs(item);
   let bismillahHtml = '';
@@ -3100,10 +3012,17 @@ async function openRead(id, targetAyahIdx, dir) {   _genCache = {}; // Сбра�
       }
     }
 
-    if (state.settings.tajweedMode && isQuranText && sNum && aNum) {
+    if (state.settings.tajweedMode && isQuranText && sNum && aNum && _hbReady) {
       generateTajweedForSurah(sNum, item.arabic.split('\n'), startAyah);
-      arClass = 'ar-font tajweed-on';
-      arHtml = applyTajweedAnnotations(a.ar, sNum, aNum);
+      
+      const fontSize = 30 * (parseFloat(state.settings.arSize) || 1);
+      const defaultColor = getComputedStyle(document.documentElement).getPropertyValue('--text').trim() || '#FFFFFF';
+      
+      const canvas = renderAyahToCanvas(a.ar, sNum, aNum, fontSize, defaultColor);
+      const key = `${sNum}:${aNum}`;
+      _canvasCache.set(key, canvas);
+
+      arHtml = `<div class="read-ayah-canvas-container" data-surah="${sNum}" data-ayah="${aNum}" data-text="${escAttr(a.ar)}"></div>`;
       
       const verseData = TAJWEED_DATA.find(v => v.surah === sNum && v.ayah === aNum);
       if (verseData && verseData.annotations) {
@@ -3113,7 +3032,6 @@ async function openRead(id, targetAyahIdx, dir) {   _genCache = {}; // Сбра�
           if (TAJWEED_RULES_META[r]) {
             displayName = TAJWEED_RULES_META[r].name;
           }
-          // Класс tajweed-* теперь имеет цвет, поэтому слово в легенде окрасится
           return '<span class="tajweed-' + r + '" style="font-weight:700;">' + displayName + '</span>';
         }).join(' <span style="color:var(--muted);">·</span> ');
         if (ruleNamesHtml) {
@@ -3121,13 +3039,12 @@ async function openRead(id, targetAyahIdx, dir) {   _genCache = {}; // Сбра�
         }
       }
     } else {
-      arClass = 'ar-font';
-      arHtml = esc(a.ar);
+      arHtml = `<div class="read-ayah-ar ar-font">${esc(a.ar)}${item.type==='surah' ? ' <span class="read-ayah-marker">' + ayahMarker(a.num) + '</span>' : ''}</div>`;
     }
      return `
         <div class="read-ayah ${item.type==='ayat'?'ayat-mode':''}">
         <div class="read-ayah-num">${a.num}</div>
-        <div class="read-ayah-ar ${arClass}" data-surah="${sNum != null ? sNum : ''}" data-ayah="${aNum != null ? aNum : ''}">${arHtml}${item.type==='surah' ? ' <span class="read-ayah-marker">' + ayahMarker(a.num) + '</span>' : ''}</div>
+        ${arHtml}
         ${a.tr ? `<div class="read-ayah-tr">${esc(a.tr)}</div>` : ''}
         <div class="read-ayah-trn">${esc(a.trn)}</div>
         ${appliedRulesHtml}
@@ -3144,16 +3061,22 @@ async function openRead(id, targetAyahIdx, dir) {   _genCache = {}; // Сбра�
   `;
   // Рендеринг полностью переведен на Span-based (внутри map выше)
   activeReadId = id;
-  // Применяем CSS Custom Highlight API после рендера DOM (с защитой от крэша)
+  // Вставляем Canvas в контейнеры
   if (state.settings.tajweedMode && isQuranText) {
-    document.querySelectorAll('.read-ayah-ar.tajweed-on').forEach(function(el) {
+    document.querySelectorAll('.read-ayah-canvas-container').forEach(function(el) {
       var s = el.dataset.surah;
       var a = el.dataset.ayah;
+      var text = el.dataset.text;
       if (s && a) {
-        try {
-          applyTajweedRangesToElement(el, +s, +a);
-        } catch(e) {
-          console.warn('Tajweed render blocked to save UI:', e);
+        var key = s + ':' + a;
+        var canvas = _canvasCache.get(key);
+        if (canvas) {
+           var canvasClone = canvas.cloneNode(true);
+           el.appendChild(canvasClone);
+           var fallback = document.createElement('div');
+           fallback.className = 'canvas-fallback';
+           fallback.textContent = text || '';
+           el.appendChild(fallback);
         }
       }
     });
@@ -4602,6 +4525,10 @@ if ('serviceWorker' in navigator) {
     try { history.back(); } catch(e) {}
   };
 })();
+</script>
+<script type="module">
+  import * as hbModule from './lib/hb/harfbuzz.js';
+  window.hb = hbModule;
 </script>
 <script data-goatcounter="https://iqra-stats.goatcounter.com/count" async src="./count.js"></script>
 </body>
