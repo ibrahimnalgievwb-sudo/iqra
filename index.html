@@ -1815,7 +1815,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v248';
+const APP_VERSION = 'iqra-v249';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2978,34 +2978,34 @@ function generateTajweedForSurah(surahNum, lines, startAyah) {
 }
 
 // ============================================================
-// HARFBUZZ CANVAS RENDERER
+// HARFBUZZ CANVAS RENDERER (Raw Emscripten API)
 // ============================================================
-let _hbFont = null;
-let _hbReady = false;
-const _canvasCache = new Map(); // кэш: `${surah}:${ayah}` -> canvas
-
 let _hb = null;
 let _hbFont = null;
 let _hbReady = false;
+const _canvasCache = new Map(); // кэш: `${surah}:${ayah}` -> canvas
 
 async function initHarfBuzz() {
   if (_hbReady || !window.hb) return;
   try {
     _hb = await window.hb();
-    if (!_hb || typeof _hb.createBlob !== 'function') {
-      throw new Error('Harfbuzz API not available (createBlob missing)');
+    if (!_hb || typeof _hb._hb_blob_create !== 'function') {
+      throw new Error('Harfbuzz raw API not available');
     }
 
     const fontResponse = await fetch('./fonts/noto-naskh-arabic-v44-arabic_latin-regular.woff2');
     if (!fontResponse.ok) throw new Error('Font not found');
-    const fontBuffer = await fontResponse.arrayBuffer();
+    const fontBuffer = new Uint8Array(await fontResponse.arrayBuffer());
 
-    const blob = _hb.createBlob(fontBuffer);
-    const face = _hb.createFace(blob, 0);
-    _hbFont = _hb.createFont(face);
+    const heapPtr = _hb._malloc(fontBuffer.length);
+    _hb.HEAPU8.set(fontBuffer, heapPtr);
+    // HB_MEMORY_MODE_DUPLICATE = 2
+    const blobPtr = _hb._hb_blob_create(heapPtr, fontBuffer.length, 2, 0, 0);
+    const facePtr = _hb._hb_face_create(blobPtr, 0);
+    _hbFont = _hb._hb_font_create(facePtr);
 
     _hbReady = true;
-    console.log('✓ HarfBuzz ready');
+    console.log('✓ HarfBuzz ready (Raw Emscripten API)');
   } catch (e) {
     console.error('HarfBuzz init failed:', e);
     _hbReady = false;
@@ -3019,60 +3019,39 @@ function renderAyahToCanvas(text, surah, ayah, fontSize, defaultColor) {
     return c;
   }
   try {
-    const buffer = _hb.createBuffer();
-    buffer.addText(text);
-    buffer.guessSegmentProperties();
-    _hb.shape(_hbFont, buffer);
+    const buf = _hb._hb_buffer_create();
+    const textUtf8 = new TextEncoder().encode(text);
+    const textPtr = _hb._malloc(textUtf8.length + 1);
+    _hb.HEAPU8.set(textUtf8, textPtr);
+    _hb.HEAPU8[textPtr + textUtf8.length] = 0;
 
-    const output = buffer.json(); // [{ g, ax, ay, dx, dy, cluster }, ...]
+    _hb._hb_buffer_add_utf8(buf, textPtr, -1, 0, -1);
+    _hb._free(textPtr);
+    _hb._hb_buffer_guess_segment_properties(buf);
+    _hb._hb_shape(_hbFont, buf, 0, 0);
 
-    let totalWidth = 0;
-    for (const glyph of output) totalWidth += glyph.ax;
-    const totalHeight = fontSize * 2.2;
-
-    const dpr = window.devicePixelRatio || 1;
-    const canvas = document.createElement('canvas');
-    canvas.width = totalWidth * dpr;
-    canvas.height = totalHeight * dpr;
-    canvas.style.width = totalWidth + 'px';
-    canvas.style.height = totalHeight + 'px';
-
-    const ctx = canvas.getContext('2d');
-    ctx.scale(dpr, dpr);
-    ctx.clearRect(0, 0, totalWidth, totalHeight);
-
-    const verseData = (window.TAJWEED_DATA || []).find(v => Number(v.surah) === surah && Number(v.ayah) === ayah);
-    const annotations = verseData ? verseData.annotations : [];
-
-    let xCursor = totalWidth;
-    const baselineY = totalHeight * 0.75;
-
-    for (const glyph of output) {
-      let color = defaultColor;
-      for (const ann of annotations) {
-        if (glyph.cluster >= ann.start && glyph.cluster < ann.end) {
-          const meta = TAJWEED_RULES_META[ann.rule];
-          if (meta) color = meta.color;
-          break;
-        }
-      }
-
-      const svgPath = _hbFont.glyphToPath(glyph.g);
-      if (!svgPath) continue;
-      const path = new Path2D(svgPath);
-
-      ctx.save();
-      ctx.translate(xCursor + (glyph.dx || 0), baselineY + (glyph.dy || 0));
-      ctx.fillStyle = color;
-      ctx.fill(path);
-      ctx.restore();
-
-      xCursor -= glyph.ax;
+    const len = _hb._hb_buffer_get_length(buf);
+    const infoPtr = _hb._hb_buffer_get_glyph_infos(buf, 0);
+    
+    // Сбор кластеров и глифов для подтверждения работы шейпинга
+    const infos = [];
+    for (let i = 0; i < len; i++) {
+      const offset = infoPtr + i * 20;
+      const codepoint = _hb.HEAPU32[(offset) >> 2];
+      const cluster = _hb.HEAPU32[(offset + 8) >> 2];
+      infos.push({ g: codepoint, cluster: cluster });
     }
-    buffer.destroy();
-    return canvas;
+    console.log('Shaped glyphs and clusters:', infos);
+
+    // Для отрисовки путей требуется opentype.js (преобразование glyph ID в SVG path).
+    // В текущем проекте его нет. Возвращаем пустой canvas (сработает HTML fallback).
+    _hb._hb_buffer_destroy(buf);
+
+    const c = document.createElement('canvas');
+    c.width = 1; c.height = 1;
+    return c;
   } catch (e) {
-    console.error('Canvas render error:', e);
+    console.error('Canvas shape error:', e);
     const c = document.createElement('canvas');
     c.width = 1; c.height = 1;
     return c;
