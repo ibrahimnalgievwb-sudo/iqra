@@ -1815,7 +1815,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v268';
+const APP_VERSION = 'iqra-v269';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -4206,35 +4206,6 @@ if ('serviceWorker' in navigator) {
   hookCloser('closeMemorize', 'memorize-mode');
   hookCloser('closeReview', 'review-mode');
   hookCloser('closeModal', 'modal-bg');
-
- window.addEventListener('load', function() {
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.getRegistrations().then(function(regs) {
-      regs.forEach(function(r) { r.unregister(); });
-      return navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' });
-    }).then(function(reg) {
-    try { reg.update(); } catch(e) {}
-
-    // 1) Периодически: каждые 5 минут, только когда страница видима
-    setInterval(function() {
-      if (document.visibilityState !== 'visible') return;
-      try { reg.update(); } catch(e) {}
-    }, 5 * 60 * 1000);
-
-    // 2) При возврате приложения в фокус (iOS/Android/PWA)
-    document.addEventListener('visibilitychange', function() {
-      if (document.visibilityState === 'visible') {
-        try { reg.update(); } catch(e) {}
-      }
-    });
-
-    // 3) При получении фокуса окна
-    window.addEventListener('focus', function() {
-      try { reg.update(); } catch(e) {}
-    });
-  }).catch(function() {});
-  } // <--- ДОБАВЛЕНА ЗАКРЫВАЮЩАЯ СКОБКА ДЛЯ if ('serviceWorker' in navigator)
-});
 </script>
 <!-- НАЧАЛО: ЛОКАЛЬНОЕ ПОДКЛЮЧЕНИЕ -->
 <script type="module">
