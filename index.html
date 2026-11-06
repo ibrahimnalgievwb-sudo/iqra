@@ -1815,7 +1815,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v265';
+const APP_VERSION = 'iqra-v267';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -4268,5 +4268,48 @@ if ('serviceWorker' in navigator) {
 <!-- КОНЕЦ: ЛОКАЛЬНОЕ ПОДКЛЮЧЕНИЕ -->
 
 <script data-goatcounter="https://iqra-stats.goatcounter.com/count" async src="./count.js"></script>
+<script>
+/* ===== TEMP DIAGNOSTIC — iqra-v266 — удалить после устранения белого экрана ===== */
+(function () {
+  var REPORTED = false;
+  function probe(el) {
+    if (REPORTED || !el) return;
+    REPORTED = true;
+    console.log('[Iqra-Diag] tag:', el.tagName);
+    console.log('[Iqra-Diag] defined:', !!customElements.get('open-quran-view'));
+    console.log('[Iqra-Diag] attrs:', Array.prototype.map.call(el.attributes, function (a) { return a.name + '="' + a.value + '"'; }).join(' '));
+    console.log('[Iqra-Diag] shadowRoot:', !!el.shadowRoot);
+    if (el.shadowRoot) {
+      console.log('[Iqra-Diag] shadowHTML.len:', el.shadowRoot.innerHTML.length);
+      console.log('[Iqra-Diag] shadowHTML.head:', el.shadowRoot.innerHTML.slice(0, 400));
+    }
+    var r = el.getBoundingClientRect();
+    console.log('[Iqra-Diag] rect:', JSON.stringify({ w: r.width, h: r.height, top: r.top, left: r.left }));
+    console.log('[Iqra-Diag] computedDisplay:', getComputedStyle(el).display);
+    console.log('[Iqra-Diag] computedVisibility:', getComputedStyle(el).visibility);
+    if (document.fonts && document.fonts.forEach) {
+      var fams = [];
+      document.fonts.forEach(function (f) { fams.push(f.family + ':' + f.status); });
+      console.log('[Iqra-Diag] fonts:', fams.join(' | '));
+    }
+  }
+  var mo = new MutationObserver(function (muts) {
+    for (var i = 0; i < muts.length; i++) {
+      var added = muts[i].addedNodes;
+      for (var j = 0; j < added.length; j++) {
+        var n = added[j];
+        if (n.nodeType !== 1) continue;
+        if (n.tagName === 'OPEN-QURAN-VIEW') { setTimeout(function () { probe(document.querySelector('open-quran-view')); }, 1200); return; }
+        if (n.querySelector && n.querySelector('open-quran-view')) {
+          setTimeout(function () { probe(document.querySelector('open-quran-view')); }, 1200);
+          return;
+        }
+      }
+    }
+  });
+  mo.observe(document.body, { childList: true, subtree: true });
+  console.log('[Iqra-Diag] observer armed. Ожидание появления <open-quran-view>…');
+})();
+</script>
 </body>
 </html>
