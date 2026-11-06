@@ -1815,7 +1815,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v273';
+const APP_VERSION = 'iqra-v274';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2809,12 +2809,13 @@ function readNextSurah() {
   container.innerHTML = `
     <div style="display: flex; justify-content: center; padding: 10px; background: var(--bg);">
         <open-quran-view 
-            page="${pageNumber}"
-            mushaf-layout="hafs-v4" 
-            theme="${state.settings.theme === 'dark' || state.settings.theme === 'mono' ? 'dark' : 'light'}"
-            width="100%"
-            style="max-width: 600px; height: auto;"
-        ></open-quran-view>
+        page="${pageNumber}"
+        mushaf-layout="hafs-v4" 
+        theme="${state.settings.theme === 'dark' || state.settings.theme === 'mono' ? 'dark' : 'light'}"
+        width="600"
+        height="850"
+        style="max-width: 100%; height: auto;"
+    ></open-quran-view>
     </div>
   `;
 
@@ -4273,7 +4274,7 @@ if ('serviceWorker' in navigator) {
 <!-- НАЧАЛО: ПОДКЛЮЧЕНИЕ OPEN-QURAN-VIEW -->
 <!-- Атрибут async предотвращает блокировку загрузки приложения из-за сетевых проблем с CDN -->
 <script type="module" async>
-  import { registerOpenQuranView } from 'https://cdn.jsdelivr.net/npm/open-quran-view@0.5.0/view/web/index.js';
+  import { registerOpenQuranView } from './view/web/index.js';
   registerOpenQuranView();
 </script>
 <script data-goatcounter="https://iqra-stats.goatcounter.com/count" async src="./count.js"></script>
