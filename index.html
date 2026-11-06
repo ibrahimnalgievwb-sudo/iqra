@@ -1572,7 +1572,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
         </div>
         <div class="ar-size-preview"><span class="ar ar-font" id="ar-preview">سُبْحَانَ اللَّهِ</span></div>
       </div>
-      <div class="setting-row"><div><div class="lbl">Цвета таджвида</div><div class="sub">Подсветка правил в режиме чтения</div></div><label class="toggle"><input type="checkbox" id="opt-tajweed"><span class="slider"></span></label></div>
+         <div class="setting-row"><div><div class="lbl">Цвета таджвида</div><div class="sub">Встроены в режим чтения (Hafs V4)</div></div><span style="color:var(--gold-accent); font-weight:700;">Вкл.</span></div>
     </div>
     <div class="settings-group">
       <div class="sg-title">Счёт</div>
@@ -3505,7 +3505,7 @@ document.getElementById('opt-wake').addEventListener('change', e=>{ state.settin
 document.getElementById('opt-sound').addEventListener('change', e=>{ state.settings.sound = e.target.checked; save(); if (e.target.checked) playClick(); });
 document.getElementById('opt-vibrate').addEventListener('change', e=>{ state.settings.vibrate = e.target.checked; save(); });
 document.getElementById('opt-goal-notify').addEventListener('change', e=>{ state.settings.goalNotify = e.target.checked; save(); });
-document.getElementById('opt-tajweed').addEventListener('change', e=>{ state.settings.tajweedMode = e.target.checked; save(); if (e.target.checked) loadTajweedData(); });
+// Переключатель таджвида удален (интегрирован в компонент чтения)
 function setDailyGoal(v) { state.settings.dailyGoal = Math.max(0, Math.min(1000000, parseInt(v)||0)); save(); }
 function renderReminders() { const el=document.getElementById('reminders-list'); if (!state.reminders.length) { el.innerHTML=`<div style="padding:14px 16px;color:var(--muted);font-size:13px">Пока нет напоминаний</div>`; return; } el.innerHTML = state.reminders.map((r,i)=>`<div class="reminder-row"><div class="rr-top"><input type="time" value="${r.time}" onchange="updateReminderField(${i},'time',this.value)"><label class="toggle"><input type="checkbox" ${r.on?'checked':''} onchange="toggleReminder(${i}, this.checked)"><span class="slider"></span></label><button class="del" onclick="deleteReminder(${i})">×</button></div><input type="text" value="${esc(r.message||'')}" placeholder="Сообщение (необязательно)" maxlength="200" onchange="updateReminderField(${i},'message',this.value)"></div>`).join(''); }
 function addReminder() { if (state.reminders.length >= LIMITS.reminders) { alert('Максимум '+LIMITS.reminders+' напоминаний'); return; } const t=document.getElementById('new-reminder-time').value; const mi=document.getElementById('new-reminder-msg'); const msg=(mi?mi.value:'').trim().slice(0,200); if (!t || !/^\d{2}:\d{2}$/.test(t)) return; state.reminders.push({time:t,on:true,lastFired:'',message:msg}); if (mi) mi.value=''; save(); renderReminders(); if ('Notification' in window && Notification.permission === 'default') { try { const p = Notification.requestPermission(); if (p && typeof p.catch === 'function') p.catch(function(){}); } catch(e) {} } }
@@ -3913,17 +3913,22 @@ function addBookmarkFromRead() {
   if (!activeReadId) return;
   var item = getQuranById(activeReadId);
   if (!item) return;
-  var idx = currentAyahIdx();
+  
+  var viewer = document.querySelector('#read-body open-quran-view');
+  var page = viewer ? (viewer.getAttribute('page') || '1') : '1';
+  
   if (!Array.isArray(state.bookmarks)) state.bookmarks = [];
-  var exists = state.bookmarks.some(function(b){ return b.quranId === activeReadId && b.ayahIdx === idx; });
-  if (exists) { showMarkToast('Метка уже есть на этой позиции'); if (state.settings.vibrate && navigator.vibrate) navigator.vibrate(10); return; }
+  var exists = state.bookmarks.some(function(b){ return b.quranId === activeReadId && b.page === page; });
+  if (exists) { showMarkToast('Метка уже есть на этой странице'); if (state.settings.vibrate && navigator.vibrate) navigator.vibrate(10); return; }
   if (state.bookmarks.length >= 50) { showMarkToast('Максимум 50 меток'); if (state.settings.vibrate && navigator.vibrate) navigator.vibrate(10); return; }
-   var label = item.title + ' · позиция ' + (idx + 1);
+  
+  var label = item.title + ' · стр. ' + page;
   if (label.length > 60) label = label.slice(0, 57) + '…';
-  state.bookmarks.push({ id: 'bm_' + Date.now(), quranId: activeReadId, ayahIdx: idx, label: label, ts: Date.now() });
+  
+  state.bookmarks.push({ id: 'bm_' + Date.now(), quranId: activeReadId, page: page, label: label, ts: Date.now() });
   save();
   renderDashMarks();
-  showMarkToast('Метка добавлена');
+  showMarkToast('Метка добавлена (стр. ' + page + ')');
   if (state.settings.vibrate && navigator.vibrate) navigator.vibrate(15);
 }
 
@@ -3944,7 +3949,12 @@ function openBookmark(bmId) {
   if (!bm) return;
   var item = getQuranById(bm.quranId);
   if (!item) { showMarkToast('Текст недоступен'); return; }
-  openRead(bm.quranId, bm.ayahIdx);
+  openRead(bm.quranId);
+  // Ждем отрисовки компонента и переключаем на нужную страницу
+  setTimeout(function(){
+    var viewer = document.querySelector('#read-body open-quran-view');
+    if (viewer && bm.page) viewer.setAttribute('page', bm.page);
+  }, 300);
 }
 
 function renderDashMarks() {
@@ -4285,7 +4295,7 @@ document.addEventListener('keydown', (e) => {
   const mem = document.getElementById('memorize-mode');
   if (mem && mem.classList.contains('active')) { closeMemorize(); return; }
 });
-(function(){ var el=document.getElementById('read-body'); if (el) { let tx=0, ty=0, on=false; el.addEventListener('touchstart', function(e){ tx=e.touches[0].clientX; ty=e.touches[0].clientY; on=true; }, { passive:true }); el.addEventListener('touchend', function(e){ if (!on) return; on=false; var dx=e.changedTouches[0].clientX-tx; var dy=e.changedTouches[0].clientY-ty; if (Math.abs(dx)<80 || Math.abs(dy)>Math.abs(dx)) return; if (!activeReadId) return; var idx=state.quran.findIndex(function(q){return q.id===activeReadId;}); if (idx<0) return;   if (dx<0 && idx<state.quran.length-1) openRead(state.quran[idx+1].id, undefined, 'next'); else if (dx>0 && idx>0) openRead(state.quran[idx-1].id, undefined, 'prev'); }, { passive:true }); } })();
+(function(){ var el=document.getElementById('read-body'); if (el) { let tx=0, ty=0, on=false; el.addEventListener('touchstart', function(e){ tx=e.touches[0].clientX; ty=e.touches[0].clientY; on=true; }, { passive:true }); el.addEventListener('touchend', function(e){ if (!on) return; on=false; var dx=e.changedTouches[0].clientX-tx; var dy=e.changedTouches[0].clientY-ty; if (Math.abs(dx)<80 || Math.abs(dy)>Math.abs(dx)) return; if (!activeReadId) return; if (dx<0) readNextSurah(); else if (dx>0) readPrevSurah(); }, { passive:true }); } })();
 (function checkStructure(){
   var expected = ['screen-dashboard','screen-tasbih','screen-quran','screen-night','screen-dua','screen-hadith','screen-cal','screen-quran-detail','screen-night-detail','screen-dua-detail','screen-hadith-detail','screen-form','screen-counter','screen-settings','read-mode','memorize-mode','search-overlay','nav','modal-bg','onboarding','save-indicator'];
   var missing = [];
