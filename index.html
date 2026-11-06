@@ -137,10 +137,10 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   -webkit-text-fill-color: transparent;
   color: transparent;
 }
-.ar-typo {
+.ar-font {
   font-family:"Noto Naskh Arabic","Amiri","SF Arabic","Geeza Pro",serif;
   font-feature-settings:"liga" 1, "calt" 1;
-  line-height: 3 !important;
+  line-height: 2 !important;
   letter-spacing: normal !important;
   overflow-wrap: anywhere;
   word-wrap: break-word;
@@ -4065,37 +4065,38 @@ if ('serviceWorker' in navigator) {
     });
   }
 
-  // Прямая проверка: запрашиваем sw.js с сервера (в обход кэша браузера и SW)
-  // и сравниваем CACHE_VERSION с APP_VERSION. Если не совпало — форсируем
-  // обновление SW, активируем его (skipWaiting), и через controllerchange
-  // страница тихо перезагрузится. Вкладка остаётся открытой.
-  window.addEventListener('load', function() {
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then(function(regs) {
-        regs.forEach(function(r) { r.unregister(); });
-        return navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' });
-      }).then(function(reg) {
-      try { reg.update(); } catch(e) {}
+          // Прямая проверка: запрашиваем sw.js с сервера (в обход кэша браузера и SW)
+          // и сравниваем CACHE_VERSION с APP_VERSION. Если не совпало — форсируем
+          // обновление SW, активируем его (skipWaiting), и через controllerchange
+          // страница тихо перезагрузится. Вкладка остаётся открытой.
+          window.addEventListener('load', function() {
+            if ('serviceWorker' in navigator) {
+              navigator.serviceWorker.getRegistrations().then(function(regs) {
+                regs.forEach(function(r) { r.unregister(); });
+                return navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' });
+              }).then(function(reg) {
+                try { reg.update(); } catch(e) {}
 
-      // 1) Периодически: каждые 5 минут, только когда страница видима
-      setInterval(function() {
-        if (document.visibilityState !== 'visible') return;
-        try { reg.update(); } catch(e) {}
-      }, 5 * 60 * 1000);
+                // 1) Периодически: каждые 5 минут, только когда страница видима
+                setInterval(function() {
+                  if (document.visibilityState !== 'visible') return;
+                  try { reg.update(); } catch(e) {}
+                }, 5 * 60 * 1000);
 
-      // 2) При возврате приложения в фокус (iOS/Android/PWA)
-      document.addEventListener('visibilitychange', function() {
-        if (document.visibilityState === 'visible') {
-          try { reg.update(); } catch(e) {}
-        }
-      });
+                // 2) При возврате приложения в фокус (iOS/Android/PWA)
+                document.addEventListener('visibilitychange', function() {
+                  if (document.visibilityState === 'visible') {
+                    try { reg.update(); } catch(e) {}
+                  }
+                });
 
-      // 3) При получении фокуса окна
-      window.addEventListener('focus', function() {
-        try { reg.update(); } catch(e) {}
-      });
-    }).catch(function() {});
-  });
+                // 3) При получении фокуса окна
+                window.addEventListener('focus', function() {
+                  try { reg.update(); } catch(e) {}
+                });
+              }).catch(function() {});
+            }
+          });
 
   navigator.serviceWorker.addEventListener('controllerchange', function() {
     swReload();
@@ -4206,110 +4207,41 @@ if ('serviceWorker' in navigator) {
   hookCloser('closeReview', 'review-mode');
   hookCloser('closeModal', 'modal-bg');
 
-  window.addEventListener('popstate', function(e) {
-    var st = e.state || {};
-    going = true;
-    try {
-      var targetOverlay = st.overlay || null;
-      for (var i = 0; i < ALL_OVERLAYS.length; i++) {
-        var ov = ALL_OVERLAYS[i];
-        var el = document.getElementById(ov);
-        if (!el) continue;
-        var isOpen = el.classList.contains('active');
-        var shouldBeOpen = (ov === targetOverlay);
-        if (isOpen && !shouldBeOpen) closeOverlay(ov);
-      }
-      if (st.screen === 'screen-quran-detail' && st.quranId) {
-        if (activeQuranId !== st.quranId || currentScreen() !== 'screen-quran-detail') openQuran(st.quranId);
-      } else if (st.screen === 'screen-dua-detail' && st.duaId) {
-        if (activeDuaId !== st.duaId || currentScreen() !== 'screen-dua-detail') openDua(st.duaId);
-      } else if (st.screen === 'screen-hadith-detail' && st.hadithId) {
-        if (activeHadithId !== st.hadithId || currentScreen() !== 'screen-hadith-detail') openHadith(st.hadithId);
-      } else if (st.screen === 'screen-night-detail' && typeof st.nightId === 'number') {
-        if (activeNightId !== st.nightId || currentScreen() !== 'screen-night-detail') openNight(st.nightId);
-      } else if (st.screen === 'screen-counter' && st.tasbihId) {
-        if (activeId !== st.tasbihId || currentScreen() !== 'screen-counter') {
-          activeId = st.tasbihId;
-          openCounter(st.tasbihId);
-        }
-      } else if (st.screen && currentScreen() !== st.screen) {
-        try { _showScreen.call(window, st.screen); } catch(err) {}
-      }
-      if (targetOverlay) {
-        var ovEl = document.getElementById(targetOverlay);
-        if (ovEl && !ovEl.classList.contains('active')) {
-          if (targetOverlay === 'search-overlay') {
-            openSearch();
-          } else if (targetOverlay === 'read-mode' && st.readQuranId) {
-            openRead(st.readQuranId);
-          } else if (targetOverlay === 'memorize-mode' && st.memId) {
-            var memItem = getQuranById(st.memId) || getDuaById(st.memId) || getHadithById(st.memId);
-            if (memItem) openMemorizeFor(memItem);
-          } else if (targetOverlay === 'modal-bg' && st.modalKey) {
-            openDay(st.modalKey);
-          }
-        }
-      }
-    } finally {
-      going = false;
-    }
-  });
+ window.addEventListener('load', function() {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(function(regs) {
+      regs.forEach(function(r) { r.unregister(); });
+      return navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' });
+    }).then(function(reg) {
+    try { reg.update(); } catch(e) {}
 
-  window.goBack = function() {
-    try { history.back(); } catch(e) {}
-  };
-})();
+    // 1) Периодически: каждые 5 минут, только когда страница видима
+    setInterval(function() {
+      if (document.visibilityState !== 'visible') return;
+      try { reg.update(); } catch(e) {}
+    }, 5 * 60 * 1000);
+
+    // 2) При возврате приложения в фокус (iOS/Android/PWA)
+    document.addEventListener('visibilitychange', function() {
+      if (document.visibilityState === 'visible') {
+        try { reg.update(); } catch(e) {}
+      }
+    });
+
+    // 3) При получении фокуса окна
+    window.addEventListener('focus', function() {
+      try { reg.update(); } catch(e) {}
+    });
+  }).catch(function() {});
+  } // <--- ДОБАВЛЕНА ЗАКРЫВАЮЩАЯ СКОБКА ДЛЯ if ('serviceWorker' in navigator)
+});
 </script>
 <!-- НАЧАЛО: ЛОКАЛЬНОЕ ПОДКЛЮЧЕНИЕ -->
 <script type="module">
-  import { registerOpenQuranView } from './view/web/index.js';
+  import { registerOpenQuranView } from 'https://cdn.jsdelivr.net/npm/open-quran-view@latest/view/web/index.js';
   registerOpenQuranView();
 </script>
-<!-- КОНЕЦ: ЛОКАЛЬНОЕ ПОДКЛЮЧЕНИЕ -->
 
 <script data-goatcounter="https://iqra-stats.goatcounter.com/count" async src="./count.js"></script>
-<script>
-/* ===== TEMP DIAGNOSTIC — iqra-v266 — удалить после устранения белого экрана ===== */
-(function () {
-  var REPORTED = false;
-  function probe(el) {
-    if (REPORTED || !el) return;
-    REPORTED = true;
-    console.log('[Iqra-Diag] tag:', el.tagName);
-    console.log('[Iqra-Diag] defined:', !!customElements.get('open-quran-view'));
-    console.log('[Iqra-Diag] attrs:', Array.prototype.map.call(el.attributes, function (a) { return a.name + '="' + a.value + '"'; }).join(' '));
-    console.log('[Iqra-Diag] shadowRoot:', !!el.shadowRoot);
-    if (el.shadowRoot) {
-      console.log('[Iqra-Diag] shadowHTML.len:', el.shadowRoot.innerHTML.length);
-      console.log('[Iqra-Diag] shadowHTML.head:', el.shadowRoot.innerHTML.slice(0, 400));
-    }
-    var r = el.getBoundingClientRect();
-    console.log('[Iqra-Diag] rect:', JSON.stringify({ w: r.width, h: r.height, top: r.top, left: r.left }));
-    console.log('[Iqra-Diag] computedDisplay:', getComputedStyle(el).display);
-    console.log('[Iqra-Diag] computedVisibility:', getComputedStyle(el).visibility);
-    if (document.fonts && document.fonts.forEach) {
-      var fams = [];
-      document.fonts.forEach(function (f) { fams.push(f.family + ':' + f.status); });
-      console.log('[Iqra-Diag] fonts:', fams.join(' | '));
-    }
-  }
-  var mo = new MutationObserver(function (muts) {
-    for (var i = 0; i < muts.length; i++) {
-      var added = muts[i].addedNodes;
-      for (var j = 0; j < added.length; j++) {
-        var n = added[j];
-        if (n.nodeType !== 1) continue;
-        if (n.tagName === 'OPEN-QURAN-VIEW') { setTimeout(function () { probe(document.querySelector('open-quran-view')); }, 1200); return; }
-        if (n.querySelector && n.querySelector('open-quran-view')) {
-          setTimeout(function () { probe(document.querySelector('open-quran-view')); }, 1200);
-          return;
-        }
-      }
-    }
-  });
-  mo.observe(document.body, { childList: true, subtree: true });
-  console.log('[Iqra-Diag] observer armed. Ожидание появления <open-quran-view>…');
-})();
-</script>
 </body>
 </html>
