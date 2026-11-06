@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'iqra-v248';
+const CACHE_VERSION = 'iqra-v249';
 const CACHE_ASSETS = [
   './', './index.html', './manifest.json', './count.js', './fonts.css',
   './tajweed.json',
