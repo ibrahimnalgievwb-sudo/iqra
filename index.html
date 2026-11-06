@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'; worker-src 'self'; img-src 'self' data: blob: https://iqra-stats.goatcounter.com; font-src 'self'; connect-src 'self' https://iqra-stats.goatcounter.com; object-src 'none'; base-uri 'none'; form-action 'none';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data:; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://cdn.jsdelivr.net; worker-src 'self'; img-src 'self' data: blob: https://iqra-stats.goatcounter.com; font-src 'self' https://cdn.jsdelivr.net; connect-src 'self' https://iqra-stats.goatcounter.com https://cdn.jsdelivr.net https://api.quran.foundation; object-src 'none'; base-uri 'none'; form-action 'none';">
 <meta name="referrer" content="no-referrer">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -1815,7 +1815,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v249';
+const APP_VERSION = 'iqra-v250';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -3066,175 +3066,74 @@ function toggleTajweed() {
   }
 }
 function readPrevSurah() {
-  if (!activeReadId) return;
-  var idx = state.quran.findIndex(function(q){ return q.id === activeReadId; });
-  if (idx > 0) openRead(state.quran[idx - 1].id, undefined, 'prev');
+  const viewer = document.querySelector('#read-body open-quran-view');
+  if (viewer) {
+    const currentPage = parseInt(viewer.getAttribute('page') || '1');
+    if (currentPage > 1) {
+      viewer.setAttribute('page', String(currentPage - 1));
+    }
+  }
 }
 function readNextSurah() {
-  if (!activeReadId) return;
-  var idx = state.quran.findIndex(function(q){ return q.id === activeReadId; });
-  if (idx >= 0 && idx < state.quran.length - 1) openRead(state.quran[idx + 1].id, undefined, 'next');
+  const viewer = document.querySelector('#read-body open-quran-view');
+  if (viewer) {
+    const currentPage = parseInt(viewer.getAttribute('page') || '1');
+    if (currentPage < 604) {
+      viewer.setAttribute('page', String(currentPage + 1));
+    }
+  }
 }
-async function openRead(id, targetAyahIdx, dir) {   _genCache = {}; // Сбрасываем кэш генератора при каждом открытии, чтобы индексы пересчитывались
-  _canvasCache.clear(); // Очищаем кэш Canvas от предыдущих сур (защита от утечки памяти)
-  const item = getQuranById(id); if (!item) return;
+  async function openRead(id, targetAyahIdx, dir) {
+  const item = getQuranById(id);
+  if (!item) return;
+
+  activeReadId = id;
   trackEvent('read/' + id, 'Чтение: ' + item.title);
   saveLastRead('quran', id);
-  if (typeof state.settings.tajweedMode !== 'boolean') state.settings.tajweedMode = false;
-  if (state.settings.tajweedMode && !TAJWEED_DATA) {
-    if (window.TAJWEED_DATA) TAJWEED_DATA = window.TAJWEED_DATA;
-    else TAJWEED_DATA = []; 
-  }
-  await initHarfBuzz();
+
+  // Сопоставляем ваши ID с номерами страниц
+  const pageMap = {
+    'q1': 1, 'q67': 562, 'q87': 591, 'q89': 593, 'q94': 596,
+    'q97': 598, 'q103': 601, 'q104': 601, 'q105': 601,
+    'q106': 602, 'q107': 602, 'q108': 602, 'q109': 603,
+    'q110': 603, 'q111': 603, 'q112': 604, 'q113': 604, 'q114': 604,
+    'q_ayat_kursi': 42, 'q_baqarah_2': 49
+  };
+  const pageNumber = pageMap[item.id] || 1;
+
   document.getElementById('read-title').textContent = item.title;
-  const ayahs = parseAyahs(item);
-  let bismillahHtml = '';
-  if (item.bismillah) {
-    bismillahHtml = `<div class="bismillah-card" style="margin-bottom:20px;"><div class="b-ar ar-font">${item.bismillah.arabic}</div><div class="b-tr">${item.bismillah.transcription}</div><div class="b-trn">${item.bismillah.translation}</div></div>`;
-  }
-  const isQuranText = item.type === 'surah' || item.type === 'ayat' || item.type === 'ruqyah';
-  let tajweedBar = '';
-  if (isQuranText) {
-    let legendHtml = '';
-    if (state.settings.tajweedMode) {
-      let rulesList = '';
-      Object.keys(TAJWEED_RULES_META).forEach(function(k) {
-        const r = TAJWEED_RULES_META[k];
-        rulesList += '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding-bottom:8px;border-bottom:1px solid rgba(212,175,55,.1);">' +
-          '<div style="display:flex;align-items:baseline;gap:8px;">' +
-            '<span class="tajweed-' + k + '" style="display:inline-block;width:8px;height:8px;background:currentColor;border-radius:50%;flex-shrink:0;"></span>' +
-            '<span style="color:var(--text);line-height:1.3;"><b>' + r.name + '</b> — ' + r.desc + '</span>' +
-          '</div>' +
-          '<span class="ar-font" style="font-size:16px;color:var(--muted);white-space:nowrap;">' + r.example + '</span>' +
-        '</div>';
-      });
-      legendHtml = '<div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));gap:12px;margin-bottom:16px;font-size:11px;padding:16px;background:rgba(212,175,55,.03);border:1px solid rgba(212,175,55,.2);border-radius:16px;box-shadow:0 4px 12px rgba(0,0,0,.05);">' + rulesList + '</div>';
-    }
-    let btnStyle = state.settings.tajweedMode ? 'background:var(--gold-grad);color:#0A0A0A;border:none;font-weight:700;box-shadow:var(--gold-glow);' : '';
-    let btnText = state.settings.tajweedMode ? 'Включено' : 'Выключено';
-    tajweedBar = '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;margin-bottom:12px;background:var(--card);border-radius:12px;border:1px solid rgba(212,175,55,.3);box-shadow: var(--shadow-sm);">' +
-      '<span style="font-size:13px;color:var(--text);font-weight:600;display:flex;align-items:center;gap:6px;"><svg class="ico ico-sm" style="color:var(--gold-accent)"><use href="#i-info"/></svg> Таджвид</span>' +
-      '<button class="preset-chip" onclick="toggleTajweed()" style="padding:6px 14px;font-size:12px;' + btnStyle + '">' + btnText + '</button>' +
-    '</div>' + legendHtml;
-  }
-  const ayahHtml = ayahs.map((a, idx) => {
-    let arHtml, arClass;
-    let appliedRulesHtml = '';
-    
-             let sNum = null, aNum = null, startAyah = 1;
-    if (item.type === 'surah') {
-      sNum = item.number;
-      aNum = idx + 1;
-      startAyah = 1;
-    } else if ((item.type === 'ayat' || item.type === 'ruqyah') && item.number) {
-      const _m = String(item.number).match(/^(\d+):(\d+)(?:-(\d+))?$/);
-      if (_m) {
-        sNum = parseInt(_m[1], 10);
-        aNum = parseInt(_m[2], 10) + idx;
-        startAyah = parseInt(_m[2], 10);
-      }
-    }
 
-    if (state.settings.tajweedMode && isQuranText && sNum && aNum && _hbReady) {
-      generateTajweedForSurah(sNum, item.arabic.split('\n'), startAyah);
-      
-      const fontSize = 30 * (parseFloat(state.settings.arSize) || 1);
-      const defaultColor = getComputedStyle(document.documentElement).getPropertyValue('--text').trim() || '#FFFFFF';
-      
-      const canvas = renderAyahToCanvas(a.ar, sNum, aNum, fontSize, defaultColor);
-      const key = `${sNum}:${aNum}`;
-      _canvasCache.set(key, canvas);
-
-      arHtml = `<div class="read-ayah-canvas-container" data-surah="${sNum}" data-ayah="${aNum}" data-text="${escAttr(a.ar)}"></div>`;
-      
-      const verseData = TAJWEED_DATA.find(v => v.surah === sNum && v.ayah === aNum);
-      if (verseData && verseData.annotations) {
-        const uniqueRules = [...new Set(verseData.annotations.map(x => x.rule))];
-        let ruleNamesHtml = uniqueRules.map(function(r) {
-          let displayName = r;
-          if (TAJWEED_RULES_META[r]) {
-            displayName = TAJWEED_RULES_META[r].name;
-          }
-          return '<span class="tajweed-' + r + '" style="font-weight:700;">' + displayName + '</span>';
-        }).join(' <span style="color:var(--muted);">·</span> ');
-        if (ruleNamesHtml) {
-          appliedRulesHtml = '<div class="ayah-tajweed-info"><svg class="ico ico-sm" style="opacity:.6;color:var(--gold-accent);"><use href="#i-info"/></svg><span>' + ruleNamesHtml + '</span></div>';
-        }
-      }
-    } else {
-      arHtml = `<div class="read-ayah-ar ar-font">${esc(a.ar)}${item.type==='surah' ? ' <span class="read-ayah-marker">' + ayahMarker(a.num) + '</span>' : ''}</div>`;
-    }
-     return `
-        <div class="read-ayah ${item.type==='ayat'?'ayat-mode':''}">
-        <div class="read-ayah-num">${a.num}</div>
-        ${arHtml}
-        ${a.tr ? `<div class="read-ayah-tr">${esc(a.tr)}</div>` : ''}
-        <div class="read-ayah-trn">${esc(a.trn)}</div>
-        ${appliedRulesHtml}
-      </div>
-    `;
-  }).join('');
-  document.getElementById('read-body').innerHTML = `
-    <div class="read-surah-title">${esc(item.title)}</div>
-    <div class="read-surah-sub">${esc(item.subtitle||'')}</div>
-    ${tajweedBar}
-    ${bismillahHtml}
-    ${ayahHtml}
-    ${transcriptionNote()}
+  const container = document.getElementById('read-body');
+  
+  // Создаем компонент с таджвидом
+  container.innerHTML = `
+    <div style="display: flex; justify-content: center; padding: 10px; background: var(--bg);">
+        <open-quran-view 
+            page="${pageNumber}"
+            mushaf-layout="hafs-v4" 
+            theme="${state.settings.theme === 'dark' || state.settings.theme === 'mono' ? 'dark' : 'light'}"
+            width="100%"
+            style="max-width: 600px; height: auto;"
+        ></open-quran-view>
+    </div>
   `;
-  // Рендеринг полностью переведен на Span-based (внутри map выше)
-  activeReadId = id;
-  // Вставляем Canvas в контейнеры
-  if (state.settings.tajweedMode && isQuranText) {
-    document.querySelectorAll('.read-ayah-canvas-container').forEach(function(el) {
-      var s = el.dataset.surah;
-      var a = el.dataset.ayah;
-      var text = el.dataset.text;
-      if (s && a) {
-        var key = s + ':' + a;
-        var canvas = _canvasCache.get(key);
-        if (canvas) {
-           var canvasClone = canvas.cloneNode(true);
-           el.appendChild(canvasClone);
-           var fallback = document.createElement('div');
-           fallback.className = 'canvas-fallback';
-           fallback.textContent = text || '';
-           el.appendChild(fallback);
-        }
-      }
-    });
-  }
+
   const readMode = document.getElementById('read-mode');
   readMode.classList.remove('read-slide-next', 'read-slide-prev');
-  void readMode.offsetWidth; // Форсируем перерисовку для сброса анимации
+  void readMode.offsetWidth;
   if (dir === 'next') readMode.classList.add('read-slide-next');
   if (dir === 'prev') readMode.classList.add('read-slide-prev');
   readMode.classList.add('active');
   document.getElementById('btn-scroll-top').classList.remove('visible');
-  // QA: Блокировка кнопок навигации на границах списка
+
+  // Настройка кнопок навигации
   var idx = state.quran.findIndex(function(q){ return q.id === id; });
   var prevBtn = document.getElementById('btn-prev-surah');
   var nextBtn = document.getElementById('btn-next-surah');
   if (prevBtn) { prevBtn.style.opacity = idx === 0 ? '0.3' : '1'; prevBtn.style.pointerEvents = idx === 0 ? 'none' : 'auto'; }
   if (nextBtn) { nextBtn.style.opacity = idx === state.quran.length - 1 ? '0.3' : '1'; nextBtn.style.pointerEvents = idx === state.quran.length - 1 ? 'none' : 'auto'; }
+  
   saveNavContext();
-  const body = document.getElementById('read-body');
-  let targetIdx = null;
-  if (typeof targetAyahIdx === 'number' && targetAyahIdx >= 0) targetIdx = targetAyahIdx;
-  else if (state.settings.readAyah && typeof state.settings.readAyah[id] === 'number' && state.settings.readAyah[id] >= 0) targetIdx = state.settings.readAyah[id];
-  const restore = () => {
-    if (!body) return;
-    if (targetIdx !== null) {
-      const ayahs = body.querySelectorAll('.read-ayah');
-      if (ayahs[targetIdx]) { ayahs[targetIdx].scrollIntoView({ block: 'start' }); return; }
-    }
-    body.scrollTop = (state.settings.readScrolls && state.settings.readScrolls[id]) || 0;
-  };
-  if (document.fonts && document.fonts.ready && typeof document.fonts.ready.then === 'function') {
-    document.fonts.ready.then(restore).catch(restore);
-  } else {
-    setTimeout(restore, 40);
-  }
 }
 function closeRead() {
   if (activeReadId) {
@@ -4653,6 +4552,14 @@ if ('serviceWorker' in navigator) {
   import createHarfBuzz from './lib/hb/harfbuzz.js';
   window.hb = createHarfBuzz;
 </script>
+
+<!-- НАЧАЛО: ДОБАВИТЬ ЭТОТ БЛОК -->
+<script type="module">
+  import { registerOpenQuranView } from 'https://cdn.jsdelivr.net/npm/open-quran-view@latest/view/web/+esm';
+  registerOpenQuranView();
+</script>
+<!-- КОНЕЦ: ДОБАВИТЬ ЭТОТ БЛОК -->
+
 <script data-goatcounter="https://iqra-stats.goatcounter.com/count" async src="./count.js"></script>
 </body>
 </html>
