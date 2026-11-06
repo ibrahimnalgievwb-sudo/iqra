@@ -1265,39 +1265,6 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 .fs-bottom-nav button { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; padding: 0; margin: 0; background: var(--card2); color: var(--gold-accent); border: none; }
 .fs-bottom-nav button:active { background: var(--gold-grad); color: #000; }
 </style>
-<style>
-/* === CANVAS TAJWEED RENDERER === */
-.read-ayah-canvas-container {
-  position: relative;
-  width: 100%;
-  direction: rtl;
-  margin-bottom: 10px;
-  min-height: 80px;
-}
-.read-ayah-canvas-container canvas {
-  display: block;
-  width: 100%;
-  height: auto;
-  direction: rtl;
-  pointer-events: none;
-}
-.read-ayah-canvas-container .canvas-fallback {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-  pointer-events: none;
-  user-select: text;
-  -webkit-user-select: text;
-  direction: rtl;
-  font-family: "Noto Naskh Arabic", "Amiri", serif;
-  line-height: 2.2;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-}
-</style>
 </head>
 <body>
 
@@ -1815,7 +1782,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v274';
+const APP_VERSION = 'iqra-v275';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2809,13 +2776,13 @@ function readNextSurah() {
   container.innerHTML = `
     <div style="display: flex; justify-content: center; padding: 10px; background: var(--bg);">
         <open-quran-view 
-        page="${pageNumber}"
-        mushaf-layout="hafs-v4" 
-        theme="${state.settings.theme === 'dark' || state.settings.theme === 'mono' ? 'dark' : 'light'}"
-        width="600"
-        height="850"
-        style="max-width: 100%; height: auto;"
-    ></open-quran-view>
+            page="${pageNumber}"
+            base-url="./"
+            mushaf-layout="hafs-v4" 
+            width="600"
+            height="850"
+            style="max-width: 100%; height: auto; display: block; border-radius: 12px; overflow: hidden; --oq-bg: ${state.settings.theme === 'dark' || state.settings.theme === 'mono' ? '#111111' : '#FFFFFF'}; --oq-text: ${state.settings.theme === 'dark' || state.settings.theme === 'mono' ? '#FFFFFF' : '#000000'};"
+        ></open-quran-view>
     </div>
   `;
 
