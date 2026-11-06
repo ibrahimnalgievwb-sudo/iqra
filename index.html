@@ -1815,7 +1815,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v272';
+const APP_VERSION = 'iqra-v273';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -3957,21 +3957,30 @@ function scrollToTopRead() {
   if (body) body.scrollTo({ top: 0, behavior: 'smooth' });
 }
 function initApp() {
-  applyTheme();
-  setArSize(state.settings.arSize);
-  renderPresets();
-  renderDashboard();
-  restoreNav();
-  checkDueReviews();
-  
-  var splash = document.getElementById('splash-screen');
-  if (splash) { splash.classList.add('hidden'); setTimeout(function(){ splash.remove(); }, 400); }
+  try {
+    applyTheme();
+    setArSize(state.settings.arSize);
+    renderPresets();
+    renderDashboard();
+    restoreNav();
+    checkDueReviews();
+  } catch (e) {
+    console.error('Ошибка инициализации:', e);
+  } finally {
+    // Гарантированно скрываем экран загрузки, даже если что-то упало
+    var splash = document.getElementById('splash-screen');
+    if (splash) { 
+      splash.classList.add('hidden'); 
+      setTimeout(function(){ splash.remove(); }, 400); 
+    }
+  }
 }
 
+// Запускаем сразу, так как скрипт находится в конце body и DOM уже готов
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', function(){ setTimeout(initApp, 10); });
+  document.addEventListener('DOMContentLoaded', initApp);
 } else {
-  setTimeout(initApp, 10);
+  initApp();
 }
 try {
   if (new URLSearchParams(location.search).get('reset') === '1') {
@@ -4262,8 +4271,9 @@ if ('serviceWorker' in navigator) {
 })();
 </script>
 <!-- НАЧАЛО: ПОДКЛЮЧЕНИЕ OPEN-QURAN-VIEW -->
-<script type="module">
-  import { registerOpenQuranView } from 'https://esm.sh/open-quran-view@0.5.0/view/web';
+<!-- Атрибут async предотвращает блокировку загрузки приложения из-за сетевых проблем с CDN -->
+<script type="module" async>
+  import { registerOpenQuranView } from 'https://cdn.jsdelivr.net/npm/open-quran-view@0.5.0/view/web/index.js';
   registerOpenQuranView();
 </script>
 <script data-goatcounter="https://iqra-stats.goatcounter.com/count" async src="./count.js"></script>
