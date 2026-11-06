@@ -1,7 +1,9 @@
-const CACHE_VERSION = 'iqra-v245';
+const CACHE_VERSION = 'iqra-v246';
 const CACHE_ASSETS = [
   './', './index.html', './manifest.json', './count.js', './fonts.css',
   './tajweed.json',
+  './lib/hb/harfbuzz.wasm',
+  './lib/hb/harfbuzz.js',
   './favicon.png', './apple-touch-icon.png', './icon-192.png', './icon-512.png',
   './logo.svg', './logo-mini.svg',
   './fonts/amiri-v30-arabic_latin-regular.woff2',
