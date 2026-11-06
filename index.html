@@ -1815,7 +1815,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v247';
+const APP_VERSION = 'iqra-v248';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2984,24 +2984,26 @@ let _hbFont = null;
 let _hbReady = false;
 const _canvasCache = new Map(); // кэш: `${surah}:${ayah}` -> canvas
 
+let _hb = null;
+let _hbFont = null;
+let _hbReady = false;
+
 async function initHarfBuzz() {
   if (_hbReady || !window.hb) return;
   try {
-    const wasmResponse = await fetch('./lib/hb/harfbuzz.wasm');
-    if (!wasmResponse.ok) throw new Error('harfbuzz.wasm not found');
-    const wasmModule = await WebAssembly.instantiateStreaming(wasmResponse, {});
-    
-    if (window.hb && typeof window.hb.init === 'function') {
-        await window.hb.init(wasmModule.instance.exports);
+    _hb = await window.hb();
+    if (!_hb || typeof _hb.createBlob !== 'function') {
+      throw new Error('Harfbuzz API not available (createBlob missing)');
     }
 
     const fontResponse = await fetch('./fonts/noto-naskh-arabic-v44-arabic_latin-regular.woff2');
     if (!fontResponse.ok) throw new Error('Font not found');
     const fontBuffer = await fontResponse.arrayBuffer();
 
-    const blob = new window.hb.Blob(fontBuffer);
-    const face = new window.hb.Face(blob);
-    _hbFont = new window.hb.Font(face);
+    const blob = _hb.createBlob(fontBuffer);
+    const face = _hb.createFace(blob, 0);
+    _hbFont = _hb.createFont(face);
+
     _hbReady = true;
     console.log('✓ HarfBuzz ready');
   } catch (e) {
@@ -3011,22 +3013,21 @@ async function initHarfBuzz() {
 }
 
 function renderAyahToCanvas(text, surah, ayah, fontSize, defaultColor) {
-  if (!_hbReady || !_hbFont) {
+  if (!_hbReady || !_hb || !_hbFont) {
     const c = document.createElement('canvas');
     c.width = 1; c.height = 1;
     return c;
   }
   try {
-    const buffer = new window.hb.Buffer();
+    const buffer = _hb.createBuffer();
     buffer.addText(text);
     buffer.guessSegmentProperties();
-    window.hb.shape(_hbFont, buffer);
+    _hb.shape(_hbFont, buffer);
 
-    const glyphInfos = buffer.getGlyphInfos();
-    const glyphPositions = buffer.getGlyphPositions();
+    const output = buffer.json(); // [{ g, ax, ay, dx, dy, cluster }, ...]
 
     let totalWidth = 0;
-    for (const pos of glyphPositions) totalWidth += pos.xAdvance;
+    for (const glyph of output) totalWidth += glyph.ax;
     const totalHeight = fontSize * 2.2;
 
     const dpr = window.devicePixelRatio || 1;
@@ -3046,30 +3047,27 @@ function renderAyahToCanvas(text, surah, ayah, fontSize, defaultColor) {
     let xCursor = totalWidth;
     const baselineY = totalHeight * 0.75;
 
-    for (let i = 0; i < glyphInfos.length; i++) {
-      const info = glyphInfos[i];
-      const pos = glyphPositions[i];
-
+    for (const glyph of output) {
       let color = defaultColor;
       for (const ann of annotations) {
-        if (info.cluster >= ann.start && info.cluster < ann.end) {
+        if (glyph.cluster >= ann.start && glyph.cluster < ann.end) {
           const meta = TAJWEED_RULES_META[ann.rule];
           if (meta) color = meta.color;
           break;
         }
       }
 
-      const glyphId = info.codepoint;
-      const svgPath = _hbFont.glyphToPath(glyphId);
+      const svgPath = _hbFont.glyphToPath(glyph.g);
+      if (!svgPath) continue;
       const path = new Path2D(svgPath);
 
       ctx.save();
-      ctx.translate(xCursor + (pos.xOffset || 0), baselineY + (pos.yOffset || 0));
+      ctx.translate(xCursor + (glyph.dx || 0), baselineY + (glyph.dy || 0));
       ctx.fillStyle = color;
       ctx.fill(path);
       ctx.restore();
 
-      xCursor -= pos.xAdvance;
+      xCursor -= glyph.ax;
     }
     buffer.destroy();
     return canvas;
@@ -4673,8 +4671,8 @@ if ('serviceWorker' in navigator) {
 })();
 </script>
 <script type="module">
-  import * as hbModule from './lib/hb/harfbuzz.js';
-  window.hb = hbModule;
+  import createHarfBuzz from './lib/hb/harfbuzz.js';
+  window.hb = createHarfBuzz;
 </script>
 <script data-goatcounter="https://iqra-stats.goatcounter.com/count" async src="./count.js"></script>
 </body>
