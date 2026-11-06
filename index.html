@@ -1815,7 +1815,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v258';
+const APP_VERSION = 'iqra-v259';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -1823,43 +1823,6 @@ function cloneData(obj) {
   }
   return JSON.parse(JSON.stringify(obj));
 }
-  
-// Глобальная переменная для данных таджвида
-var TAJWEED_DATA = window.TAJWEED_DATA || null;
-var _tajweedFetchPromise = null;
-
-// Загрузка JSON с правилами (полностью локальная, без сервера)
-async function loadTajweedData() {
-  if (TAJWEED_DATA && TAJWEED_DATA.length) return;
-  if (_tajweedFetchPromise) return _tajweedFetchPromise;
-  _tajweedFetchPromise = (async function() {
-    try {
-      var cached = localStorage.getItem('iqra_tajweed_cache');
-      if (cached) {
-        TAJWEED_DATA = JSON.parse(cached);
-        console.log('✓ Таджвид восстановлен из кэша. Аятов:', TAJWEED_DATA.length);
-      } else {
-        try {
-          var res = await fetch('./tajweed.json');
-          if (res.ok) {
-            TAJWEED_DATA = await res.json();
-            try { localStorage.setItem('iqra_tajweed_cache', JSON.stringify(TAJWEED_DATA)); } catch(e) {}
-          } else {
-            TAJWEED_DATA = [];
-          }
-        } catch(e) {
-          TAJWEED_DATA = [];
-        }
-      }
-    } catch(e) {
-      TAJWEED_DATA = [];
-    } finally {
-      _tajweedFetchPromise = null;
-    }
-  })();
-  return _tajweedFetchPromise;
-}
-loadTajweedData();
 const BACKUP_SCHEMA = 2;
 const LIMITS = { tasbihs:1000, history:10000, historyDays:365, reminders:50, textLen:1000, idLen:100, targetMax:100000, cyclesMax:1000000 };
 const QURAN_USE_API = false;
@@ -2802,269 +2765,6 @@ function toggleQuranLearned(id) {
   openQuran(id);
 }
 function goQuranList() { activeQuranId = null; renderQuranList(); showScreen('screen-quran'); }
-
-const TAJWEED_RULES_META = {
-  'ghunnah': { name: 'Гъунна', desc: 'Носовой звук при чтении.', example: 'نّ / مّ', color: '#FF8A3D' },
-  'ikhfa': { name: 'Ихфа', desc: 'Смягчение «н» перед опр. буквами.', example: 'نْ + ب', color: '#C44DFF' },
-  'ikhfa_shafawi': { name: 'Ихфа шафави', desc: 'Смягчение «м» перед «б».', example: 'مْ + ب', color: '#FF4DD2' },
-  'idghaam_ghunnah': { name: 'Идгам с гъунной', desc: 'Слияние «н» с носовым.', example: 'نْ + ي/ر/م/ل/و/ن', color: '#2EE6A8' },
-  'idghaam_no_ghunnah': { name: 'Идгам без гъунны', desc: 'Слияние «н» без носового.', example: 'نْ + ل/ر', color: '#4DFF4D' },
-  'idghaam_shafawi': { name: 'Идгам шафави', desc: 'Слияние «м» с «м».', example: 'مْ + م', color: '#A8FF4D' },
-  'idghaam_mutajanisayn': { name: 'Идгам мутаджанисайн', desc: 'Слияние близких букв.', example: 'دْ + ت', color: '#D4D4D4' },
-  'idghaam_mutaqaribayn': { name: 'Идгам мутакарибайн', desc: 'Слияние близких букв.', example: 'قْ + ك', color: '#D4D4D4' },
-  'iqlab': { name: 'Икъляб', desc: 'Замена «н» на «м» перед «б».', example: 'نْ + ب', color: '#4DD2FF' },
-  'qalqalah': { name: 'Къалькъаля', desc: 'Упругий «отскок».', example: 'قْ طْ بْ جْ دْ', color: '#FF4D4D' },
-  'madd_2': { name: 'Мадд 2', desc: 'Удлинение на 2 счёта.', example: 'ـَا', color: '#00D2FF' },
-  'madd_246': { name: 'Мадд 2/4/6', desc: 'Удлинение 2, 4 или 6.', example: 'ـَآ', color: '#B388FF' },
-  'madd_muttasil': { name: 'Мадд муттасиль', desc: 'Обязательное 4-5.', example: 'ـَا + ء', color: '#FF4081' },
-  'madd_munfasil': { name: 'Мадд мунфасиль', desc: 'Дозволенное 4-5.', example: 'ـَا + ء', color: '#FF4081' },
-  'madd_6': { name: 'Мадд 6', desc: 'Обязательное 6.', example: 'ـٰٓ', color: '#FFD700' },
-  'hamzat_wasl': { name: 'Хамзат уасл', desc: 'Не произносится.', example: 'ٱ', color: '#A0A0A0' },
-  'lam_shamsiyyah': { name: 'Лям шамсийя', desc: 'Ассимиляция «л».', example: 'ل + ش', color: '#A0A0A0' },
-  'silent': { name: 'Тихий', desc: 'Не произносится.', example: 'ـ', color: '#A0A0A0' }
-};
-
-const TAJWEED_HIGHLIGHT_SUPPORTED = false; // Принудительно используем span-рендеринг (стабильно во всех браузерах, без багов Safari)
-
-// Словарь шаблонов удален, так как он нарушал посимвольную разметку и красил целые слова
-var TAJWEED_TEMPLATES = [];
-
-var _genCache = {};
-
-function generateTajweedForSurah(surahNum, lines, startAyah) {
-  if (!startAyah) startAyah = 1;
-  var cacheKey = surahNum + '_' + startAyah + '_' + lines.length + '_' + lines[0].slice(0, 10);
-  if (_genCache[cacheKey]) return _genCache[cacheKey];
-  
-  var data = [];
-  var SHAMSIYYAH = 'تثدذرزسشصضطظلن';
-  var QALQALAH = 'قطبجد';
-  
-  for (var lineIdx = 0; lineIdx < lines.length; lineIdx++) {
-    var line = lines[lineIdx];
-    var aNum = startAyah + lineIdx;
-    var anns = [];
-    
-    for (var i = 0; i < line.length; i++) {
-      var char = line[i];
-      var next = line[i+1];
-      var prev = line[i-1];
-
-      if (char === 'ٱ') anns.push({start: i, end: i + 1, rule: 'hamzat_wasl'});
-      
-      if (char === 'ل' && next && SHAMSIYYAH.indexOf(next) > -1) {
-        anns.push({start: i, end: i + 1, rule: 'lam_shamsiyyah'});
-      }
-      
-      // Madd Tabee'i (Dagger Alef)
-      if (char === 'ٰ') {
-         anns.push({start: i, end: i + 1, rule: 'madd_2'});
-      }
-      
-      // Alef with Maddah (Madd 6 or Madd 246)
-      if (char === 'آ') {
-        var isMadd6 = false;
-        if (next === 'ّ' || next === 'ء' || next === 'ئ' || next === 'ؤ') {
-          isMadd6 = true;
-        } else if (next === 'ل' && line[i+2] === 'ّ') { // Для 1:7
-          isMadd6 = true;
-        }
-        if (isMadd6) {
-          anns.push({start: i, end: i + 1, rule: 'madd_6'});
-        } else {
-          anns.push({start: i, end: i + 1, rule: 'madd_246'});
-        }
-      }
-      
-      // Ghunnah (Noon/Meem Mushaddad)
-      if ((char === 'ن' || char === 'م') && next === 'ّ') {
-        anns.push({start: i, end: i + 2, rule: 'ghunnah'});
-      }
-      
-      // Qalqalah
-      if (QALQALAH.indexOf(char) > -1 && next === 'ْ') {
-        anns.push({start: i, end: i + 2, rule: 'qalqalah'});
-      }
-      
-      // Madd Lin (Ya/Waw with Sukun preceded by Fatha)
-      if ((char === 'ي' || char === 'و') && next === 'ْ' && prev === 'َ') {
-        anns.push({start: i, end: i + 2, rule: 'madd_246'});
-      }
-      
-      // Noon Saakin & Tanween
-      var isNoonSaakin = (char === 'ن' && next === 'ْ');
-      var isTanween = ('ًٌٍ'.indexOf(char) > -1);
-      if (isNoonSaakin || isTanween) {
-        var j = i + 1;
-        if (isNoonSaakin) j = i + 2;
-        while (j < line.length && 'َُِّْ'.indexOf(line[j]) > -1) j++;
-        var nextN = line[j];
-        if (nextN) {
-          var endIdx = (isNoonSaakin ? j + 1 : i + 1);
-          if ('يرملون'.indexOf(nextN) > -1) {
-            var ruleIdgham = (nextN === 'ل' || nextN === 'ر') ? 'idghaam_no_ghunnah' : 'idghaam_ghunnah';
-            anns.push({start: i, end: endIdx, rule: ruleIdgham});
-          } else if ('تثجدذزسشصضطظفقك'.indexOf(nextN) > -1) {
-            anns.push({start: i, end: endIdx, rule: 'ikhfa'});
-          } else if (nextN === 'ب') {
-            anns.push({start: i, end: endIdx, rule: 'iqlab'});
-          }
-        }
-      }
-      
-      // Meem Saakin
-      if (char === 'م' && next === 'ْ' && i + 2 < line.length) {
-        var nextM = line[i+2];
-        if (nextM === 'ب') anns.push({start: i, end: i + 3, rule: 'ikhfa_shafawi'});
-        else if (nextM === 'م') anns.push({start: i, end: i + 3, rule: 'idghaam_shafawi'});
-      }
-      
-      // Idgham Mutajanisayn / Mutaqaribayn
-      if (next === 'ْ' && i + 2 < line.length) {
-        var c1 = char, c2 = line[i+2];
-        var mutajanis = ['بت', 'طد', 'ذظ', 'ثذ'];
-        var mutaqarib = ['لق', 'قك', 'لم'];
-        for (var mi = 0; mi < mutajanis.length; mi++) {
-          if (mutajanis[mi][0] === c1 && mutajanis[mi][1] === c2) { anns.push({start: i, end: i + 2, rule: 'idghaam_mutajanisayn'}); break; }
-        }
-        for (var mqi = 0; mqi < mutaqarib.length; mqi++) {
-          if (mutaqarib[mqi][0] === c1 && mutaqarib[mqi][1] === c2) { anns.push({start: i, end: i + 2, rule: 'idghaam_mutaqaribayn'}); break; }
-        }
-      }
-      
-      // Madd Muttasil / Munfasil
-      if ((char === 'ا' || char === 'و' || char === 'ي') && next && (next === 'ء' || next === 'ئ' || next === 'ؤ')) {
-        if (prev === 'َ' || prev === 'ُ' || prev === 'ِ') {
-          anns.push({start: i - 1, end: i + 2, rule: 'madd_muttasil'});
-        }
-      }
-      
-      if (char === 'ـ' || char === 'ۥ' || char === 'ۦ') anns.push({start: i, end: i + 1, rule: 'silent'});
-    }
-    
-    // Разрешение пересечений
-    anns.sort(function(a, b) { return (a.start - b.start) || (b.end - a.end); });
-    var resolved = [];
-    for (var ai = 0; ai < anns.length; ai++) {
-      var cur = anns[ai];
-      var skip = false;
-      for (var rj = 0; rj < resolved.length; rj++) {
-        var prevAnn = resolved[rj];
-        if (cur.start >= prevAnn.start && cur.end <= prevAnn.end) { skip = true; break; }
-        if (cur.start < prevAnn.end && cur.end > prevAnn.start) {
-          if (cur.end > prevAnn.end) { resolved[rj] = cur; }
-          skip = true;
-          break;
-        }
-      }
-      if (!skip) resolved.push(cur);
-    }
-    anns = resolved;
-    
-    data.push({ surah: surahNum, ayah: aNum, annotations: anns });
-  }
-  
-  if (!window.TAJWEED_DATA) window.TAJWEED_DATA = [];
-  data.forEach(function(newEntry) {
-    var idx = window.TAJWEED_DATA.findIndex(function(v) { return Number(v.surah) === Number(newEntry.surah) && Number(v.ayah) === Number(newEntry.ayah); });
-    if (idx !== -1) {
-      window.TAJWEED_DATA[idx] = newEntry;
-    } else {
-      window.TAJWEED_DATA.push(newEntry);
-    }
-  });
-  _genCache[cacheKey] = data;
-  return data;
-}
-
-// ============================================================
-// HARFBUZZ CANVAS RENDERER (Raw Emscripten API)
-// ============================================================
-let _hb = null;
-let _hbFont = null;
-let _hbReady = false;
-const _canvasCache = new Map(); // кэш: `${surah}:${ayah}` -> canvas
-
-async function initHarfBuzz() {
-  if (_hbReady || !window.hb) return;
-  try {
-    _hb = await window.hb();
-    if (!_hb || typeof _hb._hb_blob_create !== 'function') {
-      throw new Error('Harfbuzz raw API not available');
-    }
-
-    const fontResponse = await fetch('./fonts/noto-naskh-arabic-v44-arabic_latin-regular.woff2');
-    if (!fontResponse.ok) throw new Error('Font not found');
-    const fontBuffer = new Uint8Array(await fontResponse.arrayBuffer());
-
-    const heapPtr = _hb._malloc(fontBuffer.length);
-    _hb.HEAPU8.set(fontBuffer, heapPtr);
-    // HB_MEMORY_MODE_DUPLICATE = 2
-    const blobPtr = _hb._hb_blob_create(heapPtr, fontBuffer.length, 2, 0, 0);
-    const facePtr = _hb._hb_face_create(blobPtr, 0);
-    _hbFont = _hb._hb_font_create(facePtr);
-
-    _hbReady = true;
-    console.log('✓ HarfBuzz ready (Raw Emscripten API)');
-  } catch (e) {
-    console.error('HarfBuzz init failed:', e);
-    _hbReady = false;
-  }
-}
-
-function renderAyahToCanvas(text, surah, ayah, fontSize, defaultColor) {
-  if (!_hbReady || !_hb || !_hbFont) {
-    const c = document.createElement('canvas');
-    c.width = 1; c.height = 1;
-    return c;
-  }
-  try {
-    const buf = _hb._hb_buffer_create();
-    const textUtf8 = new TextEncoder().encode(text);
-    const textPtr = _hb._malloc(textUtf8.length + 1);
-    _hb.HEAPU8.set(textUtf8, textPtr);
-    _hb.HEAPU8[textPtr + textUtf8.length] = 0;
-
-    _hb._hb_buffer_add_utf8(buf, textPtr, -1, 0, -1);
-    _hb._free(textPtr);
-    _hb._hb_buffer_guess_segment_properties(buf);
-    _hb._hb_shape(_hbFont, buf, 0, 0);
-
-    const len = _hb._hb_buffer_get_length(buf);
-    const infoPtr = _hb._hb_buffer_get_glyph_infos(buf, 0);
-    
-    // Сбор кластеров и глифов для подтверждения работы шейпинга
-    const infos = [];
-    for (let i = 0; i < len; i++) {
-      const offset = infoPtr + i * 20;
-      const codepoint = _hb.HEAPU32[(offset) >> 2];
-      const cluster = _hb.HEAPU32[(offset + 8) >> 2];
-      infos.push({ g: codepoint, cluster: cluster });
-    }
-    console.log('Shaped glyphs and clusters:', infos);
-
-    // Для отрисовки путей требуется opentype.js (преобразование glyph ID в SVG path).
-    // В текущем проекте его нет. Возвращаем пустой canvas (сработает HTML fallback).
-    _hb._hb_buffer_destroy(buf);
-
-    const c = document.createElement('canvas');
-    c.width = 1; c.height = 1;
-    return c;
-  } catch (e) {
-    console.error('Canvas shape error:', e);
-    const c = document.createElement('canvas');
-    c.width = 1; c.height = 1;
-    return c;
-  }
-}
-function toggleTajweed() {
-  state.settings.tajweedMode = !state.settings.tajweedMode;
-  save();
-  if (activeReadId) {
-    var idx = currentAyahIdx();
-    openRead(activeReadId, idx);
-  }
-}
 function readPrevSurah() {
   const viewer = document.querySelector('#read-body open-quran-view');
   if (viewer) {
@@ -3496,7 +3196,6 @@ function openSettings() {
   document.getElementById('opt-sound').checked = state.settings.sound;
     document.getElementById('opt-vibrate').checked = state.settings.vibrate;
   document.getElementById('opt-goal-notify').checked = !!state.settings.goalNotify;
-  document.getElementById('opt-tajweed').checked = !!state.settings.tajweedMode;
   document.querySelectorAll('#size-seg button').forEach(b=>b.classList.toggle('active', parseFloat(b.dataset.size)===state.settings.arSize));
   renderReminders(); showScreen('screen-settings');
 }
@@ -4558,11 +4257,6 @@ if ('serviceWorker' in navigator) {
   };
 })();
 </script>
-<script type="module">
-  import createHarfBuzz from './lib/hb/harfbuzz.js';
-  window.hb = createHarfBuzz;
-</script>
-
 <!-- НАЧАЛО: ЛОКАЛЬНОЕ ПОДКЛЮЧЕНИЕ -->
 <script type="module">
   import { registerOpenQuranView } from './view/web/index.js';
