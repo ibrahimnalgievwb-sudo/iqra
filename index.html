@@ -1815,7 +1815,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v271';
+const APP_VERSION = 'iqra-v272';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -4263,7 +4263,7 @@ if ('serviceWorker' in navigator) {
 </script>
 <!-- НАЧАЛО: ПОДКЛЮЧЕНИЕ OPEN-QURAN-VIEW -->
 <script type="module">
-  import { registerOpenQuranView } from 'https://cdn.jsdelivr.net/npm/open-quran-view@0.5.0/view/web/index.js';
+  import { registerOpenQuranView } from 'https://esm.sh/open-quran-view@0.5.0/view/web';
   registerOpenQuranView();
 </script>
 <script data-goatcounter="https://iqra-stats.goatcounter.com/count" async src="./count.js"></script>
