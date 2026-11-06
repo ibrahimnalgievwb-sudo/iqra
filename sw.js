@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'iqra-v263';
+const CACHE_VERSION = 'iqra-v264';
 const CACHE_ASSETS = [
   './', './index.html', './manifest.json', './count.js', './fonts.css',
   './favicon.png', './apple-touch-icon.png', './icon-192.png', './icon-512.png',
@@ -62,7 +62,9 @@ self.addEventListener('fetch', function(event) {
   // Перехват запросов к hafs-v4 и перенаправление на havs-v4
   if (url.pathname.includes('/data/fonts/hafs-v4/')) {
     const redirectedUrl = req.url.replace('/data/fonts/hafs-v4/', '/data/fonts/havs-v4/');
-    event.respondWith(fetch(redirectedUrl).catch(() => fetch(req)));
+    event.respondWith(
+      fetch(redirectedUrl, { cache: 'no-store' }).catch(() => fetch(req, { cache: 'no-store' }))
+    );
     return;
   }
 
