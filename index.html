@@ -1815,7 +1815,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v262';
+const APP_VERSION = 'iqra-v264';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -4070,8 +4070,11 @@ if ('serviceWorker' in navigator) {
   // обновление SW, активируем его (skipWaiting), и через controllerchange
   // страница тихо перезагрузится. Вкладка остаётся открытой.
   window.addEventListener('load', function() {
-    navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).then(function(reg) {
-      handleUpdate(reg);
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function(regs) {
+        regs.forEach(function(r) { r.unregister(); });
+        return navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' });
+      }).then(function(reg) {
       try { reg.update(); } catch(e) {}
 
       // 1) Периодически: каждые 5 минут, только когда страница видима
