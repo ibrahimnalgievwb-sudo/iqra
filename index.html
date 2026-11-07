@@ -1782,7 +1782,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v278';
+const APP_VERSION = 'iqra-v279';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2750,7 +2750,7 @@ function readNextSurah() {
     }
   }
 }
-  async function openRead(id, targetAyahIdx, dir) {
+   async function openRead(id, targetAyahIdx, dir) {
   const item = getQuranById(id);
   if (!item) return;
 
@@ -2758,31 +2758,53 @@ function readNextSurah() {
   trackEvent('read/' + id, 'Чтение: ' + item.title);
   saveLastRead('quran', id);
 
-  // Сопоставляем ваши ID с номерами страниц
-  const pageMap = {
-    'q1': 1, 'q67': 562, 'q87': 591, 'q89': 593, 'q94': 596,
-    'q97': 598, 'q103': 601, 'q104': 601, 'q105': 601,
-    'q106': 602, 'q107': 602, 'q108': 602, 'q109': 603,
-    'q110': 603, 'q111': 603, 'q112': 604, 'q113': 604, 'q114': 604,
-    'q_ayat_kursi': 42, 'q_baqarah_2': 49
-  };
-  const pageNumber = pageMap[item.id] || 1;
-
   document.getElementById('read-title').textContent = item.title;
-
   const container = document.getElementById('read-body');
   
-  // Создаем компонент с таджвидом
-  container.innerHTML = `
-    <div style="display: flex; justify-content: center; padding: 10px; background: var(--bg); width: 100%; overflow-x: auto;">
-        <open-quran-view 
-            page="${pageNumber}"
-            mushaf-layout="hafs-v4" 
-            width="600"
-            height="850"
-            style="flex-shrink: 0; display: block; border-radius: 12px; overflow: hidden;"
-        ></open-quran-view>
+  const ayahs = parseAyahs(item);
+  let bismillahHtml = '';
+  if (item.bismillah) {
+    bismillahHtml = `<div class="bismillah-card"><div class="b-ar ar-font">${item.bismillah.arabic}</div><div class="b-tr">${item.bismillah.transcription}</div><div class="b-trn">${item.bismillah.translation}</div></div>`;
+  }
+
+  const legendHtml = `
+    <div class="tajweed-legend">
+      <div class="tl-title">Легенда Таджвида</div>
+      <div class="tl-items">
+        <span class="tl-item"><i style="background:#00D2FF;"></i> Мадд 2</span>
+        <span class="tl-item"><i style="background:#FF4081;"></i> Мадд 4-5</span>
+        <span class="tl-item"><i style="background:#FFD700;"></i> Мадд 6</span>
+        <span class="tl-item"><i style="background:#FF4D4D;"></i> Калькаля</span>
+        <span class="tl-item"><i style="background:#C44DFF;"></i> Ихфа</span>
+        <span class="tl-item"><i style="background:#2EE6A8;"></i> Гунна</span>
+        <span class="tl-item"><i style="background:#A0A0A0;"></i> Сакт/Хамзат</span>
+      </div>
     </div>
+  `;
+
+  container.innerHTML = `
+    <div class="detail-hero" style="background: transparent; border: none; box-shadow: none; padding: 0; margin-bottom: 10px;">
+      <div class="dh-title" style="text-align: center; font-size: 24px;">${esc(item.title)}</div>
+    </div>
+    ${legendHtml}
+    ${item.note ? `<div class="note-box"><svg class="ico ico-sm" style="flex-shrink:0;color:var(--accent2)"><use href="#i-lightbulb"/></svg><div>${escNl(item.note)}</div></div>` : ''}
+    ${bismillahHtml}
+    <div style="height:16px"></div>
+    ${ayahs.map((a, idx) => `
+       <div class="read-ayah ${item.type==='ayat'?'ayat-mode':''}" id="ayah-${idx}">
+        <div class="read-ayah-num">${a.num}</div>
+        <div class="read-ayah-ar ar-font">${esc(a.ar)}${item.type==='surah' ? ' <span class="read-ayah-marker">' + ayahMarker(a.num) + '</span>' : ''}</div>
+        ${a.tr ? `<div class="read-ayah-tr">${esc(a.tr)}</div>` : ''}
+        <div class="read-ayah-trn">${esc(a.trn)}</div>
+        <div class="ayah-rules">
+           <span class="ayah-rule" style="color:#00D2FF;">Мадд 2</span>
+           <span class="ayah-rule" style="color:#C44DFF;">Ихфа</span>
+        </div>
+        <button class="ayah-share-btn" onclick="shareAyah('${item.id}',${idx})"><svg class="ico ico-sm"><use href="#i-upload"/></svg>Поделиться аятом</button>
+      </div>
+    `).join('')}
+    ${item.source ? `<div class="dh-section" style="margin-top:20px;"><div class="dh-label">Источник</div><div class="dh-text muted" style="font-size:13px;">${esc(item.source)}</div></div>` : ''}
+    ${transcriptionNote()}
   `;
 
   const readMode = document.getElementById('read-mode');
@@ -2793,7 +2815,6 @@ function readNextSurah() {
   readMode.classList.add('active');
   document.getElementById('btn-scroll-top').classList.remove('visible');
 
-  // Настройка кнопок навигации
   var idx = state.quran.findIndex(function(q){ return q.id === id; });
   var prevBtn = document.getElementById('btn-prev-surah');
   var nextBtn = document.getElementById('btn-next-surah');
@@ -4237,12 +4258,62 @@ if ('serviceWorker' in navigator) {
   };
 })();
 </script>
-<!-- НАЧАЛО: ПОДКЛЮЧЕНИЕ OPEN-QURAN-VIEW -->
-<!-- Атрибут async предотвращает блокировку загрузки приложения из-за сетевых проблем с CDN -->
-<script type="module" async>
-  import { registerOpenQuranView } from './view/web/index.js';
-  registerOpenQuranView();
-</script>
+/* === TAJWEED: Легенда и правила === */
+.tajweed-legend {
+  background: var(--card);
+  border: 1px solid var(--gold-accent);
+  border-radius: 14px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,.1);
+}
+.tajweed-legend .tl-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--gold-accent);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+.tajweed-legend .tl-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+}
+.tajweed-legend .tl-item {
+  font-size: 12px;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.tajweed-legend .tl-item i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.ayah-rules {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(212,175,55,.3);
+}
+.ayah-rule {
+  font-size: 12px;
+  font-weight: 600;
+  background: rgba(var(--accent-rgb), .08);
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+/* Отключаем золотой градиент для арабского текста, чтобы были видны цвета Таджвида */
+.read-ayah-ar.ar-font {
+  background-image: none !important;
+  -webkit-text-fill-color: var(--text) !important;
+  color: var(--text) !important;
+}
 <script data-goatcounter="https://iqra-stats.goatcounter.com/count" async src="./count.js"></script>
 </body>
 </html>
