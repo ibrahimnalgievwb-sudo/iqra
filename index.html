@@ -1832,7 +1832,7 @@ span[class^="tajweed-"] {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v288';
+const APP_VERSION = 'iqra-v289';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2279,7 +2279,17 @@ function load() {
 
     s.migrations.addedRuqyah_v1 = true;
   }
-  
+
+  // МИГРАЦИЯ v4: Принудительная очистка старого кэша таджвида (артефакты [h:1])
+  if (!s.migrations.tajweedCacheFix_v4) {
+    try {
+      Object.keys(localStorage).forEach(function(k) {
+        if (k.indexOf('iqra_tajweed_') === 0) localStorage.removeItem(k);
+      });
+    } catch(e) {}
+    s.migrations.tajweedCacheFix_v4 = true;
+  }
+
   return s;
 }
 let _saveTimer = null;
@@ -2684,64 +2694,62 @@ async function fetchTajweedText(verseKey) {
   }
 }
 
+// Официальная таблица кодов API alquran.cloud (quran-tajweed edition)
+// Источник: https://alquran.cloud/tajweed-guide
 const TAJWEED_RULES_MAP = {
-  'ham_wasl': { name: 'Хамзат аль-васл', color: '#AAAAAA' },
-  'h_1': { name: 'Хамзат аль-васл', color: '#AAAAAA' },
-  'h_2': { name: 'Хамзат аль-васл', color: '#AAAAAA' },
-  'h_3': { name: 'Хамзат аль-васл', color: '#AAAAAA' },
-  'h_4': { name: 'Хамзат аль-васл', color: '#AAAAAA' },
-  'laam_shamsiyah': { name: 'Лям шамсия', color: '#AAAAAA' },
-  'silent': { name: 'Немая буква', color: '#AAAAAA' },
-  'slnt': { name: 'Немая буква', color: '#AAAAAA' },
-  'p': { name: 'Пауза', color: '#AAAAAA' },
-  'madda_normal': { name: 'Мадд 2 (естественный)', color: '#537FFF' },
-  'madda_permissible': { name: 'Мадд 2/4/6 (допустимый)', color: '#4050FF' },
-  'madda_obligatory': { name: 'Мадд 4-5 (обязательный)', color: '#2144C1' },
-  'madda_necessary': { name: 'Мадд 6 (необходимый)', color: '#000EBC' },
-  'qalqalah': { name: 'Калькаля', color: '#DD0008' },
-  'ghunnah': { name: 'Гунна', color: '#FF7E1E' },
-  'ikhfa': { name: 'Ихфа', color: '#9400A8' },
-  'ikhfa_shafawi': { name: 'Ихфа шафави', color: '#D500B7' },
-  'idghaam_ghunnah': { name: 'Идгам с гунной', color: '#169777' },
-  'idghaam_no_ghunnah': { name: 'Идгам без гунны', color: '#169200' },
-  'idghaam_shafawi': { name: 'Идгам шафави', color: '#58B800' },
-  'idghaam_mutajanisayn': { name: 'Идгам мутаджанисайн', color: '#A1A1A1' },
-  'idghaam_mutaqaribayn': { name: 'Идгам мутакарибайн', color: '#A1A1A1' },
-  'iqlab': { name: 'Иклаб', color: '#26BFFD' },
-  'tafkhim': { name: 'Тафхим (утяжеление)', color: '#1E3A8A' }
+  'h': { className: 'ham_wasl', name: 'Хамзат аль-васл', color: '#AAAAAA' },
+  's': { className: 'silent', name: 'Немая буква', color: '#AAAAAA' },
+  'l': { className: 'laam_shamsiyah', name: 'Лям шамсия', color: '#AAAAAA' },
+  'n': { className: 'madda_normal', name: 'Мадд 2 (естественный)', color: '#537FFF' },
+  'p': { className: 'madda_permissible', name: 'Мадд 2/4/6 (допустимый)', color: '#4050FF' },
+  'm': { className: 'madda_necessary', name: 'Мадд 6 (необходимый)', color: '#000EBC' },
+  'q': { className: 'qalqalah', name: 'Калькаля', color: '#DD0008' },
+  'o': { className: 'madda_obligatory', name: 'Мадд 4-5 (обязательный)', color: '#2144C1' },
+  'c': { className: 'ikhfa_shafawi', name: 'Ихфа шафави', color: '#D500B7' },
+  'f': { className: 'ikhfa', name: 'Ихфа', color: '#9400A8' },
+  'w': { className: 'idghaam_shafawi', name: 'Идгам шафави', color: '#58B800' },
+  'i': { className: 'iqlab', name: 'Иклаб', color: '#26BFFD' },
+  'a': { className: 'idghaam_ghunnah', name: 'Идгам с гунной', color: '#169777' },
+  'u': { className: 'idghaam_no_ghunnah', name: 'Идгам без гунны', color: '#169200' },
+  'd': { className: 'idghaam_mutajanisayn', name: 'Идгам мутаджанисайн', color: '#A1A1A1' },
+  'b': { className: 'idghaam_mutaqaribayn', name: 'Идгам мутакарибайн', color: '#A1A1A1' },
+  'g': { className: 'ghunnah', name: 'Гунна', color: '#FF7E1E' }
 };
 
 function renderTajweedHtml(tajweedText) {
   if (!tajweedText) return { text: '', rules: '' };
+
+  // Формат API: [code[text]  (например, [h:1[ٱ], [l[ل], [n[ـٰ])
+  // Регулярное выражение извлекает код (одна буква, опционально с :числом) и текст внутри.
+  const regex = /\[([a-zA-Z])(?::\d+)?\[(.*?)\]/g;
   
-  // 1. Убираем ZWJ, если он был в старом кэше (вызывает квадратики [])
-  let safeText = tajweedText.replace(/\u200D/g, '');
+  let html = tajweedText.replace(regex, (_, code, content) => {
+    const rule = TAJWEED_RULES_MAP[code.toLowerCase()];
+    if (rule) {
+      // Оборачиваем в ZWJ (U+200D) для сохранения соединения букв (shaping) — строго по п. 0.9
+      return `\u200D<span class="tajweed-${rule.className}">\u200D${content}\u200D</span>\u200D`;
+    }
+    console.warn('Unknown tajweed code:', code);
+    return content; // Не тихий fallback, выводим предупреждение
+  });
 
-  // 2. Обрабатываем стандартные теги <tajweed class=...>
-  let html = safeText
-    .replace(/<tajweed\s+class=["']?([^"'>\s]+)["']?\s*>/gi, (_, cls) => {
-      const safeCls = cls.replace(/[^a-zA-Z0-9_-]/g, '_');
-      return `<span class="tajweed-${safeCls}">`;
-    })
-    .replace(/<\/tajweed>/gi, `</span>`)
-    // 3. Обрабатываем сломанные теги из старого кэша (например, [h:1])
-    .replace(/\[([a-z0-9_:]+)\]/gi, (_, cls) => {
-      const safeCls = cls.replace(/[^a-zA-Z0-9_-]/g, '_');
-      return `<span class="tajweed-${safeCls}">`;
-    })
-    .replace(/<span\s+class=["']?end["']?\s*>(\d+)<\/span>/gi, (_, num) => {
-      return `<span class="read-ayah-marker">${ayahMarker(parseInt(num, 10))}</span>`;
-    });
+  // Убираем возможные оставшиеся артефакты (на всякий случай, если API вернул старый формат)
+  html = html.replace(/\[\/?[a-z0-9_:]+\]/gi, ''); // удаляем одиночные [h:1] и подобные
+  html = html.replace(/<tajweed\s+class=["']?([^"'>\s]+)["']?\s*>/gi, (_, cls) => {
+    const safeCls = cls.replace(/[^a-zA-Z0-9_-]/g, '_');
+    return `\u200D<span class="tajweed-${safeCls}">\u200D`;
+  }).replace(/<\/tajweed>/gi, '\u200D</span>\u200D');
 
-  // 4. Собираем список правил
+  // Собираем уникальные классы правил, присутствующие в HTML
   const classMatches = html.match(/class="tajweed-([a-z0-9_]+)"/gi) || [];
-  const uniqueRules = [...new Set(classMatches.map(m => m.match(/tajweed-([a-z0-9_]+)/i)[1]))];
+  const uniqueRuleClasses = [...new Set(classMatches.map(m => m.match(/tajweed-([a-z0-9_]+)/i)[1]))];
 
   let rulesHtml = '';
-  if (uniqueRules.length > 0) {
+  if (uniqueRuleClasses.length > 0) {
     rulesHtml = '<div class="ayah-tajweed-rules">';
-    uniqueRules.forEach(ruleKey => {
-      const rule = TAJWEED_RULES_MAP[ruleKey.toLowerCase()];
+    uniqueRuleClasses.forEach(cls => {
+      // Находим правило по className
+      const rule = Object.values(TAJWEED_RULES_MAP).find(r => r.className === cls);
       if (rule) {
         rulesHtml += `<span class="rule-item"><i style="background:${rule.color};"></i>${rule.name}</span>`;
       }
