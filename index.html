@@ -1168,18 +1168,11 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 .modal { padding-bottom: calc(26px + var(--nav-safe)) !important; }
 
 /* === TAJWEED: БАЗОВЫЕ СТИЛИ === */
-.ar-font.tajweed-on, .ar-typo.tajweed-on {
-  background: none !important;
-  background-image: none !important;
-  -webkit-background-clip: border-box !important;
-  background-clip: border-box !important;
-  -webkit-text-fill-color: var(--text) !important;
-  color: var(--text) !important;
-}
-.read-ayah-ar.ar-font {
-  background-image: none !important;
+/* Сохраняем золотой градиент родителя и даем цветам таджвида перекрывать его */
+.tajweed-span {
+  display: inline !important;
+  white-space: normal !important;
   -webkit-text-fill-color: currentColor !important;
-  color: var(--text) !important;
 }
 
 /* === TAJWEED: ОФИЦИАЛЬНЫЕ ЦВЕТА (Dar al-Maarifah) === */
@@ -1320,11 +1313,6 @@ button::-moz-focus-inner { border: 0; padding: 0; }
   background: rgba(var(--accent-rgb), .08);
   padding: 2px 8px;
   border-radius: 6px;
-}
-.read-ayah-ar.ar-font {
-  background-image: none !important;
-  -webkit-text-fill-color: var(--text) !important;
-  color: var(--text) !important;
 }
 </style>
 </head>
@@ -1844,7 +1832,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v285';
+const APP_VERSION = 'iqra-v287';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2723,26 +2711,25 @@ function renderTajweedHtml(tajweedText) {
   if (!tajweedText) return { text: '', rules: '' };
   const ZWJ = '\u200D';
   
-  // Исправлено: регулярное выражение теперь захватывает ЛЮБЫЕ символы в классе (включая двоеточия и цифры)
-   let html = tajweedText
-    .replace(/<tajweed\s+class=["']?([^"'>\s]+)["']?>/g, (_, cls) => {
-      // Заменяем все небезопасные символы (включая двоеточие) на подчеркивание
+  // Пуленепробиваемый regex: ловит любые классы (включая двоеточия) и игнорирует пробелы/кавычки
+  let html = tajweedText
+    .replace(/<tajweed\s+class=["']?([a-z0-9_:]+)["']?\s*>/gi, (_, cls) => {
       const safeCls = cls.replace(/[^a-zA-Z0-9_-]/g, '_');
       return `${ZWJ}<span class="tajweed-${safeCls} tajweed-span">`;
     })
-    .replace(/<\/tajweed>/g, `</span>${ZWJ}`)
-    .replace(/<span\s+class=["']?end["']?>(\d+)<\/span>/g, (_, num) => {
+    .replace(/<\/tajweed>/gi, `</span>${ZWJ}`)
+    .replace(/<span\s+class=["']?end["']?\s*>(\d+)<\/span>/gi, (_, num) => {
       return `<span class="read-ayah-marker">${ayahMarker(parseInt(num, 10))}</span>`;
     });
 
-   const classMatches = html.match(/class="tajweed-([^ ]+) tajweed-span"/g) || [];
-  const uniqueRules = [...new Set(classMatches.map(m => m.match(/tajweed-([^ ]+)/)[1]))];
+  const classMatches = html.match(/class="tajweed-([a-z0-9_]+) tajweed-span"/gi) || [];
+  const uniqueRules = [...new Set(classMatches.map(m => m.match(/tajweed-([a-z0-9_]+)/i)[1]))];
 
   let rulesHtml = '';
   if (uniqueRules.length > 0) {
     rulesHtml = '<div class="ayah-tajweed-rules">';
     uniqueRules.forEach(ruleKey => {
-      const rule = TAJWEED_RULES_MAP[ruleKey];
+      const rule = TAJWEED_RULES_MAP[ruleKey.toLowerCase()];
       if (rule) {
         rulesHtml += `<span class="rule-item"><i style="background:${rule.color};"></i>${rule.name}</span>`;
       }
@@ -4432,8 +4419,6 @@ if ('serviceWorker' in navigator) {
   window.goBack = function() {
     try { history.back(); } catch(e) {}
   };
-})();
-</script>
 })();
 </script>
 <script data-goatcounter="https://iqra-stats.goatcounter.com/count" async src="./count.js"></script>
