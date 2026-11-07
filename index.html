@@ -1844,7 +1844,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v281';
+const APP_VERSION = 'iqra-v282';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2694,8 +2694,14 @@ async function fetchTajweedText(verseKey) {
 
 const TAJWEED_RULES_MAP = {
   'ham_wasl': { name: 'Хамзат аль-васл', color: '#AAAAAA' },
+  'h_1': { name: 'Хамзат аль-васл', color: '#AAAAAA' },
+  'h_2': { name: 'Хамзат аль-васл', color: '#AAAAAA' },
+  'h_3': { name: 'Хамзат аль-васл', color: '#AAAAAA' },
+  'h_4': { name: 'Хамзат аль-васл', color: '#AAAAAA' },
   'laam_shamsiyah': { name: 'Лям шамсия', color: '#AAAAAA' },
   'silent': { name: 'Немая буква', color: '#AAAAAA' },
+  'slnt': { name: 'Немая буква', color: '#AAAAAA' },
+  'p': { name: 'Пауза', color: '#AAAAAA' },
   'madda_normal': { name: 'Мадд 2 (естественный)', color: '#537FFF' },
   'madda_permissible': { name: 'Мадд 2/4/6 (допустимый)', color: '#4050FF' },
   'madda_obligatory': { name: 'Мадд 4-5 (обязательный)', color: '#2144C1' },
@@ -2718,37 +2724,27 @@ function renderTajweedHtml(tajweedText) {
   const ZWJ = '\u200D';
   
   // Исправлено: регулярное выражение теперь захватывает ЛЮБЫЕ символы в классе (включая двоеточия и цифры)
-  let html = tajweedText
+   let html = tajweedText
     .replace(/<tajweed\s+class=["']?([^"'>\s]+)["']?>/g, (_, cls) => {
-      // Заменяем недопустимые для CSS символы (например, двоеточие) на подчеркивание
+      // Заменяем все небезопасные символы (включая двоеточие) на подчеркивание
       const safeCls = cls.replace(/[^a-zA-Z0-9_-]/g, '_');
-      return `${ZWJ}<span class="tajweed-${safeCls} tajweed-span" data-original-class="${cls}">`;
+      return `${ZWJ}<span class="tajweed-${safeCls} tajweed-span">`;
     })
     .replace(/<\/tajweed>/g, `</span>${ZWJ}`)
     .replace(/<span\s+class=["']?end["']?>(\d+)<\/span>/g, (_, num) => {
       return `<span class="read-ayah-marker">${ayahMarker(parseInt(num, 10))}</span>`;
     });
 
-  const classMatches = html.match(/class="tajweed-([^ ]+) tajweed-span"/g) || [];
+   const classMatches = html.match(/class="tajweed-([^ ]+) tajweed-span"/g) || [];
   const uniqueRules = [...new Set(classMatches.map(m => m.match(/tajweed-([^ ]+)/)[1]))];
 
   let rulesHtml = '';
   if (uniqueRules.length > 0) {
     rulesHtml = '<div class="ayah-tajweed-rules">';
     uniqueRules.forEach(ruleKey => {
-      // Обрабатываем как стандартные, так и нестандартные (h_1, h_2) классы
-      let rule = TAJWEED_RULES_MAP[ruleKey];
-      if (!rule) {
-        // Пытаемся найти по оригинальному классу (на случай, если API выдал h:1)
-        const origMatch = html.match(new RegExp(`data-original-class="${ruleKey.replace(/_/g, ':')}"`));
-        if (origMatch) rule = TAJWEED_RULES_MAP[origMatch[1]];
-      }
-      
+      const rule = TAJWEED_RULES_MAP[ruleKey];
       if (rule) {
         rulesHtml += `<span class="rule-item"><i style="background:${rule.color};"></i>${rule.name}</span>`;
-      } else {
-        // Если класс неизвестен, выводим его как есть
-        rulesHtml += `<span class="rule-item"><i style="background:#AAAAAA;"></i>${ruleKey.replace(/_/g, ':')}</span>`;
       }
     });
     rulesHtml += '</div>';
