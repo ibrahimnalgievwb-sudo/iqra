@@ -1782,7 +1782,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v277';
+const APP_VERSION = 'iqra-v278';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2773,15 +2773,14 @@ function readNextSurah() {
   const container = document.getElementById('read-body');
   
   // Создаем компонент с таджвидом
-   container.innerHTML = `
-    <div style="display: flex; justify-content: center; padding: 10px; background: var(--bg);">
+  container.innerHTML = `
+    <div style="display: flex; justify-content: center; padding: 10px; background: var(--bg); width: 100%; overflow-x: auto;">
         <open-quran-view 
             page="${pageNumber}"
-            base-url="./"
             mushaf-layout="hafs-v4" 
             width="600"
             height="850"
-            style="max-width: 100%; height: auto; display: block; border-radius: 12px; overflow: hidden;"
+            style="flex-shrink: 0; display: block; border-radius: 12px; overflow: hidden;"
         ></open-quran-view>
     </div>
   `;
