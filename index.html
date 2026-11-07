@@ -1168,8 +1168,8 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 .modal { padding-bottom: calc(26px + var(--nav-safe)) !important; }
 
 /* === TAJWEED: БАЗОВЫЕ СТИЛИ === */
-/* Сохраняем золотой градиент родителя и даем цветам таджвида перекрывать его */
-.tajweed-span {
+/* Работает для всех классов таджвида, сохраняет shaping и цвет */
+span[class^="tajweed-"] {
   display: inline !important;
   white-space: normal !important;
   -webkit-text-fill-color: currentColor !important;
@@ -1832,7 +1832,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v287';
+const APP_VERSION = 'iqra-v288';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2217,10 +2217,14 @@ function load() {
     s.quran.forEach(function(q){ var prev = learnedMap.get(q.id); if (prev) { q.learned = !!prev.learned; q.learnedAt = prev.learnedAt || ''; } });
   })();
 
-   // Очистка старого кэша таджвида (из-за сдвига индексов в прошлых версиях)
-  if (!s.migrations.tajweedCacheFix_v2) {
-    try { localStorage.removeItem('iqra_tajweed_cache'); } catch(e) {}
-    s.migrations.tajweedCacheFix_v2 = true;
+    // Очистка старого кэша таджвида (v3: удаляем всё, что связано с Quran Foundation)
+  if (!s.migrations.tajweedCacheFix_v3) {
+    try { 
+      Object.keys(localStorage).forEach(function(k) {
+        if (k.indexOf('iqra_tajweed_') === 0) localStorage.removeItem(k);
+      });
+    } catch(e) {}
+    s.migrations.tajweedCacheFix_v3 = true;
   }
 
   // МИГРАЦИЯ v138: Принудительное добавление Рукьи для существующих пользователей
@@ -2709,20 +2713,28 @@ const TAJWEED_RULES_MAP = {
 
 function renderTajweedHtml(tajweedText) {
   if (!tajweedText) return { text: '', rules: '' };
-  const ZWJ = '\u200D';
   
-  // Пуленепробиваемый regex: ловит любые классы (включая двоеточия) и игнорирует пробелы/кавычки
-  let html = tajweedText
-    .replace(/<tajweed\s+class=["']?([a-z0-9_:]+)["']?\s*>/gi, (_, cls) => {
+  // 1. Убираем ZWJ, если он был в старом кэше (вызывает квадратики [])
+  let safeText = tajweedText.replace(/\u200D/g, '');
+
+  // 2. Обрабатываем стандартные теги <tajweed class=...>
+  let html = safeText
+    .replace(/<tajweed\s+class=["']?([^"'>\s]+)["']?\s*>/gi, (_, cls) => {
       const safeCls = cls.replace(/[^a-zA-Z0-9_-]/g, '_');
-      return `${ZWJ}<span class="tajweed-${safeCls} tajweed-span">`;
+      return `<span class="tajweed-${safeCls}">`;
     })
-    .replace(/<\/tajweed>/gi, `</span>${ZWJ}`)
+    .replace(/<\/tajweed>/gi, `</span>`)
+    // 3. Обрабатываем сломанные теги из старого кэша (например, [h:1])
+    .replace(/\[([a-z0-9_:]+)\]/gi, (_, cls) => {
+      const safeCls = cls.replace(/[^a-zA-Z0-9_-]/g, '_');
+      return `<span class="tajweed-${safeCls}">`;
+    })
     .replace(/<span\s+class=["']?end["']?\s*>(\d+)<\/span>/gi, (_, num) => {
       return `<span class="read-ayah-marker">${ayahMarker(parseInt(num, 10))}</span>`;
     });
 
-  const classMatches = html.match(/class="tajweed-([a-z0-9_]+) tajweed-span"/gi) || [];
+  // 4. Собираем список правил
+  const classMatches = html.match(/class="tajweed-([a-z0-9_]+)"/gi) || [];
   const uniqueRules = [...new Set(classMatches.map(m => m.match(/tajweed-([a-z0-9_]+)/i)[1]))];
 
   let rulesHtml = '';
