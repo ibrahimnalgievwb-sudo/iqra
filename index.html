@@ -1264,6 +1264,62 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 .fs-bottom-nav { position: absolute; bottom: calc(16px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); display: flex; gap: 12px; background: var(--card); padding: 8px 16px; border-radius: 24px; border: 1.5px solid var(--gold-accent); box-shadow: 0 8px 24px rgba(0,0,0,.6); z-index: 100; }
 .fs-bottom-nav button { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; padding: 0; margin: 0; background: var(--card2); color: var(--gold-accent); border: none; }
 .fs-bottom-nav button:active { background: var(--gold-grad); color: #000; }
+
+/* === TAJWEED: Легенда и правила === */
+.tajweed-legend {
+  background: var(--card);
+  border: 1px solid var(--gold-accent);
+  border-radius: 14px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,.1);
+}
+.tajweed-legend .tl-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--gold-accent);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+.tajweed-legend .tl-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+}
+.tajweed-legend .tl-item {
+  font-size: 12px;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.tajweed-legend .tl-item i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.ayah-rules {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(212,175,55,.3);
+}
+.ayah-rule {
+  font-size: 12px;
+  font-weight: 600;
+  background: rgba(var(--accent-rgb), .08);
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+.read-ayah-ar.ar-font {
+  background-image: none !important;
+  -webkit-text-fill-color: var(--text) !important;
+  color: var(--text) !important;
+}
 </style>
 </head>
 <body>
@@ -1782,7 +1838,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v279';
+const APP_VERSION = 'iqra-v280';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -4258,62 +4314,8 @@ if ('serviceWorker' in navigator) {
   };
 })();
 </script>
-/* === TAJWEED: Легенда и правила === */
-.tajweed-legend {
-  background: var(--card);
-  border: 1px solid var(--gold-accent);
-  border-radius: 14px;
-  padding: 12px 16px;
-  margin-bottom: 16px;
-  box-shadow: 0 4px 12px rgba(0,0,0,.1);
-}
-.tajweed-legend .tl-title {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--gold-accent);
-  margin-bottom: 8px;
-  text-transform: uppercase;
-  letter-spacing: .5px;
-}
-.tajweed-legend .tl-items {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 12px;
-}
-.tajweed-legend .tl-item {
-  font-size: 12px;
-  color: var(--text);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.tajweed-legend .tl-item i {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  display: inline-block;
-}
-.ayah-rules {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 10px;
-  padding-top: 10px;
-  border-top: 1px dashed rgba(212,175,55,.3);
-}
-.ayah-rule {
-  font-size: 12px;
-  font-weight: 600;
-  background: rgba(var(--accent-rgb), .08);
-  padding: 2px 8px;
-  border-radius: 6px;
-}
-/* Отключаем золотой градиент для арабского текста, чтобы были видны цвета Таджвида */
-.read-ayah-ar.ar-font {
-  background-image: none !important;
-  -webkit-text-fill-color: var(--text) !important;
-  color: var(--text) !important;
-}
+})();
+</script>
 <script data-goatcounter="https://iqra-stats.goatcounter.com/count" async src="./count.js"></script>
 </body>
 </html>
