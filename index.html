@@ -2717,25 +2717,38 @@ function renderTajweedHtml(tajweedText) {
   if (!tajweedText) return { text: '', rules: '' };
   const ZWJ = '\u200D';
   
+  // Исправлено: регулярное выражение теперь захватывает ЛЮБЫЕ символы в классе (включая двоеточия и цифры)
   let html = tajweedText
-    .replace(/<tajweed\s+class=["']?([a-z0-9_]+)["']?>/g, (_, cls) => {
-      return `${ZWJ}<span class="tajweed-${cls} tajweed-span">`;
+    .replace(/<tajweed\s+class=["']?([^"'>\s]+)["']?>/g, (_, cls) => {
+      // Заменяем недопустимые для CSS символы (например, двоеточие) на подчеркивание
+      const safeCls = cls.replace(/[^a-zA-Z0-9_-]/g, '_');
+      return `${ZWJ}<span class="tajweed-${safeCls} tajweed-span" data-original-class="${cls}">`;
     })
     .replace(/<\/tajweed>/g, `</span>${ZWJ}`)
     .replace(/<span\s+class=["']?end["']?>(\d+)<\/span>/g, (_, num) => {
       return `<span class="read-ayah-marker">${ayahMarker(parseInt(num, 10))}</span>`;
     });
 
-  const classMatches = html.match(/class="tajweed-([a-z0-9_]+) tajweed-span"/g) || [];
-  const uniqueRules = [...new Set(classMatches.map(m => m.match(/tajweed-([a-z0-9_]+)/)[1]))];
+  const classMatches = html.match(/class="tajweed-([^ ]+) tajweed-span"/g) || [];
+  const uniqueRules = [...new Set(classMatches.map(m => m.match(/tajweed-([^ ]+)/)[1]))];
 
   let rulesHtml = '';
   if (uniqueRules.length > 0) {
     rulesHtml = '<div class="ayah-tajweed-rules">';
     uniqueRules.forEach(ruleKey => {
-      const rule = TAJWEED_RULES_MAP[ruleKey];
+      // Обрабатываем как стандартные, так и нестандартные (h_1, h_2) классы
+      let rule = TAJWEED_RULES_MAP[ruleKey];
+      if (!rule) {
+        // Пытаемся найти по оригинальному классу (на случай, если API выдал h:1)
+        const origMatch = html.match(new RegExp(`data-original-class="${ruleKey.replace(/_/g, ':')}"`));
+        if (origMatch) rule = TAJWEED_RULES_MAP[origMatch[1]];
+      }
+      
       if (rule) {
         rulesHtml += `<span class="rule-item"><i style="background:${rule.color};"></i>${rule.name}</span>`;
+      } else {
+        // Если класс неизвестен, выводим его как есть
+        rulesHtml += `<span class="rule-item"><i style="background:#AAAAAA;"></i>${ruleKey.replace(/_/g, ':')}</span>`;
       }
     });
     rulesHtml += '</div>';
