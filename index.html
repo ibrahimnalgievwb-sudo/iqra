@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'; worker-src 'self'; img-src 'self' data: blob: https://iqra-stats.goatcounter.com; font-src 'self' https://api.quran.foundation; connect-src 'self' https://iqra-stats.goatcounter.com https://api.quran.foundation; object-src 'none'; base-uri 'none'; form-action 'none';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'; worker-src 'self'; img-src 'self' data: blob: https://iqra-stats.goatcounter.com; font-src 'self' https://api.quran.foundation; connect-src 'self' https://iqra-stats.goatcounter.com https://api.quran.foundation https://api.alquran.cloud; object-src 'none'; base-uri 'none'; form-action 'none';">
 <meta name="referrer" content="no-referrer">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -1182,20 +1182,50 @@ button::-moz-focus-inner { border: 0; padding: 0; }
   color: var(--text) !important;
 }
 
-/* === TAJWEED: КЛАССЫ ЦВЕТОВ (Quran Foundation) ===
-   Цвета подобраны по стандарту Dar al-Maarifah (суннитская традиция).
-   line-height, font-size и letter-spacing не переопределяются, чтобы не ломать верстку. */
-.tajweed-ham_wasl, .tajweed-laam_shamsiyah, .tajweed-silent { color: #A0A0A0; }
-.tajweed-madda_normal { color: #00D2FF; }
-.tajweed-madda_permissible { color: #FFB347; }
-.tajweed-madda_obligatory { color: #FF4081; }
-.tajweed-madda_necessary { color: #FFD700; }
-.tajweed-qalqalah { color: #FF4D4D; }
-.tajweed-ghunnah { color: #2EE6A8; }
-.tajweed-ikhfa, .tajweed-ikhfa_shafawi { color: #C44DFF; }
-.tajweed-idghaam_ghunnah, .tajweed-idghaam_no_ghunnah, .tajweed-idghaam_shafawi, .tajweed-idghaam_mutajanisayn, .tajweed-idghaam_mutaqaribayn { color: #A8FF4D; }
-.tajweed-iqlab { color: #4DD2FF; }
-.tajweed-tafkhim { color: #1E3A8A; }
+/* === TAJWEED: ОФИЦИАЛЬНЫЕ ЦВЕТА (Dar al-Maarifah) === */
+.tajweed-ham_wasl, .tajweed-laam_shamsiyah, .tajweed-silent { color: #AAAAAA !important; }
+.tajweed-madda_normal { color: #537FFF !important; }
+.tajweed-madda_permissible { color: #4050FF !important; }
+.tajweed-madda_obligatory { color: #2144C1 !important; }
+.tajweed-madda_necessary { color: #000EBC !important; }
+.tajweed-qalqalah { color: #DD0008 !important; }
+.tajweed-ghunnah { color: #FF7E1E !important; }
+.tajweed-ikhfa, .tajweed-ikhfa_shafawi { color: #9400A8 !important; }
+.tajweed-idghaam_ghunnah { color: #169777 !important; }
+.tajweed-idghaam_no_ghunnah { color: #169200 !important; }
+.tajweed-idghaam_shafawi { color: #58B800 !important; }
+.tajweed-idghaam_mutajanisayn, .tajweed-idghaam_mutaqaribayn { color: #A1A1A1 !important; }
+.tajweed-iqlab { color: #26BFFD !important; }
+.tajweed-tafkhim { color: #1E3A8A !important; }
+
+/* Сохранение арабского соединения (shaping) */
+.tajweed-span {
+  display: inline !important;
+  white-space: normal !important;
+}
+
+/* Блок правил под аятом */
+.ayah-tajweed-rules {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(212,175,55,.3);
+  font-size: 12px;
+  font-weight: 600;
+}
+.ayah-tajweed-rules .rule-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.ayah-tajweed-rules .rule-item i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
 /* U1: копирование переводов и пояснений длинным нажатием */
 .read-ayah-trn,
 .read-ayah-tr,
@@ -2637,9 +2667,7 @@ async function resetCurrent(e) {
     t.current = 0; save(); updateCounterUI(); 
   }
 }
-// ===== TAJWEED FROM QURAN FOUNDATION API =====
-// Возвращает размеченный текст аята с тегами <tajweed class="...">.
-// Кэшируется в localStorage для работы офлайн после первого чтения.
+// ===== TAJWEED FROM ALQURAN.CLOUD API =====
 const TAJWEED_CACHE_PREFIX = 'iqra_tajweed_';
 
 async function fetchTajweedText(verseKey) {
@@ -2650,11 +2678,11 @@ async function fetchTajweedText(verseKey) {
   } catch (e) {}
 
   try {
-    const url = `https://api.quran.foundation/content/api/v4/quran/verses/uthmani_tajweed?verse_key=${verseKey}`;
+    const url = `https://api.alquran.cloud/v1/ayah/${verseKey}/quran-tajweed`;
     const res = await fetch(url);
     if (!res.ok) return null;
     const json = await res.json();
-    const text = json?.verses?.[0]?.text_uthmani_tajweed || null;
+    const text = json?.data?.text || null;
     if (text) {
       try { localStorage.setItem(cacheKey, text); } catch (e) {}
     }
@@ -2664,18 +2692,56 @@ async function fetchTajweedText(verseKey) {
   }
 }
 
-// Преобразует теги <tajweed> в <span> с ZWJ для сохранения арабского соединения.
+const TAJWEED_RULES_MAP = {
+  'ham_wasl': { name: 'Хамзат аль-васл', color: '#AAAAAA' },
+  'laam_shamsiyah': { name: 'Лям шамсия', color: '#AAAAAA' },
+  'silent': { name: 'Немая буква', color: '#AAAAAA' },
+  'madda_normal': { name: 'Мадд 2 (естественный)', color: '#537FFF' },
+  'madda_permissible': { name: 'Мадд 2/4/6 (допустимый)', color: '#4050FF' },
+  'madda_obligatory': { name: 'Мадд 4-5 (обязательный)', color: '#2144C1' },
+  'madda_necessary': { name: 'Мадд 6 (необходимый)', color: '#000EBC' },
+  'qalqalah': { name: 'Калькаля', color: '#DD0008' },
+  'ghunnah': { name: 'Гунна', color: '#FF7E1E' },
+  'ikhfa': { name: 'Ихфа', color: '#9400A8' },
+  'ikhfa_shafawi': { name: 'Ихфа шафави', color: '#D500B7' },
+  'idghaam_ghunnah': { name: 'Идгам с гунной', color: '#169777' },
+  'idghaam_no_ghunnah': { name: 'Идгам без гунны', color: '#169200' },
+  'idghaam_shafawi': { name: 'Идгам шафави', color: '#58B800' },
+  'idghaam_mutajanisayn': { name: 'Идгам мутаджанисайн', color: '#A1A1A1' },
+  'idghaam_mutaqaribayn': { name: 'Идгам мутакарибайн', color: '#A1A1A1' },
+  'iqlab': { name: 'Иклаб', color: '#26BFFD' },
+  'tafkhim': { name: 'Тафхим (утяжеление)', color: '#1E3A8A' }
+};
+
 function renderTajweedHtml(tajweedText) {
-  if (!tajweedText) return '';
+  if (!tajweedText) return { text: '', rules: '' };
   const ZWJ = '\u200D';
-  return tajweedText
-    .replace(/<tajweed class=([a-z0-9_]+)>/g, (_, cls) => {
-      return `${ZWJ}<span class="tajweed-${cls}">`;
+  
+  let html = tajweedText
+    .replace(/<tajweed\s+class=["']?([a-z0-9_]+)["']?>/g, (_, cls) => {
+      return `${ZWJ}<span class="tajweed-${cls} tajweed-span">`;
     })
     .replace(/<\/tajweed>/g, `</span>${ZWJ}`)
-    .replace(/<span class=end>(\d+)<\/span>/g, (_, num) => {
+    .replace(/<span\s+class=["']?end["']?>(\d+)<\/span>/g, (_, num) => {
       return `<span class="read-ayah-marker">${ayahMarker(parseInt(num, 10))}</span>`;
     });
+
+  const classMatches = html.match(/class="tajweed-([a-z0-9_]+) tajweed-span"/g) || [];
+  const uniqueRules = [...new Set(classMatches.map(m => m.match(/tajweed-([a-z0-9_]+)/)[1]))];
+
+  let rulesHtml = '';
+  if (uniqueRules.length > 0) {
+    rulesHtml = '<div class="ayah-tajweed-rules">';
+    uniqueRules.forEach(ruleKey => {
+      const rule = TAJWEED_RULES_MAP[ruleKey];
+      if (rule) {
+        rulesHtml += `<span class="rule-item"><i style="background:${rule.color};"></i>${rule.name}</span>`;
+      }
+    });
+    rulesHtml += '</div>';
+  }
+
+  return { text: html, rules: rulesHtml };
 }
 function editCurrent(e) { if (e) e.stopPropagation(); if (activeId) openForm(activeId); }
 function goHome() { if (activeId) saveNow(); activeId=null; releaseWakeLock(); renderDashboard(); showScreen('screen-dashboard'); }
@@ -2843,13 +2909,16 @@ function readNextSurah() {
     <div class="tajweed-legend">
       <div class="tl-title">Справка по Таджвиду</div>
       <div class="tl-items">
-        <span class="tl-item"><i style="background:#00D2FF;"></i> Мадд 2 — естественное удлинение гласного на 2 счёта</span>
-        <span class="tl-item"><i style="background:#FF4081;"></i> Мадд 4-5 — обязательное удлинение на 4–5 счётов</span>
-        <span class="tl-item"><i style="background:#FFD700;"></i> Мадд 6 — необходимое удлинение на 6 счётов</span>
-        <span class="tl-item"><i style="background:#FF4D4D;"></i> Калькаля — лёгкое «отскакивание» звука</span>
-        <span class="tl-item"><i style="background:#C44DFF;"></i> Ихфа — частичное сокрытие звука «нун» с назализацией</span>
-        <span class="tl-item"><i style="background:#2EE6A8;"></i> Гунна — назализация (носовой призвук) на 2 счёта</span>
-        <span class="tl-item"><i style="background:#A0A0A0;"></i> Сакт/Хамзат — немые (непроизносимые) буквы</span>
+        <span class="tl-item"><i style="background:#537FFF;"></i> Мадд 2 — естественное удлинение (2 счёта)</span>
+        <span class="tl-item"><i style="background:#4050FF;"></i> Мадд 2/4/6 — допустимое удлинение</span>
+        <span class="tl-item"><i style="background:#2144C1;"></i> Мадд 4-5 — обязательное удлинение</span>
+        <span class="tl-item"><i style="background:#000EBC;"></i> Мадд 6 — необходимое удлинение</span>
+        <span class="tl-item"><i style="background:#DD0008;"></i> Калькаля — «отскакивание» звука</span>
+        <span class="tl-item"><i style="background:#FF7E1E;"></i> Гунна — назализация (2 счёта)</span>
+        <span class="tl-item"><i style="background:#9400A8;"></i> Ихфа — сокрытие «нун» с назализацией</span>
+        <span class="tl-item"><i style="background:#169777;"></i> Идгам с гунной</span>
+        <span class="tl-item"><i style="background:#169200;"></i> Идгам без гунны</span>
+        <span class="tl-item"><i style="background:#AAAAAA;"></i> Хамзат васл / Лям шамсия / Немые</span>
       </div>
     </div>
   `;
@@ -2906,7 +2975,13 @@ function readNextSurah() {
       const raw = el.dataset.raw;
       const tajweed = await fetchTajweedText(verseKey);
       if (tajweed) {
-        el.innerHTML = renderTajweedHtml(tajweed);
+        const result = renderTajweedHtml(tajweed);
+        el.innerHTML = result.text;
+        if (result.rules) {
+          const rulesContainer = document.createElement('div');
+          rulesContainer.innerHTML = result.rules;
+          el.insertAdjacentElement('afterend', rulesContainer);
+        }
       } else {
         el.innerHTML = esc(raw);
       }
