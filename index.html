@@ -1853,7 +1853,7 @@ span[class^="tajweed-"] {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v292';
+const APP_VERSION = 'iqra-v293';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2703,8 +2703,22 @@ async function resetCurrent(e) {
 // ===== TAJWEED FROM ALQURAN.CLOUD API =====
 const TAJWEED_CACHE_PREFIX = 'iqra_tajweed_';
 
-// Очередь запросов: не более 3 одновременных запросов к API,
-// чтобы избежать блокировки и таймаутов при большом числе аятов.
+// Очередь запросов (только для одиночных аятов; суры грузятся целиком)
+const _tajweedQueue = [];
+let _tajweedActive = 0;
+const TAJWEED_MAX_CONCURRENT = 3;
+const TAJWEED_MAX_RETRIES = 2;
+
+function _processTajweedQueue() {
+  if (_tajweedActive >= TAJWEED_MAX_CONCURRENT || _tajweedQueue.length === 0) return;
+  const task = _tajweedQueue.shift();
+  _tajweedActive++;
+  task().finally(() => {
+    _tajweedActive--;
+    _processTajweedQueue();
+  });
+}
+
 async function fetchTajweedText(verseKey) {
   const cacheKey = TAJWEED_CACHE_PREFIX + verseKey;
   try {
@@ -2779,8 +2793,7 @@ async function fetchTajweedSurah(surahNumber) {
     return null;
   }
 }
-// Официальная таблица кодов API alquran.cloud (quran-tajweed edition)
-// Источник: https://alquran.cloud/tajweed-guide
+
 // Официальная таблица кодов API alquran.cloud (quran-tajweed edition)
 // Источник: https://alquran.cloud/tajweed-guide
 const TAJWEED_RULES_MAP = {
