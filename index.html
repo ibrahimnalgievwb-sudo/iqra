@@ -1844,7 +1844,7 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v282';
+const APP_VERSION = 'iqra-v285';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2975,11 +2975,12 @@ function readNextSurah() {
   if (prevBtn) { prevBtn.style.opacity = idx === 0 ? '0.3' : '1'; prevBtn.style.pointerEvents = idx === 0 ? 'none' : 'auto'; }
   if (nextBtn) { nextBtn.style.opacity = idx === state.quran.length - 1 ? '0.3' : '1'; nextBtn.style.pointerEvents = idx === state.quran.length - 1 ? 'none' : 'auto'; }
   
-  (async function applyTajweedAsync() {
-    for (const el of container.querySelectorAll('.read-ayah-ar')) {
+   (async function applyTajweedAsync() {
+    const elements = container.querySelectorAll('.read-ayah-ar');
+    await Promise.all(Array.from(elements).map(async (el) => {
       const ayahBlock = el.closest('.read-ayah');
       const verseKey = ayahBlock ? ayahBlock.dataset.verseKey : '';
-      if (!verseKey) continue;
+      if (!verseKey) return;
       
       const raw = el.dataset.raw;
       const tajweed = await fetchTajweedText(verseKey);
@@ -2994,9 +2995,8 @@ function readNextSurah() {
       } else {
         el.innerHTML = esc(raw);
       }
-    }
+    }));
   })();
-  
   saveNavContext();
 }
 function closeRead() {
@@ -4437,5 +4437,3 @@ if ('serviceWorker' in navigator) {
 })();
 </script>
 <script data-goatcounter="https://iqra-stats.goatcounter.com/count" async src="./count.js"></script>
-</body>
-</html>
