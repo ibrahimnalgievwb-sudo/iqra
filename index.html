@@ -2773,10 +2773,11 @@ function readNextSurah() {
   const container = document.getElementById('read-body');
   
   // Создаем компонент с таджвидом
-  container.innerHTML = `
+   container.innerHTML = `
     <div style="display: flex; justify-content: center; padding: 10px; background: var(--bg);">
-           <open-quran-view 
+        <open-quran-view 
             page="${pageNumber}"
+            base-url="./"
             mushaf-layout="hafs-v4" 
             width="600"
             height="850"
