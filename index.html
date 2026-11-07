@@ -1853,7 +1853,7 @@ span[class^="tajweed-"] {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v291';
+const APP_VERSION = 'iqra-v292';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2705,9 +2705,50 @@ const TAJWEED_CACHE_PREFIX = 'iqra_tajweed_';
 
 // Очередь запросов: не более 3 одновременных запросов к API,
 // чтобы избежать блокировки и таймаутов при большом числе аятов.
-// Загрузка Таджвида для ВСЕЙ суры одним запросом.
-// API: https://api.alquran.cloud/v1/surah/{number}/quran-tajweed
-// Возвращает объект { "1": "текст аята 1", "2": "текст аята 2", ... }
+async function fetchTajweedText(verseKey) {
+  const cacheKey = TAJWEED_CACHE_PREFIX + verseKey;
+  try {
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) return cached;
+  } catch (e) {}
+
+  return new Promise((resolve) => {
+    _tajweedQueue.push(async () => {
+      let attempt = 0;
+      while (attempt <= TAJWEED_MAX_RETRIES) {
+        try {
+          const url = `https://api.alquran.cloud/v1/ayah/${verseKey}/quran-tajweed`;
+          const res = await fetch(url);
+          if (!res.ok) {
+            if (res.status === 429) {
+              await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
+              attempt++;
+              continue;
+            }
+            resolve(null); return;
+          }
+          const json = await res.json();
+          const text = json?.data?.text || null;
+          if (text) {
+            try { localStorage.setItem(cacheKey, text); } catch (e) {}
+            resolve(text);
+            return;
+          }
+          resolve(null); return;
+        } catch (e) {
+          if (attempt < TAJWEED_MAX_RETRIES) {
+            await new Promise(r => setTimeout(r, 500 * (attempt + 1)));
+            attempt++;
+          } else {
+            resolve(null); return;
+          }
+        }
+      }
+    });
+    _processTajweedQueue();
+  });
+}
+
 async function fetchTajweedSurah(surahNumber) {
   const cacheKey = `iqra_tajweed_surah_${surahNumber}`;
   try {
@@ -2738,44 +2779,6 @@ async function fetchTajweedSurah(surahNumber) {
     return null;
   }
 }
-
-  // Задача с повторными попытками
-  return new Promise((resolve) => {
-    _tajweedQueue.push(async () => {
-      let attempt = 0;
-      while (attempt <= TAJWEED_MAX_RETRIES) {
-        try {
-          const url = `https://api.alquran.cloud/v1/ayah/${verseKey}/quran-tajweed`;
-          const res = await fetch(url);
-          if (!res.ok) {
-            if (res.status === 429) { // rate limit — подождём
-              await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
-              attempt++;
-              continue;
-            }
-            resolve(null); return;
-          }
-          const json = await res.json();
-          const text = json?.data?.text || null;
-          if (text) {
-            try { localStorage.setItem(cacheKey, text); } catch (e) {}
-            resolve(text);
-            return;
-          }
-          resolve(null); return;
-        } catch (e) {
-          if (attempt < TAJWEED_MAX_RETRIES) {
-            await new Promise(r => setTimeout(r, 500 * (attempt + 1)));
-            attempt++;
-          } else {
-            resolve(null); return;
-          }
-        }
-      }
-    });
-    _processTajweedQueue();
-  });
-}
 // Официальная таблица кодов API alquran.cloud (quran-tajweed edition)
 // Источник: https://alquran.cloud/tajweed-guide
 // Официальная таблица кодов API alquran.cloud (quran-tajweed edition)
@@ -2803,47 +2806,23 @@ const TAJWEED_RULES_MAP = {
 function renderTajweedHtml(tajweedText) {
   if (!tajweedText) return { text: '', rules: '' };
 
-  // Формат API: [code[text]  (например, [h:9421[ٱ])
-  // Регулярное выражение извлекает код (одна буква, опционально с :числом) и текст.
   const regex = /\[([a-zA-Z])(?::\d+)?\[(.*?)\]/g;
 
   let html = tajweedText.replace(regex, (_, code, content) => {
     const rule = TAJWEED_RULES_MAP[code.toLowerCase()];
     if (rule) {
-      // НИКАКОГО ZWJ. Полагаемся на нативный shaping браузера.
-      // В Chrome и Firefox цвет через span не ломает соединение.
       return `<span class="tajweed-${rule.className}">${content}</span>`;
     }
     console.warn('Unknown tajweed code:', code);
     return content;
   });
 
-  // Удаляем возможные остатки старых форматов (на случай кэша)
   html = html.replace(/\[\/?[a-z0-9_:]+\]/gi, '');
   html = html.replace(/<tajweed\s+class=["']?([^"'>\s]+)["']?\s*>/gi, (_, cls) => {
     const safeCls = cls.replace(/[^a-zA-Z0-9_-]/g, '_');
     return `<span class="tajweed-${safeCls}">`;
   }).replace(/<\/tajweed>/gi, '</span>');
 
-  // Собираем уникальные классы правил
-  const classMatches = html.match(/class="tajweed-([a-z0-9_]+)"/gi) || [];
-  const uniqueRuleClasses = [...new Set(classMatches.map(m => m.match(/tajweed-([a-z0-9_]+)/i)[1]))];
-
-  let rulesHtml = '';
-  if (uniqueRuleClasses.length > 0) {
-    rulesHtml = '<div class="ayah-tajweed-rules">';
-    uniqueRuleClasses.forEach(cls => {
-      const rule = Object.values(TAJWEED_RULES_MAP).find(r => r.className === cls);
-      if (rule) {
-        rulesHtml += `<span class="rule-item"><i style="background:${rule.color};"></i>${rule.name}</span>`;
-      }
-    });
-    rulesHtml += '</div>';
-  }
-
-  return { text: html, rules: rulesHtml };
-}
-  // Собираем уникальные классы правил
   const classMatches = html.match(/class="tajweed-([a-z0-9_]+)"/gi) || [];
   const uniqueRuleClasses = [...new Set(classMatches.map(m => m.match(/tajweed-([a-z0-9_]+)/i)[1]))];
 
@@ -3084,7 +3063,7 @@ function readNextSurah() {
   if (prevBtn) { prevBtn.style.opacity = idx === 0 ? '0.3' : '1'; prevBtn.style.pointerEvents = idx === 0 ? 'none' : 'auto'; }
   if (nextBtn) { nextBtn.style.opacity = idx === state.quran.length - 1 ? '0.3' : '1'; nextBtn.style.pointerEvents = idx === state.quran.length - 1 ? 'none' : 'auto'; }
   
-      (async function applyTajweedAsync() {
+          (async function applyTajweedAsync() {
     const elements = container.querySelectorAll('.read-ayah-ar');
     if (!elements.length) return;
 
@@ -3109,23 +3088,32 @@ function readNextSurah() {
               el.insertAdjacentElement('afterend', rulesContainer);
             }
           }
-          // Если для аята нет таджвида — оставляем исходный текст
         });
         return; // Вся сура обработана
       }
     }
 
-    // Для отдельных аятов (не сур) — оставляем старую логику,
-    // но она будет работать только для одного-двух аятов.
+    // Для отдельных аятов (не сур)
     for (const el of elements) {
       const ayahBlock = el.closest('.read-ayah');
       const verseKey = ayahBlock ? ayahBlock.dataset.verseKey : '';
       if (!verseKey) continue;
 
       const raw = el.dataset.raw;
-      // Для аятов можно использовать старый fetchTajweedText, если он ещё нужен
-      // (но для сур он больше не вызывается).
-      // ...
+      const tajweed = await fetchTajweedText(verseKey);
+      if (tajweed) {
+        const result = renderTajweedHtml(tajweed);
+        el.innerHTML = result.text;
+        const existingRules = ayahBlock.querySelector('.ayah-tajweed-rules');
+        if (existingRules) existingRules.remove();
+        if (result.rules) {
+          const rulesContainer = document.createElement('div');
+          rulesContainer.innerHTML = result.rules;
+          el.insertAdjacentElement('afterend', rulesContainer);
+        }
+      } else {
+        el.innerHTML = esc(raw);
+      }
     }
   })();
   saveNavContext();
