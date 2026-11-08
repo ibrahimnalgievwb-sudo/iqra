@@ -1903,7 +1903,7 @@ span[class^="tajweed-"] {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v331';
+const APP_VERSION = 'iqra-v332';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2942,6 +2942,27 @@ async function resetCurrent(e) {
     t.current = 0; save(); updateCounterUI(); 
   }
 }
+
+function editCurrent(e) { if (e) e.stopPropagation(); if (activeId) openForm(activeId); }
+function goHome() { if (activeId) saveNow(); activeId=null; releaseWakeLock(); renderDashboard(); showScreen('screen-dashboard'); }
+async function requestWakeLock() { try { if ('wakeLock' in navigator) { wakeLock=await navigator.wakeLock.request('screen'); wakeLock.addEventListener('release',()=>{wakeLock=null;}); } } catch(e){} }
+function releaseWakeLock() { try { if (wakeLock) { wakeLock.release(); wakeLock=null; } } catch(e){} }
+document.addEventListener('visibilitychange', ()=>{ if (document.visibilityState==='visible' && activeId && state.settings.wakeLock) requestWakeLock(); });
+function ensureAudio(){ try { if (!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)(); if (audioCtx.state==='suspended') audioCtx.resume(); } catch(e){} }
+function playClick() { if (!state.settings.sound) return; ensureAudio(); if (!audioCtx) return; const t=audioCtx.currentTime; const o=audioCtx.createOscillator(), g=audioCtx.createGain(); o.type='sine'; o.frequency.setValueAtTime(680,t); o.frequency.exponentialRampToValueAtTime(420,t+0.05); g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.08,t+0.005); g.gain.exponentialRampToValueAtTime(0.0001,t+0.09); o.connect(g).connect(audioCtx.destination); o.start(t); o.stop(t+0.1); }
+function playChime() { if (!state.settings.sound) return; ensureAudio(); if (!audioCtx) return; const t=audioCtx.currentTime; [660,880].forEach((f,i)=>{ const o=audioCtx.createOscillator(), g=audioCtx.createGain(); o.type='sine'; o.frequency.value=f; g.gain.setValueAtTime(0.0001,t+i*0.08); g.gain.exponentialRampToValueAtTime(0.06,t+i*0.08+0.02); g.gain.exponentialRampToValueAtTime(0.0001,t+i*0.08+0.5); o.connect(g).connect(audioCtx.destination); o.start(t+i*0.08); o.stop(t+i*0.08+0.55); }); }
+
+function renderPresets() { document.getElementById('presets').innerHTML = PRESETS.map((p,i)=>`<button type="button" class="preset-chip" onclick="applyPreset(${i})">${esc((p.tr||'').slice(0,30))}</button>`).join(''); }
+function applyPreset(i) { const p=PRESETS[i]; document.getElementById('f-ar').value=p.ar; document.getElementById('f-tr').value=p.tr; document.getElementById('f-trn').value=p.trn; document.getElementById('f-target').value=p.target; updatePreview(); }
+function updatePreview() { document.getElementById('pv-ar').textContent=document.getElementById('f-ar').value; document.getElementById('pv-tr').textContent=document.getElementById('f-tr').value; document.getElementById('pv-trn').textContent=document.getElementById('f-trn').value; state.draft={ar:document.getElementById('f-ar').value.slice(0,LIMITS.textLen),tr:document.getElementById('f-tr').value.slice(0,LIMITS.textLen),trn:document.getElementById('f-trn').value.slice(0,LIMITS.textLen),target:document.getElementById('f-target').value}; save(); }
+function openForm(id) { editingId=id||null; const t=id?getById(id):null; document.getElementById('form-title').textContent=id?'Редактировать':'Новый Тасбих'; let ar='',tr='',trn='',target=33; if (t) { ar=t.arabic; tr=t.transcription; trn=t.translation; target=t.target; } else if (state.draft) { ar=state.draft.ar||''; tr=state.draft.tr||''; trn=state.draft.trn||''; target=state.draft.target||33; } document.getElementById('f-ar').value=ar; document.getElementById('f-tr').value=tr; document.getElementById('f-trn').value=trn; document.getElementById('f-target').value=target; document.getElementById('btn-delete').style.display=id?'block':'none'; updatePreview(); showScreen('screen-form'); }
+function cancelForm() { if (activeId) showScreen('screen-counter'); else { renderTasbih(); showScreen('screen-tasbih'); } }
+function stepTarget(d){ const el=document.getElementById('f-target'); el.value=Math.max(1,(parseInt(el.value)||1)+d); updatePreview(); }
+function saveForm() { const arabic=document.getElementById('f-ar').value.trim().slice(0,LIMITS.textLen); const transcription=document.getElementById('f-tr').value.trim().slice(0,LIMITS.textLen); const translation=document.getElementById('f-trn').value.trim().slice(0,LIMITS.textLen); const target=Math.max(1,Math.min(LIMITS.targetMax,parseInt(document.getElementById('f-target').value)||33)); if (!arabic && !transcription && !translation) { alert('Заполните хотя бы одно поле'); return; } if (editingId) { const t=getById(editingId); t.arabic=arabic; t.transcription=transcription; t.translation=translation; t.target=target; if (t.current>target) { t.current=0; t.cycles=0; } } else {
+    if (state.tasbihs.length >= LIMITS.tasbihs) { alert('Максимум ' + LIMITS.tasbihs + ' тасбихов. Удалите старые.'); return; }
+    state.tasbihs.push({id:'u'+Date.now(),arabic,transcription,translation,target,current:0,cycles:0}); } state.draft=null; save(); if (state.settings.vibrate && navigator.vibrate) navigator.vibrate(15); showMarkToast('Сохранено'); if (activeId) openCounter(activeId); else { renderTasbih(); showScreen('screen-tasbih'); } }
+async function deleteCurrent() {   if (!editingId) return;   if (!await confirmAsync('Удалить тасбих?', 'Это действие нельзя отменить.', 'Удалить', 'Отмена')) return;   state.tasbihs = state.tasbihs.filter(t => t.id !== editingId);   save(); activeId = null; editingId = null; renderTasbih(); showScreen('screen-tasbih'); }
+
 // ===== TAJWEED FROM ALQURAN.CLOUD API =====
 const TAJWEED_CACHE_PREFIX = 'iqra_tajweed_';
 
