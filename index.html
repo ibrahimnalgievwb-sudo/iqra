@@ -133,8 +133,9 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   padding: 10px 0;
   display: block;
   overflow: visible;
-  color: var(--text) !important;
-  -webkit-text-fill-color: var(--text) !important;
+  /* Возвращаем золотой цвет (сплошной, без градиента) */
+  color: var(--ar-g2) !important;
+  -webkit-text-fill-color: var(--ar-g2) !important;
   background-image: none !important;
   -webkit-background-clip: initial !important;
   background-clip: initial !important;
@@ -1881,7 +1882,7 @@ span[class^="tajweed-"] {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v311';
+const APP_VERSION = 'iqra-v312';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -3035,7 +3036,7 @@ async function applyTajweedToContainer(container, item) {
         });
       }
     } else {
-      // Для одиночных аятов оставляем поштучную загрузку
+      // Для одиночных аятов (Аят аль-Курси, рукья) оставляем поштучную загрузку
       const arr = Array.from(elements);
       const tasks = arr.map(function(el) {
         const ayahBlock = el.closest('.read-ayah');
