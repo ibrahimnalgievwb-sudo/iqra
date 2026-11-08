@@ -1841,9 +1841,11 @@ span[class^="tajweed-"] {
 <button id="debug-fab" onclick="runTajweedDiagnostics()" aria-label="Диагностика таджвида">🔍</button>
 <div id="debug-overlay" role="dialog" aria-label="Диагностика таджвида">
   <pre id="debug-output">Нажмите «Запустить» для проверки.</pre>
-  <div id="debug-actions">
+  <div id="debug-actions" style="flex-wrap:wrap;">
     <button class="btn secondary" onclick="copyDebugOutput()">Скопировать</button>
-    <button class="btn" onclick="runTajweedDiagnostics()">Запустить</button>
+    <button class="btn" onclick="runTajweedDiagnostics()">API-тест</button>
+    <button class="btn secondary" onclick="testScreenTajweed('read')">Тест openRead (112)</button>
+    <button class="btn secondary" onclick="testScreenTajweed('quran')">Тест openQuran (112)</button>
     <button class="btn secondary" onclick="document.getElementById('debug-overlay').classList.remove('active')">Закрыть</button>
   </div>
 </div>
@@ -1882,7 +1884,7 @@ span[class^="tajweed-"] {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v301';
+const APP_VERSION = 'iqra-v302';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -4402,6 +4404,76 @@ async function runTajweedDiagnostics() {
     out.push('DOM ERROR: ' + (e && e.message ? e.message : String(e)));
   } finally {
     testDiv.remove();
+  }
+  out.push('');
+  out.push('=== END ===');
+  showDebugResult(out.join('\n'));
+}
+
+async function testScreenTajweed(kind) {
+  ...
+}
+
+async function testScreenTajweed(kind) {
+  try { closeRead(); } catch(e) {}
+  try { closeMemorize(); } catch(e) {}
+  var ov = document.getElementById('debug-overlay');
+  if (ov) ov.classList.add('active');
+
+  var id = 'q112';
+  var item = getQuranById(id);
+  if (!item) { showDebugResult('ERROR: q112 не найден'); return; }
+
+  if (kind === 'read') openRead(id);
+  else openQuran(id);
+
+  for (var i = 1; i <= 60; i++) {
+    await new Promise(function(r){ setTimeout(r, 1000); });
+    var pre = document.getElementById('debug-output');
+    if (pre) {
+      pre.textContent = '=== SCREEN TEST: ' + kind + ' ===\n\n' +
+        'Открыт экран ' + (kind === 'read' ? 'openRead' : 'openQuran') + ' для ' + item.title + '.\n' +
+        'Прошло ' + i + ' сек из 60. Ждём загрузки таджвида (API медленный).\n\n' +
+        'Не закрывайте приложение.';
+    }
+    if (ov) ov.classList.add('active');
+  }
+
+  var container = kind === 'read' ? document.getElementById('read-body') : document.getElementById('quran-detail-content');
+  var out = [];
+  out.push('=== SCREEN TEST: ' + kind + ' ===');
+  out.push('Time: ' + new Date().toISOString());
+  out.push('APP_VERSION: ' + APP_VERSION);
+  out.push('');
+  if (!container) { out.push('ERROR: container not found'); showDebugResult(out.join('\n')); return; }
+
+  var arEls = container.querySelectorAll('.read-ayah-ar');
+  out.push('read-ayah-ar elements: ' + arEls.length);
+
+  var totalSpans = 0;
+  var withSpans = 0;
+  var firstSpanColor = '';
+  arEls.forEach(function(el) {
+    var spans = el.querySelectorAll('span[class^="tajweed-"]');
+    totalSpans += spans.length;
+    if (spans.length) {
+      withSpans++;
+      if (!firstSpanColor && spans[0]) firstSpanColor = getComputedStyle(spans[0]).color;
+    }
+  });
+  out.push('Total tajweed spans: ' + totalSpans);
+  out.push('Ayahs with spans: ' + withSpans + ' / ' + arEls.length);
+  out.push('First span color: ' + (firstSpanColor || 'n/a'));
+
+  if (arEls[0]) {
+    var el0 = arEls[0];
+    var cs0 = getComputedStyle(el0);
+    out.push('');
+    out.push('First ayah-ar:');
+    out.push('  textLength: ' + (el0.textContent || '').length);
+    out.push('  innerHTML (first 200): ' + el0.innerHTML.slice(0, 200));
+    out.push('  color: ' + cs0.color);
+    out.push('  -webkit-text-fill-color: ' + (cs0.webkitTextFillColor || 'n/a'));
   }
   out.push('');
   out.push('=== END ===');
