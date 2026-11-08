@@ -1903,7 +1903,7 @@ span[class^="tajweed-"] {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v322';
+const APP_VERSION = 'iqra-v323';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2167,10 +2167,64 @@ let state = load();
 let activeId = null, editingId = null;
 let activeDuaId = null, activeQuranId = null, activeHadithId = null, activeNightId = null;
 let quranFilter = 'all';
+async function renderQuranList() {
+  const el = document.getElementById('quran-list');
+  const qEl = document.getElementById('quran-search');
+  if (!el) return;
+  
+  let q = qEl ? (qEl.value || '').toLowerCase().trim() : '';
+  const ayahM = q.match(/^(\d+)\s*[:\-]\s*\d+$/);
+  if (ayahM) q = ayahM[1];
+  const qAr = normalizeArabic(q);
+  
+  let items = state.quran;
+  
+  if (quranFilter === 'surah') {
+    items = items.filter(i => i.type === 'surah');
+  } else if (quranFilter === 'ruqyah') {
+    items = items.filter(i => i.type === 'ruqyah' || ['q109','q112','q113','q114'].includes(i.id));
+  }
+  
+  if (q) {
+    items = items.filter(item => {
+      const hay = [item.title, item.subtitle, item.arabic, item.transcription, item.translation, String(item.number || '')].filter(Boolean).join(' ').toLowerCase();
+      if (hay.includes(q)) return true;
+      if (qAr && normalizeArabic([item.title, item.arabic, item.transcription].filter(Boolean).join(' ')).includes(qAr)) return true;
+      return false;
+    });
+  }
+  
+  if (!items.length && quranFilter !== 'ruqyah') { 
+    el.innerHTML = state.quran.length ? '<div class="empty">Ничего не найдено</div>' : '<div class="empty">Пока нет текстов</div>'; 
+    return; 
+  }
+  
+  let html = '';
+  if (quranFilter === 'ruqyah') {
+    html += `<div class="content-card" onclick="openDua('ruqyah_guide')" style="border: 1px solid var(--accent); background: rgba(var(--accent-rgb), 0.05);"><div class="c-title" style="color: var(--accent);">📖 Руководство по Рукье</div><div class="c-sub">Статус сидра · Аяты о колдовстве · Профилактика</div><div class="c-tr">Нажмите, чтобы прочитать важные наставления учёных и фетвы Ибн База</div></div>`;
+    html += `<div class="content-card" onclick="openQuran('ruqyah_araf')" style="border: 1px dashed var(--accent2);"><div class="c-badge">Рукья</div><div class="c-title">Аяты о колдовстве</div><div class="c-sub">Начните с аль-А'раф 117–119 · Юнус и Та Ха — ниже в списке</div><div class="c-ar ar-font">وَأَوْحَيْنَا إِلَىٰ مُوسَىٰ أَنْ أَلْقِ عَصَاكَ ۖ فَإِذَا هِيَ تَلْقَفُ مَا يَأْفِكُونَ</div><div class="c-tr">Читаются в составе шариатской рукьи на воду или над больным</div></div>`;
+  }
+  
+  html += items.map(item => {
+    const fav = isFavorite(item.id);
+    const numHtml = item.type === 'surah' ? `<div class="c-num">${item.number}</div>` : '';
+    const hasNum = item.type === 'surah' ? ' has-num' : '';
+    const star = `<button class="star-btn ${fav?'active':''}" aria-label="${fav?'Убрать из избранного':'Добавить в избранное'}: ${escAttr(item.title)}" onclick="starClick(event,'${escAttr(item.id)}','quran')">${fav?'<svg class="ico"><use href="#i-star-filled"/></svg>':'<svg class="ico"><use href="#i-star"/></svg>'}</button>`;
+    let readBadge = '';
+    if (item.type === 'surah' && state.settings.readAyah && typeof state.settings.readAyah[item.id] === 'number' && state.settings.readAyah[item.id] > 0) {
+      const ayahN = state.settings.readAyah[item.id] + 1;
+      readBadge = `<div class="c-badge">С аята ${ayahN}</div>`;
+    }
+    return `<div class="content-card${hasNum}" onclick="openQuran('${item.id}')">${numHtml}${star}${readBadge}<div class="c-title">${esc(item.title)}</div><div class="c-sub">${esc(item.subtitle||'')}</div><div class="c-ar ar-font">${esc(item.arabic)}</div><div class="c-tr">${esc(item.translation)}</div></div>`;
+  }).join('');
+  
+  el.innerHTML = html;
+}
+
 function setQuranFilter(f) {
   quranFilter = f;
   document.querySelectorAll('[data-q-filter]').forEach(b => b.classList.toggle('active', b.dataset.qFilter === f));
-  renderQuranList();
+  if (typeof renderQuranList === 'function') renderQuranList();
 }
 let calDate = new Date();
 let progTab = 'overview';
@@ -3820,10 +3874,19 @@ function setNav(tab) { document.querySelectorAll('.nav button').forEach(b=>b.cla
 async function switchTab(tab) {
   trackEvent('tab/' + tab, 'Вкладка: ' + tab);
   if (state.settings.vibrate && navigator.vibrate) navigator.vibrate(10);
+  
   if (tab==='dashboard') { renderDashboard(); showScreen('screen-dashboard'); }
   else if (tab==='tasbih') { renderTasbih(); showScreen('screen-tasbih'); }
-  else if (tab==='quran') { setQuranFilter('all'); await renderQuranList(); showScreen('screen-quran'); }
-  else if (tab==='ruqyah') { setQuranFilter('ruqyah'); await renderQuranList(); showScreen('screen-quran'); }
+  else if (tab==='quran') { 
+    setQuranFilter('all'); 
+    if (typeof renderQuranList === 'function') await renderQuranList(); 
+    showScreen('screen-quran'); 
+  }
+  else if (tab==='ruqyah') { 
+    setQuranFilter('ruqyah'); 
+    if (typeof renderQuranList === 'function') await renderQuranList(); 
+    showScreen('screen-quran'); 
+  }
   else if (tab==='night') { renderNightList(); showScreen('screen-night'); }
   else if (tab==='dua') { renderDuaList(); showScreen('screen-dua'); }
   else if (tab==='hadith') { renderHadithList(); showScreen('screen-hadith'); }
