@@ -1924,7 +1924,7 @@ span[class^="tajweed-"] {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v314';
+const APP_VERSION = 'iqra-v315';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2933,44 +2933,21 @@ function renderTajweedHtml(tajweedText) {
   }).replace(/<\/tajweed>/gi, '</span>');
 
   let rulesSet = new Set();
-  
-  // 2. Рекурсивный парсер для формата [h:123[ٱ] и вложенных конструкций
-  function parse(text) {
-    let result = '';
-    let i = 0;
-    while (i < text.length) {
-      if (text[i] === '[') {
-        let depth = 1;
-        let j = i + 1;
-        while (j < text.length && depth > 0) {
-          if (text[j] === '[') depth++;
-          else if (text[j] === ']') depth--;
-          j++;
-        }
-        if (depth === 0) {
-          const inner = text.slice(i + 1, j - 1);
-          const match = inner.match(/^([a-zA-Z])(?::\d+)?\[(.*)\]$/s);
-          if (match) {
-            const code = match[1].toLowerCase();
-            const content = match[2];
-            const rule = TAJWEED_RULES_MAP[code];
-            if (rule) {
-              rulesSet.add(rule);
-              // \u200D убран, чтобы не ломать арабские слова
-              result += `<span class="tajweed-${rule.className}">${parse(content)}</span>`;
-              i = j;
-              continue;
-            }
-          }
-        }
-      }
-      result += text[i];
-      i++;
-    }
-    return result;
-  }
 
-  let html = parse(normalized);
+  // 2. Парсим формат [h:1[ٱ] от alquran.cloud
+  // API возвращает теги в формате [rule[letter], без закрывающей скобки для слова.
+  // Рекурсивный парсер был ошибочным и ломал слова, оставляя сырые теги.
+  let html = normalized.replace(/\[([a-zA-Z])(?::\d+)?\[([^\]]+)\]/g, (match, code, content) => {
+    const rule = TAJWEED_RULES_MAP[code.toLowerCase()];
+    if (rule) {
+      rulesSet.add(rule);
+      return `<span class="tajweed-${rule.className}">${content}</span>`;
+    }
+    // Если правило неизвестно, просто убираем тег, оставляя текст
+    return content;
+  });
+
+  // Удаляем любые оставшиеся непарные теги (на всякий случай)
   html = html.replace(/\[\/?[a-z0-9_:]+\]/gi, '');
 
   let rulesHtml = '';
