@@ -1881,7 +1881,7 @@ span[class^="tajweed-"] {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v310';
+const APP_VERSION = 'iqra-v311';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2733,7 +2733,7 @@ const TAJWEED_CACHE_PREFIX = 'iqra_tajweed_';
 
 const _tajweedQueue = [];
 let _tajweedActive = 0;
-const TAJWEED_MAX_CONCURRENT = 4;
+const TAJWEED_MAX_CONCURRENT = 2; // Снижено для защиты от 429 Too Many Requests
 const TAJWEED_MAX_RETRIES = 2;
 
 function _processTajweedQueue() {
@@ -3005,38 +3005,69 @@ async function applyTajweedToContainer(container, item) {
 
   var success = false;
   try {
-    const arr = Array.from(elements);
-    const tasks = arr.map(function(el) {
-      const ayahBlock = el.closest('.read-ayah');
-      if (!ayahBlock) return Promise.resolve(false);
-      const verseKey = ayahBlock.dataset.verseKey;
-      if (!verseKey) return Promise.resolve(false);
-      const raw = el.dataset.raw || '';
+    // Если это сура — загружаем весь таджвид ОДНИМ запросом
+    if (item.type === 'surah') {
+      const surahMap = await fetchTajweedSurah(item.number);
+      if (surahMap) {
+        success = true;
+        Array.from(elements).forEach(function(el) {
+          const ayahBlock = el.closest('.read-ayah');
+          if (!ayahBlock) return;
+          const verseKey = ayahBlock.dataset.verseKey; // "67:1"
+          if (!verseKey) return;
+          const ayahNum = parseInt(verseKey.split(':')[1], 10);
+          const tajweedText = surahMap[ayahNum];
+          const raw = el.dataset.raw || '';
+          
+          if (tajweedText) {
+            const result = renderTajweedHtml(tajweedText);
+            el.innerHTML = result.text;
+            const existingRules = ayahBlock.querySelector('.ayah-tajweed-rules');
+            if (existingRules) existingRules.remove();
+            if (result.rules) {
+              const rulesContainer = document.createElement('div');
+              rulesContainer.innerHTML = result.rules;
+              el.insertAdjacentElement('afterend', rulesContainer);
+            }
+          } else {
+            el.innerHTML = esc(raw);
+          }
+        });
+      }
+    } else {
+      // Для одиночных аятов оставляем поштучную загрузку
+      const arr = Array.from(elements);
+      const tasks = arr.map(function(el) {
+        const ayahBlock = el.closest('.read-ayah');
+        if (!ayahBlock) return Promise.resolve(false);
+        const verseKey = ayahBlock.dataset.verseKey;
+        if (!verseKey) return Promise.resolve(false);
+        const raw = el.dataset.raw || '';
 
-      return fetchTajweedText(verseKey).then(function(tajweed) {
-        if (!tajweed) {
+        return fetchTajweedText(verseKey).then(function(tajweed) {
+          if (!tajweed) {
+            el.innerHTML = esc(raw);
+            return false;
+          }
+          const result = renderTajweedHtml(tajweed);
+          el.innerHTML = result.text;
+          const existingRules = ayahBlock.querySelector('.ayah-tajweed-rules');
+          if (existingRules) existingRules.remove();
+          if (result.rules) {
+            const rulesContainer = document.createElement('div');
+            rulesContainer.innerHTML = result.rules;
+            el.insertAdjacentElement('afterend', rulesContainer);
+          }
+          return true;
+        }).catch(function() {
           el.innerHTML = esc(raw);
           return false;
-        }
-        const result = renderTajweedHtml(tajweed);
-        el.innerHTML = result.text;
-        const existingRules = ayahBlock.querySelector('.ayah-tajweed-rules');
-        if (existingRules) existingRules.remove();
-        if (result.rules) {
-          const rulesContainer = document.createElement('div');
-          rulesContainer.innerHTML = result.rules;
-          el.insertAdjacentElement('afterend', rulesContainer);
-        }
-        return true;
-      }).catch(function() {
-        el.innerHTML = esc(raw);
-        return false;
+        });
       });
-    });
-
-    const results = await Promise.all(tasks);
-    success = results.some(function(r) { return r === true; });
-   } catch (e) {
+      const results = await Promise.all(tasks);
+      success = results.some(function(r) { return r === true; });
+    }
+  } catch (e) {
     console.warn('Tajweed apply error:', e);
   }
 
