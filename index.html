@@ -1903,7 +1903,7 @@ span[class^="tajweed-"] {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v324';
+const APP_VERSION = 'iqra-v325';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -3878,11 +3878,11 @@ async function switchTab(tab) {
   if (tab==='dashboard') { renderDashboard(); showScreen('screen-dashboard'); }
   else if (tab==='tasbih') { renderTasbih(); showScreen('screen-tasbih'); }
   else if (tab==='quran') { 
-    setQuranFilter('all'); 
+    setQuranFilter('all'); // Внутри уже есть вызов renderQuranList
     showScreen('screen-quran'); 
   }
   else if (tab==='ruqyah') { 
-    setQuranFilter('ruqyah'); 
+    setQuranFilter('ruqyah'); // Внутри уже есть вызов renderQuranList
     showScreen('screen-quran'); 
   }
   else if (tab==='night') { renderNightList(); showScreen('screen-night'); }
