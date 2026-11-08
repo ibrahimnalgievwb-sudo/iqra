@@ -164,7 +164,13 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .tasbih-card .ar,
 .content-card .c-ar,
 .preview-card .pv-ar { min-height: 1.8em; }
-.read-ayah-ar { font-size:calc(30px * var(--ar-scale)); line-height: 3 !important; direction:rtl; text-align:right !important; text-align-last: right !important; padding-top: 15px; padding-bottom: 15px; margin-bottom: 10px; border-bottom: 1px dashed var(--border); overflow-wrap: anywhere; word-break: normal; word-spacing: normal !important; letter-spacing: normal !important; min-height: calc(80px * var(--ar-scale)) !important; width: 100%; max-width: 100%; box-sizing: border-box; display: block; } /* FIX ANDROID: отключаем градиент у аятов, чтобы вложенные цвета таджвида не игнорировались */ .read-ayah-ar {   background-image: none !important;   -webkit-text-fill-color: var(--ar-g2) !important;   color: var(--ar-g2) !important; }
+.read-ayah-ar { font-size:calc(30px * var(--ar-scale)); line-height: 3 !important; direction:rtl; text-align:right !important; text-align-last: right !important; padding-top: 15px; padding-bottom: 15px; margin-bottom: 10px; border-bottom: 1px dashed var(--border); overflow-wrap: anywhere; word-break: normal; word-spacing: normal !important; letter-spacing: normal !important; min-height: calc(80px * var(--ar-scale)) !important; width: 100%; max-width: 100%; box-sizing: border-box; display: block; } /* FIX ANDROID: отключаем градиент у аятов, чтобы вложенные цвета таджвида не игнорировались */ .read-ayah-ar {
+  background-image: none !important;
+  -webkit-background-clip: initial !important;
+  background-clip: initial !important;
+  -webkit-text-fill-color: var(--ar-g2) !important;
+  color: var(--ar-g2) !important;
+}
 @media (max-width: 420px) { .read-ayah { margin-bottom: 12px; padding: 14px 16px; border-radius: 14px; } .read-ayah-ar { padding-top: 15px; padding-bottom: 15px; margin-bottom: 10px; min-height: calc(80px * var(--ar-scale)); } }
 @supports (font-variation-settings: normal) {
   .ar-font { font-synthesis: none; }
@@ -1843,7 +1849,7 @@ span[class^="tajweed-"] {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v298';
+const APP_VERSION = 'iqra-v299';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2769,14 +2775,6 @@ async function fetchTajweedSurah(surahNumber) {
     const json = await res.json();
     const ayahs = json?.data?.ayahs;
     if (!ayahs || !Array.isArray(ayahs)) return null;
-
-    const map = {};
-    ayahs.forEach(a => {
-      if (a.numberInSurah && a.text) {
-        map[a.numberInSurah] = a.text;
-      }
-    });
-
     try { localStorage.setItem(cacheKey, JSON.stringify(map)); } catch (e) {}
     return map;
   } catch (e) {
