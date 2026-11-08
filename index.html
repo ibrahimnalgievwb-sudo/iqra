@@ -127,39 +127,17 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   word-wrap: break-word;
   word-break: normal;
   hyphens: none;
-  text-rendering: optimizeLegibility;
-  max-width: 100%;
-  min-width: 0;
-  background-image: repeating-linear-gradient(0deg, var(--ar-g1) 0em, var(--ar-g2) 0.1em, var(--ar-g3) 0.2em, var(--ar-g2) 0.3em, var(--ar-g1) 0.4em);
-  /* Кросс-браузерный градиентный текст */
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
-}
-/* Фолбэк для браузеров, которые не поддерживают background-clip: text на элементе с !important */
-@supports not ((-webkit-background-clip: text) or (background-clip: text)) {
-  .ar-font {
-    -webkit-text-fill-color: var(--ar-g2) !important;
-    color: var(--ar-g2) !important;
-    background-image: none !important;
-  }
-}
-.ar-font {
-  font-family:"Noto Naskh Arabic","Amiri","SF Arabic","Geeza Pro",serif;
-  font-feature-settings:"liga" 1, "calt" 1;
-  line-height: 2 !important;
-  letter-spacing: normal !important;
-  overflow-wrap: anywhere;
-  word-wrap: break-word;
-  word-break: normal;
-  hyphens: none;
   text-rendering: geometricPrecision;
   max-width: 100%;
   min-width: 0;
   padding: 10px 0;
   display: block;
   overflow: visible;
+  color: var(--text) !important;
+  -webkit-text-fill-color: var(--text) !important;
+  background-image: none !important;
+  -webkit-background-clip: initial !important;
+  background-clip: initial !important;
 }
 .tasbih-card .ar,
 .content-card .c-ar,
@@ -1903,7 +1881,7 @@ span[class^="tajweed-"] {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v309';
+const APP_VERSION = 'iqra-v310';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -3138,21 +3116,17 @@ function toggleQuranLearned(id) {
 }
 function goQuranList() { activeQuranId = null; renderQuranList(); showScreen('screen-quran'); }
 function readPrevSurah() {
-  const viewer = document.querySelector('#read-body open-quran-view');
-  if (viewer) {
-    const currentPage = parseInt(viewer.getAttribute('page') || '1');
-    if (currentPage > 1) {
-      viewer.setAttribute('page', String(currentPage - 1));
-    }
+  if (!activeReadId) return;
+  const idx = state.quran.findIndex(q => q.id === activeReadId);
+  if (idx > 0) {
+    openRead(state.quran[idx - 1].id, null, 'prev');
   }
 }
 function readNextSurah() {
-  const viewer = document.querySelector('#read-body open-quran-view');
-  if (viewer) {
-    const currentPage = parseInt(viewer.getAttribute('page') || '1');
-    if (currentPage < 604) {
-      viewer.setAttribute('page', String(currentPage + 1));
-    }
+  if (!activeReadId) return;
+  const idx = state.quran.findIndex(q => q.id === activeReadId);
+  if (idx > -1 && idx < state.quran.length - 1) {
+    openRead(state.quran[idx + 1].id, null, 'next');
   }
 }
   async function openRead(id, targetAyahIdx, dir) {
@@ -3233,7 +3207,15 @@ function readNextSurah() {
   if (prevBtn) { prevBtn.style.opacity = idx === 0 ? '0.3' : '1'; prevBtn.style.pointerEvents = idx === 0 ? 'none' : 'auto'; }
   if (nextBtn) { nextBtn.style.opacity = idx === state.quran.length - 1 ? '0.3' : '1'; nextBtn.style.pointerEvents = idx === state.quran.length - 1 ? 'none' : 'auto'; }
   
-            applyTajweedToContainer(container, item);
+  applyTajweedToContainer(container, item);
+  
+  // Восстановление позиции скролла
+  if (state.settings.readScrolls && state.settings.readScrolls[id]) {
+    setTimeout(() => {
+      container.scrollTop = state.settings.readScrolls[id];
+    }, 50);
+  }
+
   saveNavContext();
 }
 function closeRead() {
