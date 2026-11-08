@@ -164,7 +164,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .tasbih-card .ar,
 .content-card .c-ar,
 .preview-card .pv-ar { min-height: 1.8em; }
-.read-ayah-ar { font-size:calc(30px * var(--ar-scale)); line-height: 3 !important; direction:rtl; text-align:right !important; text-align-last: right !important; padding-top: 15px; padding-bottom: 15px; margin-bottom: 10px; border-bottom: 1px dashed var(--border); overflow-wrap: anywhere; word-break: normal; word-spacing: normal !important; letter-spacing: normal !important; min-height: calc(80px * var(--ar-scale)) !important; width: 100%; max-width: 100%; box-sizing: border-box; display: block; }
+.read-ayah-ar { font-size:calc(30px * var(--ar-scale)); line-height: 3 !important; direction:rtl; text-align:right !important; text-align-last: right !important; padding-top: 15px; padding-bottom: 15px; margin-bottom: 10px; border-bottom: 1px dashed var(--border); overflow-wrap: anywhere; word-break: normal; word-spacing: normal !important; letter-spacing: normal !important; min-height: calc(80px * var(--ar-scale)) !important; width: 100%; max-width: 100%; box-sizing: border-box; display: block; } /* FIX ANDROID: отключаем градиент у аятов, чтобы вложенные цвета таджвида не игнорировались */ .read-ayah-ar {   background-image: none !important;   -webkit-text-fill-color: var(--ar-g2) !important;   color: var(--ar-g2) !important; }
 @media (max-width: 420px) { .read-ayah { margin-bottom: 12px; padding: 14px 16px; border-radius: 14px; } .read-ayah-ar { padding-top: 15px; padding-bottom: 15px; margin-bottom: 10px; min-height: calc(80px * var(--ar-scale)); } }
 @supports (font-variation-settings: normal) {
   .ar-font { font-synthesis: none; }
@@ -1245,26 +1245,7 @@ span[class^="tajweed-"] {
   -webkit-touch-callout: default;
 }
 /* Для аятов с Таджвидом отключаем градиент, чтобы цвета правил работали */
-.read-ayah-ar .tajweed-ham_wasl,
-.read-ayah-ar .tajweed-silent,
-.read-ayah-ar .tajweed-laam_shamsiyah,
-.read-ayah-ar .tajweed-madda_normal,
-.read-ayah-ar .tajweed-madda_permissible,
-.read-ayah-ar .tajweed-madda_obligatory,
-.read-ayah-ar .tajweed-madda_necessary,
-.read-ayah-ar .tajweed-qalqalah,
-.read-ayah-ar .tajweed-ghunnah,
-.read-ayah-ar .tajweed-ikhfa,
-.read-ayah-ar .tajweed-ikhfa_shafawi,
-.read-ayah-ar .tajweed-idghaam_ghunnah,
-.read-ayah-ar .tajweed-idghaam_no_ghunnah,
-.read-ayah-ar .tajweed-idghaam_shafawi,
-.read-ayah-ar .tajweed-idghaam_mutajanisayn,
-.read-ayah-ar .tajweed-idghaam_mutaqaribayn,
-.read-ayah-ar .tajweed-iqlab {
-  -webkit-text-fill-color: currentColor !important;
-  background-image: none !important;
-}
+/* Удалено: currentColor мог наследовать прозрачность от .read-ayah-ar. Цвета таджвида теперь задаются напрямую через color и -webkit-text-fill-color в правилах выше. */
 /* QA: Фикс перетаскивания на ПК и блокировка скролла при драге */
 .tasbih-card.dragging {
   touch-action: none;
@@ -1862,7 +1843,7 @@ span[class^="tajweed-"] {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v297';
+const APP_VERSION = 'iqra-v298';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2836,8 +2817,8 @@ function renderTajweedHtml(tajweedText) {
 
   let html = tajweedText.replace(regex, (_, code, content) => {
     const rule = TAJWEED_RULES_MAP[code.toLowerCase()];
-    if (rule) {
-      return `<span class="tajweed-${rule.className}">${content}</span>`;
+  if (rule) {
+      return `<span class="tajweed-${rule.className}">\u200D${content}\u200D</span>`;
     }
     console.warn('Unknown tajweed code:', code);
     return content;
