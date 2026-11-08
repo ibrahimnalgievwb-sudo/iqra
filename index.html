@@ -1903,7 +1903,7 @@ span[class^="tajweed-"] {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v321';
+const APP_VERSION = 'iqra-v322';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2923,42 +2923,28 @@ async function fetchTajweedText(verseKey) {
     if (cached) return cached;
   } catch (e) {}
 
+  // Меняем приоритет: стабильный API (islamic.network) идет первым
   const urls = [
-    `https://api.alquran.cloud/v1/ayah/${verseKey}/quran-tajweed`,
-    `https://alquran.api.islamic.network/v1/ayah/${verseKey}/quran-tajweed`
+    `https://alquran.api.islamic.network/v1/ayah/${verseKey}/quran-tajweed`,
+    `https://api.alquran.cloud/v1/ayah/${verseKey}/quran-tajweed`
   ];
 
   return new Promise((resolve) => {
     _tajweedQueue.push(async () => {
       for (const url of urls) {
-        let attempt = 0;
-        while (attempt <= TAJWEED_MAX_RETRIES) {
-          try {
-            const res = await fetchWithTimeout(url, 12000);
-            if (!res.ok) {
-              if (res.status === 429) {
-                await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
-                attempt++;
-                continue;
-              }
-              break;
-            }
-            const json = await res.json();
-            const text = json?.data?.text || null;
-            if (text) {
-              try { localStorage.setItem(cacheKey, text); } catch (e) {}
-              resolve(text);
-              return;
-            }
-            break;
-          } catch (e) {
-            if (attempt < TAJWEED_MAX_RETRIES) {
-              await new Promise(r => setTimeout(r, 500 * (attempt + 1)));
-              attempt++;
-            } else {
-              break;
-            }
+        try {
+          // Уменьшаем таймаут до 8 секунд
+          const res = await fetchWithTimeout(url, 8000);
+          if (!res.ok) continue;
+          const json = await res.json();
+          const text = json?.data?.text || null;
+          if (text) {
+            try { localStorage.setItem(cacheKey, text); } catch (e) {}
+            resolve(text);
+            return;
           }
+        } catch (e) {
+          console.warn(`Tajweed text fetch failed for ${url}:`, e);
         }
       }
       resolve(null);
@@ -2977,178 +2963,33 @@ async function fetchTajweedSurah(surahNumber) {
   } catch (e) {}
 
   const urls = [
-    `https://api.alquran.cloud/v1/surah/${surahNumber}/quran-tajweed`,
-    `https://alquran.api.islamic.network/v1/surah/${surahNumber}/quran-tajweed`
+    `https://alquran.api.islamic.network/v1/surah/${surahNumber}/quran-tajweed`,
+    `https://api.alquran.cloud/v1/surah/${surahNumber}/quran-tajweed`
   ];
   
   for (const url of urls) {
-    const maxAttempts = 2;
-    for (let attempt = 0; attempt < maxAttempts; attempt++) {
-      try {
-        const res = await fetchWithTimeout(url, 12000);
-        if (!res.ok) {
-          if (res.status === 429 && attempt < maxAttempts - 1) {
-            await new Promise(r => setTimeout(r, 1500 * (attempt + 1)));
-            continue;
-          }
-          if (attempt < maxAttempts - 1) {
-            await new Promise(r => setTimeout(r, 800 * Math.pow(2, attempt)));
-            continue;
-          }
-          break; 
-        }
-        const json = await res.json();
-        const ayahs = json?.data?.ayahs;
-        if (!ayahs || !Array.isArray(ayahs)) break;
+    try {
+      // Уменьшаем таймаут до 8 секунд
+      const res = await fetchWithTimeout(url, 8000);
+      if (!res.ok) continue;
+      
+      const json = await res.json();
+      const ayahs = json?.data?.ayahs;
+      if (!ayahs || !Array.isArray(ayahs)) continue;
 
-        const map = {};
-        ayahs.forEach(a => {
-          if (a.numberInSurah && a.text) map[a.numberInSurah] = a.text;
-        });
+      const map = {};
+      ayahs.forEach(a => {
+        if (a.numberInSurah && a.text) map[a.numberInSurah] = a.text;
+      });
 
-        try { localStorage.setItem(cacheKey, JSON.stringify(map)); } catch (e) {}
-        return map;
-      } catch (e) {
-        if (attempt < maxAttempts - 1) {
-          await new Promise(r => setTimeout(r, 800 * Math.pow(2, attempt)));
-          continue;
-        }
-        break;
-      }
+      try { localStorage.setItem(cacheKey, JSON.stringify(map)); } catch (e) {}
+      return map;
+    } catch (e) {
+      console.warn(`Tajweed surah fetch failed for ${url}:`, e);
     }
   }
   return null;
 }
-
-const TAJWEED_RULES_MAP = {
-  'h': { className: 'ham_wasl', name: 'Хамзат аль-васл', color: '#666666' },
-  's': { className: 'silent', name: 'Немая буква', color: '#666666' },
-  'l': { className: 'laam_shamsiyah', name: 'Лям шамсия', color: '#666666' },
-  'n': { className: 'madda_normal', name: 'Мадд 2 (естественный)', color: '#537FFF' },
-  'p': { className: 'madda_permissible', name: 'Мадд 2/4/6 (допустимый)', color: '#4050FF' },
-  'm': { className: 'madda_necessary', name: 'Мадд 6 (необходимый)', color: '#000EBC' },
-  'q': { className: 'qalqalah', name: 'Калькаля', color: '#DD0008' },
-  'o': { className: 'madda_obligatory', name: 'Мадд 4-5 (обязательный)', color: '#2144C1' },
-  'c': { className: 'ikhfa_shafawi', name: 'Ихфа шафави', color: '#D500B7' },
-  'f': { className: 'ikhfa', name: 'Ихфа', color: '#9400A8' },
-  'w': { className: 'idghaam_shafawi', name: 'Идгам шафави', color: '#58B800' },
-  'i': { className: 'iqlab', name: 'Иклаб', color: '#26BFFD' },
-  'a': { className: 'idghaam_ghunnah', name: 'Идгам с гунной', color: '#169777' },
-  'u': { className: 'idghaam_no_ghunnah', name: 'Идгам без гунны', color: '#169200' },
-  'd': { className: 'idghaam_mutajanisayn', name: 'Идгам мутаджанисайн', color: '#A1A1A1' },
-  'b': { className: 'idghaam_mutaqaribayn', name: 'Идгам мутакарибайн', color: '#A1A1A1' },
-  'g': { className: 'ghunnah', name: 'Гунна', color: '#FF7E1E' }
-};
-
-function renderTajweedHtml(tajweedText) {
-  if (!tajweedText) return { text: '', rules: '' };
-
-  // 1. Нормализуем HTML-теги от API (Quran Foundation)
-  let normalized = tajweedText.replace(/<tajweed\s+class=["']?([^"'>\s]+)["']?\s*>/gi, (_, cls) => {
-    const safeCls = cls.replace(/[^a-zA-Z0-9_-]/g, '_');
-    return `<span class="tajweed-${safeCls}">`;
-  }).replace(/<\/tajweed>/gi, '</span>');
-
-  let rulesSet = new Set();
-
-  // 2. Парсим формат [h:1[ٱ] от alquran.cloud
-  // КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ БЕЗОПАСНОСТИ (XSS): Добавлен esc(content) для защиты от инъекций.
-  let html = normalized.replace(/\[([a-zA-Z])(?::\d+)?\[([^\]]+)\]/g, (match, code, content) => {
-    const rule = TAJWEED_RULES_MAP[code.toLowerCase()];
-    if (rule) {
-      rulesSet.add(rule);
-      // Безопасная вставка: если content содержит <script>, esc предотвратит выполнение.
-      return `<span class="tajweed-${rule.className}">${esc(content)}</span>`;
-    }
-    // Если правило неизвестно, просто убираем тег, оставляя экранированный текст
-    return esc(content);
-  });
-
-  // Удаляем любые оставшиеся непарные теги (на всякий случай)
-  html = html.replace(/\[\/?[a-z0-9_:]+\]/gi, '');
-
-  let rulesHtml = '';
-  if (rulesSet.size > 0) {
-    rulesHtml = '<div class="ayah-tajweed-rules">';
-    rulesSet.forEach(rule => {
-      rulesHtml += `<span class="rule-item"><i style="background:${rule.color};"></i>${rule.name}</span>`;
-    });
-    rulesHtml += '</div>';
-  }
-
-  return { text: html, rules: rulesHtml };
-}
-function editCurrent(e) { if (e) e.stopPropagation(); if (activeId) openForm(activeId); }
-function goHome() { if (activeId) saveNow(); activeId=null; releaseWakeLock(); renderDashboard(); showScreen('screen-dashboard'); }
-async function requestWakeLock() { try { if ('wakeLock' in navigator) { wakeLock=await navigator.wakeLock.request('screen'); wakeLock.addEventListener('release',()=>{wakeLock=null;}); } } catch(e){} }
-function releaseWakeLock() { try { if (wakeLock) { wakeLock.release(); wakeLock=null; } } catch(e){} }
-document.addEventListener('visibilitychange', ()=>{ if (document.visibilityState==='visible' && activeId && state.settings.wakeLock) requestWakeLock(); });
-function ensureAudio(){ try { if (!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)(); if (audioCtx.state==='suspended') audioCtx.resume(); } catch(e){} }
-function playClick() { if (!state.settings.sound) return; ensureAudio(); if (!audioCtx) return; const t=audioCtx.currentTime; const o=audioCtx.createOscillator(), g=audioCtx.createGain(); o.type='sine'; o.frequency.setValueAtTime(680,t); o.frequency.exponentialRampToValueAtTime(420,t+0.05); g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.08,t+0.005); g.gain.exponentialRampToValueAtTime(0.0001,t+0.09); o.connect(g).connect(audioCtx.destination); o.start(t); o.stop(t+0.1); }
-function playChime() { if (!state.settings.sound) return; ensureAudio(); if (!audioCtx) return; const t=audioCtx.currentTime; [660,880].forEach((f,i)=>{ const o=audioCtx.createOscillator(), g=audioCtx.createGain(); o.type='sine'; o.frequency.value=f; g.gain.setValueAtTime(0.0001,t+i*0.08); g.gain.exponentialRampToValueAtTime(0.06,t+i*0.08+0.02); g.gain.exponentialRampToValueAtTime(0.0001,t+i*0.08+0.5); o.connect(g).connect(audioCtx.destination); o.start(t+i*0.08); o.stop(t+i*0.08+0.55); }); }
-
-function renderPresets() { document.getElementById('presets').innerHTML = PRESETS.map((p,i)=>`<button type="button" class="preset-chip" onclick="applyPreset(${i})">${esc((p.tr||'').slice(0,30))}</button>`).join(''); }
-function applyPreset(i) { const p=PRESETS[i]; document.getElementById('f-ar').value=p.ar; document.getElementById('f-tr').value=p.tr; document.getElementById('f-trn').value=p.trn; document.getElementById('f-target').value=p.target; updatePreview(); }
-function updatePreview() { document.getElementById('pv-ar').textContent=document.getElementById('f-ar').value; document.getElementById('pv-tr').textContent=document.getElementById('f-tr').value; document.getElementById('pv-trn').textContent=document.getElementById('f-trn').value; state.draft={ar:document.getElementById('f-ar').value.slice(0,LIMITS.textLen),tr:document.getElementById('f-tr').value.slice(0,LIMITS.textLen),trn:document.getElementById('f-trn').value.slice(0,LIMITS.textLen),target:document.getElementById('f-target').value}; save(); }
-function openForm(id) { editingId=id||null; const t=id?getById(id):null; document.getElementById('form-title').textContent=id?'Редактировать':'Новый Тасбих'; let ar='',tr='',trn='',target=33; if (t) { ar=t.arabic; tr=t.transcription; trn=t.translation; target=t.target; } else if (state.draft) { ar=state.draft.ar||''; tr=state.draft.tr||''; trn=state.draft.trn||''; target=state.draft.target||33; } document.getElementById('f-ar').value=ar; document.getElementById('f-tr').value=tr; document.getElementById('f-trn').value=trn; document.getElementById('f-target').value=target; document.getElementById('btn-delete').style.display=id?'block':'none'; updatePreview(); showScreen('screen-form'); }
-function cancelForm() { if (activeId) showScreen('screen-counter'); else { renderTasbih(); showScreen('screen-tasbih'); } }
-function stepTarget(d){ const el=document.getElementById('f-target'); el.value=Math.max(1,(parseInt(el.value)||1)+d); updatePreview(); }
-function saveForm() { const arabic=document.getElementById('f-ar').value.trim().slice(0,LIMITS.textLen); const transcription=document.getElementById('f-tr').value.trim().slice(0,LIMITS.textLen); const translation=document.getElementById('f-trn').value.trim().slice(0,LIMITS.textLen); const target=Math.max(1,Math.min(LIMITS.targetMax,parseInt(document.getElementById('f-target').value)||33)); if (!arabic && !transcription && !translation) { alert('Заполните хотя бы одно поле'); return; } if (editingId) { const t=getById(editingId); t.arabic=arabic; t.transcription=transcription; t.translation=translation; t.target=target; if (t.current>target) { t.current=0; t.cycles=0; } } else {
-    if (state.tasbihs.length >= LIMITS.tasbihs) { alert('Максимум ' + LIMITS.tasbihs + ' тасбихов. Удалите старые.'); return; }
-    state.tasbihs.push({id:'u'+Date.now(),arabic,transcription,translation,target,current:0,cycles:0}); } state.draft=null; save(); if (state.settings.vibrate && navigator.vibrate) navigator.vibrate(15); showMarkToast('Сохранено'); if (activeId) openCounter(activeId); else { renderTasbih(); showScreen('screen-tasbih'); } }
-async function deleteCurrent() {   if (!editingId) return;   if (!await confirmAsync('Удалить тасбих?', 'Это действие нельзя отменить.', 'Удалить', 'Отмена')) return;   state.tasbihs = state.tasbihs.filter(t => t.id !== editingId);   save(); activeId = null; editingId = null; renderTasbih(); showScreen('screen-tasbih'); }
-
-async function renderQuranList() {
-  const el = document.getElementById('quran-list');
-  const qEl = document.getElementById('quran-search');
-  let q = qEl ? (qEl.value || '').toLowerCase().trim() : '';
-  const ayahM = q.match(/^(\d+)\s*[:\-]\s*\d+$/);
-  if (ayahM) q = ayahM[1];
-  const qAr = normalizeArabic(q);
-  
-  let items = state.quran;
-  
-  // Применяем фильтр Шариатская рукья
-  if (quranFilter === 'surah') {
-    items = items.filter(i => i.type === 'surah');
-  } else if (quranFilter === 'ruqyah') {
-    items = items.filter(i => i.type === 'ruqyah' || ['q109','q112','q113','q114'].includes(i.id));
-  }
-  
-  if (q) {
-    items = items.filter(item => {
-      const hay = [item.title, item.subtitle, item.arabic, item.transcription, item.translation, String(item.number || '')].filter(Boolean).join(' ').toLowerCase();
-      if (hay.includes(q)) return true;
-      if (qAr && normalizeArabic([item.title, item.arabic, item.transcription].filter(Boolean).join(' ')).includes(qAr)) return true;
-      return false;
-    });
-  }
-  
-  if (!items.length && quranFilter !== 'ruqyah') { el.innerHTML = state.quran.length ? '<div class="empty">Ничего не найдено</div>' : '<div class="empty">Пока нет текстов</div>'; return; }
-  
-  let html = '';
-  if (quranFilter === 'ruqyah') {
-    html += `<div class="content-card" onclick="openDua('ruqyah_guide')" style="border: 1px solid var(--accent); background: rgba(var(--accent-rgb), 0.05);"><div class="c-title" style="color: var(--accent);">📖 Руководство по Рукье</div><div class="c-sub">Статус сидра · Аяты о колдовстве · Профилактика</div><div class="c-tr">Нажмите, чтобы прочитать важные наставления учёных и фетвы Ибн База</div></div>`;
-    // Плашка с аятами о колдовстве
-      html += `<div class="content-card" onclick="openQuran('ruqyah_araf')" style="border: 1px dashed var(--accent2);"><div class="c-badge">Рукья</div><div class="c-title">Аяты о колдовстве</div><div class="c-sub">Начните с аль-А'раф 117–119 · Юнус и Та Ха — ниже в списке</div><div class="c-ar ar-font">وَأَوْحَيْنَا إِلَىٰ مُوسَىٰ أَنْ أَلْقِ عَصَاكَ ۖ فَإِذَا هِيَ تَلْقَفُ مَا يَأْفِكُونَ</div><div class="c-tr">Читаются в составе шариатской рукьи на воду или над больным</div></div>`;
-  }
-  
-  html += items.map(item => {
-    const fav = isFavorite(item.id);
-    const numHtml = item.type === 'surah' ? `<div class="c-num">${item.number}</div>` : '';
-    const hasNum = item.type === 'surah' ? ' has-num' : '';
-    const star = `<button class="star-btn ${fav?'active':''}" aria-label="${fav?'Убрать из избранного':'Добавить в избранное'}: ${escAttr(item.title)}" onclick="starClick(event,'${escAttr(item.id)}','quran')">${fav?'<svg class="ico"><use href="#i-star-filled"/></svg>':'<svg class="ico"><use href="#i-star"/></svg>'}</button>`;
-    let readBadge = '';
-    if (item.type === 'surah' && state.settings.readAyah && typeof state.settings.readAyah[item.id] === 'number' && state.settings.readAyah[item.id] > 0) {
-      const ayahN = state.settings.readAyah[item.id] + 1;
-      readBadge = `<div class="c-badge">С аята ${ayahN}</div>`;
-    }
-    return `<div class="content-card${hasNum}" onclick="openQuran('${item.id}')">${numHtml}${star}${readBadge}<div class="c-title">${esc(item.title)}</div><div class="c-sub">${esc(item.subtitle||'')}</div><div class="c-ar ar-font">${esc(item.arabic)}</div><div class="c-tr">${esc(item.translation)}</div></div>`;
-  }).join('');
-  
-  el.innerHTML = html;
-}
-/* Удалена дублирующая версия applyTajweedToContainer (была мёртвым кодом — используется версия ниже) */
 
 async function applyTajweedToContainer(container, item) {
   if (!container || !item) return;
@@ -3162,7 +3003,6 @@ async function applyTajweedToContainer(container, item) {
 
   var success = false;
   try {
-    // Если это сура — загружаем весь таджвид ОДНИМ запросом
     if (item.type === 'surah') {
       const surahMap = await fetchTajweedSurah(item.number);
       if (surahMap) {
@@ -3170,7 +3010,7 @@ async function applyTajweedToContainer(container, item) {
         Array.from(elements).forEach(function(el) {
           const ayahBlock = el.closest('.read-ayah');
           if (!ayahBlock) return;
-          const verseKey = ayahBlock.dataset.verseKey; // "67:1"
+          const verseKey = ayahBlock.dataset.verseKey; 
           if (!verseKey) return;
           const ayahNum = parseInt(verseKey.split(':')[1], 10);
           const tajweedText = surahMap[ayahNum];
@@ -3192,7 +3032,6 @@ async function applyTajweedToContainer(container, item) {
         });
       }
     } else {
-      // Для одиночных аятов (Аят аль-Курси, рукья) оставляем поштучную загрузку
       const arr = Array.from(elements);
       const tasks = arr.map(function(el) {
         const ayahBlock = el.closest('.read-ayah');
@@ -3233,10 +3072,10 @@ async function applyTajweedToContainer(container, item) {
       loader.parentNode.removeChild(loader);
     } else {
       loader.className = 'tajweed-error';
-      loader.innerHTML = 'Таджвид временно недоступен — сервер не отвечает. <a href="#" onclick="event.preventDefault();location.reload()">Обновить</a>';
+      loader.innerHTML = 'Таджвид временно недоступен (сеть). <a href="#" onclick="event.preventDefault(); closeRead(); openRead(activeReadId);">Повторить</a>';
       setTimeout(function(){
         if (loader.parentNode) loader.parentNode.removeChild(loader);
-      }, 8000);
+      }, 5000); // Скрываем баннер через 5 секунд, чтобы не мешать чтению
     }
   }
 }
