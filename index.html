@@ -1924,7 +1924,7 @@ span[class^="tajweed-"] {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v316';
+const APP_VERSION = 'iqra-v317';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2935,16 +2935,16 @@ function renderTajweedHtml(tajweedText) {
   let rulesSet = new Set();
 
   // 2. Парсим формат [h:1[ٱ] от alquran.cloud
-  // API возвращает теги в формате [rule[letter], без закрывающей скобки для слова.
-  // Рекурсивный парсер был ошибочным и ломал слова, оставляя сырые теги.
+  // КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ БЕЗОПАСНОСТИ (XSS): Добавлен esc(content) для защиты от инъекций.
   let html = normalized.replace(/\[([a-zA-Z])(?::\d+)?\[([^\]]+)\]/g, (match, code, content) => {
     const rule = TAJWEED_RULES_MAP[code.toLowerCase()];
     if (rule) {
       rulesSet.add(rule);
-      return `<span class="tajweed-${rule.className}">${content}</span>`;
+      // Безопасная вставка: если content содержит <script>, esc предотвратит выполнение.
+      return `<span class="tajweed-${rule.className}">${esc(content)}</span>`;
     }
-    // Если правило неизвестно, просто убираем тег, оставляя текст
-    return content;
+    // Если правило неизвестно, просто убираем тег, оставляя экранированный текст
+    return esc(content);
   });
 
   // Удаляем любые оставшиеся непарные теги (на всякий случай)
