@@ -1331,6 +1331,30 @@ span[class^="tajweed-"] {
   padding: 2px 8px;
   border-radius: 6px;
 }
+/* === TAJWEED DEBUG (только ?debug=1) === */
+#debug-fab {
+  position: fixed; right: 12px; top: calc(12px + env(safe-area-inset-top));
+  z-index: 100000; background: var(--gold-grad); color: #0A0A0A;
+  border: none; border-radius: 50%; width: 48px; height: 48px;
+  font-size: 22px; display: none; align-items: center; justify-content: center;
+  box-shadow: 0 4px 16px rgba(0,0,0,.5);
+}
+#debug-fab.visible { display: flex; }
+#debug-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.92);
+  z-index: 100001; display: none; flex-direction: column;
+  padding: calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom));
+}
+#debug-overlay.active { display: flex; }
+#debug-output {
+  flex: 1; background: #0A0A0A; color: #7CFF7C; padding: 12px;
+  border-radius: 12px; overflow: auto; font-family: ui-monospace, Menlo, monospace;
+  font-size: 11px; line-height: 1.5; white-space: pre-wrap; word-break: break-all;
+  margin: 0 0 12px; border: 1px solid var(--gold-accent);
+  -webkit-user-select: text; user-select: text;
+}
+#debug-actions { display: flex; gap: 10px; }
+#debug-actions button { flex: 1; padding: 14px; border-radius: 12px; font-size: 14px; font-weight: 700; }
 </style>
 </head>
 <body>
@@ -1814,6 +1838,15 @@ span[class^="tajweed-"] {
   <button class="ib-later" onclick="dismissInstall()">Позже</button>
 </div>
 
+<button id="debug-fab" onclick="runTajweedDiagnostics()" aria-label="Диагностика таджвида">🔍</button>
+<div id="debug-overlay" role="dialog" aria-label="Диагностика таджвида">
+  <pre id="debug-output">Нажмите «Запустить» для проверки.</pre>
+  <div id="debug-actions">
+    <button class="btn secondary" onclick="copyDebugOutput()">Скопировать</button>
+    <button class="btn" onclick="runTajweedDiagnostics()">Запустить</button>
+    <button class="btn secondary" onclick="document.getElementById('debug-overlay').classList.remove('active')">Закрыть</button>
+  </div>
+</div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
@@ -1849,7 +1882,7 @@ span[class^="tajweed-"] {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v299';
+const APP_VERSION = 'iqra-v300';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -4244,6 +4277,120 @@ function scrollToTopRead() {
   var body = document.getElementById('read-body');
   if (body) body.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
+// === TAJWEED DIAGNOSTICS (только ?debug=1) ===
+function initDebugMode() {
+  try {
+    if (new URLSearchParams(location.search).get('debug') === '1') {
+      var fab = document.getElementById('debug-fab');
+      if (fab) fab.classList.add('visible');
+    }
+  } catch(e) {}
+}
+function showDebugResult(text) {
+  var out = document.getElementById('debug-output');
+  var ov = document.getElementById('debug-overlay');
+  if (out) out.textContent = text;
+  if (ov) ov.classList.add('active');
+}
+function copyDebugOutput() {
+  var out = document.getElementById('debug-output');
+  if (out) copyToClipboard(out.textContent || '');
+}
+async function runTajweedDiagnostics() {
+  var out = [];
+  out.push('=== TAJWEED DIAGNOSTICS ===');
+  out.push('Time: ' + new Date().toISOString());
+  out.push('APP_VERSION: ' + APP_VERSION);
+  out.push('UA: ' + navigator.userAgent);
+  out.push('standalone: ' + window.matchMedia('(display-mode: standalone)').matches);
+  out.push('SW controller: ' + (navigator.serviceWorker && navigator.serviceWorker.controller ? 'yes' : 'no'));
+  out.push('');
+
+  var url = 'https://api.alquran.cloud/v1/surah/112/quran-tajweed';
+  out.push('--- 1. FETCH ---');
+  out.push('URL: ' + url);
+  var t0 = performance.now();
+  var text = '';
+  try {
+    var res = await fetch(url, { cache: 'no-store' });
+    var t1 = performance.now();
+    out.push('HTTP status: ' + res.status + ' (' + Math.round(t1 - t0) + ' ms)');
+    if (!res.ok) {
+      out.push('ERROR: non-OK response');
+      showDebugResult(out.join('\n'));
+      return;
+    }
+    var json = await res.json();
+    var ayahs = json && json.data && json.data.ayahs;
+    if (!ayahs || !ayahs.length) {
+      out.push('ERROR: no ayahs in response');
+      out.push('Raw (first 300): ' + JSON.stringify(json).slice(0, 300));
+      showDebugResult(out.join('\n'));
+      return;
+    }
+    text = ayahs[0].text || '';
+    out.push('Ayahs received: ' + ayahs.length);
+    out.push('First ayah length: ' + text.length);
+    out.push('First ayah raw (first 300 chars):');
+    out.push(text.slice(0, 300));
+    out.push('');
+  } catch(e) {
+    out.push('FETCH ERROR: ' + (e && e.message ? e.message : String(e)));
+    showDebugResult(out.join('\n'));
+    return;
+  }
+
+  out.push('--- 2. PARSER ---');
+  out.push('Contains [code[ pattern: ' + /\[([a-zA-Z])(?::\d+)?\[/.test(text));
+  out.push('Contains <tajweed pattern: ' + /<tajweed/i.test(text));
+  var result;
+  try {
+    result = renderTajweedHtml(text);
+  } catch(e) {
+    out.push('PARSER ERROR: ' + (e && e.message ? e.message : String(e)));
+    showDebugResult(out.join('\n'));
+    return;
+  }
+  out.push('Parsed HTML length: ' + result.text.length);
+  out.push('Parsed HTML (first 300 chars):');
+  out.push(result.text.slice(0, 300));
+  out.push('Rules HTML present: ' + (result.rules ? 'yes' : 'no'));
+  out.push('');
+
+  out.push('--- 3. DOM/CSS ---');
+  var testDiv = document.createElement('div');
+  testDiv.className = 'read-ayah-ar ar-font';
+  testDiv.style.cssText = 'position:absolute;left:-9999px;top:0;visibility:hidden;';
+  testDiv.innerHTML = result.text;
+  document.body.appendChild(testDiv);
+  try {
+    var parentCs = getComputedStyle(testDiv);
+    out.push('Parent color: ' + parentCs.color);
+    out.push('Parent -webkit-text-fill-color: ' + (parentCs.webkitTextFillColor || 'n/a'));
+    out.push('Parent -webkit-background-clip: ' + (parentCs.webkitBackgroundClip || 'n/a'));
+    out.push('Parent background-image: ' + (parentCs.backgroundImage || 'none').slice(0, 80));
+    var spans = testDiv.querySelectorAll('span[class^="tajweed-"]');
+    out.push('Tajweed spans found: ' + spans.length);
+    if (spans.length) {
+      var s = spans[0];
+      var cs = getComputedStyle(s);
+      out.push('First span class: ' + s.className);
+      out.push('First span color: ' + cs.color);
+      out.push('First span -webkit-text-fill-color: ' + (cs.webkitTextFillColor || 'n/a'));
+    } else {
+      out.push('!! NO span[class^="tajweed-"] — парсер не создал теги');
+    }
+  } catch(e) {
+    out.push('DOM ERROR: ' + (e && e.message ? e.message : String(e)));
+  } finally {
+    testDiv.remove();
+  }
+  out.push('');
+  out.push('=== END ===');
+  showDebugResult(out.join('\n'));
+}
+
 function initApp() {
   try {
     applyTheme();
@@ -4265,10 +4412,11 @@ function initApp() {
 }
 
 // Запускаем сразу, так как скрипт находится в конце body и DOM уже готов
+function _boot() { initDebugMode(); initApp(); }
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initApp);
+  document.addEventListener('DOMContentLoaded', _boot);
 } else {
-  initApp();
+  _boot();
 }
 try {
   if (new URLSearchParams(location.search).get('reset') === '1') {
