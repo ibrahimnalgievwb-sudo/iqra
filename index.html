@@ -1903,7 +1903,7 @@ span[class^="tajweed-"] {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v320';
+const APP_VERSION = 'iqra-v321';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2768,23 +2768,27 @@ function renderTasbih() {
   container.appendChild(fragment);
 }
 
-let dragStartY = 0, isMouseDrag = false, hasMoved = false;
+let dragStartY = 0, dragStartX = 0;
+let isMouseDrag = false, hasMoved = false;
+
 function cardPointerDown(e) {
   if (e.pointerType === 'mouse' && e.button !== 0) return;
   const card = e.currentTarget; 
   dragId = card.dataset.id; 
   dragStartY = e.clientY; 
+  dragStartX = e.clientX;
   isMouseDrag = (e.pointerType === 'mouse');
   hasMoved = false;
   
+  try { card.setPointerCapture(e.pointerId); } catch(_) {}
+
   if (isMouseDrag) {
     dragEl = card; 
-    card.classList.add('dragging'); 
+    // ВАЖНО: НЕ добавляем класс 'dragging' здесь, иначе сработает pointer-events:none и клик сломается
   } else {
     dragHoldTimer = setTimeout(() => { 
       dragEl = card; 
       card.classList.add('dragging'); 
-      suppressNextClick = true; 
       if (navigator.vibrate) navigator.vibrate(15); 
     }, 450);
   }
@@ -2792,10 +2796,25 @@ function cardPointerDown(e) {
 
 function cardPointerMove(e) {
   if (!dragEl) {
-    if (dragHoldTimer && Math.abs(e.clientY - dragStartY) > 8) { clearTimeout(dragHoldTimer); dragHoldTimer = null; }
+    if (dragHoldTimer && Math.abs(e.clientY - dragStartY) > 8) { 
+      clearTimeout(dragHoldTimer); 
+      dragHoldTimer = null; 
+    }
     return;
   }
-  hasMoved = true;
+  
+  // Для мыши включаем drag только если реально сдвинули курсор
+  if (isMouseDrag && !hasMoved) {
+    if (Math.abs(e.clientX - dragStartX) > 5 || Math.abs(e.clientY - dragStartY) > 5) {
+       hasMoved = true;
+       dragEl.classList.add('dragging');
+    } else {
+       return; // Если не сдвинули, ничего не делаем (это просто клик)
+    }
+  } else if (!isMouseDrag) {
+    hasMoved = true; 
+  }
+
   e.preventDefault();
   const y = e.clientY; 
   const container = document.getElementById('cards-container');
@@ -2810,20 +2829,23 @@ function cardPointerMove(e) {
 
 function cardPointerUp(e) {
   if (dragHoldTimer) { clearTimeout(dragHoldTimer); dragHoldTimer = null; }
-  if (!dragEl) { dragId = null; return; }
   
-  dragEl.classList.remove('dragging');
-  
-  if (hasMoved) {
-    const ids = [...document.querySelectorAll('#cards-container .tasbih-card')].map(c => c.dataset.id);
-    state.tasbihs.sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id));
-    save(); 
-    suppressNextClick = true;
-    setTimeout(() => renderTasbih(), 50);
+  if (dragEl) {
+    try { e.currentTarget.releasePointerCapture(e.pointerId); } catch(_) {}
+    
+    if (hasMoved) {
+      dragEl.classList.remove('dragging');
+      const ids = [...document.querySelectorAll('#cards-container .tasbih-card')].map(c => c.dataset.id);
+      state.tasbihs.sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id));
+      save(); 
+      setTimeout(() => renderTasbih(), 50);
+      suppressNextClick = true;
+    }
   }
   
   dragEl = null; 
   dragId = null;
+  
   setTimeout(() => { suppressNextClick = false; }, 400);
 }
 
