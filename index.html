@@ -1903,7 +1903,7 @@ span[class^="tajweed-"] {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v323';
+const APP_VERSION = 'iqra-v324';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -3879,12 +3879,10 @@ async function switchTab(tab) {
   else if (tab==='tasbih') { renderTasbih(); showScreen('screen-tasbih'); }
   else if (tab==='quran') { 
     setQuranFilter('all'); 
-    if (typeof renderQuranList === 'function') await renderQuranList(); 
     showScreen('screen-quran'); 
   }
   else if (tab==='ruqyah') { 
     setQuranFilter('ruqyah'); 
-    if (typeof renderQuranList === 'function') await renderQuranList(); 
     showScreen('screen-quran'); 
   }
   else if (tab==='night') { renderNightList(); showScreen('screen-night'); }
@@ -3893,45 +3891,80 @@ async function switchTab(tab) {
   else if (tab==='cal') { calDate = new Date(); renderProgress(); showScreen('screen-cal'); }
 }
 
-function getTimeOfDay() {
-  const h = new Date().getHours();
-  if (h >= 5 && h < 11) return 'Утро';
-  if (h >= 11 && h < 17) return 'День';
-  if (h >= 17 && h < 21) return 'Вечер';
-  return 'Ночь';
-}
-function getRandomQuote() {
+async function fetchTajweedText(verseKey) {
+  const cacheKey = TAJWEED_CACHE_PREFIX + verseKey;
   try {
-    const available = [];
-    if (state.quran && state.quran.length) available.push('quran');
-    if (state.hadiths && state.hadiths.length) available.push('hadith');
-    if (state.duas && state.duas.length) available.push('dua');
-    if (state.tasbihs && state.tasbihs.length) available.push('tasbih');
-    if (!available.length) return null;
-    const type = available[Math.floor(Math.random() * available.length)];
-       if (type === 'quran') {
-      const item = state.quran[Math.floor(Math.random() * state.quran.length)];
-      if (!item) return null;
-      const trLines = (item.translation || '').split('\n').filter(Boolean);
-      return { type: 'quran', id: item.id, badge: 'Коран', title: item.title || '—', ar: (item.arabic || '').split('\n')[0], tr: (trLines[0] || '').slice(0, 140) };
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) return cached;
+  } catch (e) {}
+
+  // Меняем приоритет: стабильный API (islamic.network) идет первым
+  const urls = [
+    `https://alquran.api.islamic.network/v1/ayah/${verseKey}/quran-tajweed`,
+    `https://api.alquran.cloud/v1/ayah/${verseKey}/quran-tajweed`
+  ];
+
+  return new Promise((resolve) => {
+    _tajweedQueue.push(async () => {
+      for (const url of urls) {
+        try {
+          // Увеличен таймаут до 12 секунд для стабильности на слабых сетях
+          const res = await fetchWithTimeout(url, 12000);
+          if (!res.ok) continue;
+          const json = await res.json();
+          const text = json?.data?.text || null;
+          if (text) {
+            try { localStorage.setItem(cacheKey, text); } catch (e) {}
+            resolve(text);
+            return;
+          }
+        } catch (e) {
+          console.warn(`Tajweed text fetch failed for ${url}:`, e);
+        }
+      }
+      resolve(null);
+    });
+    _processTajweedQueue();
+  });
+}
+
+async function fetchTajweedSurah(surahNumber) {
+  const cacheKey = `iqra_tajweed_surah_${surahNumber}`;
+  try {
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) {
+      try { return JSON.parse(cached); } catch (e) {}
     }
-    if (type === 'hadith') {
-      const item = state.hadiths[Math.floor(Math.random() * state.hadiths.length)];
-      if (!item) return null;
-  return { type: 'hadith', id: item.id, badge: 'Хадис', title: item.title || '—', ar: item.arabic || '', tr: String(item.translation || '').replace(/\*\*/g, '').slice(0, 140) };
+  } catch (e) {}
+
+  const urls = [
+    `https://alquran.api.islamic.network/v1/surah/${surahNumber}/quran-tajweed`,
+    `https://api.alquran.cloud/v1/surah/${surahNumber}/quran-tajweed`
+  ];
+  
+  for (const url of urls) {
+    try {
+      // Увеличен таймаут до 12 секунд
+      const res = await fetchWithTimeout(url, 12000);
+      if (!res.ok) continue;
+      
+      const json = await res.json();
+      const ayahs = json?.data?.ayahs;
+      if (!ayahs || !Array.isArray(ayahs)) continue;
+
+      const map = {};
+      ayahs.forEach(a => {
+        if (a.numberInSurah && a.text) map[a.numberInSurah] = a.text;
+      });
+
+      try { localStorage.setItem(cacheKey, JSON.stringify(map)); } catch (e) {}
+      return map;
+    } catch (e) {
+      console.warn(`Tajweed surah fetch failed for ${url}:`, e);
     }
-     if (type === 'dua') {
-      const pool = state.duas.filter(function(d){ return d && d.arabic && d.translation; });
-      if (!pool.length) return null;
-      const item = pool[Math.floor(Math.random() * pool.length)];
-      return { type: 'dua', id: item.id, badge: 'Дуа', title: item.title || '—', ar: item.arabic || '', tr: String(item.translation || '').replace(/\*\*/g, '').slice(0, 140) };
-    }
-    const item = state.tasbihs[Math.floor(Math.random() * state.tasbihs.length)];
-    if (!item) return null;
-    return { type: 'tasbih', id: item.id, badge: 'Тасбих', title: item.transcription || item.arabic || '—', ar: item.arabic || '', tr: (item.translation || '').slice(0, 140) };
-  } catch(e) {
-    return null;
   }
+  return null;
+}
 }
 let _dashQuote = null;
 function getDailyQuote() {
