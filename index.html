@@ -1903,7 +1903,7 @@ span[class^="tajweed-"] {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v307';
+const APP_VERSION = 'iqra-v308';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2777,57 +2777,6 @@ async function fetchWithTimeout(url, timeoutMs) {
   } finally {
     clearTimeout(timer);
   }
-}
-
-async function fetchTajweedText(verseKey) {
-  const cacheKey = TAJWEED_CACHE_PREFIX + verseKey;
-  try {
-    const cached = localStorage.getItem(cacheKey);
-    if (cached) return cached;
-  } catch (e) {}
-
-  const urls = [
-    `https://api.alquran.cloud/v1/ayah/${verseKey}/quran-tajweed`,
-    `https://alquran.api.islamic.network/v1/ayah/${verseKey}/quran-tajweed`
-  ];
-
-  return new Promise((resolve) => {
-    _tajweedQueue.push(async () => {
-      for (const url of urls) {
-        let attempt = 0;
-        while (attempt <= TAJWEED_MAX_RETRIES) {
-          try {
-            const res = await fetchWithTimeout(url, 12000);
-            if (!res.ok) {
-              if (res.status === 429) {
-                await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
-                attempt++;
-                continue;
-              }
-              break; // Переход к следующему URL
-            }
-            const json = await res.json();
-            const text = json?.data?.text || null;
-            if (text) {
-              try { localStorage.setItem(cacheKey, text); } catch (e) {}
-              resolve(text);
-              return;
-            }
-            break;
-          } catch (e) {
-            if (attempt < TAJWEED_MAX_RETRIES) {
-              await new Promise(r => setTimeout(r, 500 * (attempt + 1)));
-              attempt++;
-            } else {
-              break;
-            }
-          }
-        }
-      }
-      resolve(null); // Если ни один URL не сработал
-    });
-    _processTajweedQueue();
-  });
 }
 
 async function fetchTajweedText(verseKey) {
