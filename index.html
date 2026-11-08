@@ -2753,7 +2753,6 @@ async function resetCurrent(e) {
 // ===== TAJWEED FROM ALQURAN.CLOUD API =====
 const TAJWEED_CACHE_PREFIX = 'iqra_tajweed_';
 
-// Очередь запросов (только для одиночных аятов; суры грузятся целиком)
 const _tajweedQueue = [];
 let _tajweedActive = 0;
 const TAJWEED_MAX_CONCURRENT = 4;
@@ -2798,37 +2797,91 @@ async function fetchTajweedText(verseKey) {
         while (attempt <= TAJWEED_MAX_RETRIES) {
           try {
             const res = await fetchWithTimeout(url, 12000);
-          if (!res.ok) {
-            if (res.status === 429) {
-              await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
-              attempt++;
-              continue;
+            if (!res.ok) {
+              if (res.status === 429) {
+                await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
+                attempt++;
+                continue;
+              }
+              break;
             }
-            resolve(null); return;
-          }
-          const json = await res.json();
-          const text = json?.data?.text || null;
-          if (text) {
-            try { localStorage.setItem(cacheKey, text); } catch (e) {}
-            resolve(text);
-            return;
-          }
-          resolve(null); return;
-        } catch (e) {
-          if (attempt < TAJWEED_MAX_RETRIES) {
-            await new Promise(r => setTimeout(r, 500 * (attempt + 1)));
-            attempt++;
-          } else {
-            resolve(null); return;
+            const json = await res.json();
+            const text = json?.data?.text || null;
+            if (text) {
+              try { localStorage.setItem(cacheKey, text); } catch (e) {}
+              resolve(text);
+              return;
+            }
+            break;
+          } catch (e) {
+            if (attempt < TAJWEED_MAX_RETRIES) {
+              await new Promise(r => setTimeout(r, 500 * (attempt + 1)));
+              attempt++;
+            } else {
+              break;
+            }
           }
         }
       }
+      resolve(null);
     });
     _processTajweedQueue();
   });
 }
-// Официальная таблица кодов API alquran.cloud (quran-tajweed edition)
-// Источник: https://alquran.cloud/tajweed-guide
+
+async function fetchTajweedSurah(surahNumber) {
+  const cacheKey = `iqra_tajweed_surah_${surahNumber}`;
+  try {
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) {
+      try { return JSON.parse(cached); } catch (e) {}
+    }
+  } catch (e) {}
+
+  const urls = [
+    `https://api.alquran.cloud/v1/surah/${surahNumber}/quran-tajweed`,
+    `https://alquran.api.islamic.network/v1/surah/${surahNumber}/quran-tajweed`
+  ];
+  
+  for (const url of urls) {
+    const maxAttempts = 2;
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      try {
+        const res = await fetchWithTimeout(url, 12000);
+        if (!res.ok) {
+          if (res.status === 429 && attempt < maxAttempts - 1) {
+            await new Promise(r => setTimeout(r, 1500 * (attempt + 1)));
+            continue;
+          }
+          if (attempt < maxAttempts - 1) {
+            await new Promise(r => setTimeout(r, 800 * Math.pow(2, attempt)));
+            continue;
+          }
+          break; 
+        }
+        const json = await res.json();
+        const ayahs = json?.data?.ayahs;
+        if (!ayahs || !Array.isArray(ayahs)) break;
+
+        const map = {};
+        ayahs.forEach(a => {
+          if (a.numberInSurah && a.text) map[a.numberInSurah] = a.text;
+        });
+
+        try { localStorage.setItem(cacheKey, JSON.stringify(map)); } catch (e) {}
+        return map;
+      } catch (e) {
+        if (attempt < maxAttempts - 1) {
+          await new Promise(r => setTimeout(r, 800 * Math.pow(2, attempt)));
+          continue;
+        }
+        break;
+      }
+    }
+  }
+  return null;
+}
+
 const TAJWEED_RULES_MAP = {
   'h': { className: 'ham_wasl', name: 'Хамзат аль-васл', color: '#AAAAAA' },
   's': { className: 'silent', name: 'Немая буква', color: '#AAAAAA' },
@@ -2860,7 +2913,7 @@ function renderTajweedHtml(tajweedText) {
 
   let html = tajweedText.replace(regex, (_, code, content) => {
     const rule = TAJWEED_RULES_MAP[code.toLowerCase()];
-  if (rule) {
+    if (rule) {
       return `<span class="tajweed-${rule.className}">\u200D${content}\u200D</span>`;
     }
     console.warn('Unknown tajweed code:', code);
