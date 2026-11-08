@@ -1903,7 +1903,7 @@ span[class^="tajweed-"] {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v332';
+const APP_VERSION = 'iqra-v333';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -4905,5 +4905,192 @@ if ('serviceWorker' in navigator) {
     try { history.back(); } catch(e) {}
   };
 })();
+
+/* ============================================================
+   ВОССТАНОВЛЕННЫЕ ФУНКЦИИ — отсутствовали в файле
+   (getTimeOfDay, getRandomQuote, renderTajweedHtml)
+   ============================================================ */
+
+function getTimeOfDay() {
+  const h = new Date().getHours();
+  if (h >= 5 && h < 12) return 'Утро';
+  if (h >= 12 && h < 17) return 'День';
+  if (h >= 17 && h < 21) return 'Вечер';
+  return 'Ночь';
+}
+
+function getRandomQuote() {
+  const sources = [];
+  state.quran.forEach(function(q) {
+    if (q.arabic && q.translation) {
+      sources.push({
+        type: 'quran', id: q.id, badge: 'Коран',
+        title: q.title,
+        ar: q.arabic.split('\n')[0],
+        tr: q.translation.split('\n')[0]
+      });
+    }
+  });
+  state.hadiths.forEach(function(h) {
+    if (h.arabic && h.translation) {
+      sources.push({
+        type: 'hadith', id: h.id, badge: 'Хадис',
+        title: h.title,
+        ar: h.arabic,
+        tr: h.translation
+      });
+    }
+  });
+  state.duas.forEach(function(d) {
+    if (d.arabic && d.translation) {
+      sources.push({
+        type: 'dua', id: d.id, badge: 'Дуа',
+        title: d.title,
+        ar: d.arabic.split('\n')[0],
+        tr: d.translation.split('\n')[0]
+      });
+    }
+  });
+  state.tasbihs.forEach(function(t) {
+    if (t.arabic && t.translation) {
+      sources.push({
+        type: 'tasbih', id: t.id, badge: 'Тасбих',
+        title: t.transcription || t.translation,
+        ar: t.arabic,
+        tr: t.translation
+      });
+    }
+  });
+  if (!sources.length) {
+    return {
+      type: null, id: null, badge: 'Iqra',
+      title: 'Читай!',
+      ar: 'ٱقْرَأْ',
+      tr: 'Читай во имя Господа твоего!'
+    };
+  }
+  return sources[Math.floor(Math.random() * sources.length)];
+}
+
+const TAJWEED_TAG_MAP = {
+  'h': 'ham_wasl',
+  's': 'silent',
+  'l': 'laam_shamsiyah',
+  'n': 'madda_normal',
+  'p': 'madda_permissible',
+  'm': 'madda_necessary',
+  'q': 'qalqalah',
+  'o': 'madda_obligatory',
+  'c': 'ikhfa',
+  'f': 'idghaam_ghunnah',
+  'w': 'idghaam_shafawi',
+  'i': 'iqlab',
+  'a': 'idghaam_mutajanisayn',
+  'u': 'idghaam_mutaqaribayn',
+  'd': 'idghaam_no_ghunnah',
+  'b': 'ikhfa_shafawi',
+  'g': 'ghunnah',
+  'e': 'tafkhim'
+};
+
+const TAJWEED_RULE_NAMES = {
+  'ham_wasl': 'Хамзат васл',
+  'silent': 'Немая',
+  'laam_shamsiyah': 'Лям шамсия',
+  'madda_normal': 'Мадд 2',
+  'madda_permissible': 'Мадд 2/4/6',
+  'madda_obligatory': 'Мадд 4-5',
+  'madda_necessary': 'Мадд 6',
+  'qalqalah': 'Калькаля',
+  'ghunnah': 'Гунна',
+  'ikhfa': 'Ихфа',
+  'ikhfa_shafawi': 'Ихфа шафави',
+  'idghaam_ghunnah': 'Идгам с гунной',
+  'idghaam_no_ghunnah': 'Идгам без гунны',
+  'idghaam_shafawi': 'Идгам шафави',
+  'idghaam_mutajanisayn': 'Идгам мутаджанисайн',
+  'idghaam_mutaqaribayn': 'Идгам мутакарибайн',
+  'iqlab': 'Иклаб',
+  'tafkhim': 'Тафхим'
+};
+
+const TAJWEED_RULE_COLORS = {
+  'ham_wasl': '#666666',
+  'silent': '#666666',
+  'laam_shamsiyah': '#666666',
+  'madda_normal': '#537FFF',
+  'madda_permissible': '#4050FF',
+  'madda_obligatory': '#2144C1',
+  'madda_necessary': '#000EBC',
+  'qalqalah': '#DD0008',
+  'ghunnah': '#FF7E1E',
+  'ikhfa': '#9400A8',
+  'ikhfa_shafawi': '#9400A8',
+  'idghaam_ghunnah': '#169777',
+  'idghaam_no_ghunnah': '#169200',
+  'idghaam_shafawi': '#58B800',
+  'idghaam_mutajanisayn': '#A1A1A1',
+  'idghaam_mutaqaribayn': '#A1A1A1',
+  'iqlab': '#26BFFD',
+  'tafkhim': '#1E3A8A'
+};
+
+function renderTajweedHtml(text) {
+  if (!text) return { text: '', rules: '' };
+  const rulesFound = new Set();
+  let html = '';
+  let i = 0;
+  const len = text.length;
+  let plainStart = 0;
+
+  function flushPlain(end) {
+    if (end > plainStart) html += esc(text.slice(plainStart, end));
+  }
+
+  while (i < len) {
+    if (text[i] === '[') {
+      const m = text.slice(i).match(/^\[([a-zA-Z])(?::\d+)?\[/);
+      if (m) {
+        flushPlain(i);
+        const tag = m[1].toLowerCase();
+        const ruleName = TAJWEED_TAG_MAP[tag];
+        const tagEnd = i + m[0].length;
+        const closeIdx = text.indexOf(']', tagEnd);
+        if (closeIdx === -1) {
+          html += esc(text.slice(i));
+          i = len;
+          plainStart = len;
+          break;
+        }
+        const content = text.slice(tagEnd, closeIdx);
+        if (ruleName) {
+          rulesFound.add(ruleName);
+          html += '<span class="tajweed-' + ruleName + '">' + esc(content) + '</span>';
+        } else {
+          html += esc(content);
+        }
+        i = closeIdx + 1;
+        plainStart = i;
+      } else {
+        i++;
+      }
+    } else {
+      i++;
+    }
+  }
+  flushPlain(len);
+
+  let rulesHtml = '';
+  if (rulesFound.size > 0) {
+    const items = Array.from(rulesFound).map(function(rule) {
+      const color = TAJWEED_RULE_COLORS[rule] || '#666';
+      const name = TAJWEED_RULE_NAMES[rule] || rule;
+      return '<span class="rule-item"><i style="background:' + color + ';"></i>' + name + '</span>';
+    }).join('');
+    rulesHtml = '<div class="ayah-tajweed-rules">' + items + '</div>';
+  }
+
+  return { text: html, rules: rulesHtml };
+}
 </script>
 <script data-goatcounter="https://iqra-stats.goatcounter.com/count" async src="./count.js"></script>
