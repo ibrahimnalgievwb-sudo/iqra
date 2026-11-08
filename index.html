@@ -1903,7 +1903,7 @@ span[class^="tajweed-"] {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v304';
+const APP_VERSION = 'iqra-v305';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2779,7 +2779,7 @@ async function fetchWithTimeout(url, timeoutMs) {
   }
 }
 
-async function fetchTajweedText(verseKey) {async function fetchTajweedText(verseKey) {
+async function fetchTajweedText(verseKey) {
   const cacheKey = TAJWEED_CACHE_PREFIX + verseKey;
   try {
     const cached = localStorage.getItem(cacheKey);
@@ -3002,75 +3002,7 @@ async function renderQuranList() {
   
   el.innerHTML = html;
 }
-async function applyTajweedToContainer(container, item) {
-  if (!container || !item) return;
-  const elements = container.querySelectorAll('.read-ayah-ar');
-  if (!elements.length) return;
-
-  var loader = null;
-  function showLoader() {
-    if (loader) return;
-    loader = document.createElement('div');
-    loader.className = 'tajweed-loading';
-    loader.textContent = 'Загрузка правил таджвида…';
-    loader.style.cssText = 'padding:10px 14px;margin-bottom:12px;border:1px dashed var(--gold-accent);border-radius:12px;font-size:12px;color:var(--muted);';
-    container.insertBefore(loader, container.firstChild);
-  }
-  function hideLoader() {
-    if (loader && loader.parentNode) loader.parentNode.removeChild(loader);
-    loader = null;
-  }
-
-  try {
-    if (item.type === 'surah' && item.number) {
-      showLoader();
-      const surahMap = await fetchTajweedSurah(item.number);
-      if (surahMap) {
-        const arr = Array.from(elements);
-        arr.forEach(function(el, idx) {
-          const ayahBlock = el.closest('.read-ayah');
-          if (!ayahBlock) return;
-          const tajweed = surahMap[idx + 1];
-          if (tajweed) {
-            const result = renderTajweedHtml(tajweed);
-            el.innerHTML = result.text;
-            const existingRules = ayahBlock.querySelector('.ayah-tajweed-rules');
-            if (existingRules) existingRules.remove();
-            if (result.rules) {
-              const rulesContainer = document.createElement('div');
-              rulesContainer.innerHTML = result.rules;
-              el.insertAdjacentElement('afterend', rulesContainer);
-            }
-          }
-        });
-        return;
-      }
-    }
-
-    for (const el of elements) {
-      const ayahBlock = el.closest('.read-ayah');
-      const verseKey = ayahBlock ? ayahBlock.dataset.verseKey : '';
-      if (!verseKey) continue;
-      const raw = el.dataset.raw || '';
-      const tajweed = await fetchTajweedText(verseKey);
-      if (tajweed) {
-        const result = renderTajweedHtml(tajweed);
-        el.innerHTML = result.text;
-        const existingRules = ayahBlock.querySelector('.ayah-tajweed-rules');
-        if (existingRules) existingRules.remove();
-        if (result.rules) {
-          const rulesContainer = document.createElement('div');
-          rulesContainer.innerHTML = result.rules;
-          el.insertAdjacentElement('afterend', rulesContainer);
-        }
-      } else {
-        el.innerHTML = esc(raw);
-      }
-    }
-  } finally {
-    hideLoader();
-  }
-}
+/* Удалена дублирующая версия applyTajweedToContainer (была мёртвым кодом — используется версия ниже) */
 
 async function applyTajweedToContainer(container, item) {
   if (!container || !item) return;
