@@ -1903,7 +1903,7 @@ span[class^="tajweed-"] {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v318';
+const APP_VERSION = 'iqra-v319';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2635,25 +2635,45 @@ function renderTasbih() {
   const done = today ? today.total : 0;
   const goal = state.settings.dailyGoal;
   const pct = goal > 0 ? Math.min(100, (done/goal)*100) : 0;
+  
   const goalSlot = document.getElementById('daily-goal-slot');
-  goalSlot.innerHTML = goal > 0 ? `<div class="daily-goal"><div class="dg-top"><div class="dg-label">Сегодня</div><div class="dg-num">${done} <span>/ ${goal}</span></div></div><div class="dg-bar"><div style="width:${pct}%"></div></div></div>` : '';
+  if (goal > 0) {
+    goalSlot.innerHTML = `<div class="daily-goal"><div class="dg-top"><div class="dg-label">Сегодня</div><div class="dg-num">${done} <span>/ ${goal}</span></div></div><div class="dg-bar"><div style="width:${pct}%"></div></div></div>`;
+  } else {
+    goalSlot.innerHTML = '';
+  }
 
   const contSlot = document.getElementById('continue-slot');
   if (contSlot) {
+    contSlot.innerHTML = '';
     const lr = state.settings.lastRead;
-    let lrItem = null, lrLabel = '', lrHandler = '';
-    // U5: на вкладке Тасбих показываем только Коран (дуа/хадис — на своих вкладках)
+    let lrItem = null, lrLabel = '';
     if (lr && lr.type === 'quran') {
       const q = getQuranById(lr.id);
-      if (q) { lrItem = q; lrLabel = 'Продолжить чтение'; lrHandler = "openRead('" + q.id + "')"; }
+      if (q) { lrItem = q; lrLabel = 'Продолжить чтение'; }
     }
     if (lrItem) {
-      contSlot.innerHTML = '<div class="continue-card" onclick="' + lrHandler + '">' +
-        '<div class="cc-label">' + lrLabel + '</div>' +
-        '<div class="cc-title">' + esc(lrItem.title) + '</div>' +
-        '<div class="cc-sub">' + esc(lrItem.subtitle || '') + '</div>' +
-      '</div>';
-    } else { contSlot.innerHTML = ''; }
+      const card = document.createElement('div');
+      card.className = 'continue-card';
+      card.addEventListener('click', () => openRead(lrItem.id));
+      
+      const lbl = document.createElement('div');
+      lbl.className = 'cc-label';
+      lbl.textContent = lrLabel;
+      
+      const title = document.createElement('div');
+      title.className = 'cc-title';
+      title.textContent = lrItem.title;
+      
+      const sub = document.createElement('div');
+      sub.className = 'cc-sub';
+      sub.textContent = lrItem.subtitle || '';
+      
+      card.appendChild(lbl);
+      card.appendChild(title);
+      card.appendChild(sub);
+      contSlot.appendChild(card);
+    }
   }
 
   const q = (document.getElementById('search').value||'').toLowerCase().trim();
@@ -2662,18 +2682,91 @@ function renderTasbih() {
   if (q) items = items.filter(t => (t.arabic||'').toLowerCase().includes(q) || (t.transcription||'').toLowerCase().includes(q) || (t.translation||'').toLowerCase().includes(q));
   if (sort === 'alpha') items.sort((a,b)=>(a.transcription||a.arabic||'').localeCompare(b.transcription||b.arabic||''));
   if (sort === 'freq') items.sort((a,b)=>usageCount(b.id)-usageCount(a.id));
+  
   const container = document.getElementById('cards-container');
-  if (!items.length) { container.innerHTML = state.tasbihs.length ? '<div class="empty">Ничего не найдено</div>' : '<div class="empty">Нет тасбихов.<br>Нажмите «＋», чтобы создать свой.</div>'; return; }
+  container.innerHTML = ''; // Очищаем контейнер перед рендерингом
+  
+  if (!items.length) { 
+    const empty = document.createElement('div');
+    empty.className = 'empty';
+    empty.innerHTML = state.tasbihs.length ? 'Ничего не найдено' : 'Нет тасбихов.<br>Нажмите «＋», чтобы создать свой.';
+    container.appendChild(empty);
+    return; 
+  }
+
   const R = 22, C = 2*Math.PI*R;
-  container.innerHTML = items.map(t => {
+  const fragment = document.createDocumentFragment();
+
+  items.forEach(t => {
     const _tg = Math.max(1, Number(t.target) || 0);
     const p = Math.min(1, Math.max(0, (Number(t.current) || 0) / _tg));
     const off = C*(1-p);
     const tc = todayCountFor(t.id);
-    const badge = tc>0 ? `<div class="today-badge">${tc}</div>` : '';
-    const tid = escAttr(t.id);
-      return `<div class="tasbih-card" data-id="${tid}" onclick="cardClick(event,'${tid}')" onpointerdown="cardPointerDown(event)" onpointermove="cardPointerMove(event)" onpointerup="cardPointerUp(event)" onpointercancel="cardPointerUp(event)" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();cardClick(event,'${tid}');}">${badge}<div class="body"><div class="ar ar-font">${esc(t.arabic)}</div><div class="tr">${esc(t.transcription)}</div><div class="trn">${esc(t.translation)}</div><div class="p-row"><span>${t.current} / ${t.target}</span><span>Циклов: ${t.cycles}</span></div></div><div class="mini-ring"><svg width="52" height="52"><circle class="ring-bg" cx="26" cy="26" r="${R}" fill="none" stroke-width="3.5"/><circle class="ring-fg" cx="26" cy="26" r="${R}" fill="none" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${off}"/></svg><div class="ring-num">${Math.round(p*100)}%</div></div></div>`;
-  }).join('');
+    
+    const card = document.createElement('div');
+    card.className = 'tasbih-card';
+    card.dataset.id = t.id;
+    card.tabIndex = 0;
+    
+    // Обработчики событий
+    card.addEventListener('click', (e) => cardClick(e, t.id));
+    card.addEventListener('pointerdown', cardPointerDown);
+    card.addEventListener('pointermove', cardPointerMove);
+    card.addEventListener('pointerup', cardPointerUp);
+    card.addEventListener('pointercancel', cardPointerUp);
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        cardClick(e, t.id);
+      }
+    });
+
+    if (tc > 0) {
+      const badge = document.createElement('div');
+      badge.className = 'today-badge';
+      badge.textContent = tc;
+      card.appendChild(badge);
+    }
+
+    const body = document.createElement('div');
+    body.className = 'body';
+
+    const ar = document.createElement('div');
+    ar.className = 'ar ar-font';
+    ar.textContent = t.arabic || '';
+    
+    const tr = document.createElement('div');
+    tr.className = 'tr';
+    tr.textContent = t.transcription || '';
+    
+    const trn = document.createElement('div');
+    trn.className = 'trn';
+    trn.textContent = t.translation || '';
+
+    const pRow = document.createElement('div');
+    pRow.className = 'p-row';
+    const span1 = document.createElement('span');
+    span1.textContent = `${t.current} / ${t.target}`;
+    const span2 = document.createElement('span');
+    span2.textContent = `Циклов: ${t.cycles}`;
+    pRow.appendChild(span1);
+    pRow.appendChild(span2);
+
+    body.appendChild(ar);
+    body.appendChild(tr);
+    body.appendChild(trn);
+    body.appendChild(pRow);
+    card.appendChild(body);
+
+    const ring = document.createElement('div');
+    ring.className = 'mini-ring';
+    ring.innerHTML = `<svg width="52" height="52"><circle class="ring-bg" cx="26" cy="26" r="${R}" fill="none" stroke-width="3.5"/><circle class="ring-fg" cx="26" cy="26" r="${R}" fill="none" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${off}"/></svg><div class="ring-num">${Math.round(p*100)}%</div>`;
+    
+    card.appendChild(ring);
+    fragment.appendChild(card);
+  });
+
+  container.appendChild(fragment);
 }
 // QA: Pointer Events (поддержка мыши и тача, a11y клавиатуры)
 let dragStartY = 0, isMouseDrag = false;
