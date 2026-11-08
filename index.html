@@ -1903,7 +1903,7 @@ span[class^="tajweed-"] {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v306';
+const APP_VERSION = 'iqra-v307';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2798,6 +2798,57 @@ async function fetchTajweedText(verseKey) {
         while (attempt <= TAJWEED_MAX_RETRIES) {
           try {
             const res = await fetchWithTimeout(url, 12000);
+            if (!res.ok) {
+              if (res.status === 429) {
+                await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
+                attempt++;
+                continue;
+              }
+              break; // Переход к следующему URL
+            }
+            const json = await res.json();
+            const text = json?.data?.text || null;
+            if (text) {
+              try { localStorage.setItem(cacheKey, text); } catch (e) {}
+              resolve(text);
+              return;
+            }
+            break;
+          } catch (e) {
+            if (attempt < TAJWEED_MAX_RETRIES) {
+              await new Promise(r => setTimeout(r, 500 * (attempt + 1)));
+              attempt++;
+            } else {
+              break;
+            }
+          }
+        }
+      }
+      resolve(null); // Если ни один URL не сработал
+    });
+    _processTajweedQueue();
+  });
+}
+
+async function fetchTajweedText(verseKey) {
+  const cacheKey = TAJWEED_CACHE_PREFIX + verseKey;
+  try {
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) return cached;
+  } catch (e) {}
+
+  const urls = [
+    `https://api.alquran.cloud/v1/ayah/${verseKey}/quran-tajweed`,
+    `https://alquran.api.islamic.network/v1/ayah/${verseKey}/quran-tajweed`
+  ];
+
+  return new Promise((resolve) => {
+    _tajweedQueue.push(async () => {
+      for (const url of urls) {
+        let attempt = 0;
+        while (attempt <= TAJWEED_MAX_RETRIES) {
+          try {
+            const res = await fetchWithTimeout(url, 12000);
           if (!res.ok) {
             if (res.status === 429) {
               await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
@@ -2826,57 +2877,6 @@ async function fetchTajweedText(verseKey) {
     });
     _processTajweedQueue();
   });
-}
-
-async function fetchTajweedSurah(surahNumber) {
-  const cacheKey = `iqra_tajweed_surah_${surahNumber}`;
-  try {
-    const cached = localStorage.getItem(cacheKey);
-    if (cached) {
-      try { return JSON.parse(cached); } catch (e) {}
-    }
-  } catch (e) {}
-
-   const urls = [
-    `https://api.alquran.cloud/v1/surah/${surahNumber}/quran-tajweed`,
-    `https://alquran.api.islamic.network/v1/surah/${surahNumber}/quran-tajweed`
-  ];
-  for (const url of urls) {
-  const maxAttempts = 2;
-  for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    try {
-      const res = await fetchWithTimeout(url, 12000);
-      if (!res.ok) {
-        if (res.status === 429 && attempt < maxAttempts - 1) {
-          await new Promise(r => setTimeout(r, 1500 * (attempt + 1)));
-          continue;
-        }
-        if (attempt < maxAttempts - 1) {
-          await new Promise(r => setTimeout(r, 800 * Math.pow(2, attempt)));
-          continue;
-        }
-        return null;
-      }
-      const json = await res.json();
-      const ayahs = json?.data?.ayahs;
-      if (!ayahs || !Array.isArray(ayahs)) return null;
-
-      const map = {};
-      ayahs.forEach(a => {
-        if (a.numberInSurah && a.text) map[a.numberInSurah] = a.text;
-      });
-
-      try { localStorage.setItem(cacheKey, JSON.stringify(map)); } catch (e) {}
-      return map;
-    } catch (e) {
-      if (attempt < maxAttempts - 1) {
-        await new Promise(r => setTimeout(r, 800 * Math.pow(2, attempt)));
-        continue;
-      }
-      return null;
-    }
-  }
-  return null;
 }
 // Официальная таблица кодов API alquran.cloud (quran-tajweed edition)
 // Источник: https://alquran.cloud/tajweed-guide
@@ -3023,7 +3023,7 @@ async function applyTajweedToContainer(container, item) {
   loader.textContent = 'Загрузка правил таджвида…';
   container.insertBefore(loader, container.firstChild);
 
-   var success = false;
+  var success = false;
   try {
     const arr = Array.from(elements);
     const tasks = arr.map(function(el) {
@@ -3059,7 +3059,6 @@ async function applyTajweedToContainer(container, item) {
   } catch (e) {
     console.warn('Tajweed apply error:', e);
   }
-  }
 
   if (loader.parentNode) {
     if (success) {
@@ -3073,7 +3072,6 @@ async function applyTajweedToContainer(container, item) {
     }
   }
 }
-
 function openQuran(id) {
   activeQuranId = id;
   const item = getQuranById(id); if (!item) return;
