@@ -3875,20 +3875,39 @@ async function switchTab(tab) {
   trackEvent('tab/' + tab, 'Вкладка: ' + tab);
   if (state.settings.vibrate && navigator.vibrate) navigator.vibrate(10);
   
-  if (tab==='dashboard') { renderDashboard(); showScreen('screen-dashboard'); }
-  else if (tab==='tasbih') { renderTasbih(); showScreen('screen-tasbih'); }
+  if (tab==='dashboard') { 
+    renderDashboard(); 
+    showScreen('screen-dashboard'); 
+  }
+  else if (tab==='tasbih') { 
+    renderTasbih(); 
+    showScreen('screen-tasbih'); 
+  }
   else if (tab==='quran') { 
-    setQuranFilter('all'); // Внутри уже есть вызов renderQuranList
+    setQuranFilter('all'); 
     showScreen('screen-quran'); 
   }
   else if (tab==='ruqyah') { 
-    setQuranFilter('ruqyah'); // Внутри уже есть вызов renderQuranList
+    setQuranFilter('ruqyah'); 
     showScreen('screen-quran'); 
   }
-  else if (tab==='night') { renderNightList(); showScreen('screen-night'); }
-  else if (tab==='dua') { renderDuaList(); showScreen('screen-dua'); }
-  else if (tab==='hadith') { renderHadithList(); showScreen('screen-hadith'); }
-  else if (tab==='cal') { calDate = new Date(); renderProgress(); showScreen('screen-cal'); }
+  else if (tab==='night') { 
+    renderNightList(); 
+    showScreen('screen-night'); 
+  }
+  else if (tab==='dua') { 
+    renderDuaList(); 
+    showScreen('screen-dua'); 
+  }
+  else if (tab==='hadith') { 
+    renderHadithList(); 
+    showScreen('screen-hadith'); 
+  }
+  else if (tab==='cal') { 
+    calDate = new Date(); 
+    renderProgress(); 
+    showScreen('screen-cal'); 
+  }
 }
 
 async function fetchTajweedText(verseKey) {
