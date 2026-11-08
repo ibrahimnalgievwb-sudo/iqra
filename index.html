@@ -155,18 +155,17 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 /* Текст Священного Писания в режиме чтения */
 .read-ayah-ar { 
   font-size:calc(28px * var(--ar-scale)); 
-  line-height: 2.2 !important; /* Исправлен гигантский интервал (было 3) */
+  line-height: 2.2 !important; 
   direction:rtl; 
   text-align:right !important; 
-  text-align-last: right !important; 
-  padding: 10px 0; /* Убраны лишние отступы сверху/снизу */
+  /* text-align-last: right !important;  <-- УДАЛЕНО, растягивало строки */
+  padding: 10px 0; 
   margin-bottom: 12px; 
-  border-bottom: 1px dashed rgba(212, 175, 55, 0.3); /* Золотая линия стала изящнее */
-  overflow-wrap: break-word; /* Слова не будут разрываться посередине */
+  border-bottom: 1px dashed rgba(212, 175, 55, 0.3); 
+  overflow-wrap: break-word; 
   word-break: normal; 
   word-spacing: normal !important; 
   letter-spacing: normal !important; 
-  /* min-height: calc(80px * var(--ar-scale)) !important;  <-- УДАЛЕНО, вызывало пустоты */
   width: 100%; 
   max-width: 100%; 
   box-sizing: border-box; 
@@ -177,7 +176,8 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 span[class^="tajweed-"] {
   display: inline !important;
   white-space: normal !important;
-  /* Цвета задаются в блоках .tajweed-* ниже */
+  /* Принудительно заставляет спэн использовать свой цвет, а не прозрачность градиента родителя */
+  -webkit-text-fill-color: currentColor !important; 
 }
   /* FIX ANDROID: отключаем градиент у аятов, чтобы вложенные цвета таджвида не игнорировались */ .read-ayah-ar {
   background-image: none !important;
@@ -1224,6 +1224,9 @@ span[class^="tajweed-"] {
 .tajweed-iqlab { color: #26BFFD !important; -webkit-text-fill-color: #26BFFD !important; }
 .tajweed-tafkhim { color: #1E3A8A !important; -webkit-text-fill-color: #1E3A8A !important; }
 
+/* ДОБАВЛЕНО: Отсутствующие цвета для серых букв (теперь они видны) */
+.tajweed-ham_wasl, .tajweed-laam_shamsiyah, .tajweed-silent { color: #666666 !important; -webkit-text-fill-color: #666666 !important; }
+
 /* Сохранение арабского соединения (shaping) */
 .tajweed-span {
   display: inline !important;
@@ -1921,7 +1924,7 @@ span[class^="tajweed-"] {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v313';
+const APP_VERSION = 'iqra-v314';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2901,9 +2904,9 @@ async function fetchTajweedSurah(surahNumber) {
 }
 
 const TAJWEED_RULES_MAP = {
-  'h': { className: 'ham_wasl', name: 'Хамзат аль-васл', color: '#AAAAAA' },
-  's': { className: 'silent', name: 'Немая буква', color: '#AAAAAA' },
-  'l': { className: 'laam_shamsiyah', name: 'Лям шамсия', color: '#AAAAAA' },
+  'h': { className: 'ham_wasl', name: 'Хамзат аль-васл', color: '#666666' },
+  's': { className: 'silent', name: 'Немая буква', color: '#666666' },
+  'l': { className: 'laam_shamsiyah', name: 'Лям шамсия', color: '#666666' },
   'n': { className: 'madda_normal', name: 'Мадд 2 (естественный)', color: '#537FFF' },
   'p': { className: 'madda_permissible', name: 'Мадд 2/4/6 (допустимый)', color: '#4050FF' },
   'm': { className: 'madda_necessary', name: 'Мадд 6 (необходимый)', color: '#000EBC' },
@@ -2922,39 +2925,59 @@ const TAJWEED_RULES_MAP = {
 
 function renderTajweedHtml(tajweedText) {
   if (!tajweedText) return { text: '', rules: '' };
-  console.log('=== TAJWEED DEBUG ===');
-  console.log('Raw text from API:', tajweedText.substring(0, 300));
-  console.log('Contains [code[ pattern:', /\[([a-zA-Z])(?::\d+)?\[/.test(tajweedText));
-  console.log('Contains <tajweed pattern:', /<tajweed/i.test(tajweedText));  
 
-  const regex = /\[([a-zA-Z])(?::\d+)?\[(.*?)\]/g;
-
-  let html = tajweedText.replace(regex, (_, code, content) => {
-    const rule = TAJWEED_RULES_MAP[code.toLowerCase()];
-    if (rule) {
-      return `<span class="tajweed-${rule.className}">\u200D${content}\u200D</span>`;
-    }
-    console.warn('Unknown tajweed code:', code);
-    return content;
-  });
-
-  html = html.replace(/\[\/?[a-z0-9_:]+\]/gi, '');
-  html = html.replace(/<tajweed\s+class=["']?([^"'>\s]+)["']?\s*>/gi, (_, cls) => {
+  // 1. Нормализуем HTML-теги от API (Quran Foundation)
+  let normalized = tajweedText.replace(/<tajweed\s+class=["']?([^"'>\s]+)["']?\s*>/gi, (_, cls) => {
     const safeCls = cls.replace(/[^a-zA-Z0-9_-]/g, '_');
     return `<span class="tajweed-${safeCls}">`;
   }).replace(/<\/tajweed>/gi, '</span>');
 
-  const classMatches = html.match(/class="tajweed-([a-z0-9_]+)"/gi) || [];
-  const uniqueRuleClasses = [...new Set(classMatches.map(m => m.match(/tajweed-([a-z0-9_]+)/i)[1]))];
+  let rulesSet = new Set();
+  
+  // 2. Рекурсивный парсер для формата [h:123[ٱ] и вложенных конструкций
+  function parse(text) {
+    let result = '';
+    let i = 0;
+    while (i < text.length) {
+      if (text[i] === '[') {
+        let depth = 1;
+        let j = i + 1;
+        while (j < text.length && depth > 0) {
+          if (text[j] === '[') depth++;
+          else if (text[j] === ']') depth--;
+          j++;
+        }
+        if (depth === 0) {
+          const inner = text.slice(i + 1, j - 1);
+          const match = inner.match(/^([a-zA-Z])(?::\d+)?\[(.*)\]$/s);
+          if (match) {
+            const code = match[1].toLowerCase();
+            const content = match[2];
+            const rule = TAJWEED_RULES_MAP[code];
+            if (rule) {
+              rulesSet.add(rule);
+              // \u200D убран, чтобы не ломать арабские слова
+              result += `<span class="tajweed-${rule.className}">${parse(content)}</span>`;
+              i = j;
+              continue;
+            }
+          }
+        }
+      }
+      result += text[i];
+      i++;
+    }
+    return result;
+  }
+
+  let html = parse(normalized);
+  html = html.replace(/\[\/?[a-z0-9_:]+\]/gi, '');
 
   let rulesHtml = '';
-  if (uniqueRuleClasses.length > 0) {
+  if (rulesSet.size > 0) {
     rulesHtml = '<div class="ayah-tajweed-rules">';
-    uniqueRuleClasses.forEach(cls => {
-      const rule = Object.values(TAJWEED_RULES_MAP).find(r => r.className === cls);
-      if (rule) {
-        rulesHtml += `<span class="rule-item"><i style="background:${rule.color};"></i>${rule.name}</span>`;
-      }
+    rulesSet.forEach(rule => {
+      rulesHtml += `<span class="rule-item"><i style="background:${rule.color};"></i>${rule.name}</span>`;
     });
     rulesHtml += '</div>';
   }
