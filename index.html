@@ -1924,7 +1924,7 @@ span[class^="tajweed-"] {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v315';
+const APP_VERSION = 'iqra-v316';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -3199,7 +3199,7 @@ function readNextSurah() {
     openRead(state.quran[idx + 1].id, null, 'next');
   }
 }
-  async function openRead(id, targetAyahIdx, dir) {
+ async function openRead(id, targetAyahIdx, dir) {
   const item = getQuranById(id);
   if (!item) return;
 
@@ -3277,13 +3277,16 @@ function readNextSurah() {
   if (prevBtn) { prevBtn.style.opacity = idx === 0 ? '0.3' : '1'; prevBtn.style.pointerEvents = idx === 0 ? 'none' : 'auto'; }
   if (nextBtn) { nextBtn.style.opacity = idx === state.quran.length - 1 ? '0.3' : '1'; nextBtn.style.pointerEvents = idx === state.quran.length - 1 ? 'none' : 'auto'; }
   
-  applyTajweedToContainer(container, item);
+  // Ждем завершения асинхронной загрузки таджвида, чтобы высота DOM стабилизировалась
+  try { await applyTajweedToContainer(container, item); } catch(e) { console.warn('Tajweed load error:', e); }
   
-  // Восстановление позиции скролла
+  // Восстановление позиции скролла после рендера таджвида
   if (state.settings.readScrolls && state.settings.readScrolls[id]) {
-    setTimeout(() => {
-      container.scrollTop = state.settings.readScrolls[id];
-    }, 50);
+    const targetScroll = state.settings.readScrolls[id];
+    // rAF гарантирует, что браузер уже пересчитал layout
+    requestAnimationFrame(() => {
+      container.scrollTop = targetScroll;
+    });
   }
 
   saveNavContext();
