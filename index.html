@@ -121,29 +121,65 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .ar-font {
   font-family:"Noto Naskh Arabic","Amiri","SF Arabic","Geeza Pro",serif;
   font-feature-settings:"liga" 1, "calt" 1;
-  line-height: 2 !important;
+  line-height: 2.2 !important; /* Уменьшен интервал для аккуратности */
   letter-spacing: normal !important;
-  overflow-wrap: anywhere;
+  word-spacing: normal !important;
+  overflow-wrap: break-word; /* Предотвращает разрыв слов */
   word-wrap: break-word;
   word-break: normal;
   hyphens: none;
-  text-rendering: geometricPrecision;
+  text-rendering: optimizeLegibility;
   max-width: 100%;
   min-width: 0;
-  padding: 10px 0;
+  padding: 8px 0;
   display: block;
   overflow: visible;
-  /* Возвращаем золотой цвет (сплошной, без градиента) */
-  color: var(--ar-g2) !important;
-  -webkit-text-fill-color: var(--ar-g2) !important;
-  background-image: none !important;
-  -webkit-background-clip: initial !important;
-  background-clip: initial !important;
+  
+  /* Возвращаем премиальный блестящий градиент */
+  background-image: repeating-linear-gradient(0deg, var(--ar-g1) 0em, var(--ar-g2) 0.1em, var(--ar-g3) 0.2em, var(--ar-g2) 0.3em, var(--ar-g1) 0.4em);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
 }
-.tasbih-card .ar,
-.content-card .c-ar,
-.preview-card .pv-ar { min-height: 1.8em; }
-.read-ayah-ar { font-size:calc(30px * var(--ar-scale)); line-height: 3 !important; direction:rtl; text-align:right !important; text-align-last: right !important; padding-top: 15px; padding-bottom: 15px; margin-bottom: 10px; border-bottom: 1px dashed var(--border); overflow-wrap: anywhere; word-break: normal; word-spacing: normal !important; letter-spacing: normal !important; min-height: calc(80px * var(--ar-scale)) !important; width: 100%; max-width: 100%; box-sizing: border-box; display: block; } /* FIX ANDROID: отключаем градиент у аятов, чтобы вложенные цвета таджвида не игнорировались */ .read-ayah-ar {
+
+/* Фолбэк для браузеров без поддержки градиентного текста */
+@supports not ((-webkit-background-clip: text) or (background-clip: text)) {
+  .ar-font {
+    -webkit-text-fill-color: var(--ar-g2) !important;
+    color: var(--ar-g2) !important;
+    background-image: none !important;
+  }
+}
+
+/* Текст Священного Писания в режиме чтения */
+.read-ayah-ar { 
+  font-size:calc(28px * var(--ar-scale)); 
+  line-height: 2.2 !important; /* Исправлен гигантский интервал (было 3) */
+  direction:rtl; 
+  text-align:right !important; 
+  text-align-last: right !important; 
+  padding: 10px 0; /* Убраны лишние отступы сверху/снизу */
+  margin-bottom: 12px; 
+  border-bottom: 1px dashed rgba(212, 175, 55, 0.3); /* Золотая линия стала изящнее */
+  overflow-wrap: break-word; /* Слова не будут разрываться посередине */
+  word-break: normal; 
+  word-spacing: normal !important; 
+  letter-spacing: normal !important; 
+  /* min-height: calc(80px * var(--ar-scale)) !important;  <-- УДАЛЕНО, вызывало пустоты */
+  width: 100%; 
+  max-width: 100%; 
+  box-sizing: border-box; 
+  display: block; 
+}
+
+/* Защита таджвида: спэны перекрывают градиент своими цветами */
+span[class^="tajweed-"] {
+  display: inline !important;
+  white-space: normal !important;
+  /* Цвета задаются в блоках .tajweed-* ниже */
+}
+  /* FIX ANDROID: отключаем градиент у аятов, чтобы вложенные цвета таджвида не игнорировались */ .read-ayah-ar {
   background-image: none !important;
   -webkit-background-clip: initial !important;
   background-clip: initial !important;
@@ -1168,9 +1204,12 @@ span[class^="tajweed-"] {
   /* -webkit-text-fill-color удалён отсюда, чтобы не перебивать индивидуальные цвета классов */
 }
 
-/* === TAJWEED: ОФИЦИАЛЬНЫЕ ЦВЕТА (Dar al-Maarifah) === */
-/* ВАЖНО: -webkit-text-fill-color переопределяется для каждого класса, чтобы не наследовать transparent от .ar-font */
-.tajweed-ham_wasl, .tajweed-laam_shamsiyah, .tajweed-silent { color: #AAAAAA !important; -webkit-text-fill-color: #AAAAAA !important; }
+/* Отключаем градиент для родителя, если внутри есть таджвид (опционально, для перестраховки) */
+.read-ayah-ar:has(.tajweed-span) {
+  background-image: none !important;
+  -webkit-text-fill-color: var(--text) !important;
+  color: var(--text) !important;
+}
 .tajweed-madda_normal { color: #537FFF !important; -webkit-text-fill-color: #537FFF !important; }
 .tajweed-madda_permissible { color: #4050FF !important; -webkit-text-fill-color: #4050FF !important; }
 .tajweed-madda_obligatory { color: #2144C1 !important; -webkit-text-fill-color: #2144C1 !important; }
@@ -1882,7 +1921,7 @@ span[class^="tajweed-"] {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v312';
+const APP_VERSION = 'iqra-v313';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -3136,7 +3175,6 @@ function openQuran(id) {
     ${transcriptionNote()}
   `;
   showScreen('screen-quran-detail');
-  applyTajweedToContainer(el, item);
 }
 function toggleQuranLearned(id) {
   const item = getQuranById(id); if (!item) return;
