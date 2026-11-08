@@ -1180,24 +1180,25 @@ button::-moz-focus-inner { border: 0; padding: 0; }
 span[class^="tajweed-"] {
   display: inline !important;
   white-space: normal !important;
-  -webkit-text-fill-color: currentColor !important;
+  /* -webkit-text-fill-color удалён отсюда, чтобы не перебивать индивидуальные цвета классов */
 }
 
 /* === TAJWEED: ОФИЦИАЛЬНЫЕ ЦВЕТА (Dar al-Maarifah) === */
-.tajweed-ham_wasl, .tajweed-laam_shamsiyah, .tajweed-silent { color: #AAAAAA !important; }
-.tajweed-madda_normal { color: #537FFF !important; }
-.tajweed-madda_permissible { color: #4050FF !important; }
-.tajweed-madda_obligatory { color: #2144C1 !important; }
-.tajweed-madda_necessary { color: #000EBC !important; }
-.tajweed-qalqalah { color: #DD0008 !important; }
-.tajweed-ghunnah { color: #FF7E1E !important; }
-.tajweed-ikhfa, .tajweed-ikhfa_shafawi { color: #9400A8 !important; }
-.tajweed-idghaam_ghunnah { color: #169777 !important; }
-.tajweed-idghaam_no_ghunnah { color: #169200 !important; }
-.tajweed-idghaam_shafawi { color: #58B800 !important; }
-.tajweed-idghaam_mutajanisayn, .tajweed-idghaam_mutaqaribayn { color: #A1A1A1 !important; }
-.tajweed-iqlab { color: #26BFFD !important; }
-.tajweed-tafkhim { color: #1E3A8A !important; }
+/* ВАЖНО: -webkit-text-fill-color переопределяется для каждого класса, чтобы не наследовать transparent от .ar-font */
+.tajweed-ham_wasl, .tajweed-laam_shamsiyah, .tajweed-silent { color: #AAAAAA !important; -webkit-text-fill-color: #AAAAAA !important; }
+.tajweed-madda_normal { color: #537FFF !important; -webkit-text-fill-color: #537FFF !important; }
+.tajweed-madda_permissible { color: #4050FF !important; -webkit-text-fill-color: #4050FF !important; }
+.tajweed-madda_obligatory { color: #2144C1 !important; -webkit-text-fill-color: #2144C1 !important; }
+.tajweed-madda_necessary { color: #000EBC !important; -webkit-text-fill-color: #000EBC !important; }
+.tajweed-qalqalah { color: #DD0008 !important; -webkit-text-fill-color: #DD0008 !important; }
+.tajweed-ghunnah { color: #FF7E1E !important; -webkit-text-fill-color: #FF7E1E !important; }
+.tajweed-ikhfa, .tajweed-ikhfa_shafawi { color: #9400A8 !important; -webkit-text-fill-color: #9400A8 !important; }
+.tajweed-idghaam_ghunnah { color: #169777 !important; -webkit-text-fill-color: #169777 !important; }
+.tajweed-idghaam_no_ghunnah { color: #169200 !important; -webkit-text-fill-color: #169200 !important; }
+.tajweed-idghaam_shafawi { color: #58B800 !important; -webkit-text-fill-color: #58B800 !important; }
+.tajweed-idghaam_mutajanisayn, .tajweed-idghaam_mutaqaribayn { color: #A1A1A1 !important; -webkit-text-fill-color: #A1A1A1 !important; }
+.tajweed-iqlab { color: #26BFFD !important; -webkit-text-fill-color: #26BFFD !important; }
+.tajweed-tafkhim { color: #1E3A8A !important; -webkit-text-fill-color: #1E3A8A !important; }
 
 /* Сохранение арабского соединения (shaping) */
 .tajweed-span {
@@ -1861,7 +1862,7 @@ span[class^="tajweed-"] {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v295';
+const APP_VERSION = 'iqra-v297';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2826,6 +2827,10 @@ const TAJWEED_RULES_MAP = {
 
 function renderTajweedHtml(tajweedText) {
   if (!tajweedText) return { text: '', rules: '' };
+  console.log('=== TAJWEED DEBUG ===');
+  console.log('Raw text from API:', tajweedText.substring(0, 300));
+  console.log('Contains [code[ pattern:', /\[([a-zA-Z])(?::\d+)?\[/.test(tajweedText));
+  console.log('Contains <tajweed pattern:', /<tajweed/i.test(tajweedText));  
 
   const regex = /\[([a-zA-Z])(?::\d+)?\[(.*?)\]/g;
 
