@@ -121,10 +121,10 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 .ar-font {
   font-family:"Noto Naskh Arabic","Amiri","SF Arabic","Geeza Pro",serif;
   font-feature-settings:"liga" 1, "calt" 1;
-  line-height: 2.2 !important; /* Уменьшен интервал для аккуратности */
+  line-height: 2.2 !important;
   letter-spacing: normal !important;
   word-spacing: normal !important;
-  overflow-wrap: break-word; /* Предотвращает разрыв слов */
+  overflow-wrap: break-word;
   word-wrap: break-word;
   word-break: normal;
   hyphens: none;
@@ -135,21 +135,9 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   display: block;
   overflow: visible;
   
-  /* Возвращаем премиальный блестящий градиент */
-  background-image: repeating-linear-gradient(0deg, var(--ar-g1) 0em, var(--ar-g2) 0.1em, var(--ar-g3) 0.2em, var(--ar-g2) 0.3em, var(--ar-g1) 0.4em);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
-}
-
-/* Фолбэк для браузеров без поддержки градиентного текста */
-@supports not ((-webkit-background-clip: text) or (background-clip: text)) {
-  .ar-font {
-    -webkit-text-fill-color: var(--ar-g2) !important;
-    color: var(--ar-g2) !important;
-    background-image: none !important;
-  }
+  /* Сплошной премиальный цвет (градиент убран для идеальной читаемости и работы Таджвида) */
+  color: var(--ar-g2);
+  -webkit-text-fill-color: var(--ar-g2);
 }
 
 /* Текст Священного Писания в режиме чтения */
@@ -158,7 +146,6 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   line-height: 2.2 !important; 
   direction:rtl; 
   text-align:right !important; 
-  /* text-align-last: right !important;  <-- УДАЛЕНО, растягивало строки */
   padding: 10px 0; 
   margin-bottom: 12px; 
   border-bottom: 1px dashed rgba(212, 175, 55, 0.3); 
@@ -172,19 +159,11 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   display: block; 
 }
 
-/* Защита таджвида: спэны перекрывают градиент своими цветами */
+/* Защита таджвида: спэны перекрывают родительский цвет своими цветами */
 span[class^="tajweed-"] {
   display: inline !important;
   white-space: normal !important;
-  /* Принудительно заставляет спэн использовать свой цвет, а не прозрачность градиента родителя */
   -webkit-text-fill-color: currentColor !important; 
-}
-  /* FIX ANDROID: отключаем градиент у аятов, чтобы вложенные цвета таджвида не игнорировались */ .read-ayah-ar {
-  background-image: none !important;
-  -webkit-background-clip: initial !important;
-  background-clip: initial !important;
-  -webkit-text-fill-color: var(--ar-g2) !important;
-  color: var(--ar-g2) !important;
 }
 @media (max-width: 420px) { .read-ayah { margin-bottom: 12px; padding: 14px 16px; border-radius: 14px; } .read-ayah-ar { padding-top: 15px; padding-bottom: 15px; margin-bottom: 10px; min-height: calc(80px * var(--ar-scale)); } }
 @supports (font-variation-settings: normal) {
@@ -1924,7 +1903,7 @@ span[class^="tajweed-"] {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v317';
+const APP_VERSION = 'iqra-v318';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
