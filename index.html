@@ -1882,7 +1882,7 @@ span[class^="tajweed-"] {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v300';
+const APP_VERSION = 'iqra-v301';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -4288,16 +4288,33 @@ function initDebugMode() {
   } catch(e) {}
 }
 function showDebugResult(text) {
-  var out = document.getElementById('debug-output');
   var ov = document.getElementById('debug-overlay');
+  if (!ov) {
+    ov = document.createElement('div');
+    ov.id = 'debug-overlay';
+    ov.setAttribute('role', 'dialog');
+    ov.setAttribute('aria-label', 'Диагностика таджвида');
+    var pre = document.createElement('pre');
+    pre.id = 'debug-output';
+    ov.appendChild(pre);
+    var actions = document.createElement('div');
+    actions.id = 'debug-actions';
+    actions.innerHTML = '<button class="btn secondary" onclick="copyDebugOutput()">Скопировать</button>' +
+      '<button class="btn" onclick="runTajweedDiagnostics()">Запустить</button>' +
+      '<button class="btn secondary" onclick="document.getElementById(\'debug-overlay\').classList.remove(\'active\')">Закрыть</button>';
+    ov.appendChild(actions);
+    document.body.appendChild(ov);
+  }
+  var out = document.getElementById('debug-output');
   if (out) out.textContent = text;
-  if (ov) ov.classList.add('active');
+  ov.classList.add('active');
 }
 function copyDebugOutput() {
   var out = document.getElementById('debug-output');
   if (out) copyToClipboard(out.textContent || '');
 }
 async function runTajweedDiagnostics() {
+  showDebugResult('Идёт проверка...\n\nЗапрос к API. Подождите 5–10 секунд.');
   var out = [];
   out.push('=== TAJWEED DIAGNOSTICS ===');
   out.push('Time: ' + new Date().toISOString());
