@@ -1496,6 +1496,64 @@ span[class^="tajweed-"] {
     box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
   }
 }
+/* === PATH TAB (Stage 4) === */
+.path-chip {
+  flex-shrink: 0;
+  padding: 8px 16px;
+  border-radius: 20px;
+  background: var(--card);
+  border: 1px solid rgba(212,175,55,.3);
+  font-size: 14px;
+  color: var(--text);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all var(--dur-fast) var(--ease-out);
+}
+.path-chip.active {
+  background: var(--gold-grad);
+  color: #0A0A0A;
+  font-weight: 700;
+  border-color: transparent;
+  box-shadow: var(--gold-glow-sm);
+}
+.path-chip:active {
+  transform: scale(0.95);
+}
+.show-all-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px;
+  margin-top: 8px;
+  margin-bottom: 20px;
+  border-radius: 14px;
+  background: var(--card);
+  border: 1px dashed var(--gold-accent);
+  color: var(--gold-accent);
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background var(--dur-fast);
+}
+.show-all-btn:active {
+  background: rgba(212,175,55,.1);
+}
+.path-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.6;
+}
+.path-fallback {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 20px;
+}
 </style>
 </head>
 <body>
@@ -1763,12 +1821,25 @@ span[class^="tajweed-"] {
 <!-- PATH -->
 <div class="screen" id="screen-path">
   <div class="header">
-    <button class="icon-btn ghost" onclick="goHome()" aria-label="Назад"><svg class="ico"><use href="#i-arrow-left"/></svg></button>
+    <button class="icon-btn ghost" onclick="switchTab('dashboard')" aria-label="Назад"><svg class="ico"><use href="#i-arrow-left"/></svg></button>
     <h1>Путь</h1>
     <div style="width:42px"></div>
   </div>
-  <div class="content-list" id="path-content">
-    <div class="empty">Здесь будет ваш духовный путь (наполним на Этапе 4).</div>
+  
+  <div style="padding: 0 16px 12px;">
+    <div class="search-wrap">
+      <input id="path-search" placeholder="Что тревожит вашу душу?" oninput="debouncedRenderPath()">
+    </div>
+  </div>
+
+  <!-- Контейнер для чипсов ALL_TAGS -->
+  <div class="search-filters" id="path-chips-container" style="padding: 0 16px 12px; border: none; flex-direction: row; overflow-x: auto; scrollbar-width: none;">
+    <!-- Чипсы будут генерироваться через JS -->
+  </div>
+
+  <!-- Контейнер для результатов -->
+  <div class="content-list" id="path-results" style="padding-top: 0;">
+    <!-- Результаты будут генерироваться через JS -->
   </div>
 </div>
 
@@ -2076,7 +2147,7 @@ span[class^="tajweed-"] {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v359';
+const APP_VERSION = 'iqra-v360';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
