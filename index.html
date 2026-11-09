@@ -794,6 +794,23 @@ span[class^="tajweed-"] {
   .dash-hijri-gold { font-size: 11px; }
 }
 
+/* === SPIRITUAL CARD (Stage 3.0) === */
+.spiritual-card { 
+  background: var(--card); 
+  border: 1px solid rgba(212,175,55,.3); 
+  border-radius: var(--radius); 
+  padding: 24px 20px; 
+  margin-bottom: 16px; 
+  box-shadow: 0 4px 16px rgba(212,175,55,.1); 
+  text-align: center; 
+}
+.spiritual-card .sc-ar-bismillah { font-size: calc(26px * var(--ar-scale)); color: var(--gold-accent); font-family: 'Noto Naskh Arabic', serif; line-height: 2; margin-bottom: 8px; }
+.spiritual-card .sc-tr-bismillah { font-size: 13px; color: var(--muted); margin-bottom: 4px; }
+.spiritual-card .sc-trn-bismillah { font-size: 14px; color: var(--text); font-weight: 500; margin-bottom: 24px; }
+.spiritual-card .sc-divider { width: 40px; height: 1px; background: rgba(212,175,55,.3); margin: 0 auto 24px auto; }
+.spiritual-card .sc-ar-alyaq { font-size: calc(24px * var(--ar-scale)); color: var(--gold-accent); font-family: 'Noto Naskh Arabic', serif; line-height: 2; margin-bottom: 8px; direction: rtl; }
+.spiritual-card .sc-tr-alyaq { font-size: 13px; color: var(--muted); margin-bottom: 4px; }
+.spiritual-card .sc-trn-alyaq { font-size: 14px; color: var(--text); font-weight: 500; margin-bottom: 20px; line-height: 1.5; }
 /* === DASHBOARD RESTRUCTURE (Stage 3.2) === */
 .dash-header { align-items: flex-start; padding: 12px 16px 6px; gap: 10px; min-height: 0; }
 .dash-header-left { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
@@ -2059,7 +2076,7 @@ span[class^="tajweed-"] {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v357';
+const APP_VERSION = 'iqra-v358';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2223,7 +2240,7 @@ const DEFAULT_QURAN = [
     transcription: 'Алям нашрах ляка садрак.\nВа вада‘на ‘анка визрак.\nАллязи анкада захрак.\nВа рафа‘на ляка зикрак.\nФа инна ма‘аль-‘усри юсра.\nИнна ма‘аль-‘усри юсра.\nФа иза фарагта фансаб.\nВа иля Раббика фаргаб.',
     translation: 'Разве Мы не раскрыли для тебя грудь твою?\nи не сняли с тебя ношу,\nкоторая отягощала твою спину?\nРазве Мы не возвеличили для тебя славу твою?\nВоистину, за каждой тягостью наступает облегчение.\nЗа каждой тягостью наступает облегчение.\nПосему, как только освободишься, будь деятелен (как только освободишься от мирских дел, усердно поклоняйся Аллаху, или как только завершишь намаз, усердно взывай к Аллаху с молитвами)\nи устремись к своему Господу.',
     note: '', source: 'Священный Коран, сура 94. Перевод смыслов: Эльмир Кулиев.', learned: false, learnedAt: '', tags: [], tafsir: null },
-   {
+  {
     id: 'q96',
     type: 'surah',
     number: 96,
@@ -2231,7 +2248,7 @@ const DEFAULT_QURAN = [
     subtitle: 'Сгусток крови · Мекканская · 19 аятов',
     bismillah: BISMILLAH,
     arabic: 'اقْرَأْ بِاسْمِ رَبِّكَ الَّذِي خَلَقَ\nخَلَقَ الْإِنسَانَ مِنْ عَلَقٍ\nاقْرَأْ وَرَبُّكَ الْأَكْرَمُ\nالَّذِي عَلَّمَ بِالْقَلَمِ\nعَلَّمَ الْإِنسَانَ مَا لَمْ يَعْلَمْ\nكَلَّا إِنَّ الْإِنسَانَ لَيَطْغَىٰ\nأَن رَّآهُ اسْتَغْنَىٰ\nإِنَّ إِلَىٰ رَبِّكَ الرُّجْعَىٰ\nأَرَأَيْتَ الَّذِي يَنْهَىٰ\nعَبْدًا إِذَا صَلَّىٰ\nأَرَأَيْتَ إِن كَانَ عَلَى الْهُدَىٰ\nأَوْ أَمَرَ بِالتَّقْوَىٰ\nأَرَأَيْتَ إِن كَذَّبَ وَتَوَلَّىٰ\nأَلَمْ يَعْلَم بِأَنَّ اللَّهَ يَرَىٰ\nكَلَّا لَئِن لَّمْ يَنتَهِ لَنَسْفَعًا بِالنَّاصِيَةِ\nنَاصِيَةٍ كَاذِبَةٍ خَاطِئَةٍ\nفَلْيَدْعُ نَادِيَهُ\nسَنَدْعُ الزَّبَانِيَةَ\nكَلَّا لَا تُطِعْهُ وَاسْجُدْ وَاقْتَرِب ۩',
-    transcription: 'Икраъ бисми Раббикал-лязи холякъ\nХолякъал-инсяна мин ъалякъ\nИкраъ ва Раббукал-акрам\nАллязи ъалляма бил-къалям\nЪаллямал-инсяна ма лям яълям\nКялля, иннал-инсяна ляятгъа\nАн раахустогъна\nИнна иля Раббикар-руджъа\nАраайтал-лязи янхя\nЪабдан иза салля\nАраайта ин кяна ъаляль-худа\nАв амара бит-такъва\nАраайта ин кяззаба ва тавалля\nАлям яълям бианналлаха яра\nКялля, ляин лям янтахи лянясфаъан бин-насыя\nНасыятин кязибатин хатыа\nФальядъу надия\nСанадъуз-забания\nКялля, ля тутыъху васджуд вакътариб',
+    transcription: 'Икра’ бисми Раббикал-лязи халяк\nХалякал-инсяна мин ‘аляк\nИкра’ ва Раббукал-акрам\nАллязи ‘алляма бил-калям\n‘Аллямал-инсяна ма лям я‘лям\nКалля, иннал-инсяна ляятга\nАн раахустогна\nИнна иля Раббикар-рудж‘а\nАраайтал-лязи янха\n‘Абдан иза салля\nАраайта ин кана ‘аляль-худа\nАв амара бит-таква\nАраайта ин каззаба ва тавалля\nАлям я‘лям бианналлаха яра\nКалля, ляин лям янтахи лянясфа‘ан бин-насыя\nНасыятин казибатин хатыа\nФальяд‘у надия\nСанад‘уз-забания\nКалля, ля туты‘ху васджуд вактариб',
     translation: 'Читай во имя твоего Господа, Который сотворил все сущее,\nсотворил человека из сгустка крови.\nЧитай, ведь твой Господь — Самый великодушный.\nОн научил посредством письменной трости —\nнаучил человека тому, чего тот не знал.\nНо нет! Человек преступает границы дозволенного,\nкогда ему кажется, что он ни в чем не нуждается.\nНо к твоему Господу предстоит возвращение.\nЧто ты думаешь о том, кто мешает\nрабу, когда тот молится?\nЧто ты думаешь, а если он был на правом пути\nили призывал к богобоязненности?\nЧто ты думаешь, а если он счел ложью истину и отвернулся?\nНеужели он не знал, что Аллах видит его?\nНо нет, если он не перестанет, то Мы схватим его за хохол —\nхохол лживый, грешный.\nПусть он зовет свое сборище.\nМы же позовем адских стражей!\nТак нет! Не повинуйся ему, а пади ниц и приближайся к Аллаху.',
     note: 'Первые аяты этой суры стали первыми словами Корана, ниспосланными Пророку Мухаммаду ﷺ в пещере Хира.',
     source: 'Священный Коран, сура 96. Перевод смыслов: Эльмир Кулиев.',
@@ -4457,30 +4474,17 @@ function renderDashSpiritual() {
   const trnText = trnLines.slice(0, 2).join(' ');
 
   el.innerHTML = `
-    <div class="spiritual-card" style="background: var(--card-bg, var(--card)); border: 1px solid rgba(212,175,55,0.3); border-radius: var(--radius); padding: 24px 20px; margin-bottom: 16px; box-shadow: 0 4px 16px rgba(212,175,55,0.1); text-align: center;">
+    <div class="spiritual-card">
+      <div class="sc-ar-bismillah">${esc(BISMILLAH.arabic)}</div>
+      <div class="sc-tr-bismillah">${esc(BISMILLAH.transcription)}</div>
+      <div class="sc-trn-bismillah">${esc(BISMILLAH.translation)}</div>
       
-      <div style="font-size: calc(26px * var(--ar-scale)); color: var(--gold-accent); font-family: 'Noto Naskh Arabic', serif; line-height: 2; margin-bottom: 8px;">
-        ${esc(BISMILLAH.arabic)}
-      </div>
-      <div style="font-size: 13px; color: var(--muted); margin-bottom: 4px;">
-        ${esc(BISMILLAH.transcription)}
-      </div>
-      <div style="font-size: 14px; color: var(--text); font-weight: 500; margin-bottom: 24px;">
-        ${esc(BISMILLAH.translation)}
-      </div>
-
-      <div style="width: 40px; height: 1px; background: rgba(212,175,55,0.3); margin: 0 auto 24px auto;"></div>
-
-      <div style="font-size: calc(24px * var(--ar-scale)); color: var(--gold-accent); font-family: 'Noto Naskh Arabic', serif; line-height: 2; margin-bottom: 8px; direction: rtl;">
-        ${esc(arText)}
-      </div>
-      <div style="font-size: 13px; color: var(--muted); margin-bottom: 4px;">
-        ${esc(trText)}
-      </div>
-      <div style="font-size: 14px; color: var(--text); font-weight: 500; margin-bottom: 20px; line-height: 1.5;">
-        ${esc(trnText)}
-      </div>
-
+      <div class="sc-divider"></div>
+      
+      <div class="sc-ar-alyaq">${esc(arText)}</div>
+      <div class="sc-tr-alyaq">${esc(trText)}</div>
+      <div class="sc-trn-alyaq">${esc(trnText)}</div>
+      
       <button class="btn secondary" style="display:inline-block; width:auto; padding: 8px 16px; font-size: 13px; border-radius: 20px; margin: 0;" onclick="openRead('q96')">
         <svg class="ico ico-sm" style="display:inline-block; vertical-align:-3px; margin-right:6px;"><use href="#i-book"/></svg>
         Читать суру полностью
