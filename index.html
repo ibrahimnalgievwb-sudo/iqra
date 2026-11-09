@@ -261,7 +261,21 @@ span[class^="tajweed-"] {
 
 .fab { position:fixed; right:20px; bottom:calc(100px + var(--nav-safe)); width:60px; height:60px; border-radius:50%; background:var(--gold-grad); color:#0A0A0A; font-size:30px; font-weight:300; display:flex; align-items:center; justify-content:center; box-shadow:var(--gold-glow); z-index:100; transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-base) var(--ease-out); }
 .fab:active { transform:scale(.92); box-shadow:var(--gold-glow-sm); }
-.nav { width:100%; max-width:100%; display:flex; background:var(--card); border-top:1px solid var(--border); padding-bottom:env(safe-area-inset-bottom, 0px); padding-left:max(20px, env(safe-area-inset-left, 20px)); padding-right:max(20px, env(safe-area-inset-right, 20px)); flex-shrink:0; height:calc(var(--nav-height) + env(safe-area-inset-bottom, 0px)); box-sizing:border-box; overflow:hidden; }
+.nav { 
+  width:100%; 
+  max-width: 600px; /* Ограничение для ПК */
+  margin: 0 auto;   /* Центрирование */
+  display:flex; 
+  background:var(--card); 
+  border-top:1px solid var(--border); 
+  padding-bottom:env(safe-area-inset-bottom, 0px); 
+  padding-left:max(20px, env(safe-area-inset-left, 20px)); 
+  padding-right:max(20px, env(safe-area-inset-right, 20px)); 
+  flex-shrink:0; 
+  height:calc(var(--nav-height) + env(safe-area-inset-bottom, 0px)); 
+  box-sizing:border-box; 
+  overflow:hidden; 
+}
 .nav button { flex:1 1 0%; width:0; min-width:0; padding:4px 0 2px; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; gap:0; color:var(--muted); background:transparent; box-sizing:border-box; transition:color .2s ease; }
 .nav button .ico {
   width: 30px; height: 30px;
@@ -291,8 +305,26 @@ span[class^="tajweed-"] {
 /* Плавное появление индикатора активной вкладки */
 .nav button .ico { animation: navIn var(--dur-slow) var(--ease-out) both; }
 @keyframes navIn { from { opacity:.4; transform: scale(.94); } to { opacity:1; transform: scale(1); } }
-.nav button .nav-label { font-size: clamp(7.5px, 2.15vw, 10px); line-height: 1.05; font-weight: 600; white-space: nowrap; overflow: hidden; max-width: 100%; text-align: center; padding: 0; letter-spacing: 0; color: var(--muted); margin-top: 1px; transition: color .2s ease, font-weight .2s ease; }
-.nav button.active .nav-label { color: var(--accent); font-weight: 700; opacity: 1; transform: translateY(0); }
+.nav button .nav-label { 
+  font-size: clamp(7.5px, 2.15vw, 10px); 
+  line-height: 1.05; 
+  font-weight: 600; 
+  white-space: nowrap; 
+  overflow: hidden; 
+  max-width: 100%; 
+  text-align: center; 
+  padding: 0; 
+  letter-spacing: 0; 
+  color: #A0A0A0; /* Жесткий серый цвет */
+  margin-top: 1px; 
+  transition: color .2s ease, font-weight .2s ease; 
+}
+.nav button.active .nav-label { 
+  color: #D4AF37; /* Жесткий золотой цвет */
+  font-weight: 700; 
+  opacity: 1; 
+  transform: translateY(0); 
+}
 /* Адаптация под ширину экрана — подписи не обрезаются, размер шрифта подстраивается автоматически */
 @media (max-width: 420px) {
   .nav button .ico { width: 32px; height: 32px; padding: 4px; }
@@ -1382,6 +1414,23 @@ span[class^="tajweed-"] {
   text-decoration: underline dotted;
   text-underline-offset: 3px;
 }
+/* === Ссылки-теги (Этап 1 ТЗ «Путеводитель») === */
+.gold-link {
+  color: #D4AF37;
+  cursor: pointer;
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+}
+
+/* === ПК Адаптивность навигации (Этап 2 ТЗ) === */
+@media (min-width: 768px) {
+  .nav {
+    border-radius: 20px 20px 0 0;
+    border: 1px solid var(--border);
+    border-bottom: none;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+  }
+}
 </style>
 </head>
 <body>
@@ -1644,6 +1693,7 @@ span[class^="tajweed-"] {
 <!-- LIBRARY -->
 <div class="screen" id="screen-library">
   <div class="header">
+    <button class="icon-btn ghost" onclick="switchTab('dashboard')" aria-label="Назад"><svg class="ico"><use href="#i-arrow-left"/></svg></button>
     <h1>Библиотека</h1>
     <button class="icon-btn ghost" onclick="openSearch()" aria-label="Поиск"><svg class="ico"><use href="#i-search"/></svg></button>
   </div>
@@ -1944,7 +1994,7 @@ span[class^="tajweed-"] {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v349';
+const APP_VERSION = 'iqra-v350';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
