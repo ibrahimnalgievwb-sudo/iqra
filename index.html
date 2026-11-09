@@ -1833,9 +1833,7 @@ span[class^="tajweed-"] {
   </div>
 
   <!-- Контейнер для чипсов ALL_TAGS -->
-  <div class="search-filters" id="path-chips-container" style="padding: 0 16px 12px; border: none; flex-direction: row; overflow-x: auto; scrollbar-width: none;">
-    <!-- Чипсы будут генерироваться через JS -->
-  </div>
+  <div class="search-filters" id="path-chips-container" style="padding: 0 16px 12px; border: none; flex-direction: row; overflow-x: auto; scrollbar-width: none;"></div>
 
   <!-- Контейнер для результатов -->
   <div class="content-list" id="path-results" style="padding-top: 0;">
@@ -2147,7 +2145,7 @@ span[class^="tajweed-"] {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v362';
+const APP_VERSION = 'iqra-v363';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -4608,12 +4606,35 @@ function debounce(fn, wait) { // Если вдруг этой функции н�
 var debouncedRenderPath = debounce(renderPath, 250);
 
 function renderPath() {
-  renderPathChips();
-  
+  const containerChips = document.getElementById('path-chips-container');
+  if (containerChips) {
+    let chipsHtml = `<button class="path-chip ${!activePathTag ? 'active' : ''}" onclick="setPathTag(null)">Все темы</button>`;
+    chipsHtml += ALL_TAGS.map(tag => `
+      <button class="path-chip ${activePathTag === tag ? 'active' : ''}" onclick="setPathTag('${escAttr(tag)}')">${esc(tag)}</button>
+    `).join('');
+    containerChips.innerHTML = chipsHtml;
+  }
+
   const qInput = document.getElementById('path-search');
   const q = (qInput ? qInput.value : '').toLowerCase().trim();
   const resultsEl = document.getElementById('path-results');
   if (!resultsEl) return;
+
+  // Если пусто — показываем заглушку (без выдачи всех сур подряд)
+  if (!q && !activePathTag) {
+    resultsEl.innerHTML = `
+      <div class="path-empty">
+        Введите запрос или выберите тему ниже, чтобы найти ответ в Коране и Сунне.
+        <div class="path-fallback">
+          <button class="path-chip" onclick="setPathTag('Терпение')">Терпение</button>
+          <button class="path-chip" onclick="setPathTag('Упование')">Упование</button>
+          <button class="path-chip" onclick="setPathTag('Печаль')">Печаль</button>
+          <button class="path-chip" onclick="setPathTag('Благодарность')">Благодарность</button>
+        </div>
+      </div>
+    `;
+    return;
+  }
 
   // Собираем все данные
   let items = [
@@ -4622,7 +4643,7 @@ function renderPath() {
     ...state.duas.map(i => ({ ...i, _type: 'dua', _title: i.title, _sub: i.subtitle || '' }))
   ];
 
-  // 1. Фильтр по тегу (ищем и в массиве tags, и просто по вхождению слова в текст)
+  // Фильтр по тегу (ищем и в массиве tags, и по вхождению слова в текст)
   if (activePathTag) {
     items = items.filter(item => {
       if (Array.isArray(item.tags) && item.tags.includes(activePathTag)) return true;
@@ -4631,7 +4652,7 @@ function renderPath() {
     });
   }
 
-  // 2. Фильтр по введенному тексту
+  // Фильтр по введенному тексту
   if (q) {
     items = items.filter(item => {
       const hay = [item._title, item._sub, item.translation, item.transcription, item.arabic].filter(Boolean).join(' ').toLowerCase();
@@ -4639,7 +4660,7 @@ function renderPath() {
     });
   }
 
-  // 3. Обработка пустого результата
+  // Если ничего не нашли
   if (!items.length) {
     resultsEl.innerHTML = `
       <div class="path-empty">
@@ -4655,16 +4676,15 @@ function renderPath() {
     return;
   }
 
-  // 4. Ограничение выдачи (5 штук)
+  // Ограничение выдачи (5 штук)
   const hasMore = items.length > 5 && !pathShowAll;
   const displayItems = pathShowAll ? items : items.slice(0, 5);
 
-  // 5. Рендер карточек
+  // Рендер карточек
   let html = displayItems.map(item => {
     const fav = isFavorite(item.id);
     const star = `<button class="star-btn ${fav?'active':''}" onclick="starClick(event,'${escAttr(item.id)}','${item._type}')">${fav?'<svg class="ico"><use href="#i-star-filled"/></svg>':'<svg class="ico"><use href="#i-star"/></svg>'}</button>`;
     
-    // Иконка типа контента
     let icon = '#i-book';
     if (item._type === 'hadith') icon = '#i-scroll';
     if (item._type === 'dua') icon = '#i-dua';
@@ -4684,7 +4704,6 @@ function renderPath() {
     `;
   }).join('');
 
-  // 6. Кнопка "Показать все"
   if (hasMore) {
     html += `<button class="show-all-btn" onclick="togglePathShowAll()">Показать все результаты (${items.length})</button>`;
   }
