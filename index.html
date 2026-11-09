@@ -800,7 +800,21 @@ span[class^="tajweed-"] {
 .dash-hijri-gold { font-size: 13px; font-weight: 800; letter-spacing: .2px; line-height: 1.3; min-height: 1em; }
 .text-gold-metallic { background-image: var(--gold-grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: #D4AF37; }
 .dash-header-actions { display: flex; gap: 6px; flex-shrink: 0; align-items: flex-start; }
-.dash-salam-subtle { font-size: 14px; color: var(--muted); margin: 16px 0 14px; text-align: center; font-weight: 500; letter-spacing: 0.3px; }
+.dash-greeting-block { margin: 20px 0; text-align: center; }
+.dash-salam-subtle { 
+  font-size: 17px; 
+  color: var(--text); 
+  font-weight: 700; 
+  letter-spacing: 0.5px; 
+  margin-bottom: 6px; 
+}
+.dash-hijri-gold { 
+  font-size: 13px; 
+  font-weight: 800; 
+  letter-spacing: .2px; 
+  line-height: 1.3; 
+  min-height: 1em; 
+}
 .dash-call-card { background: var(--card); border: 1.5px solid var(--gold-accent); box-shadow: var(--gold-glow); border-radius: var(--radius); padding: 24px 20px; text-align: center; margin-bottom: 16px; cursor: pointer; transition: transform var(--dur-fast) var(--ease-out); }
 .dash-call-card:active { transform: scale(0.97); }
 .dash-call-card .dcc-title { font-size: 18px; font-weight: 800; color: var(--text); margin-bottom: 6px; letter-spacing: -0.5px; }
@@ -1503,11 +1517,7 @@ span[class^="tajweed-"] {
 
 <!-- DASHBOARD -->
 <div class="screen active" id="screen-dashboard">
-  <div class="header dash-header">
-    <div class="dash-header-left">
-      <!-- Только дата по Хиджре, без приветствия -->
-      <div class="dash-hijri-gold text-gold-metallic" id="dash-hijri-header"></div>
-    </div>
+  <div class="header dash-header" style="justify-content: flex-end;">
     <div class="dash-header-actions">
       <button class="icon-btn ghost" onclick="switchTab('cal')" aria-label="Статистика"><svg class="ico"><use href="#i-chart"/></svg></button>
       <button class="icon-btn" onclick="openSettings()" aria-label="Настройки"><svg class="ico"><use href="#i-settings"/></svg></button>
@@ -1519,8 +1529,11 @@ span[class^="tajweed-"] {
     <!-- 1. Аят (первый элемент) -->
     <div id="dash-spiritual"></div> 
     
-    <!-- 2. Аккуратное приветствие под Аятом -->
-    <div class="dash-salam-subtle">Ассаляму алейкум</div>
+     <!-- 2. Аккуратное приветствие под Аятом (с датой) -->
+    <div class="dash-greeting-block">
+      <div class="dash-salam-subtle">Ассаляму алейкум</div>
+      <div class="dash-hijri-gold text-gold-metallic" id="dash-hijri-header"></div>
+    </div>
     
     <!-- 3. Продолжение (Продолжить чтение / Аль-Фатиха) -->
     <div id="dash-continue-block"></div>
@@ -2046,7 +2059,7 @@ span[class^="tajweed-"] {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v356';
+const APP_VERSION = 'iqra-v357';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
