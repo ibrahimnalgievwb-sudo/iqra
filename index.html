@@ -1620,13 +1620,52 @@ span[class^="tajweed-"] {
 <div class="screen" id="screen-cal">
   <div class="header"><h1>Прогресс</h1><div style="width:42px"></div></div>
   <div class="cal">
-    <div class="prog-tabs">
+       <div class="prog-tabs">
       <button data-pt="overview" class="active" onclick="setProgTab('overview')">Обзор</button>
       <button data-pt="calendar" onclick="setProgTab('calendar')">Календарь</button>
        <button data-pt="learned" onclick="setProgTab('learned')">Заучено</button>
-      <button data-pt="favorites" onclick="setProgTab('favorites')">Метки</button>
     </div>
     <div id="prog-body"></div>
+  </div>
+</div>
+
+<!-- PATH -->
+<div class="screen" id="screen-path">
+  <div class="header">
+    <button class="icon-btn ghost" onclick="goHome()" aria-label="Назад"><svg class="ico"><use href="#i-arrow-left"/></svg></button>
+    <h1>Путь</h1>
+    <div style="width:42px"></div>
+  </div>
+  <div class="content-list" id="path-content">
+    <div class="empty">Здесь будет ваш духовный путь (наполним на Этапе 4).</div>
+  </div>
+</div>
+
+<!-- LIBRARY -->
+<div class="screen" id="screen-library">
+  <div class="header">
+    <h1>Библиотека</h1>
+    <button class="icon-btn ghost" onclick="openSearch()" aria-label="Поиск"><svg class="ico"><use href="#i-search"/></svg></button>
+  </div>
+  <div style="padding: 0 16px 12px;">
+    <div class="seg" style="width:100%;">
+      <button class="active" id="lib-tab-dua" onclick="setLibraryTab('dua')">Дуа</button>
+      <button id="lib-tab-hadith" onclick="setLibraryTab('hadith')">Хадисы</button>
+    </div>
+  </div>
+  <div class="content-list" id="library-dua-list" style="display:flex; flex-direction:column; padding-top: 0;"></div>
+  <div class="content-list" id="library-hadith-list" style="display:none; flex-direction:column; padding-top: 0;"></div>
+</div>
+
+<!-- FAVORITES -->
+<div class="screen" id="screen-favorites">
+  <div class="header">
+    <button class="icon-btn ghost" onclick="goHome()" aria-label="Назад"><svg class="ico"><use href="#i-arrow-left"/></svg></button>
+    <h1>Избранное</h1>
+    <div style="width:42px"></div>
+  </div>
+  <div class="content-list" id="favorites-list">
+    <div class="empty">Наполним на Этапе 3.</div>
   </div>
 </div>
 
@@ -1905,7 +1944,7 @@ span[class^="tajweed-"] {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v347';
+const APP_VERSION = 'iqra-v348';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -3977,42 +4016,64 @@ function showScreen(id) {
   saveNavContext();
 }
 function setNav(tab) { document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab)); }
+function setLibraryTab(tab) {
+  document.getElementById('lib-tab-dua').classList.toggle('active', tab === 'dua');
+  document.getElementById('lib-tab-hadith').classList.toggle('active', tab === 'hadith');
+  document.getElementById('library-dua-list').style.display = tab === 'dua' ? 'flex' : 'none';
+  document.getElementById('library-hadith-list').style.display = tab === 'hadith' ? 'flex' : 'none';
+  
+  if (tab === 'dua') renderDuaList();
+  else renderHadithList();
+}
+
+function openFavorites() {
+  showScreen('screen-favorites');
+  // Логика рендера будет добавлена на Этапе 3
+}
+
 async function switchTab(tab) {
   trackEvent('tab/' + tab, 'Вкладка: ' + tab);
   if (state.settings.vibrate && navigator.vibrate) navigator.vibrate(10);
-  
-  if (tab==='dashboard') { 
-    renderDashboard(); 
-    showScreen('screen-dashboard'); 
+
+  if (tab === 'dashboard') {
+    renderDashboard();
+    showScreen('screen-dashboard');
   }
-  else if (tab==='tasbih') { 
-    renderTasbih(); 
-    showScreen('screen-tasbih'); 
+  else if (tab === 'tasbih') {
+    renderTasbih();
+    showScreen('screen-tasbih');
   }
-  else if (tab==='quran') { 
-    setQuranFilter('all'); 
-    showScreen('screen-quran'); 
+  else if (tab === 'quran') {
+    setQuranFilter('all');
+    showScreen('screen-quran');
   }
-  else if (tab==='ruqyah') { 
-    setQuranFilter('ruqyah'); 
-    showScreen('screen-quran'); 
+  else if (tab === 'path') {
+    showScreen('screen-path');
   }
-  else if (tab==='night') { 
-    renderNightList(); 
-    showScreen('screen-night'); 
+  else if (tab === 'library') {
+    setLibraryTab('dua');
+    showScreen('screen-library');
   }
-  else if (tab==='dua') { 
-    renderDuaList(); 
-    showScreen('screen-dua'); 
+  else if (tab === 'ruqyah') {
+    setQuranFilter('ruqyah');
+    showScreen('screen-quran');
   }
-  else if (tab==='hadith') { 
-    renderHadithList(); 
-    showScreen('screen-hadith'); 
+  else if (tab === 'night') {
+    renderNightList();
+    showScreen('screen-night');
   }
-  else if (tab==='cal') { 
-    calDate = new Date(); 
-    renderProgress(); 
-    showScreen('screen-cal'); 
+  else if (tab === 'dua') {
+    renderDuaList();
+    showScreen('screen-dua');
+  }
+  else if (tab === 'hadith') {
+    renderHadithList();
+    showScreen('screen-hadith');
+  }
+  else if (tab === 'cal') {
+    calDate = new Date();
+    renderProgress();
+    showScreen('screen-cal');
   }
 }
 
@@ -4955,6 +5016,7 @@ if ('serviceWorker' in navigator) {
   hookOpener('openMemorizeFor', 'memorize-mode');
   hookOpener('startReviewSession', 'review-mode');
   hookOpener('openDay', 'modal-bg');
+  hookOpener('openFavorites', null); 
 
   function hookCloser(fnName, ovId) {
     var orig = window[fnName];
