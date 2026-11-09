@@ -1471,6 +1471,7 @@ span[class^="tajweed-"] {
 <div class="screen active" id="screen-dashboard">
   <div class="header"><div style="display:flex;align-items:center;gap:10px;min-width:0"><img src="./logo-mini.svg" alt="" width="30" height="30" style="border-radius:8px;flex-shrink:0"><h1>Iqra | Читай</h1></div><div style="display:flex;gap:6px"><button class="icon-btn ghost" onclick="openSearch()" aria-label="Поиск"><svg class="ico"><use href="#i-search"/></svg></button><button class="icon-btn" onclick="openSettings()" aria-label="Настройки"><svg class="ico"><use href="#i-settings"/></svg></button></div></div>
   <div class="list" id="dashboard-list">
+    <div id="dash-spiritual"></div> <!-- НОВЫЙ БЛОК -->
     <div class="dash-greeting">
       <div class="dg-hello">Ассаляму алейкум</div>
       <div class="dg-time" id="dash-time"></div>
@@ -1994,7 +1995,7 @@ span[class^="tajweed-"] {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v351';
+const APP_VERSION = 'iqra-v352';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -4375,7 +4376,57 @@ function refreshQuote() {
   try { localStorage.removeItem('iqra_quote_' + todayKey()); } catch(e) {}
   renderDashboard();
 }
+// Новая функция для духовного приветствия (Этап 3.0)
+function renderDashSpiritual() {
+  const el = document.getElementById('dash-spiritual');
+  if (!el) return;
+
+  const q96 = DEFAULT_QURAN.find(q => q.id === 'q96');
+  if (!q96) return;
+
+  const arLines = (q96.arabic || '').split('\n');
+  const trLines = (q96.transcription || '').split('\n');
+  const trnLines = (q96.translation || '').split('\n');
+
+  const arText = arLines.slice(0, 2).join(' ');
+  const trText = trLines.slice(0, 2).join(' ');
+  const trnText = trnLines.slice(0, 2).join(' ');
+
+  el.innerHTML = `
+    <div class="spiritual-card" style="background: var(--card-bg, var(--card)); border: 1px solid rgba(212,175,55,0.3); border-radius: var(--radius); padding: 24px 20px; margin-bottom: 16px; box-shadow: 0 4px 16px rgba(212,175,55,0.1); text-align: center;">
+      
+      <div style="font-size: calc(26px * var(--ar-scale)); color: var(--gold-accent); font-family: 'Noto Naskh Arabic', serif; line-height: 2; margin-bottom: 8px;">
+        ${esc(BISMILLAH.arabic)}
+      </div>
+      <div style="font-size: 13px; color: var(--muted); margin-bottom: 4px;">
+        ${esc(BISMILLAH.transcription)}
+      </div>
+      <div style="font-size: 14px; color: var(--text); font-weight: 500; margin-bottom: 24px;">
+        ${esc(BISMILLAH.translation)}
+      </div>
+
+      <div style="width: 40px; height: 1px; background: rgba(212,175,55,0.3); margin: 0 auto 24px auto;"></div>
+
+      <div style="font-size: calc(24px * var(--ar-scale)); color: var(--gold-accent); font-family: 'Noto Naskh Arabic', serif; line-height: 2; margin-bottom: 8px; direction: rtl;">
+        ${esc(arText)}
+      </div>
+      <div style="font-size: 13px; color: var(--muted); margin-bottom: 4px;">
+        ${esc(trText)}
+      </div>
+      <div style="font-size: 14px; color: var(--text); font-weight: 500; margin-bottom: 20px; line-height: 1.5;">
+        ${esc(trnText)}
+      </div>
+
+      <button class="btn secondary" style="display:inline-block; width:auto; padding: 8px 16px; font-size: 13px; border-radius: 20px; margin: 0;" onclick="openRead('q96')">
+        <svg class="ico ico-sm" style="display:inline-block; vertical-align:-3px; margin-right:6px;"><use href="#i-book"/></svg>
+        Читать суру полностью
+      </button>
+    </div>
+  `;
+}
+
 function renderDashboard() {
+  renderDashSpiritual(); // <-- Вызов нового блока
   const t = document.getElementById('dash-time');
   const h = document.getElementById('dash-hijri');
   if (t) t.textContent = getTimeOfDay();
