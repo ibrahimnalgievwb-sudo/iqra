@@ -1944,7 +1944,7 @@ span[class^="tajweed-"] {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v348';
+const APP_VERSION = 'iqra-v349';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -3587,7 +3587,7 @@ function memorizeFromNight(idx) {
 function goNightList() { activeNightId=null; renderNightList(); showScreen('screen-night'); }
 
 function renderDuaList() {
-  const el = document.getElementById('dua-list');
+  const el = document.getElementById('library-dua-list');
   if (!state.duas.length) { el.innerHTML = '<div class="empty">Пока нет дуа</div>'; return; }
   el.innerHTML = state.duas.map(d => {
     const fav = isFavorite(d.id);
@@ -3624,10 +3624,10 @@ function openDua(id) {
   showScreen('screen-dua-detail');
 }
 function toggleDuaLearned(id) { const d=getDuaById(id); if (!d) return; d.learned=!d.learned; save(); if (d.learned) { playChime(); if (navigator.vibrate) navigator.vibrate([20,40,20]); } openDua(id); }
-function goDuaList() { activeDuaId=null; renderDuaList(); showScreen('screen-dua'); }
+function goDuaList() { activeDuaId=null; switchTab('library'); setLibraryTab('dua'); }
 
 function renderHadithList() {
-  const el = document.getElementById('hadith-list');
+  const el = document.getElementById('library-hadith-list');
   if (!state.hadiths.length) { el.innerHTML = '<div class="empty">Пока нет хадисов</div>'; return; }
   el.innerHTML = state.hadiths.map(h => {
     const fav = isFavorite(h.id);
@@ -3664,7 +3664,7 @@ function openHadith(id) {
   showScreen('screen-hadith-detail');
 }
 function toggleHadithLearned(id) { const h=getHadithById(id); if (!h) return; h.learned=!h.learned; save(); if (h.learned) { playChime(); if (navigator.vibrate) navigator.vibrate([20,40,20]); } openHadith(id); }
-function goHadithList() { activeHadithId=null; renderHadithList(); showScreen('screen-hadith'); }
+function goHadithList() { activeHadithId=null; switchTab('library'); setLibraryTab('hadith'); }
 
 const MONTHS = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
 const DOW = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
