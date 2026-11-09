@@ -2147,7 +2147,7 @@ span[class^="tajweed-"] {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v361';
+const APP_VERSION = 'iqra-v362';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -4587,6 +4587,8 @@ function renderPathChips() {
 function setPathTag(tag) {
   activePathTag = tag;
   pathShowAll = false;
+  const qInput = document.getElementById('path-search');
+  if (qInput) qInput.value = ''; // Очищаем строку при клике на чипс
   renderPathChips();
   renderPath();
 }
@@ -4620,15 +4622,19 @@ function renderPath() {
     ...state.duas.map(i => ({ ...i, _type: 'dua', _title: i.title, _sub: i.subtitle || '' }))
   ];
 
-  // 1. Фильтр по тегу
+  // 1. Фильтр по тегу (ищем и в массиве tags, и просто по вхождению слова в текст)
   if (activePathTag) {
-    items = items.filter(item => Array.isArray(item.tags) && item.tags.includes(activePathTag));
+    items = items.filter(item => {
+      if (Array.isArray(item.tags) && item.tags.includes(activePathTag)) return true;
+      const hay = [item._title, item._sub, item.translation, item.transcription, item.arabic].filter(Boolean).join(' ').toLowerCase();
+      return hay.includes(activePathTag.toLowerCase());
+    });
   }
 
-  // 2. Фильтр по тексту
+  // 2. Фильтр по введенному тексту
   if (q) {
     items = items.filter(item => {
-      const hay = [item._title, item._sub, item.translation, item.transcription].filter(Boolean).join(' ').toLowerCase();
+      const hay = [item._title, item._sub, item.translation, item.transcription, item.arabic].filter(Boolean).join(' ').toLowerCase();
       return hay.includes(q);
     });
   }
