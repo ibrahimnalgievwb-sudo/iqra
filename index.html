@@ -2147,7 +2147,7 @@ span[class^="tajweed-"] {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v360';
+const APP_VERSION = 'iqra-v361';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -4250,7 +4250,12 @@ async function switchTab(tab) {
     setQuranFilter('all');
     showScreen('screen-quran');
   }
-  else if (tab === 'path') {
+   else if (tab === 'path') {
+    activePathTag = null;
+    pathShowAll = false;
+    const inp = document.getElementById('path-search');
+    if (inp) inp.value = '';
+    renderPath();
     showScreen('screen-path');
   }
   else if (tab === 'library') {
@@ -4563,8 +4568,132 @@ function renderDashSpiritual() {
     </div>
   `;
 }
+// === LOGIC FOR PATH TAB (Stage 4) ===
+var activePathTag = null;
+var pathShowAll = false;
 
-function renderDashboard() {
+function renderPathChips() {
+  const container = document.getElementById('path-chips-container');
+  if (!container) return;
+  if (container.innerHTML !== '') return; // Рисуем только один раз
+
+  let html = `<button class="path-chip ${!activePathTag ? 'active' : ''}" onclick="setPathTag(null)">Все темы</button>`;
+  html += ALL_TAGS.map(tag => `
+    <button class="path-chip ${activePathTag === tag ? 'active' : ''}" onclick="setPathTag('${escAttr(tag)}')">${esc(tag)}</button>
+  `).join('');
+  container.innerHTML = html;
+}
+
+function setPathTag(tag) {
+  activePathTag = tag;
+  pathShowAll = false;
+  renderPathChips();
+  renderPath();
+}
+
+function togglePathShowAll() {
+  pathShowAll = true;
+  renderPath();
+}
+
+function debounce(fn, wait) { // Если вдруг этой функции нет в ядре (проверка)
+  let t = null;
+  return function() {
+    if (t) clearTimeout(t);
+    t = setTimeout(() => { t = null; fn.apply(null, arguments); }, wait);
+  };
+}
+var debouncedRenderPath = debounce(renderPath, 250);
+
+function renderPath() {
+  renderPathChips();
+  
+  const qInput = document.getElementById('path-search');
+  const q = (qInput ? qInput.value : '').toLowerCase().trim();
+  const resultsEl = document.getElementById('path-results');
+  if (!resultsEl) return;
+
+  // Собираем все данные
+  let items = [
+    ...state.quran.map(i => ({ ...i, _type: 'quran', _title: i.title, _sub: i.subtitle || '' })),
+    ...state.hadiths.map(i => ({ ...i, _type: 'hadith', _title: i.title, _sub: i.subtitle || '' })),
+    ...state.duas.map(i => ({ ...i, _type: 'dua', _title: i.title, _sub: i.subtitle || '' }))
+  ];
+
+  // 1. Фильтр по тегу
+  if (activePathTag) {
+    items = items.filter(item => Array.isArray(item.tags) && item.tags.includes(activePathTag));
+  }
+
+  // 2. Фильтр по тексту
+  if (q) {
+    items = items.filter(item => {
+      const hay = [item._title, item._sub, item.translation, item.transcription].filter(Boolean).join(' ').toLowerCase();
+      return hay.includes(q);
+    });
+  }
+
+  // 3. Обработка пустого результата
+  if (!items.length) {
+    resultsEl.innerHTML = `
+      <div class="path-empty">
+        По вашему запросу ничего не найдено.<br>Попробуйте изменить формулировку или выбрать тему из списка ниже.
+        <div class="path-fallback">
+          <button class="path-chip" onclick="setPathTag('Терпение')">Терпение</button>
+          <button class="path-chip" onclick="setPathTag('Упование')">Упование</button>
+          <button class="path-chip" onclick="setPathTag('Печаль')">Печаль</button>
+          <button class="path-chip" onclick="setPathTag('Благодарность')">Благодарность</button>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  // 4. Ограничение выдачи (5 штук)
+  const hasMore = items.length > 5 && !pathShowAll;
+  const displayItems = pathShowAll ? items : items.slice(0, 5);
+
+  // 5. Рендер карточек
+  let html = displayItems.map(item => {
+    const fav = isFavorite(item.id);
+    const star = `<button class="star-btn ${fav?'active':''}" onclick="starClick(event,'${escAttr(item.id)}','${item._type}')">${fav?'<svg class="ico"><use href="#i-star-filled"/></svg>':'<svg class="ico"><use href="#i-star"/></svg>'}</button>`;
+    
+    // Иконка типа контента
+    let icon = '#i-book';
+    if (item._type === 'hadith') icon = '#i-scroll';
+    if (item._type === 'dua') icon = '#i-dua';
+
+    return `
+      <div class="content-card" onclick="openPathItem('${item._type}', '${item.id}')">
+        ${star}
+        <div class="c-sub" style="display:flex; align-items:center; gap:6px; margin-bottom:8px;">
+          <svg class="ico ico-sm" style="color:var(--gold-accent)"><use href="${icon}"/></svg>
+          <span style="text-transform:uppercase; font-weight:700; letter-spacing:.5px;">${item._type === 'quran' ? 'Коран' : item._type === 'hadith' ? 'Хадис' : 'Дуа'}</span>
+        </div>
+        <div class="c-title">${esc(item._title)}</div>
+        <div class="c-sub">${esc(item._sub)}</div>
+        ${item.arabic ? `<div class="c-ar ar-font">${esc(item.arabic)}</div>` : ''}
+        <div class="c-tr">${esc(item.translation || item.transcription || '')}</div>
+      </div>
+    `;
+  }).join('');
+
+  // 6. Кнопка "Показать все"
+  if (hasMore) {
+    html += `<button class="show-all-btn" onclick="togglePathShowAll()">Показать все результаты (${items.length})</button>`;
+  }
+
+  resultsEl.innerHTML = html;
+}
+
+// Универсальная функция открытия элемента из поиска
+function openPathItem(type, id) {
+  if (type === 'quran') openQuran(id);
+  else if (type === 'hadith') openHadith(id);
+  else if (type === 'dua') openDua(id);
+}
+
+  function renderDashboard() {
   renderDashSpiritual(); // <-- Вызов блока с Аятом
   
   // 1. Дата Хиджры в шапке
@@ -5488,5 +5617,21 @@ function renderTajweedHtml(text) {
 
   return { text: html, rules: rulesHtml };
 }
+// Перехват кликов по золотым ссылкам-тегам (Этап 4.3)
+document.addEventListener('click', function(e) {
+  if (e.target && e.target.classList.contains('gold-link')) {
+    const tag = e.target.getAttribute('data-tag');
+    if (tag) {
+      e.preventDefault();
+      e.stopPropagation();
+      // Закрываем возможные оверлеи (поиск, чтение)
+      if (typeof closeSearch === 'function') closeSearch();
+      if (typeof closeRead === 'function') closeRead();
+      // Переключаем на вкладку Путь и ставим тег
+      switchTab('path');
+      setTimeout(() => setPathTag(tag), 50);
+    }
+  }
+});  
 </script>
 <script data-goatcounter="https://iqra-stats.goatcounter.com/count" async src="./count.js"></script>
