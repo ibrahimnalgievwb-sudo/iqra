@@ -1994,7 +1994,7 @@ span[class^="tajweed-"] {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v350';
+const APP_VERSION = 'iqra-v351';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -4990,9 +4990,6 @@ if ('serviceWorker' in navigator) {
 }
 
 // ====== Единая система «Назад»: iOS edge-swipe + Android system back ======
-// Каждый переход (вкладка или detail) и каждое открытие оверлея сохраняют
-// состояние в history.state. При system back (Android) или нативном edge-swipe
-// (iOS) браузер шлёт popstate — восстанавливаем экран/оверлей из состояния.
 (function(){
   var going = false;
   var OVERLAY_CLOSERS = {
@@ -5035,7 +5032,6 @@ if ('serviceWorker' in navigator) {
         var st = { screen: id };
         var ov = currentOverlay();
         if (ov) st.overlay = ov;
-        // ФИКС iOS: Сохраняем контекст экрана
         if (activeId) st.tasbihId = activeId;
         if (activeQuranId) st.quranId = activeQuranId;
         if (activeDuaId) st.duaId = activeDuaId;
@@ -5066,7 +5062,6 @@ if ('serviceWorker' in navigator) {
   hookOpener('openMemorizeFor', 'memorize-mode');
   hookOpener('startReviewSession', 'review-mode');
   hookOpener('openDay', 'modal-bg');
-  hookOpener('openFavorites', null); 
 
   function hookCloser(fnName, ovId) {
     var orig = window[fnName];
@@ -5139,10 +5134,6 @@ if ('serviceWorker' in navigator) {
   };
 })();
 
-/* ============================================================
-   ВОССТАНОВЛЕННЫЕ ФУНКЦИИ — отсутствовали в файле
-   (getTimeOfDay, getRandomQuote, renderTajweedHtml)
-   ============================================================ */
 
 function getTimeOfDay() {
   const h = new Date().getHours();
