@@ -1903,7 +1903,7 @@ span[class^="tajweed-"] {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v334';
+const APP_VERSION = 'iqra-v335';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -1914,6 +1914,18 @@ function cloneData(obj) {
 const BACKUP_SCHEMA = 2;
 const LIMITS = { tasbihs:1000, history:10000, historyDays:365, reminders:50, textLen:1000, idLen:100, targetMax:100000, cyclesMax:1000000 };
 const QURAN_USE_API = false;
+
+// ALL_TAGS: глобальный реестр тегов (Этап 1 ТЗ «Путеводитель»).
+// Используется в renderTagLinks() и в фильтрах тегов (Этап 2+).
+// Список фиксирован ТЗ: менять только через миграцию state.migrations.
+const ALL_TAGS = [
+  'Гнев', 'Тревога', 'Страх', 'Печаль', 'Одиночество', 'Вина', 'Усталость', 'Радость', 'Благодарность', 'Надежда',
+  'Бедность', 'Болезнь', 'Несправедливость', 'Потеря', 'Семья',
+  'Терпение', 'Покаяние', 'Прощение', 'Упование', 'Сомнение', 'Вера', 'Искренность', 'Смирение',
+  'Дуа', 'Омовение', 'Тасбих', 'Чтение_Корана',
+  'Рукья', 'Защита', 'Исцеление'
+];
+
 // TAJWEED_COLORS: цвета таджвида — в tajweed.css (единственный источник истины).
 const TAWHID_TASBIH = { id: 'tawhid', arabic: 'لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ', transcription: 'Ля иляха илляллаху вахдаху ля шарика ляху, ляхуль-мульку ва ляхуль-хамду, ва хува ‘аля кулли шай’ин кадир', translation: '«Нет бога, кроме одного лишь Аллаха, у Которого нет сотоварища, Ему принадлежит власть, Ему хвала, и Он всё может»', target: 10, current: 0, cycles: 0 };
 const ISTIGHFAR_TASBIH = { id:'istighfar', arabic:'أَسْتَغْفِرُ اللَّهَ', transcription:'АстагфируЛлах', translation:'Прошу прощения у Аллаха', target:100, current:0, cycles:0 };
