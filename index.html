@@ -1487,9 +1487,9 @@ span[class^="tajweed-"] {
 
 <!-- DASHBOARD -->
 <div class="screen active" id="screen-dashboard">
- <div class="header dash-header">
+<div class="header dash-header">
   <div class="dash-header-left">
-    <div class="dash-salam">Ассаляму алейкум ва рахматуЛлахи ва баракатух</div>
+    <div class="dash-salam">Ассаляму алейкум</div>
     <div class="dash-hijri-gold text-gold-metallic" id="dash-hijri-header"></div>
   </div>
   <div class="dash-header-actions">
@@ -1498,12 +1498,8 @@ span[class^="tajweed-"] {
   </div>
 </div>
   <div class="list" id="dashboard-list">
-    <div id="dash-spiritual"></div> <!-- НОВЫЙ БЛОК -->
-    <div class="dash-greeting">
-      <div class="dg-hello">Ассаляму алейкум</div>
-      <div class="dg-time" id="dash-time"></div>
-      <div class="dg-hijri" id="dash-hijri"></div>
-    </div>
+     <div id="dash-spiritual"></div> <!-- НОВЫЙ БЛОК -->
+    <!-- Блок .dash-greeting полностью удалён согласно Дополнению №1 (Редакция 3.1) -->
     <div class="dash-progress">
       <div class="dp-top">
         <div class="dp-label">Цель на сегодня</div>
@@ -2022,7 +2018,7 @@ span[class^="tajweed-"] {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v353';
+const APP_VERSION = 'iqra-v354';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
