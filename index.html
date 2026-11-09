@@ -1487,45 +1487,57 @@ span[class^="tajweed-"] {
 
 <!-- DASHBOARD -->
 <div class="screen active" id="screen-dashboard">
-<div class="header dash-header">
-  <div class="dash-header-left">
-    <div class="dash-salam">Ассаляму алейкум</div>
-    <div class="dash-hijri-gold text-gold-metallic" id="dash-hijri-header"></div>
+  <div class="header dash-header">
+    <div class="dash-header-left">
+      <!-- Только дата по Хиджре, без приветствия -->
+      <div class="dash-hijri-gold text-gold-metallic" id="dash-hijri-header"></div>
+    </div>
+    <div class="dash-header-actions">
+      <button class="icon-btn ghost" onclick="switchTab('cal')" aria-label="Статистика"><svg class="ico"><use href="#i-chart"/></svg></button>
+      <button class="icon-btn" onclick="openSettings()" aria-label="Настройки"><svg class="ico"><use href="#i-settings"/></svg></button>
+    </div>
   </div>
-  <div class="dash-header-actions">
-    <button class="icon-btn ghost" onclick="switchTab('cal')" aria-label="Статистика"><svg class="ico"><use href="#i-chart"/></svg></button>
-    <button class="icon-btn" onclick="openSettings()" aria-label="Настройки"><svg class="ico"><use href="#i-settings"/></svg></button>
-  </div>
-</div>
+  
   <div class="list" id="dashboard-list">
-     <div id="dash-spiritual"></div> <!-- НОВЫЙ БЛОК -->
-    <!-- Блок .dash-greeting полностью удалён согласно Дополнению №1 (Редакция 3.1) -->
-    <div class="dash-progress">
-      <div class="dp-top">
-        <div class="dp-label">Цель на сегодня</div>
-        <div class="dp-num" id="dash-goal-num">0 <span>/ 100</span></div>
-      </div>
-      <div class="dp-bar"><div id="dash-goal-bar" style="width:0%"></div></div>
+    
+    <!-- 1. Аят (первый элемент) -->
+    <div id="dash-spiritual"></div> 
+    
+    <!-- 2. Аккуратное приветствие под Аятом -->
+    <div class="dash-salam-subtle">Ассаляму алейкум</div>
+    
+    <!-- 3. Продолжение (Продолжить чтение / Аль-Фатиха) -->
+    <div id="dash-continue-block"></div>
+
+    <!-- 4. Призыв (Что тревожит вашу душу?) -->
+    <div class="dash-call-card" onclick="switchTab('path')">
+      <div class="dcc-title">Что тревожит вашу душу?</div>
+      <div class="dcc-sub">Найдите ответ в Коране и Сунне</div>
     </div>
+
+    <!-- 5. Цитата дня -->
     <div class="dash-quote" id="dash-quote" onclick="dashQuoteTap()"></div>
-    <div class="dash-stats" id="dash-stats"></div>
-    <!-- НОВОЕ: Плашка Рукьи на главной -->
-    <div class="dash-quick" onclick="switchTab('ruqyah')" style="border-color: var(--accent);">
-      <svg class="ico dq-icon" style="color:var(--accent)"><use href="#i-shield"/></svg>
-      <div class="dq-body">
-        <div class="dq-label" style="color:var(--accent)">Шариатская рукья</div>
-        <div class="dq-name">Аяты исцеления и руководство</div>
+    
+    <!-- 6. Сетка 2х2 (Быстрый доступ) -->
+    <div class="dash-grid-2x2">
+      <div class="dash-grid-item" onclick="openNight(0)">
+        <svg class="ico dgi-icon"><use href="#i-moon"/></svg>
+        <div class="dgi-title">Ночное чтение</div>
+      </div>
+      <div class="dash-grid-item" onclick="switchTab('quran'); setQuranFilter('ruqyah')">
+        <svg class="ico dgi-icon"><use href="#i-shield"/></svg>
+        <div class="dgi-title">Шариатская рукья</div>
+      </div>
+      <div class="dash-grid-item" onclick="openFavorites()">
+        <svg class="ico dgi-icon"><use href="#i-star"/></svg>
+        <div class="dgi-title">Метки</div>
+      </div>
+      <div class="dash-grid-item" onclick="openDua('dua_anxiety')">
+        <svg class="ico dgi-icon"><use href="#i-dua"/></svg>
+        <div class="dgi-title">Дуа дня</div>
       </div>
     </div>
-     <div class="dash-marks" id="dash-marks"></div>
-    <div class="dash-quick" id="dash-quick"></div>
-    <div class="dash-quick" id="dash-review" style="display:none;" onclick="startReviewSession()">
-      <svg class="ico dq-icon" style="color:var(--gold-accent)"><use href="#i-rotate-ccw"/></svg>
-      <div class="dq-body">
-        <div class="dq-label" style="color:var(--gold-accent)">Повторение</div>
-        <div class="dq-name" id="dash-review-count">0 элементов ждут</div>
-      </div>
-    </div>
+
   </div>
 </div>
 
@@ -2018,7 +2030,7 @@ span[class^="tajweed-"] {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v354';
+const APP_VERSION = 'iqra-v355';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
