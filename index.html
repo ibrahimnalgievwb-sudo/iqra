@@ -1903,7 +1903,7 @@ span[class^="tajweed-"] {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v341';
+const APP_VERSION = 'iqra-v342';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -2469,6 +2469,42 @@ function saveNow() {
   }
   const ind = document.getElementById('save-indicator');
   if (ind) ind.classList.remove('active');
+}
+
+// Безопасная миграция данных (добавление тегов)
+function migrateData() {
+  // Если миграция уже была применена — выходим
+  if (state.migrations.tagsAdded === true) return;
+
+  let changed = false;
+
+  // Проверяем и добавляем tags для Дуа
+  if (Array.isArray(state.duas)) {
+    state.duas.forEach(item => {
+      if (!Array.isArray(item.tags)) {
+        item.tags = [];
+        changed = true;
+      }
+    });
+  }
+
+  // Проверяем и добавляем tags для Хадисов
+  if (Array.isArray(state.hadiths)) {
+    state.hadiths.forEach(item => {
+      if (!Array.isArray(item.tags)) {
+        item.tags = [];
+        changed = true;
+      }
+    });
+  }
+
+  // Ставим флаг миграции в любом случае, чтобы не гонять её повторно
+  state.migrations.tagsAdded = true;
+  
+  // Сохраняем, если были изменения в элементах (или если флаг просто обновился)
+  if (changed) {
+    saveNow();
+  }
 }
 function save() {
   if (_saveTimer) clearTimeout(_saveTimer);
@@ -4675,6 +4711,7 @@ async function testScreenTajweed(kind) {
 
 function initApp() {
   try {
+    migrateData(); // Сначала миграция данных
     applyTheme();
     setArSize(state.settings.arSize);
     renderPresets();
