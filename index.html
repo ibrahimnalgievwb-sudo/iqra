@@ -794,7 +794,23 @@ span[class^="tajweed-"] {
   .dash-hijri-gold { font-size: 11px; }
 }
 
-.dash-progress {
+/* === DASHBOARD RESTRUCTURE (Stage 3.2) === */
+.dash-header { align-items: flex-start; padding: 12px 16px 6px; gap: 10px; min-height: 0; }
+.dash-header-left { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+.dash-hijri-gold { font-size: 13px; font-weight: 800; letter-spacing: .2px; line-height: 1.3; min-height: 1em; }
+.text-gold-metallic { background-image: var(--gold-grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: #D4AF37; }
+.dash-header-actions { display: flex; gap: 6px; flex-shrink: 0; align-items: flex-start; }
+.dash-salam-subtle { font-size: 14px; color: var(--muted); margin: 16px 0 14px; text-align: center; font-weight: 500; letter-spacing: 0.3px; }
+.dash-call-card { background: var(--card); border: 1.5px solid var(--gold-accent); box-shadow: var(--gold-glow); border-radius: var(--radius); padding: 24px 20px; text-align: center; margin-bottom: 16px; cursor: pointer; transition: transform var(--dur-fast) var(--ease-out); }
+.dash-call-card:active { transform: scale(0.97); }
+.dash-call-card .dcc-title { font-size: 18px; font-weight: 800; color: var(--text); margin-bottom: 6px; letter-spacing: -0.5px; }
+.dash-call-card .dcc-sub { font-size: 14px; color: var(--muted); }
+.dash-grid-2x2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+.dash-grid-item { background: var(--card); border: 1px solid rgba(212,175,55,.3); border-radius: var(--radius); padding: 18px 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; cursor: pointer; gap: 10px; transition: transform var(--dur-fast) var(--ease-out), border-color var(--dur-base); }
+.dash-grid-item:active { transform: scale(0.96); border-color: var(--gold-accent); }
+.dash-grid-item .dgi-icon { width: 32px; height: 32px; color: var(--gold-accent); }
+.dash-grid-item .dgi-title { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.2; }
+  .dash-progress {
   background: var(--card);
   border-radius: var(--radius);
   padding: 16px 18px;
@@ -2030,7 +2046,7 @@ span[class^="tajweed-"] {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v355';
+const APP_VERSION = 'iqra-v356';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
@@ -4461,21 +4477,29 @@ function renderDashSpiritual() {
 }
 
 function renderDashboard() {
-  renderDashSpiritual(); // <-- Вызов нового блока
-  const t = document.getElementById('dash-time');
-  const h = document.getElementById('dash-hijri');
-  if (t) t.textContent = getTimeOfDay();
-  if (h) h.textContent = formatHijri(new Date());
+  renderDashSpiritual(); // <-- Вызов блока с Аятом
+  
+  // 1. Дата Хиджры в шапке
+  const hh = document.getElementById('dash-hijri-header');
+  if (hh) hh.textContent = formatHijri(new Date());
 
-  const today = state.history[todayKey()];
-  const done = today ? today.total : 0;
-  const goal = state.settings.dailyGoal;
-  const pct = goal > 0 ? Math.min(100, (done / goal) * 100) : 0;
-  const numEl = document.getElementById('dash-goal-num');
-  const barEl = document.getElementById('dash-goal-bar');
-  if (numEl) numEl.innerHTML = done + ' <span>/ ' + goal + '</span>';
-  if (barEl) barEl.style.width = pct + '%';
+  // 2. Блок Продолжения чтения
+  const contEl = document.getElementById('dash-continue-block');
+  if (contEl) {
+    const lr = state.settings.lastRead;
+    if (lr && lr.type === 'quran') {
+      const q = getQuranById(lr.id);
+      if (q) {
+        contEl.innerHTML = `<div class="continue-card" onclick="openRead('${q.id}')"><div class="cc-label">Продолжить чтение</div><div class="cc-title">${esc(q.title)}</div><div class="cc-sub">${esc(q.subtitle||'')}</div></div>`;
+      } else {
+        contEl.innerHTML = `<div class="continue-card" onclick="openRead('q1')"><div class="cc-label">Начать с Аль-Фатихи</div><div class="cc-title">Аль-Фатиха</div><div class="cc-sub">Открывающая · 7 аятов</div></div>`;
+      }
+    } else {
+      contEl.innerHTML = `<div class="continue-card" onclick="openRead('q1')"><div class="cc-label">Начать с Аль-Фатихи</div><div class="cc-title">Аль-Фатиха</div><div class="cc-sub">Открывающая · 7 аятов</div></div>`;
+    }
+  }
 
+  // 3. Цитата дня
   _dashQuote = getDailyQuote();
   const qEl = document.getElementById('dash-quote');
   if (qEl && _dashQuote) {
@@ -4485,32 +4509,6 @@ function renderDashboard() {
       (_dashQuote.ar ? '<div class="dq-ar ar-font">' + esc(_dashQuote.ar) + '</div>' : '') +
       (_dashQuote.tr ? '<div class="dq-tr">' + esc(_dashQuote.tr) + '</div>' : '');
   }
-
-  const statsEl = document.getElementById('dash-stats');
-  if (statsEl) {
-    let totalAll = 0, daysActive = 0;
-    for (const k in state.history) { const t = state.history[k].total; totalAll += t; if (t > 0) daysActive++; }
-    statsEl.innerHTML =
-      '<div class="ds-item"><div class="ds-num">' + totalAll + '</div><div class="ds-label">Всего</div></div>' +
-      '<div class="ds-item"><div class="ds-num">' + calculateStreak() + ' 🔥</div><div class="ds-label">Серия</div></div>' +
-      '<div class="ds-item"><div class="ds-num">' + daysActive + '</div><div class="ds-label">Дней</div></div>';
-  }
-  const quickEl = document.getElementById('dash-quick');
-  if (quickEl) {
-    let lastId = null;
-    try { lastId = localStorage.getItem('iqra_last_tasbih'); } catch(e) {}
-    const item = lastId ? getById(lastId) : null;
-    if (item) {
-      quickEl.innerHTML = '<svg class="ico dq-icon" style="color:var(--gold-accent, #D4AF37)"><use href="#i-misbaha"/></svg><div class="dq-body"><div class="dq-label">Продолжить зикр</div><div class="dq-name">' + esc(item.transcription || item.arabic || '—') + '</div></div>';
-      quickEl.onclick = function(){ openCounter(item.id); };
-    } else {
-        quickEl.innerHTML = '<svg class="ico dq-icon" style="color:var(--gold-accent, #D4AF37)"><use href="#i-misbaha"/></svg><div class="dq-body"><div class="dq-label">Начать зикр</div><div class="dq-name">Открой вкладку «Тасбих»</div></div>';
-      quickEl.onclick = function(){ switchTab('tasbih'); };
-    }
-  }
-
-  renderDashMarks();
-  checkDueReviews();
 }
 function dashQuoteTap() {
   if (!_dashQuote) return;
