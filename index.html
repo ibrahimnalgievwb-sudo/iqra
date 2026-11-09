@@ -1785,6 +1785,30 @@ async function switchTab(tab) {
   }
 }
 
+<!-- NAV -->
+<div class="nav" id="nav">
+  <button class="active" data-tab="dashboard" onclick="switchTab('dashboard')" aria-label="Главная">
+    <svg class="ico"><use href="#i-home"/></svg>
+    <div class="nav-label">Главная</div>
+  </button>
+  <button data-tab="quran" onclick="switchTab('quran')" aria-label="Коран">
+    <svg class="ico"><use href="#i-book"/></svg>
+    <div class="nav-label">Коран</div>
+  </button>
+  <button data-tab="path" onclick="switchTab('path')" aria-label="Путь">
+    <svg class="ico"><use href="#i-compass"/></svg>
+    <div class="nav-label">Путь</div>
+  </button>
+  <button data-tab="library" onclick="switchTab('library')" aria-label="Библиотека">
+    <svg class="ico"><use href="#i-library"/></svg>
+    <div class="nav-label">Библиотека</div>
+  </button>
+  <button data-tab="tasbih" onclick="switchTab('tasbih')" aria-label="Тасбих">
+    <svg class="ico"><use href="#i-misbaha"/></svg>
+    <div class="nav-label">Тасбих</div>
+  </button>
+</div>
+
 <div class="save-indicator" id="save-indicator" aria-hidden="true"></div>
 
 <div class="fullscreen" id="search-overlay">
@@ -1920,7 +1944,7 @@ async function switchTab(tab) {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v345';
+const APP_VERSION = 'iqra-v346';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
