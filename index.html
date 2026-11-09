@@ -1374,6 +1374,14 @@ span[class^="tajweed-"] {
 }
 #debug-actions { display: flex; gap: 10px; }
 #debug-actions button { flex: 1; padding: 14px; border-radius: 12px; font-size: 14px; font-weight: 700; }
+
+/* === Ссылки-теги (Этап 1 ТЗ «Путеводитель») === */
+.gold-link {
+  color: #D4AF37;
+  cursor: pointer;
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+}
 </style>
 </head>
 <body>
@@ -1903,7 +1911,7 @@ span[class^="tajweed-"] {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v342';
+const APP_VERSION = 'iqra-v343';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
