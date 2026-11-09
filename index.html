@@ -1751,44 +1751,34 @@ async function switchTab(tab) {
   trackEvent('tab/' + tab, 'Вкладка: ' + tab);
   if (state.settings.vibrate && navigator.vibrate) navigator.vibrate(10);
   
-  if (tab==='dashboard') { 
+  if (tab === 'dashboard') { 
     renderDashboard(); 
     showScreen('screen-dashboard'); 
-  }
-  else if (tab==='tasbih') { 
+  } else if (tab === 'tasbih') { 
     renderTasbih(); 
     showScreen('screen-tasbih'); 
-  }
-  else if (tab==='quran') { 
+  } else if (tab === 'quran') { 
     setQuranFilter('all'); 
     showScreen('screen-quran'); 
-  }
-  else if (tab==='path') { 
-    // Этап 4 добавит логику, пока просто переключаем экран
+  } else if (tab === 'path') { 
+    /* Этап 4 добавит логику, пока просто переключаем экран */
     showScreen('screen-path'); 
-  }
-  else if (tab==='library') { 
-    // Этап 3 добавит внутренние табы
+  } else if (tab === 'library') { 
+    /* Этап 3 добавит внутренние табы */
     showScreen('screen-library'); 
-  }
-  // Старые ветки оставлены для совместимости вызовов из других функций
-  else if (tab==='ruqyah') { 
+  } else if (tab === 'ruqyah') { 
     setQuranFilter('ruqyah'); 
     showScreen('screen-quran'); 
-  }
-  else if (tab==='night') { 
+  } else if (tab === 'night') { 
     renderNightList(); 
     showScreen('screen-night'); 
-  }
-  else if (tab==='dua') { 
+  } else if (tab === 'dua') { 
     renderDuaList(); 
     showScreen('screen-dua'); 
-  }
-  else if (tab==='hadith') { 
+  } else if (tab === 'hadith') { 
     renderHadithList(); 
     showScreen('screen-hadith'); 
-  }
-  else if (tab==='cal') { 
+  } else if (tab === 'cal') { 
     calDate = new Date(); 
     renderProgress(); 
     showScreen('screen-cal'); 
@@ -1930,7 +1920,7 @@ async function switchTab(tab) {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v344';
+const APP_VERSION = 'iqra-v345';
 
 function cloneData(obj) {
   if (typeof structuredClone === 'function') {
