@@ -40,7 +40,8 @@ window.addEventListener('error', function(e) {
   --text:#0A0A0A; --muted:#3D3D3D; --border:#C8C8C8; --shadow:rgba(0,0,0,.12);
   --accent-rgb: 10, 10, 10; --ripple:rgba(10,10,10,.15);
   --ar-g1:#C90414; --ar-g2:#7A5C10; --ar-g3:#4A3507;
-  /* Глубокое контрастное золото без почти-белых пятен для светлого фона */
+  /* ИСПРАВЛЕНИЕ: Переопределяем ОБА градиента на глубокие цвета */
+  --gold-grad: linear-gradient(135deg, #A67C00 0%, #D4AF37 30%, #8B6914 50%, #D4AF37 70%, #A67C00 100%);
   --gold-text-grad: linear-gradient(135deg, #A67C00 0%, #D4AF37 30%, #8B6914 50%, #D4AF37 70%, #A67C00 100%);
 }
 [data-theme="dark"] {
@@ -1211,7 +1212,7 @@ span[class^="tajweed-"] {
   background: linear-gradient(#0A0A0A, #0A0A0A) padding-box,
               var(--gold-grad) border-box !important;
   border: 2px solid transparent !important;
-  color: #FFD700 !important;
+  color: #D4AF37 !important; 
   box-shadow: 0 4px 16px rgba(0,0,0,.2), inset 0 1px 0 rgba(255,215,0,.2) !important;
 }
 [data-theme="light"] .btn:active,
@@ -1664,15 +1665,15 @@ span[class^="tajweed-"] {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  line-height: 1 !important; /* Добавлено для устранения отступа шрифта */
+  line-height: 1 !important;
   gap: 8px !important;
   width: auto !important;
   padding: 8px 16px !important;
   font-size: 13px !important;
   border-radius: 20px !important;
-  margin-top: 12px !important;
+  margin: 12px auto 0 !important; /* Авто-центрирование по горизонтали */
 }
-/* Обновлено: убирает базовый отступ снизу у иконок */
+/* Убирает базовый отступ снизу у иконок */
 .btn-inline .ico,
 .btn-inline svg {
   display: block !important;
@@ -2271,7 +2272,7 @@ span[class^="tajweed-"] {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v371';
+const APP_VERSION = 'iqra-v372';
 
 /* v365: Umami — обезличенная аналитика. Пока константы пусты — Umami не грузится,
    trackEvent() продолжает писать в GoatCounter (обратная совместимость). */
@@ -4775,8 +4776,8 @@ function renderDashSpiritual() {
       <div class="sc-tr-alyaq">${esc(trText)}</div>
       <div class="sc-trn-alyaq">${esc(trnText)}</div>
       
-      <button class="btn secondary" style="display:inline-block; width:auto; padding: 8px 16px; font-size: 13px; border-radius: 20px; margin: 0;" onclick="openRead('q96')">
-        <svg class="ico ico-sm" style="display:inline-block; vertical-align:-3px; margin-right:6px;"><use href="#i-book"/></svg>
+         <button class="btn secondary btn-inline" onclick="openRead('q96')">
+        <svg class="ico ico-sm"><use href="#i-book"/></svg>
         Читать суру полностью
       </button>
     </div>
