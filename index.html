@@ -2236,7 +2236,7 @@ span[class^="tajweed-"] {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v365';
+const APP_VERSION = 'iqra-v366';
 
 /* v365: Umami — обезличенная аналитика. Пока константы пусты — Umami не грузится,
    trackEvent() продолжает писать в GoatCounter (обратная совместимость). */
@@ -2967,6 +2967,7 @@ function trackEvent(name, title) {
   }
   attempt();
 }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function escAttr(s){ return esc(s).replace(/'/g, '&#39;'); }
 function escNl(s){ return esc(s).replace(/\n/g,'<br>'); }
 function escRich(s){ return esc(s).replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>').replace(/\n/g,'<br>'); }
@@ -5833,16 +5834,16 @@ document.addEventListener('click', function(e) {
     if (tag) {
       e.preventDefault();
       e.stopPropagation();
-      // Закрываем возможные оверлеи (поиск, чтение)
       if (typeof closeSearch === 'function') closeSearch();
       if (typeof closeRead === 'function') closeRead();
-      // Переключаем на вкладку Путь и ставим тег
       switchTab('path');
       setTimeout(() => setPathTag(tag), 50);
     }
   }
-});  
-</script>
+});
+
+/* 👇 ВСТАВЬТЕ ЭТОТ КОД СЮДА 👇 */
+
 /* v365: Focus Mode — шапка read-mode уходит при скролле вниз */
 (function initFocusMode() {
   var body = document.getElementById('read-body');
@@ -5871,4 +5872,8 @@ document.addEventListener('click', function(e) {
     if (t) navigator.vibrate(8);
   }, { passive: true });
 })();
+
+/* 👆 КОНЕЦ ВСТАВКИ 👆 */
+
+</script> <!-- ЭТОТ ТЕГ ДОЛЖЕН БЫТЬ СРАЗУ ПОСЛЕ КОДА -->
 <script data-goatcounter="https://iqra-stats.goatcounter.com/count" async src="./count.js"></script>
