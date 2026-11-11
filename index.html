@@ -2244,7 +2244,7 @@ span[class^="tajweed-"] {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v368';
+const APP_VERSION = 'iqra-v369';
 
 /* v365: Umami — обезличенная аналитика. Пока константы пусты — Umami не грузится,
    trackEvent() продолжает писать в GoatCounter (обратная совместимость). */
@@ -2939,19 +2939,72 @@ function isFavorite(id){ return Array.isArray(state.favorites) && state.favorite
   else if (type==='dua') openDua(id);
   else if (type==='hadith') openHadith(id);
   else if (type==='tasbih') openCounter(id);
-} function setSearchFilter(key, value){ searchFilters[key] = value; document.querySelectorAll('#search-filters .filter-group[data-filter="' + key + '"] .filter-chip').forEach(function(b){ b.classList.toggle('active', b.dataset.value === value); }); renderGlobalSearch(); } function renderGlobalSearch() {   const q = (document.getElementById('global-search-input').value || '').toLowerCase().trim();   const el = document.getElementById('search-results');   if (!q) { el.innerHTML = '<div class="empty">Введите запрос — поиск по тасбихам, Корану, дуа и хадисам.</div>'; return; }   const score = (it) => {     const t = (it.title || '').toLowerCase();     const s = (it.subtitle || '').toLowerCase();     const tr = (it.transcription || '').toLowerCase();     const num = String(it.number || '').toLowerCase();     const ar = (it.arabic || '').toLowerCase();     const trn = (it.translation || '').toLowerCase();     let w = 0;     if (t.startsWith(q)) w += 10;     else if (t.includes(q)) w += 6;     if (num && num.includes(q)) w += 5;     if (s.includes(q)) w += 3;     if (tr.includes(q)) w += 3;     if (ar.includes(q)) w += 1;     if (trn.includes(q)) w += 1;     return w;   };   const statusOk = (it, type) => { if (type === 'tasbih') return true; return searchFilters.status === 'all' || (searchFilters.status === 'learned' && !!it.learned) || (searchFilters.status === 'unlearned' && !it.learned); };   const favOk = (it) => searchFilters.favorite === 'all' || (searchFilters.favorite === 'only' && isFavorite(it.id));   const showType = (t) => searchFilters.type === 'all' || searchFilters.type === t;   const grp = (title, items, type) => {     if (!items.length) return '';     return '<div class="progress-section-title">' + title + '</div>' + items.map(it => {       const t = it.title || it.transcription || it.arabic || '—';       const sub = it.subtitle ? '<div class="c-sub">' + esc(it.subtitle) + '</div>' : '';       const ar = it.arabic ? '<div class="c-ar ar-font">' + esc(it.arabic) + '</div>' : '';       const tr = it.translation ? '<div class="c-tr">' + esc(it.translation) + '</div>' : '';       return '<div class="content-card" onclick="searchOpen(\'' + type + '\',\'' + it.id + '\')"><div class="c-title">' + esc(t) + '</div>' + sub + ar + tr + '</div>';     }).join('');   };  const filtered = (arr, type) => {
-  const res = arr.map(it => ({ it: it, s: score(it) }))
-    .filter(x => x.s > 0)
-    .sort((a, b) => b.s - a.s)
-    .map(x => x.it)
-    .filter(it => statusOk(it, type))
-    .filter(favOk);
-  return _searchShowAll ? res : res.slice(0, 30);
-};   
-  let html = '';    if (showType('tasbih')) html += grp('Тасбихи', filtered(state.tasbihs, 'tasbih'), 'tasbih');
+} function setSearchFilter(key, value){ searchFilters[key] = value; document.querySelectorAll('#search-filters .filter-group[data-filter="' + key + '"] .filter-chip').forEach(function(b){ b.classList.toggle('active', b.dataset.value === value); }); renderGlobalSearch(); } 
+  function renderGlobalSearch() {
+  const q = (document.getElementById('global-search-input').value || '').toLowerCase().trim();
+  const el = document.getElementById('search-results');
+  if (!q) { el.innerHTML = '<div class="empty">Введите запрос — поиск по тасбихам, Корану, дуа и хадисам.</div>'; return; }
+  
+  const score = (it) => {
+    const t = (it.title || '').toLowerCase();
+    const s = (it.subtitle || '').toLowerCase();
+    const tr = (it.transcription || '').toLowerCase();
+    const num = String(it.number || '').toLowerCase();
+    const ar = (it.arabic || '').toLowerCase();
+    const trn = (it.translation || '').toLowerCase();
+    let w = 0;
+    if (t.startsWith(q)) w += 10;
+    else if (t.includes(q)) w += 6;
+    if (num && num.includes(q)) w += 5;
+    if (s.includes(q)) w += 3;
+    if (tr.includes(q)) w += 3;
+    if (ar.includes(q)) w += 1;
+    if (trn.includes(q)) w += 1;
+    return w;
+  };
+  
+  const statusOk = (it, type) => { 
+    if (type === 'tasbih') return true; 
+    return searchFilters.status === 'all' || 
+           (searchFilters.status === 'learned' && !!it.learned) || 
+           (searchFilters.status === 'unlearned' && !it.learned); 
+  };
+  
+  const favOk = (it) => searchFilters.favorite === 'all' || (searchFilters.favorite === 'only' && isFavorite(it.id));
+  const showType = (t) => searchFilters.type === 'all' || searchFilters.type === t;
+  
+  const filtered = (arr, type) => {
+    const res = arr.map(it => ({ it: it, s: score(it) }))
+      .filter(x => x.s > 0)
+      .sort((a, b) => b.s - a.s)
+      .map(x => x.it)
+      .filter(it => statusOk(it, type))
+      .filter(favOk);
+    return _searchShowAll ? res : res.slice(0, 30);
+  };
+
+  const grp = (title, items, type) => {
+    if (!items.length) return '';
+    return '<div class="progress-section-title">' + title + '</div>' + items.map(it => {
+      const t = it.title || it.transcription || it.arabic || '—';
+      const sub = it.subtitle ? '<div class="c-sub">' + esc(it.subtitle) + '</div>' : '';
+      const ar = it.arabic ? '<div class="c-ar ar-font">' + esc(it.arabic) + '</div>' : '';
+      const tr = it.translation ? '<div class="c-tr">' + esc(it.translation) + '</div>' : '';
+      return '<div class="content-card" onclick="searchOpen(\'' + type + '\',\'' + it.id + '\')"><div class="c-title">' + esc(t) + '</div>' + sub + ar + tr + '</div>';
+    }).join('');
+  };
+
+  let html = '';
+  if (showType('tasbih')) html += grp('Тасбихи', filtered(state.tasbihs, 'tasbih'), 'tasbih');
   if (showType('quran')) html += grp('Коран', filtered(state.quran, 'quran'), 'quran');
   if (showType('dua')) html += grp('Дуа', filtered(state.duas, 'dua'), 'dua');
-  if (showType('hadith')) html += grp('Хадисы', filtered(state.hadiths, 'hadith'), 'hadith');   if (!_searchShowAll && html) {     html += `<button class="show-all-btn" onclick="showAllSearchResults()">Показать все результаты</button>`;   }   el.innerHTML = html || '<div class="empty">Ничего не найдено</div>'; }
+  if (showType('hadith')) html += grp('Хадисы', filtered(state.hadiths, 'hadith'), 'hadith');
+
+  if (!_searchShowAll && html) {
+    html += `<button class="show-all-btn" onclick="showAllSearchResults()">Показать все результаты</button>`;
+  }
+  el.innerHTML = html || '<div class="empty">Ничего не найдено</div>'; 
+}
 function trackEvent(name, title) {
   try {
     if (window.umami && typeof window.umami.track === 'function') {
@@ -4709,7 +4762,7 @@ var pathShowAll = false;
 function renderPathChips() {
   const container = document.getElementById('path-chips-container');
   if (!container) return;
-  if (container.innerHTML !== '') return; // Рисуем только один раз
+  if (container.innerHTML !== '') return;
 
   let html = `<button class="path-chip ${!activePathTag ? 'active' : ''}" onclick="setPathTag(null)">Все темы</button>`;
   html += ALL_TAGS.map(tag => `
@@ -4722,7 +4775,7 @@ function setPathTag(tag) {
   activePathTag = tag;
   pathShowAll = false;
   const qInput = document.getElementById('path-search');
-  if (qInput) qInput.value = ''; // Очищаем строку при клике на чипс
+  if (qInput) qInput.value = '';
   renderPathChips();
   renderPath();
 }
@@ -4732,16 +4785,7 @@ function togglePathShowAll() {
   renderPath();
 }
 
-function debounce(fn, wait) { // Если вдруг этой функции нет в ядре (проверка)
-  let t = null;
-  return function() {
-    if (t) clearTimeout(t);
-    t = setTimeout(() => { t = null; fn.apply(null, arguments); }, wait);
-  };
-}
-var debouncedRenderPath = debounce(renderPath, 250);
-
-/* v365: гранулярный flatten — сура => массив аятов (state не меняется) */
+// Гранулярный flatten — сура => массив аятов
 function flattenQuranToAyahs() {
   const result = [];
   (state.quran || []).forEach(q => {
@@ -4750,43 +4794,26 @@ function flattenQuranToAyahs() {
       const tags = Array.isArray(q.tags) ? q.tags : [];
       ayahs.forEach((a, i) => {
         result.push({
-          _type: 'ayah',
-          _id: q.id + '_' + i,
-          _surahId: q.id,
-          _surahTitle: q.title,
-          _surahNum: q.number,
-          _ayahNum: a.num,
-          _ayahIdx: i,
-          _ar: a.ar,
-          _tr: a.tr,
-          _trn: a.trn,
-          _tags: tags,
-          _title: q.title + ' · аят ' + a.num,
-          _sub: q.subtitle || '',
-          _isSurahAyah: true
+          _type: 'ayah', _id: q.id + '_' + i, _surahId: q.id,
+          _surahTitle: q.title, _surahNum: q.number, _ayahNum: a.num, _ayahIdx: i,
+          _ar: a.ar, _tr: a.tr, _trn: a.trn, _tags: tags,
+          _title: q.title + ' · аят ' + a.num, _sub: q.subtitle || '', _isSurahAyah: true
         });
       });
     } else {
       result.push({
-        _type: 'ayah',
-        _id: q.id,
-        _surahId: q.id,
-        _surahTitle: q.title,
-        _surahNum: q.number,
-        _ayahNum: q.number,
-        _ayahIdx: 0,
-        _ar: q.arabic,
-        _tr: q.transcription,
-        _trn: q.translation,
-        _tags: Array.isArray(q.tags) ? q.tags : [],
-        _title: q.title,
-        _sub: q.subtitle || '',
-        _isSurahAyah: false
+        _type: 'ayah', _id: q.id, _surahId: q.id, _surahTitle: q.title,
+        _surahNum: q.number, _ayahNum: q.number, _ayahIdx: 0,
+        _ar: q.arabic, _tr: q.transcription, _trn: q.translation,
+        _tags: Array.isArray(q.tags) ? q.tags : [], _title: q.title,
+        _sub: q.subtitle || '', _isSurahAyah: false
       });
     }
   });
   return result;
 }
+
+var debouncedRenderPath = debounce(renderPath, 250);
 
 function renderPath() {
   const containerChips = document.getElementById('path-chips-container');
@@ -4831,7 +4858,7 @@ function renderPath() {
 
   let items = [...ayats, ...duas, ...hadiths];
 
-   if (activePathTag) {
+  if (activePathTag) {
     items = items.filter(item => {
       if (Array.isArray(item._tags) && item._tags.includes(activePathTag)) return true;
       const hay = [item._title, item._sub, item._trn, item._tr, item._ar].filter(Boolean).join(' ').toLowerCase();
@@ -4879,7 +4906,7 @@ function renderPath() {
       ? `openQuran('${escAttr(item._surahId)}')`
       : `openPathItem('${item._type}', '${escAttr(item._id)}')`;
 
-         const openBtn = (isAyah && item._isSurahAyah) ? `
+    const openBtn = (isAyah && item._isSurahAyah) ? `
       <button class="btn secondary btn-inline" onclick="event.stopPropagation();openRead('${escAttr(item._surahId)}')">
         <svg class="ico ico-sm"><use href="#i-book"/></svg>
         Читать суру полностью
@@ -4904,7 +4931,6 @@ function renderPath() {
   resultsEl.innerHTML = html;
 }
 
-// Универсальная функция открытия элемента из поиска
 function openPathItem(type, id) {
   if (type === 'quran') openQuran(id);
   else if (type === 'hadith') openHadith(id);
