@@ -34,15 +34,14 @@ window.addEventListener('error', function(e) {
 });
 </script>
 <style>
-:root {   --ar-scale: 1; --radius: 18px; --radius-lg: 22px; --radius-sm: 12px; --nav-safe: env(safe-area-inset-bottom, 0px); --nav-height: 52px;   /* Motion tokens (премиальные переходы) */   --dur-fast: 120ms; --dur-base: 220ms; --dur-slow: 380ms;   --ease-out: cubic-bezier(.16,1,.3,1); --ease-in-out: cubic-bezier(.4,0,.2,1); --ease-bounce: cubic-bezier(.34,1.56,.64,1);   /* Premium shadow stack (Black/White/Gold) */   --shadow-sm: 0 1px 2px rgba(0,0,0,.06), 0 1px 3px rgba(0,0,0,.08);   --shadow-md: 0 4px 12px rgba(0,0,0,.10), 0 2px 4px rgba(0,0,0,.06);   --shadow-lg: 0 12px 32px rgba(0,0,0,.16), 0 4px 8px rgba(0,0,0,.08);   --shadow-gold: 0 4px 16px rgba(212,175,55,.22), 0 2px 6px rgba(212,175,55,.12);   /* Tap feedback */   --tap-scale: .97; --tap-opacity: .82;   /* Страховка: если data-theme не применится, будут использоваться светлые цвета */   --bg:#F5F5F5; --card:#EDEDED; --card2:#E0E0E0; --accent:#0A0A0A; --accent2:#8B6914;   --text:#0A0A0A; --muted:#3D3D3D; --border:#C8C8C8; --shadow:rgba(0,0,0,.12);   --accent-rgb: 10, 10, 10; --ripple:rgba(10,10,10,.15);   --ar-g1:#C99414; --ar-g2:#7A5C10; --ar-g3:#4A3507;   --gold-text-grad: linear-gradient(135deg, #A67C00 0%, #FFF3B0 30%, #D4AF37 50%, #FFF3B0 70%, #A67C00 100%);   color-scheme: light dark; } [data-theme="light"] { color-scheme: light; } [data-theme="dark"] { color-scheme: dark; } [data-theme="mono"] { color-scheme: dark; }
+:root {   --ar-scale: 1; --radius: 18px; --radius-lg: 22px; --radius-sm: 12px; --nav-safe: env(safe-area-inset-bottom, 0px); --nav-height: 52px;   /* Motion tokens (премиальные переходы) */   --dur-fast: 120ms; --dur-base: 220ms; --dur-slow: 380ms;   --ease-out: cubic-bezier(.16,1,.3,1); --ease-in-out: cubic-bezier(.4,0,.2,1); --ease-bounce: cubic-bezier(.34,1.56,.64,1);   /* Premium shadow stack (Black/White/Gold) */   --shadow-sm: 0 1px 2px rgba(0,0,0,.06), 0 1px 3px rgba(0,0,0,.08);   --shadow-md: 0 4px 12px rgba(0,0,0,.10), 0 2px 4px rgba(0,0,0,.06);   --shadow-lg: 0 12px 32px rgba(0,0,0,.16), 0 4px 8px rgba(0,0,0,.08);   --shadow-gold: 0 4px 16px rgba(197,160,89,.22), 0 2px 6px rgba(197,160,89,.12);   /* Tap feedback */   --tap-scale: .97; --tap-opacity: .82;   /* Страховка: если data-theme не применится, будут использоваться светлые цвета */   --bg:#F5F5F5; --card:#EDEDED; --card2:#E0E0E0; --accent:#0A0A0A; --accent2:#8B6914;   --text:#0A0A0A; --muted:#3D3D3D; --border:#C8C8C8; --shadow:rgba(0,0,0,.12);   --accent-rgb: 10, 10, 10; --ripple:rgba(10,10,10,.15);   --ar-g1:#C99414; --ar-g2:#7A5C10; --ar-g3:#4A3507;   --gold-standard: #C5A059;   --gold-shadow: 0 -1px 0 rgba(255,255,255,0.4), 0 1px 0 rgba(0,0,0,0.8);   color-scheme: light dark; }
 [data-theme="light"] {
   --bg:#F5F5F5; --card:#EDEDED; --card2:#E0E0E0; --accent:#0A0A0A; --accent2:#8B6914;
   --text:#0A0A0A; --muted:#3D3D3D; --border:#C8C8C8; --shadow:rgba(0,0,0,.12);
   --accent-rgb: 10, 10, 10; --ripple:rgba(10,10,10,.15);
   --ar-g1:#C90414; --ar-g2:#7A5C10; --ar-g3:#4A3507;
-  /* ИСПРАВЛЕНИЕ: Переопределяем ОБА градиента на глубокие цвета */
-  --gold-grad: linear-gradient(135deg, #A67C00 0%, #D4AF37 30%, #8B6914 50%, #D4AF37 70%, #A67C00 100%);
-  --gold-text-grad: linear-gradient(135deg, #A67C00 0%, #D4AF37 30%, #8B6914 50%, #D4AF37 70%, #A67C00 100%);
+  --gold-standard: #C5A059;
+  --gold-shadow: 0 -1px 0 rgba(255,255,255,0.5), 0 1px 1px rgba(0,0,0,0.4);
 }
 [data-theme="dark"] {
   --bg:#000000; --card:#111111; --card2:#1D1D1D; --accent:#FFFFFF; --accent2:#D4AF37;
@@ -141,35 +140,27 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   -webkit-text-fill-color: var(--ar-g2);
 }
 
-/* v365: градиент на арабский — везде, кроме полей ввода и мест с Таджвидом */
 .ar-font:not(textarea):not(input):not(:has([class*="tajweed-"])) {
-  background-image: var(--gold-text-grad);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: #D4AF37;
-  -webkit-box-decoration-break: clone;
-  box-decoration-break: clone;
+  color: var(--gold-standard) !important;
+  text-shadow: var(--gold-shadow) !important;
+  -webkit-text-fill-color: var(--gold-standard) !important;
+  background-image: none !important;
 }
 
-/* v365: защита Таджвида — снять градиент с родителя и вернуть цвет спэнам */
-.read-ayah-ar:has([class*="tajweed-"]) {
+/* v374: Единый золотой стандарт для аятов. Таджвид перекрывает цвет через !important */
+.read-ayah-ar {
+  color: var(--gold-standard) !important;
+  text-shadow: var(--gold-shadow) !important;
+  -webkit-text-fill-color: var(--gold-standard) !important;
   background-image: none !important;
-  -webkit-text-fill-color: var(--text) !important;
-  color: var(--text) !important;
 }
 .read-ayah-ar [class*="tajweed-"] {
-  -webkit-text-fill-color: currentColor;
+  text-shadow: none !important;
+  -webkit-text-fill-color: currentColor !important;
 }
-@supports not (selector(:has(*))) {
-  .read-ayah-ar {
-    background-image: none !important;
-    -webkit-text-fill-color: var(--ar-g2) !important;
-    color: var(--ar-g2) !important;
-  }
-  .read-ayah-ar [class*="tajweed-"] {
-    -webkit-text-fill-color: currentColor !important;
-  }
+/* Убираем золотую тень с самих цветных букв таджвида */
+span[class^="tajweed-"] {
+  text-shadow: none !important;
 }
 
 /* Текст Священного Писания в режиме чтения */
@@ -856,11 +847,11 @@ span[class^="tajweed-"] {
   box-shadow: 0 4px 16px rgba(212,175,55,.1); 
   text-align: center; 
 }
-.spiritual-card .sc-ar-bismillah { font-size: calc(26px * var(--ar-scale)); color: var(--gold-accent); font-family: 'Noto Naskh Arabic', serif; line-height: 2; margin-bottom: 8px; }
+.spiritual-card .sc-ar-bismillah { font-size: calc(26px * var(--ar-scale)); color: var(--gold-standard); text-shadow: var(--gold-shadow); font-family: 'Noto Naskh Arabic', serif; line-height: 2; margin-bottom: 8px; }
 .spiritual-card .sc-tr-bismillah { font-size: 13px; color: var(--muted); margin-bottom: 4px; }
 .spiritual-card .sc-trn-bismillah { font-size: 14px; color: var(--text); font-weight: 500; margin-bottom: 24px; }
 .spiritual-card .sc-divider { width: 40px; height: 1px; background: rgba(212,175,55,.3); margin: 0 auto 24px auto; }
-.spiritual-card .sc-ar-alyaq { font-size: calc(24px * var(--ar-scale)); color: var(--gold-accent); font-family: 'Noto Naskh Arabic', serif; line-height: 2; margin-bottom: 8px; direction: rtl; }
+.spiritual-card .sc-ar-alyaq { font-size: calc(24px * var(--ar-scale)); color: var(--gold-standard); text-shadow: var(--gold-shadow); font-family: 'Noto Naskh Arabic', serif; line-height: 2; margin-bottom: 8px; direction: rtl; }
 .spiritual-card .sc-tr-alyaq { font-size: 13px; color: var(--muted); margin-bottom: 4px; }
 .spiritual-card .sc-trn-alyaq { font-size: 14px; color: var(--text); font-weight: 500; margin-bottom: 20px; line-height: 1.5; }
 /* === DASHBOARD RESTRUCTURE (Stage 3.2) === */
@@ -1070,38 +1061,32 @@ span[class^="tajweed-"] {
 
 /* === PREMIUM BUTTONS v5: Единый премиальный стиль Black/White/Gold === */
 :root {
-  --gold-grad: linear-gradient(135deg, #A67C00 0%, #FFF3B0 30%, #D4AF37 50%, #FFF3B0 70%, #A67C00 100%);
-  --gold-accent: #D4AF37;
-  --gold-accent-light: #FFD700;
-  --gold-glow: 0 4px 16px rgba(212,175,55,.35), inset 0 1px 1px rgba(255,255,255,.4);
-  --gold-glow-sm: 0 2px 8px rgba(212,175,55,.4);
-  --gold-soft: rgba(212,175,55,.15);
-  --gold-star: #FFD700;
-  --gold-inner: inset 0 1px 1px rgba(255,255,255,.5), inset 0 -1px 2px rgba(0,0,0,.2);
+  --gold-accent: var(--gold-standard);
+  --gold-accent-light: var(--gold-standard);
+  --gold-glow: none;
+  --gold-glow-sm: none;
+  --gold-soft: rgba(197,160,89,.15);
+  --gold-star: var(--gold-standard);
+  --gold-inner: none;
   --danger: #C96A5A;
 }
 .btn {
-  background: var(--gold-grad) !important;
-  color: #0A0A0A !important;
-  border: none !important;
+  background: #0A0A0A !important;
+  color: var(--gold-standard) !important;
+  border: 2px solid var(--gold-standard) !important;
+  text-shadow: var(--gold-shadow) !important;
   font-weight: 800 !important;
   letter-spacing: 0.02em;
   border-radius: 14px !important;
-  box-shadow: var(--gold-glow) !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,.2) !important;
   transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
 }
-.btn:active { transform: scale(.96); box-shadow: var(--gold-glow-sm) !important; }
+.btn:active { transform: scale(.96); box-shadow: none !important; }
 .btn.secondary {
   background: transparent !important;
-  color: var(--text) !important;
-  border: 1.5px solid var(--gold-accent) !important;
-  box-shadow: 0 2px 8px rgba(0,0,0,.1) !important;
-}
-.btn.secondary:active { background: var(--gold-soft) !important; }
-.btn.danger {
-  background: rgba(255, 77, 77, 0.1) !important;
-  color: #FF4D4D !important;
-  border: 1.5px solid rgba(255, 77, 77, 0.3) !important;
+  color: var(--gold-standard) !important;
+  border: 1.5px solid var(--gold-standard) !important;
+  text-shadow: var(--gold-shadow) !important;
   box-shadow: none !important;
 }
 .icon-btn {
@@ -1650,15 +1635,11 @@ span[class^="tajweed-"] {
   font-size: 15px;
   line-height: 1.6;
 }
-/* v353: усиленный металлический градиент для Бисмилли/Аль-Аляк и др. */
 .text-gold-metallic {
-  color: #D4AF37 !important;                     /* fallback: браузеры без background-clip: text */
-  -webkit-text-fill-color: transparent !important;
-  background-image: var(--gold-grad) !important;
-  -webkit-background-clip: text !important;
-  background-clip: text !important;
-  -webkit-box-decoration-break: clone;
-  box-decoration-break: clone;                   /* переносы строк сохраняют перелив */
+  color: var(--gold-standard) !important;
+  -webkit-text-fill-color: var(--gold-standard) !important;
+  text-shadow: var(--gold-shadow) !important;
+  background-image: none !important;
 }
 /* Идеальное выравнивание для кнопок-пилюль */
 .btn-inline {
@@ -2272,7 +2253,7 @@ span[class^="tajweed-"] {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v372';
+const APP_VERSION = 'iqra-v373';
 
 /* v365: Umami — обезличенная аналитика. Пока константы пусты — Umami не грузится,
    trackEvent() продолжает писать в GoatCounter (обратная совместимость). */
@@ -4776,7 +4757,7 @@ function renderDashSpiritual() {
       <div class="sc-tr-alyaq">${esc(trText)}</div>
       <div class="sc-trn-alyaq">${esc(trnText)}</div>
       
-         <button class="btn secondary btn-inline" onclick="openRead('q96')">
+      <button class="btn secondary btn-inline" onclick="openRead('q96')">
         <svg class="ico ico-sm"><use href="#i-book"/></svg>
         Читать суру полностью
       </button>
