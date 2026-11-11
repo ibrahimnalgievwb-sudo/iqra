@@ -40,7 +40,7 @@ window.addEventListener('error', function(e) {
   --text:#0A0A0A; --muted:#3D3D3D; --border:#C8C8C8; --shadow:rgba(0,0,0,.12);
   --accent-rgb: 10, 10, 10; --ripple:rgba(10,10,10,.15);
   --ar-g1:#C99414; --ar-g2:#7A5C10; --ar-g3:#4A3507;
-  --gold-text-grad: linear-gradient(135deg, #6B4A00 0%, #B8860B 30%, #8B6914 50%, #B8860B 70%, #6B4A00 100%);
+  --gold-text-grad: linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%);
 }
 [data-theme="dark"] {
   --bg:#000000; --card:#111111; --card2:#1D1D1D; --accent:#FFFFFF; --accent2:#D4AF37;
@@ -280,7 +280,7 @@ span[class^="tajweed-"] {
 .continue-card .cc-sub { font-size:12px; color:var(--muted); }
 
 #cards-container { min-height:20px; }
-.tasbih-card { background:var(--card); border-radius:var(--radius); padding:18px 20px; margin-bottom:14px; cursor:pointer; box-shadow:0 4px 16px var(--shadow), 0 1px 3px rgba(0,0,0,.04); display:flex; align-items:flex-start; gap:14px; position:relative; border:1px solid rgba(var(--accent-rgb), .08); transition: box-shadow .2s ease, transform .2s ease; width:100%; max-width:100%; box-sizing:border-box; } .tasbih-card:hover { box-shadow:0 8px 24px var(--shadow), 0 2px 6px rgba(0,0,0,.06); }
+.tasbih-card { background:var(--card); border-radius:var(--radius); padding:16px 18px; margin-bottom:12px; cursor:pointer; box-shadow:0 4px 16px var(--shadow), 0 1px 3px rgba(0,0,0,.04); display:flex; align-items:center; gap:16px; position:relative; border:1px solid rgba(var(--accent-rgb), .08); transition: box-shadow .2s ease, transform .2s ease; width:100%; max-width:100%; box-sizing:border-box; } .tasbih-card:hover { box-shadow:0 8px 24px var(--shadow), 0 2px 6px rgba(0,0,0,.06); }
 .tasbih-card:active { transform:scale(.98); }
 .tasbih-card .body { flex:1; min-width:0; overflow-wrap: break-word; }
 .tasbih-card .ar { font-size:calc(26px * var(--ar-scale)); line-height:2; direction:rtl; text-align:right; margin-bottom:6px; padding-top: 4px; overflow-wrap: break-word; }
@@ -548,7 +548,7 @@ span[class^="tajweed-"] {
 .toggle input:checked + .slider { background:var(--accent); }
 .toggle input:checked + .slider::before { transform:translateX(20px); }
 
-.seg { display:flex; background:var(--card2); border-radius:10px; padding:2px; gap:2px; }
+.seg { display:flex; background:var(--card2); border-radius:10px; padding:4px; gap:4px; } .seg button { flex: 1; padding: 10px 12px; border-radius: 8px; font-size: 14px; font-weight: 600; text-align: center; }
 .seg button { padding:6px 12px; border-radius:8px; font-size:13px; color:var(--muted); }
 .seg button.active { background:var(--card); color:var(--text); font-weight:600; }
 
@@ -1571,15 +1571,23 @@ span[class^="tajweed-"] {
   /* overflow: hidden — удалён */
 }
 #path-chips-container {
-  display: flex;
-  flex-wrap: wrap;           /* ключ: чипсы переносятся */
-  justify-content: flex-start;
-  gap: 8px;
-  padding: 0 16px 12px 16px;
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  justify-content: flex-start !important;
+  gap: 8px !important;
+  padding: 0 16px 12px 16px !important;
   box-sizing: border-box;
   width: 100%;
   min-width: 0;
   max-width: 100%;
+  border-bottom: none !important;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+#path-chips-container::-webkit-scrollbar {
+  display: none;
 }
 .path-chip {
   flex: 0 0 auto;
@@ -2236,7 +2244,7 @@ span[class^="tajweed-"] {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v366';
+const APP_VERSION = 'iqra-v368';
 
 /* v365: Umami — обезличенная аналитика. Пока константы пусты — Umami не грузится,
    trackEvent() продолжает писать в GoatCounter (обратная совместимость). */
@@ -4332,7 +4340,7 @@ function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   const nav = document.getElementById('nav');
-  const tabs = ['screen-dashboard','screen-tasbih','screen-quran','screen-night','screen-dua','screen-hadith','screen-cal'];
+  const tabs = ['screen-dashboard','screen-tasbih','screen-quran','screen-night','screen-dua','screen-hadith','screen-cal','screen-path','screen-library'];
   nav.style.display = tabs.includes(id) ? 'flex' : 'none';
   if (id==='screen-dashboard') setNav('dashboard');
   if (id==='screen-tasbih') setNav('tasbih');
@@ -4823,7 +4831,7 @@ function renderPath() {
 
   let items = [...ayats, ...duas, ...hadiths];
 
-  if (activePathTag) {
+   if (activePathTag) {
     items = items.filter(item => {
       if (Array.isArray(item._tags) && item._tags.includes(activePathTag)) return true;
       const hay = [item._title, item._sub, item._trn, item._tr, item._ar].filter(Boolean).join(' ').toLowerCase();
@@ -4831,9 +4839,10 @@ function renderPath() {
     });
   }
   if (q) {
+    const searchStr = q.toLowerCase().trim();
     items = items.filter(item => {
       const hay = [item._title, item._sub, item._trn, item._tr, item._ar].filter(Boolean).join(' ').toLowerCase();
-      return hay.includes(q);
+      return hay.includes(searchStr);
     });
   }
 
@@ -4870,10 +4879,9 @@ function renderPath() {
       ? `openQuran('${escAttr(item._surahId)}')`
       : `openPathItem('${item._type}', '${escAttr(item._id)}')`;
 
-    const openBtn = (isAyah && item._isSurahAyah) ? `
-      <button class="btn secondary" style="display:inline-block;width:auto;padding:8px 16px;font-size:13px;border-radius:20px;margin-top:8px;"
-        onclick="event.stopPropagation();openRead('${escAttr(item._surahId)}')">
-        <svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px;"><use href="#i-book"/></svg>
+         const openBtn = (isAyah && item._isSurahAyah) ? `
+      <button class="btn secondary btn-inline" onclick="event.stopPropagation();openRead('${escAttr(item._surahId)}')">
+        <svg class="ico ico-sm"><use href="#i-book"/></svg>
         Читать суру полностью
       </button>` : '';
 
@@ -5874,6 +5882,21 @@ document.addEventListener('click', function(e) {
 })();
 
 /* 👆 КОНЕЦ ВСТАВКИ 👆 */
+/* Идеальное выравнивание для кнопок-пилюль */
+.btn-inline {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  width: auto !important;
+  padding: 8px 16px !important;
+  font-size: 13px !important;
+  border-radius: 20px !important;
+  margin-top: 12px !important;
+}
+.btn-inline .ico {
+  margin: 0 !important;
+}
 
 </script> <!-- ЭТОТ ТЕГ ДОЛЖЕН БЫТЬ СРАЗУ ПОСЛЕ КОДА -->
 <script data-goatcounter="https://iqra-stats.goatcounter.com/count" async src="./count.js"></script>
