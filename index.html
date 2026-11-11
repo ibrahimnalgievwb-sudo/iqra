@@ -1651,6 +1651,21 @@ span[class^="tajweed-"] {
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;                   /* переносы строк сохраняют перелив */
 }
+/* Идеальное выравнивание для кнопок-пилюль */
+.btn-inline {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  width: auto !important;
+  padding: 8px 16px !important;
+  font-size: 13px !important;
+  border-radius: 20px !important;
+  margin-top: 12px !important;
+}
+.btn-inline .ico {
+  margin: 0 !important;
+}
 </style>
 </head>
 <body>
@@ -2244,7 +2259,7 @@ span[class^="tajweed-"] {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v369';
+const APP_VERSION = 'iqra-v370';
 
 /* v365: Umami — обезличенная аналитика. Пока константы пусты — Umami не грузится,
    trackEvent() продолжает писать в GoatCounter (обратная совместимость). */
@@ -5906,23 +5921,7 @@ document.addEventListener('click', function(e) {
     if (t) navigator.vibrate(8);
   }, { passive: true });
 })();
-
 /* 👆 КОНЕЦ ВСТАВКИ 👆 */
-/* Идеальное выравнивание для кнопок-пилюль */
-.btn-inline {
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 8px !important;
-  width: auto !important;
-  padding: 8px 16px !important;
-  font-size: 13px !important;
-  border-radius: 20px !important;
-  margin-top: 12px !important;
-}
-.btn-inline .ico {
-  margin: 0 !important;
-}
 
-</script> <!-- ЭТОТ ТЕГ ДОЛЖЕН БЫТЬ СРАЗУ ПОСЛЕ КОДА -->
+</script>
 <script data-goatcounter="https://iqra-stats.goatcounter.com/count" async src="./count.js"></script>
