@@ -47,18 +47,12 @@ window.addEventListener('error', function(e) {
   --accent-rgb: 10, 10, 10; --ripple:rgba(10,10,10,.15);   
   --ar-g1:#C99414; --ar-g2:#7A5C10; --ar-g3:#4A3507;   
 
-  /* Единый золотой стандарт «Икра» v377 */
-  --gold-dark: #9C7A2E;
-  --gold-base: #C9A227;
-  --gold-light: #F5F0E1;
-  --gold-white: #FFFFFF;
-
-  --gold-gradient: linear-gradient(135deg, var(--gold-dark) 0%, var(--gold-base) 38%, var(--gold-light) 48%, var(--gold-white) 50%, var(--gold-light) 52%, var(--gold-base) 62%, var(--gold-dark) 100%);
-
-  --gold-shadow-light: rgba(0, 0, 0, 0.25);
-  --gold-shadow-dark: rgba(0, 0, 0, 0.55);
-  --gold-shadow-color: var(--gold-shadow-light);
-  
+  /* Единый золотой стандарт «Икра» v378 */
+  --gold-standard: #D4AF37; /* Богатый металлический цвет без желтизны */
+  --gold-accent: var(--gold-standard); /* Для совместимости с кнопками */
+  --gold-grad: var(--gold-standard); /* Убираем градиенты на кнопках для надежности */
+  --gold-glow: 0 4px 12px rgba(212, 175, 55, 0.35);
+  --gold-glow-sm: 0 2px 8px rgba(212, 175, 55, 0.2);
   color-scheme: light dark; 
 }
 [data-theme="light"] {
@@ -166,45 +160,29 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   -webkit-text-fill-color: var(--ar-g2);
 }
 
-/* v377: Единый базовый класс золотого текста */
-.gold-text,
-.ar-font:not(textarea):not(input) {
-  background: var(--gold-gradient) !important;
-  -webkit-background-clip: text !important;
-  background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
-  color: transparent !important;
-  text-shadow: 0 1px 2px var(--gold-shadow-color) !important;
+/* v378: Единый базовый класс золотого текста с эффектом чеканки */
+.gold-text, .ar-font:not(textarea):not(input), .text-gold-metallic {
+  background: none !important;
+  -webkit-background-clip: border-box !important;
+  background-clip: border-box !important;
+  color: var(--gold-standard) !important;
+  -webkit-text-fill-color: var(--gold-standard) !important;
+  /* Чеканка: светлый блик сверху, темная тень снизу */
+  text-shadow: 0 -1px 0 rgba(255, 255, 255, 0.4), 0 1px 1px rgba(139, 101, 8, 0.3) !important;
+  line-height: 2.2 !important;
   overflow: visible !important;
-  line-height: 1.6 !important;
-  -webkit-box-decoration-break: clone;
-  box-decoration-break: clone;
 }
 
-@supports not ((-webkit-background-clip: text) or (background-clip: text)) {
-  .gold-text,
-  .ar-font:not(textarea):not(input) {
-    background: none !important;
-    color: var(--gold-base) !important;
-    -webkit-text-fill-color: currentColor !important;
-    text-shadow: 0 1px 2px var(--gold-shadow-color) !important;
-  }
+.read-ayah-ar { 
+  color: var(--gold-standard) !important; 
+  -webkit-text-fill-color: var(--gold-standard) !important; 
+  background: none !important; 
+  text-shadow: 0 -1px 0 rgba(255,255,255,0.4), 0 1px 1px rgba(139,101,8,0.3) !important;
 }
-
-/* v377: Таджвид имеет высший приоритет (удален костыль :has) */
-.read-ayah-ar {
-  color: var(--gold-base) !important;
-  text-shadow: 0 1px 2px var(--gold-shadow-color) !important;
-  -webkit-text-fill-color: var(--gold-base) !important;
-  background: none !important;
-}
-span[class*="tajweed-"] {
-  background: none !important;
-  -webkit-text-fill-color: currentColor !important;
-  text-shadow: none !important;
-}
-.read-ayah-ar [class*="tajweed-"] {
-  -webkit-text-fill-color: currentColor !important;
+span[class*="tajweed-"] { 
+  background: none !important; 
+  -webkit-text-fill-color: currentColor !important; 
+  text-shadow: none !important; 
 }
 
 /* Текст Священного Писания в режиме чтения */
@@ -334,7 +312,7 @@ span[class^="tajweed-"] {
 
 .empty { text-align:center; color:var(--muted); padding:60px 20px; font-size:15px; line-height:1.6; }
 
-.fab { position:fixed; right:20px; bottom:calc(100px + var(--nav-safe)); width:60px; height:60px; border-radius:50%; background:var(--gold-grad); color:#0A0A0A; font-size:30px; font-weight:300; display:flex; align-items:center; justify-content:center; box-shadow:var(--gold-glow); z-index:100; transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-base) var(--ease-out); }
+.fab { position:fixed; right:20px; bottom:calc(100px + var(--nav-safe)); width:60px; height:60px; border-radius:50%; background:var(--gold-standard); color:#0A0A0A; font-size:30px; font-weight:300; display:flex; align-items:center; justify-content:center; box-shadow:var(--gold-glow); z-index:100; transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-base) var(--ease-out); }
 .fab:active { transform:scale(.92); box-shadow:var(--gold-glow-sm); }
 .nav { 
   width:100%; 
@@ -893,11 +871,11 @@ span[class^="tajweed-"] {
   box-shadow: 0 1px 2px var(--gold-shadow-color); 
   text-align: center; 
 }
-.spiritual-card .sc-ar-bismillah { font-size: calc(26px * var(--ar-scale)); color: var(--gold-standard); text-shadow: var(--gold-shadow); font-family: 'Noto Naskh Arabic', serif; line-height: 2; margin-bottom: 8px; }
+.spiritual-card .sc-ar-bismillah { font-size: calc(26px * var(--ar-scale)); color: var(--gold-standard); text-shadow: 0 -1px 0 rgba(255, 255, 255, 0.4), 0 1px 1px rgba(139, 101, 8, 0.3); font-family: 'Noto Naskh Arabic', serif; line-height: 2; margin-bottom: 8px; }
 .spiritual-card .sc-tr-bismillah { font-size: 13px; color: var(--muted); margin-bottom: 4px; }
 .spiritual-card .sc-trn-bismillah { font-size: 14px; color: var(--text); font-weight: 500; margin-bottom: 24px; }
 .spiritual-card .sc-divider { width: 40px; height: 1px; background: rgba(212,175,55,.3); margin: 0 auto 24px auto; }
-.spiritual-card .sc-ar-alyaq { font-size: calc(24px * var(--ar-scale)); color: var(--gold-standard); text-shadow: var(--gold-shadow); font-family: 'Noto Naskh Arabic', serif; line-height: 2; margin-bottom: 8px; direction: rtl; }
+.spiritual-card .sc-ar-alyaq { font-size: calc(24px * var(--ar-scale)); color: var(--gold-standard); text-shadow: 0 -1px 0 rgba(255, 255, 255, 0.4), 0 1px 1px rgba(139, 101, 8, 0.3); font-family: 'Noto Naskh Arabic', serif; line-height: 2; margin-bottom: 8px; direction: rtl; }
 .spiritual-card .sc-tr-alyaq { font-size: 13px; color: var(--muted); margin-bottom: 4px; }
 .spiritual-card .sc-trn-alyaq { font-size: 14px; color: var(--text); font-weight: 500; margin-bottom: 20px; line-height: 1.5; }
 /* === DASHBOARD RESTRUCTURE (Stage 3.2) === */
@@ -1098,7 +1076,7 @@ span[class^="tajweed-"] {
 .install-banner .ib-text { flex: 1; min-width: 0; font-weight: 600; }
 .install-banner .ib-install {
   padding: 8px 14px; border-radius: 10px; font-size: 13px; font-weight: 700;
-  background: var(--gold-grad); color: #0A0A0A; border: none;
+  background: var(--gold-standard); color: #0A0A0A; border: none;
 }
 .install-banner .ib-later {
   padding: 8px 10px; border-radius: 10px; font-size: 13px;
@@ -1109,8 +1087,8 @@ span[class^="tajweed-"] {
 :root {
   --gold-accent: var(--gold-standard);
   --gold-accent-light: var(--gold-standard);
-  --gold-glow: none;
-  --gold-glow-sm: none;
+  --gold-glow: 0 4px 12px rgba(212, 175, 55, 0.35);
+  --gold-glow-sm: 0 2px 8px rgba(212, 175, 55, 0.2);
   --gold-soft: rgba(197,160,89,.15);
   --gold-star: var(--gold-standard);
   --gold-inner: none;
@@ -1120,7 +1098,7 @@ span[class^="tajweed-"] {
   background: #0A0A0A !important;
   color: var(--gold-standard) !important;
   border: 2px solid var(--gold-standard) !important;
-  text-shadow: var(--gold-shadow) !important;
+  text-shadow: 0 -1px 0 rgba(255, 255, 255, 0.4), 0 1px 1px rgba(139, 101, 8, 0.3) !important;
   font-weight: 800 !important;
   letter-spacing: 0.02em;
   border-radius: 14px !important;
@@ -1132,7 +1110,7 @@ span[class^="tajweed-"] {
   background: transparent !important;
   color: var(--gold-standard) !important;
   border: 1.5px solid var(--gold-standard) !important;
-  text-shadow: var(--gold-shadow) !important;
+  text-shadow: 0 -1px 0 rgba(255, 255, 255, 0.4), 0 1px 1px rgba(139, 101, 8, 0.3) !important;
   box-shadow: none !important;
 }
 .icon-btn {
@@ -1145,7 +1123,7 @@ span[class^="tajweed-"] {
 }
 .icon-btn:active { transform: scale(.92); border-color: var(--gold-accent) !important; }
 .icon-btn.ghost { background: transparent !important; border: none !important; box-shadow: none !important; }
-.icon-btn.starred { background: var(--gold-grad) !important; color: #000 !important; box-shadow: var(--gold-glow) !important; }
+.icon-btn.starred { background: var(--gold-standard) !important; color: #000 !important; box-shadow: var(--gold-glow) !important; }
 .seg, .stepper, .prog-tabs { background: var(--card) !important; border: 1px solid rgba(212,175,55,.15) !important; }
 .preset-chip, .cal-nav button, .mark-item .mi-del, .reminder-row .del, .time-row .del {
   background: var(--card) !important;
@@ -1159,7 +1137,7 @@ span[class^="tajweed-"] {
   border: 1px solid rgba(212,175,55,.2) !important;
 }
 .search-filters .filter-chip.active {
-  background: var(--gold-grad) !important;
+  background: var(--gold-standard) !important;
   color: #0A0A0A !important;
   font-weight: 800 !important;
   border-color: transparent !important;
@@ -1171,7 +1149,7 @@ span[class^="tajweed-"] {
   border: 1px solid rgba(212,175,55,.2) !important;
 }
 #onboarding .ob-option.active {
-  background: var(--gold-grad) !important;
+  background: var(--gold-standard) !important;
   color: #0A0A0A !important;
   font-weight: 800 !important;
   border-color: transparent !important;
@@ -1185,23 +1163,23 @@ span[class^="tajweed-"] {
 }
 .content-card .star-btn:active {
   transform: scale(0.85) !important;
-  background: var(--gold-grad) !important;
+  background: var(--gold-standard) !important;
   color: #0A0A0A !important;
 }
 .content-card .star-btn.active {
-  background: var(--gold-grad) !important;
+  background: var(--gold-standard) !important;
   color: #0A0A0A !important;
   border-color: transparent !important;
   box-shadow: var(--gold-glow-sm) !important;
 }
 /* Золотой отклик при нажатии на иконки навигации */
 .icon-btn:active, .ayah-share-btn:active {
-  background: var(--gold-grad) !important;
+  background: var(--gold-standard) !important;
   color: #0A0A0A !important;
   border-color: transparent !important;
 }
 .next-toast .nt-btn {
-  background: var(--gold-grad) !important;
+  background: var(--gold-standard) !important;
   color: #0A0A0A !important;
   border: none !important;
   box-shadow: var(--gold-glow-sm) !important;
@@ -1209,8 +1187,8 @@ span[class^="tajweed-"] {
 .ayah-share-btn {
   display: inline-flex;
   align-items: center;
-  justify-content: center; /* Добавлено для горизонтального центра */
-  line-height: 1; /* Добавлено для устранения отступа шрифта */
+  justify-content: center;
+  line-height: 1;
   gap: 6px;
   margin-top: 12px;
   padding: 8px 14px;
@@ -1225,14 +1203,13 @@ span[class^="tajweed-"] {
   -webkit-tap-highlight-color: transparent;
   transition: transform .1s var(--ease-out), background .15s ease, color .15s ease;
 }
-/* Добавлено: убирает базовый отступ снизу у SVG и иконок */
 .ayah-share-btn svg,
 .ayah-share-btn .ico {
   display: block;
 }
 .ayah-share-btn:active {
   transform: scale(.95);
-  background: var(--gold-grad);
+  background: var(--gold-standard);
   color: #0A0A0A;
   border-color: transparent;
 }
@@ -1240,10 +1217,9 @@ span[class^="tajweed-"] {
 /* === LIGHT THEME: глубокий чёрный + золото (как логотип) === */
 [data-theme="light"] .btn,
 [data-theme="light"] .btn.secondary {
-  background: linear-gradient(#0A0A0A, #0A0A0A) padding-box,
-              var(--gold-grad) border-box !important;
-  border: 2px solid transparent !important;
-  color: var(--gold-base) !important; 
+  background: #0A0A0A !important;
+  border: 2px solid var(--gold-standard) !important;
+  color: var(--gold-standard) !important; 
   box-shadow: 0 4px 16px rgba(0,0,0,.2), inset 0 1px 0 rgba(255,215,0,.2) !important;
 }
 [data-theme="light"] .btn:active,
@@ -1258,10 +1234,9 @@ span[class^="tajweed-"] {
   box-shadow: none !important;
 }
 [data-theme="light"] .icon-btn {
-  background: linear-gradient(#0A0A0A, #0A0A0A) padding-box,
-              var(--gold-grad) border-box !important;
-  border: 1.5px solid transparent !important;
-  color: var(--gold-light) !important;
+  background: #0A0A0A !important;
+  border: 1.5px solid var(--gold-standard) !important;
+  color: var(--gold-standard) !important;
   box-shadow: 0 2px 8px rgba(0,0,0,.15) !important;
 }
 [data-theme="light"] .icon-btn.ghost {
@@ -1271,36 +1246,28 @@ span[class^="tajweed-"] {
   box-shadow: none !important;
 }
 [data-theme="light"] .icon-btn.starred {
-  background: linear-gradient(#0A0A0A, #0A0A0A) padding-box,
-              var(--gold-grad) border-box !important;
-  border: 1.5px solid transparent !important;
-  color: var(--gold-light) !important;
+  background: #0A0A0A !important;
+  border: 1.5px solid var(--gold-standard) !important;
+  color: var(--gold-standard) !important;
 }
 [data-theme="light"] .fab {
-  background: linear-gradient(#0A0A0A, #0A0A0A) padding-box,
-              var(--gold-grad) border-box !important;
-  border: 2px solid transparent !important;
-  color: var(--gold-light) !important;
+  background: #0A0A0A !important;
+  border: 2px solid var(--gold-standard) !important;
+  color: var(--gold-standard) !important;
   box-shadow: 0 4px 16px rgba(0,0,0,.25) !important;
 }
 [data-theme="light"] .search-filters .filter-chip.active,
 [data-theme="light"] #onboarding .ob-option.active,
 [data-theme="light"] .next-toast .nt-btn {
-  background: linear-gradient(#0A0A0A, #0A0A0A) padding-box,
-              var(--gold-grad) border-box !important;
-  color: var(--gold-light) !important;
-  border: 1.5px solid transparent !important;
+  background: #0A0A0A !important;
+  color: var(--gold-standard) !important;
+  border: 1.5px solid var(--gold-standard) !important;
   box-shadow: 0 2px 8px rgba(0,0,0,.2) !important;
 }
-[data-theme="light"] .ayah-share-btn {
-  color: var(--gold-accent);
-  border-color: var(--gold-accent);
-}
 [data-theme="light"] .ayah-share-btn:active {
-  background: linear-gradient(#0A0A0A, #0A0A0A) padding-box,
-              var(--gold-grad) border-box;
-  color: var(--gold-light);
-  border-color: transparent;
+  background: #0A0A0A;
+  color: var(--gold-standard);
+  border-color: var(--gold-standard);
 }
 
 /* Fallback: solid-цвет как страховка при сбое рендеринга градиента в Chrome Android */
@@ -1313,14 +1280,14 @@ span[class^="tajweed-"] {
 .next-toast .nt-btn,
 .install-banner .ib-install {
   background-color: var(--ar-g2) !important;
-  background-image: var(--gold-grad) !important;
+  background-image: var(--gold-standard) !important;
 }
 .nav button.active .ico,
 .ayah-share-btn:active {
   background-color: var(--ar-g2);
-  background-image: var(--gold-grad);
+  background-image: var(--gold-standard);
 }
-
+  
 button, .btn, .icon-btn, .fab, .ayah-share-btn, .star-btn, .filter-chip, .preset-chip, .ob-option {
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
@@ -1370,28 +1337,6 @@ span[class^="tajweed-"] {
   /* -webkit-text-fill-color удалён отсюда, чтобы не перебивать индивидуальные цвета классов */
 }
 
-/* v353: снять прозрачность с родителя аята, если внутри есть таджвид */
-.read-ayah-ar:has([class*="tajweed-"]) {
-  background-image: none !important;
-  -webkit-text-fill-color: var(--text) !important;
-  color: var(--text) !important;
-}
-/* v353: КРИТИЧНО — вернуть fill-color самим таджвид-спэнам,
-   иначе их собственный color будет проигнорирован в WebKit/Blink */
-.read-ayah-ar [class*="tajweed-"] {
-  -webkit-text-fill-color: currentColor;
-}
-/* v353: fallback для браузеров без :has() (Safari < 15.4, Chrome < 105, FF < 121) */
-@supports not (selector(:has(*))) {
-  .read-ayah-ar {
-    background-image: none !important;
-    -webkit-text-fill-color: var(--text) !important;
-    color: var(--text) !important;
-  }
-  .read-ayah-ar [class*="tajweed-"] {
-    -webkit-text-fill-color: currentColor;
-  }
-}
 .tajweed-madda_normal { color: #537FFF !important; -webkit-text-fill-color: #537FFF !important; }
 .tajweed-madda_permissible { color: #4050FF !important; -webkit-text-fill-color: #4050FF !important; }
 .tajweed-madda_obligatory { color: #2144C1 !important; -webkit-text-fill-color: #2144C1 !important; }
@@ -2310,7 +2255,7 @@ span[class^="tajweed-"] {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v374';
+const APP_VERSION = 'iqra-v379';
 
 /* v365: Umami — обезличенная аналитика. Пока константы пусты — Umami не грузится,
    trackEvent() продолжает писать в GoatCounter (обратная совместимость). */
