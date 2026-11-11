@@ -28,7 +28,7 @@ window.addEventListener('error', function(e) {
   var splash = document.getElementById('splash-screen');
   if (splash) splash.style.display = 'none';
   var errDiv = document.createElement('div');
-  errDiv.style.cssText = 'position:fixed;inset:0;background:#000;color:var(--gold-base);z-index:999999;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;font-family:sans-serif;padding:20px;';
+  errDiv.style.cssText = 'position:fixed;inset:0;background:#000;color:var(--gold-standard);z-index:999999;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;font-family:sans-serif;padding:20px;';
   errDiv.innerHTML = '<h2 style="margin-bottom:10px;">Ошибка загрузки</h2><p style="font-size:14px;color:#fff;">Обновите приложение (сбросьте кэш).</p><p style="font-size:12px;margin-top:20px;opacity:.5;">' + (e.message || 'Syntax Error') + '</p>';
   if (document.body) { document.body.appendChild(errDiv); } else { document.documentElement.appendChild(errDiv); }
 });
@@ -56,18 +56,16 @@ window.addEventListener('error', function(e) {
   color-scheme: light dark; 
 }
 [data-theme="light"] {
-  --bg:#F5F5F5; --card:#EDEDED; --card2:#E0E0E0; --accent:#0A0A0A; --accent2:var(--gold-dark);
+  --bg:#F5F5F5; --card:#EDEDED; --card2:#E0E0E0; --accent:#0A0A0A; --accent2:var(--gold-standard);
   --text:#0A0A0A; --muted:#3D3D3D; --border:#C8C8C8; --shadow:rgba(0,0,0,.12);
   --accent-rgb: 10, 10, 10; --ripple:rgba(10,10,10,.15);
   --ar-g1:#C90414; --ar-g2:#7A5C10; --ar-g3:#4A3507;
-  --gold-shadow-color: var(--gold-shadow-light);
 }
 [data-theme="dark"] {
-  --bg:#000000; --card:#111111; --card2:#1D1D1D; --accent:#FFFFFF; --accent2:var(--gold-base);
+  --bg:#000000; --card:#111111; --card2:#1D1D1D; --accent:#FFFFFF; --accent2:var(--gold-standard);
   --text:#FFFFFF; --muted:#B4B4B4; --border:#2E2E2E; --shadow:rgba(0,0,0,.70);
   --accent-rgb: 255, 255, 255; --ripple:rgba(255,255,255,.18);
-  --ar-g1:var(--gold-light); --ar-g2:var(--gold-base); --ar-g3:var(--gold-dark);
-  --gold-shadow-color: var(--gold-shadow-dark);
+  --ar-g1:var(--gold-standard); --ar-g2:var(--gold-standard); --ar-g3:var(--gold-standard);
 }
 @supports (-webkit-touch-callout: none) {
   [data-theme="light"] .ar-font {
@@ -83,7 +81,7 @@ window.addEventListener('error', function(e) {
   --bg:#0D0D0D; --card:#1C1C1C; --card2:#2A2A2A; --accent:#FFFFFF; --accent2:#E8E8E8;
   --text:#FFFFFF; --muted:#C4C4C4; --border:#424242; --shadow:rgba(0,0,0,.70);
   --accent-rgb: 255, 255, 255; --ripple:rgba(255,255,255,.22);
-  --ar-g1:#FFF6C4; --ar-g2:var(--gold-light); --ar-g3:#C89B1C;
+  --ar-g1:#FFF6C4; --ar-g2:var(--gold-standard); --ar-g3:#C89B1C;
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body {
@@ -161,17 +159,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 }
 
 /* v378: Единый базовый класс золотого текста с эффектом чеканки */
-.gold-text, .ar-font:not(textarea):not(input), .text-gold-metallic {
-  background: none !important;
-  -webkit-background-clip: border-box !important;
-  background-clip: border-box !important;
-  color: var(--gold-standard) !important;
-  -webkit-text-fill-color: var(--gold-standard) !important;
-  /* Чеканка: светлый блик сверху, темная тень снизу */
-  text-shadow: 0 -1px 0 rgba(255, 255, 255, 0.4), 0 1px 1px rgba(139, 101, 8, 0.3) !important;
-  line-height: 2.2 !important;
-  overflow: visible !important;
-}
+.gold-text, .ar-font:not(textarea):not(input), .text-gold-metallic { background-image: var(--gold-grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: var(--gold-base); }
 
 .read-ayah-ar { 
   color: var(--gold-standard) !important; 
@@ -847,15 +835,7 @@ span[class^="tajweed-"] {
 .dash-salam { font-size: 15px; font-weight: 600; color: var(--text); line-height: 1.35; overflow-wrap: break-word; max-width: 100%; }
 .dash-hijri-gold { font-size: 12px; font-weight: 800; letter-spacing: .2px; line-height: 1.3; min-height: 1em; }
 .dash-header-actions { display: flex; gap: 6px; flex-shrink: 0; align-items: flex-start; }
-.text-gold-metallic {
-  background: var(--gold-gradient) !important;
-  -webkit-background-clip: text !important;
-  background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
-  color: transparent !important;
-  text-shadow: 0 1px 2px var(--gold-shadow-color) !important;
-  overflow: visible !important;
-}
+.text-gold-metallic { background-image: var(--gold-grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: var(--gold-base); }
 @media (max-width: 380px) {
   .dash-salam { font-size: 13.5px; }
   .dash-hijri-gold { font-size: 11px; }
@@ -864,11 +844,11 @@ span[class^="tajweed-"] {
 /* === SPIRITUAL CARD (Stage 3.0) === */
 .spiritual-card { 
   background: var(--card); 
-  border: 1px solid var(--gold-base); 
+  border: 1px solid var(--gold-standard); 
   border-radius: var(--radius); 
   padding: 24px 20px; 
   margin-bottom: 16px; 
-  box-shadow: 0 1px 2px var(--gold-shadow-color); 
+  box-shadow: 0 1px 2px rgba(0,0,0,0.15); 
   text-align: center; 
 }
 .spiritual-card .sc-ar-bismillah { font-size: calc(26px * var(--ar-scale)); color: var(--gold-standard); text-shadow: 0 -1px 0 rgba(255, 255, 255, 0.4), 0 1px 1px rgba(139, 101, 8, 0.3); font-family: 'Noto Naskh Arabic', serif; line-height: 2; margin-bottom: 8px; }
@@ -1626,25 +1606,17 @@ span[class^="tajweed-"] {
   font-size: 15px;
   line-height: 1.6;
 }
-.text-gold-metallic {
-  background: var(--gold-gradient) !important;
-  -webkit-background-clip: text !important;
-  background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
-  color: transparent !important;
-  text-shadow: 0 1px 2px var(--gold-shadow-color) !important;
-  overflow: visible !important;
-}
+.text-gold-metallic { background-image: var(--gold-grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: var(--gold-base); }
 /* v377: Кнопка */
 .btn-inline {
   display: inline-block !important;
   vertical-align: middle !important;
-  border: 1px solid var(--gold-base) !important;
-  color: var(--gold-base) !important;
+  border: 1px solid var(--gold-standard) !important;
+  color: var(--gold-standard) !important;
   background: transparent !important;
   border-radius: 8px !important;
   padding: 6px 12px !important;
-  text-shadow: 0 1px 2px var(--gold-shadow-color) !important;
+  text-shadow: 0 -1px 0 rgba(255, 255, 255, 0.4), 0 1px 1px rgba(139, 101, 8, 0.3) !important;
   cursor: pointer !important;
   font-size: 13px !important;
   margin: 12px auto 0 !important;
@@ -1652,15 +1624,9 @@ span[class^="tajweed-"] {
 .btn-inline:hover,
 .btn-inline:focus-visible,
 .btn-inline:active {
-  border-color: var(--gold-light) !important;
-  color: var(--gold-light) !important;
-}
-.btn-inline .ico,
-.btn-inline svg {
-  display: inline-block !important;
-  vertical-align: -2px !important;
-  margin-right: 6px !important;
-  color: inherit !important;
+  border-color: var(--gold-standard) !important;
+  color: var(--gold-standard) !important;
+  opacity: 0.8 !important;
 }
 </style>
 </head>
@@ -2162,12 +2128,12 @@ span[class^="tajweed-"] {
       <p class="ob-text">Это <b>Iqra</b> — ваше приложение для Корана, зикра и заучивания.</p>
     </div>
     <div class="ob-slide" data-slide="1">
-      <div class="ob-icon"><svg class="ico ico-xl" style="color:var(--gold-accent, var(--gold-base))"><use href="#i-book"/></svg></div>
+      <div class="ob-icon"><svg class="ico ico-xl" style="color:var(--gold-standard)"><use href="#i-book"/></svg></div>
       <h1 class="ob-title">Всё под рукой</h1>
       <p class="ob-text">Читайте Коран, считайте тасбих, заучивайте дуа и хадисы.<br>Всё работает <b>полностью офлайн</b>.</p>
     </div>
     <div class="ob-slide" data-slide="2">
-      <div class="ob-icon"><svg class="ico ico-xl" style="color:var(--gold-accent, var(--gold-base))"><use href="#i-star"/></svg></div>
+      <div class="ob-icon"><svg class="ico ico-xl" style="color:var(--gold-standard)"><use href="#i-star"/></svg></div>
       <h1 class="ob-title">Выберите тему</h1>
       <p class="ob-text">Можно изменить в любой момент в настройках.</p>
       <div class="ob-options">
@@ -2178,7 +2144,7 @@ span[class^="tajweed-"] {
       </div>
     </div>
     <div class="ob-slide" data-slide="3">
-      <div class="ob-icon"><svg class="ico ico-xl" style="color:var(--gold-accent, var(--gold-base))"><use href="#i-book"/></svg></div>
+      <div class="ob-icon"><svg class="ico ico-xl" style="color:var(--gold-standard)"><use href="#i-book"/></svg></div>
       <h1 class="ob-title">Размер арабского текста</h1>
       <p class="ob-text">Настройте удобный размер для чтения.</p>
       <div class="ob-options">
@@ -2255,7 +2221,7 @@ span[class^="tajweed-"] {
 })();
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v378';
+const APP_VERSION = 'iqra-v379';
 
 /* v365: Umami — обезличенная аналитика. Пока константы пусты — Umami не грузится,
    trackEvent() продолжает писать в GoatCounter (обратная совместимость). */
