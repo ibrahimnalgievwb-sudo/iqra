@@ -1,0 +1,132 @@
+/* ============================================================
+   BASE.CSS — Сброс, шрифты, базовая типографика, a11y-фокус
+   Проект «Икра» · v383 (рефакторинг)
+   Источник: <style> из index.html v383 (блоки сброса, типографики,
+   фокуса, скроллбаров, .ar-font, prefers-reduced-motion)
+   ============================================================ */
+
+/* ---------- RESET ---------- */
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  margin:0; padding:0; background:var(--bg); color:var(--text);
+  font-family:"Inter", -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  width:100%; max-width:100%;
+  overscroll-behavior:none;
+  -webkit-user-select:none; user-select:none;
+  -webkit-touch-callout:none;
+  -webkit-text-size-adjust:100%;
+  text-size-adjust:100%;
+  text-rendering: optimizeLegibility;
+}
+
+/* ---------- PREMIUM TAP FEEDBACK ---------- */
+button, .btn, .icon-btn, .fab, .ayah-share-btn, .star-btn, .filter-chip, .preset-chip, .ob-option, .tasbih-card, .content-card, .dash-quote, .dash-quick, .continue-card, .cal-day, .nav button {
+  transition: transform var(--dur-fast) var(--ease-out), opacity var(--dur-fast) var(--ease-out), box-shadow var(--dur-base) var(--ease-out), background-color var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out);
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  will-change: transform, opacity;
+}
+button:active, .btn:active, .icon-btn:active, .star-btn:active, .filter-chip:active, .preset-chip:active, .ob-option:active, .cal-day:active, .nav button:active {
+  transform: scale(var(--tap-scale));
+  opacity: var(--tap-opacity);
+}
+
+/* ---------- FOCUS (a11y) ---------- */
+:focus-visible { outline: 2px solid var(--gold-accent, var(--ar-g2)); outline-offset: 2px; border-radius: 6px; }
+
+/* ---------- SCROLLBARS ---------- */
+.list, .content-list, .detail-body, .fs-body, .cal, .settings, .form { scroll-behavior: smooth; scrollbar-width: thin; scrollbar-color: rgba(var(--accent-rgb), .25) transparent; }
+.list::-webkit-scrollbar, .content-list::-webkit-scrollbar, .detail-body::-webkit-scrollbar, .fs-body::-webkit-scrollbar, .cal::-webkit-scrollbar, .settings::-webkit-scrollbar, .form::-webkit-scrollbar { width: 6px; }
+.list::-webkit-scrollbar-thumb, .content-list::-webkit-scrollbar-thumb, .detail-body::-webkit-scrollbar-thumb, .fs-body::-webkit-scrollbar-thumb, .cal::-webkit-scrollbar-thumb, .settings::-webkit-scrollbar-thumb, .form::-webkit-scrollbar-thumb { background: rgba(var(--accent-rgb), .22); border-radius: 3px; }
+
+/* ---------- VIEWPORT / ROOT ---------- */
+html { height:100%; overflow:hidden; }
+body {
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  padding-top:env(safe-area-inset-top);
+  padding-bottom:0;
+  padding-left:env(safe-area-inset-left, 0px);
+  padding-right:env(safe-area-inset-right, 0px);
+}
+html.is-ios body {
+  height:100vh;
+}
+html:not(.is-ios) body {
+  height:100dvh;
+}
+
+/* ---------- FORM ELEMENT RESET ---------- */
+button, input, textarea, select { font-family:inherit; color:inherit; }
+button { cursor:pointer; border:none; background:none; }
+input, textarea { -webkit-user-select:text; user-select:text; }
+
+/* iOS Safari: input/textarea с font-size < 16px вызывает авто-зум при фокусе.
+   Форсируем 16px на тач-устройствах; на десктопе индивидуальные размеры сохраняются. */
+@media (pointer: coarse) {
+  input, textarea, select { font-size: 16px !important; }
+}
+
+/* ---------- ARABIC FONT BASE ---------- */
+.ar-font {
+  font-family:"Noto Naskh Arabic","Amiri","SF Arabic","Geeza Pro",serif;
+  font-feature-settings:"liga" 1, "calt" 1;
+  line-height: 2.2 !important;
+  letter-spacing: normal !important;
+  word-spacing: normal !important;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: normal;
+  hyphens: none;
+  text-rendering: optimizeLegibility;
+  max-width: 100%;
+  min-width: 0;
+  padding: 8px 0;
+  display: block;
+  overflow: visible;
+  color: var(--ar-g2);
+  -webkit-text-fill-color: var(--ar-g2);
+}
+@supports (font-variation-settings: normal) {
+  .ar-font { font-synthesis: none; }
+}
+
+/* ---------- REDUCED MOTION ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+/* ---------- FOCUS RING FOR FINE POINTERS ---------- */
+@media (pointer: fine) {
+  button:focus-visible,
+  .btn:focus-visible,
+  .icon-btn:focus-visible,
+  .fab:focus-visible,
+  .ayah-share-btn:focus-visible,
+  .star-btn:focus-visible,
+  .filter-chip:focus-visible,
+  .preset-chip:focus-visible,
+  .ob-option:focus-visible,
+  .nav button:focus-visible,
+  .seg button:focus-visible,
+  .prog-tabs button:focus-visible,
+  .cal-nav button:focus-visible,
+  .cal-day:focus-visible,
+  .stepper button:focus-visible {
+    outline: 2px solid var(--accent) !important;
+    outline-offset: 2px !important;
+  }
+}
+button::-moz-focus-inner { border: 0; padding: 0; }
+
+/* ---------- TOUCH TARGET SAFETY ---------- */
+button, .btn, .icon-btn, .fab, .ayah-share-btn, .star-btn, .filter-chip, .preset-chip, .ob-option {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}

@@ -1,0 +1,140 @@
+/* ============================================================
+   TAJWEED.CSS — Стили таджвида, легенда, ошибки загрузки
+   Проект «Икра» · v383 (рефакторинг)
+   Порядок правил сохранён 1:1 с исходным <style>.
+   ============================================================ */
+
+/* === D1.1 v383: канонический tajweed-span === */
+span[class*="tajweed-"] {
+  background: none !important;
+  text-shadow: none !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+
+/* === D1.3 v383: канонический — без -webkit-text-fill-color === */
+span[class^="tajweed-"] {
+  display: inline !important;
+  white-space: normal !important;
+}
+
+/* === TAJWEED: БАЗОВЫЕ СТИЛИ (цвета правил) === */
+/* D1 v383: дубликат span[class^="tajweed-"] удалён, канон выше */
+
+.tajweed-madda_normal { color: #537FFF !important; -webkit-text-fill-color: #537FFF !important; }
+.tajweed-madda_permissible { color: #4050FF !important; -webkit-text-fill-color: #4050FF !important; }
+.tajweed-madda_obligatory { color: #2144C1 !important; -webkit-text-fill-color: #2144C1 !important; }
+.tajweed-madda_necessary { color: #000EBC !important; -webkit-text-fill-color: #000EBC !important; }
+.tajweed-qalqalah { color: #DD0008 !important; -webkit-text-fill-color: #DD0008 !important; }
+.tajweed-ghunnah { color: #FF7E1E !important; -webkit-text-fill-color: #FF7E1E !important; }
+.tajweed-ikhfa, .tajweed-ikhfa_shafawi { color: #9400A8 !important; -webkit-text-fill-color: #9400A8 !important; }
+.tajweed-idghaam_ghunnah { color: #169777 !important; -webkit-text-fill-color: #169777 !important; }
+.tajweed-idghaam_no_ghunnah { color: #169200 !important; -webkit-text-fill-color: #169200 !important; }
+.tajweed-idghaam_shafawi { color: #58B800 !important; -webkit-text-fill-color: #58B800 !important; }
+.tajweed-idghaam_mutajanisayn, .tajweed-idghaam_mutaqaribayn { color: #A1A1A1 !important; -webkit-text-fill-color: #A1A1A1 !important; }
+.tajweed-iqlab { color: #26BFFD !important; -webkit-text-fill-color: #26BFFD !important; }
+.tajweed-tafkhim { color: #1E3A8A !important; -webkit-text-fill-color: #1E3A8A !important; }
+
+/* ДОБАВЛЕНО: Отсутствующие цвета для серых букв (теперь они видны) */
+.tajweed-ham_wasl, .tajweed-laam_shamsiyah, .tajweed-silent { color: #666666 !important; -webkit-text-fill-color: #666666 !important; }
+
+/* Сохранение арабского соединения (shaping) */
+.tajweed-span {
+  display: inline !important;
+  white-space: normal !important;
+}
+
+/* Блок правил под аятом */
+.ayah-tajweed-rules {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(212,175,55,.3);
+  font-size: 12px;
+  font-weight: 600;
+}
+.ayah-tajweed-rules .rule-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.ayah-tajweed-rules .rule-item i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+/* === TAJWEED: Легенда и правила === */
+.tajweed-legend {
+  background: var(--card);
+  border: 1px solid var(--gold-accent);
+  border-radius: 14px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,.1);
+}
+.tajweed-legend .tl-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--gold-accent);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+.tajweed-legend .tl-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+}
+.tajweed-legend .tl-item {
+  font-size: 12px;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.tajweed-legend .tl-item i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.ayah-rules {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(212,175,55,.3);
+}
+.ayah-rule {
+  font-size: 12px;
+  font-weight: 600;
+  background: rgba(var(--accent-rgb), .08);
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+/* === TAJWEED: Загрузка / Ошибка === */
+.tajweed-loading {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; margin-bottom: 12px;
+  background: var(--card); border: 1px dashed var(--gold-accent);
+  border-radius: 12px; font-size: 12px; color: var(--muted);
+}
+.tajweed-loading::before {
+  content: ''; width: 14px; height: 14px; border-radius: 50%;
+  border: 2px solid var(--gold-accent); border-top-color: transparent;
+  animation: tj-spin 0.8s linear infinite; flex-shrink: 0;
+}
+@keyframes tj-spin { to { transform: rotate(360deg); } }
+
+.tajweed-error {
+  display: block;
+  padding: 10px 14px; margin-bottom: 12px;
+  background: rgba(201,106,90,.1); border: 1px solid rgba(201,106,90,.35);
+  border-radius: 12px; font-size: 12px; color: var(--muted); line-height: 1.5;
+}
+.tajweed-error a { color: var(--gold-accent); text-decoration: underline; cursor: pointer; }
