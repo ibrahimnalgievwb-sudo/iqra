@@ -6,9 +6,10 @@
    ============================================================ */
 
 const SW_VERSION   = 'iqra-v385';
-const CACHE_STATIC = 'iqra-static-' + SW_VERSION;
-const CACHE_DATA   = 'iqra-data-'   + SW_VERSION;
-const CACHE_FONTS  = 'iqra-fonts-'  + SW_VERSION;
+const SW_VER_SHORT = SW_VERSION.replace(/^iqra-/, '');
+const CACHE_STATIC = 'iqra-static-' + SW_VER_SHORT;
+const CACHE_DATA   = 'iqra-data-'   + SW_VER_SHORT;
+const CACHE_FONTS  = 'iqra-fonts-'  + SW_VER_SHORT;
 
 const PRECACHE_STATIC = [
   './',
@@ -104,10 +105,8 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(req.url);
 
-  // Только свой origin — внешние (API, GoatCounter, Umami, шрифты) не кэшируем агрессивно
   const isSameOrigin = url.origin === self.location.origin;
 
-  // API аль-Куран — network-first, при провале — из кэша
   if (
     url.hostname === 'api.alquran.cloud' ||
     url.hostname === 'api.quran.foundation'
@@ -116,39 +115,32 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // GoatCounter / Umami — только сеть, без кэша
   if (
     url.hostname === 'iqra-stats.goatcounter.com' ||
     url.hostname === 'cloud.umami.is'
   ) {
-    return; // пусть работает браузер как обычно
+    return;
   }
 
-  // Данные (./data/*.json) — stale-while-revalidate
   if (isSameOrigin && url.pathname.indexOf('/data/') !== -1) {
     event.respondWith(staleWhileRevalidate(req, CACHE_DATA));
     return;
   }
 
-  // Шрифты (любые .woff2/.ttf/.otf) — cache-first
   if (/\.(woff2?|ttf|otf)$/i.test(url.pathname)) {
     event.respondWith(cacheFirst(req, CACHE_FONTS));
     return;
   }
 
-  // Навигация (HTML) — network-first с fallback на ./index.html
   if (req.mode === 'navigate') {
     event.respondWith(networkFirstNavigation(req));
     return;
   }
 
-  // Остальная статика своего origin — cache-first
   if (isSameOrigin) {
     event.respondWith(cacheFirst(req, CACHE_STATIC));
     return;
   }
-
-  // Всё прочее — пусть как есть
 });
 
 /* ---------- STRATEGIES ---------- */
@@ -215,7 +207,6 @@ async function staleWhileRevalidate(req, cacheName) {
     })
     .catch(() => null);
   if (cached) {
-    // обновляем в фоне
     networkPromise;
     return cached;
   }
