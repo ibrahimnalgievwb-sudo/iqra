@@ -1,8 +1,6 @@
 /* ============================================================
    BASE.CSS — Сброс, шрифты, базовая типографика, a11y-фокус
-   Проект «Икра» · v383 (рефакторинг)
-   Источник: <style> из index.html v383 (блоки сброса, типографики,
-   фокуса, скроллбаров, .ar-font, prefers-reduced-motion)
+   Проект «Икра» · v387 (Этап 3.5, финал)
    ============================================================ */
 
 /* ---------- RESET ---------- */
@@ -23,9 +21,9 @@ html, body {
   text-rendering: optimizeLegibility;
 }
 
-/* ---------- PREMIUM TAP FEEDBACK ---------- */
+/* ---------- PREMIUM TAP FEEDBACK (D-06: transform + opacity only) ---------- */
 button, .btn, .icon-btn, .fab, .ayah-share-btn, .star-btn, .filter-chip, .preset-chip, .ob-option, .tasbih-card, .content-card, .dash-quote, .dash-quick, .continue-card, .cal-day, .nav button {
-  transition: transform var(--dur-fast) var(--ease-out), opacity var(--dur-fast) var(--ease-out), box-shadow var(--dur-base) var(--ease-out), background-color var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out);
+  transition: transform var(--dur-fast) var(--ease-out), opacity var(--dur-fast) var(--ease-out);
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
   will-change: transform, opacity;
@@ -50,25 +48,19 @@ body {
   display:flex;
   flex-direction:column;
   overflow:hidden;
-  padding-top:env(safe-area-inset-top);
-  padding-bottom:0;
-  padding-left:env(safe-area-inset-left, 0px);
-  padding-right:env(safe-area-inset-right, 0px);
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: 0;
+  padding-left: var(--safe-left);
+  padding-right: var(--safe-right);
 }
-html.is-ios body {
-  height:100vh;
-}
-html:not(.is-ios) body {
-  height:100dvh;
-}
+html.is-ios body { height:100vh; }
+html:not(.is-ios) body { height:100dvh; }
 
 /* ---------- FORM ELEMENT RESET ---------- */
 button, input, textarea, select { font-family:inherit; color:inherit; }
 button { cursor:pointer; border:none; background:none; }
 input, textarea { -webkit-user-select:text; user-select:text; }
 
-/* iOS Safari: input/textarea с font-size < 16px вызывает авто-зум при фокусе.
-   Форсируем 16px на тач-устройствах; на десктопе индивидуальные размеры сохраняются. */
 @media (pointer: coarse) {
   input, textarea, select { font-size: 16px !important; }
 }
@@ -97,9 +89,9 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   .ar-font { font-synthesis: none; }
 }
 
-/* ---------- REDUCED MOTION ---------- */
+/* ---------- REDUCED MOTION (D-06) ---------- */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  * { animation: none !important; transition: none !important; }
 }
 
 /* ---------- FOCUS RING FOR FINE POINTERS ---------- */
