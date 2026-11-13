@@ -1,21 +1,21 @@
 /* ============================================================
    TAJWEED.CSS — Стили таджвида, легенда, ошибки загрузки
-   Проект «Икра» · v383 (рефакторинг)
+   Проект «Икра» · v413 (без)
    Порядок правил сохранён 1:1 с исходным <style>.
    ============================================================ */
 
 /* === D1.1: канонический tajweed-span === */
 span[class*="tajweed-"] {
-  background: none !important;
-  text-shadow: inherit !important;
+  background: none;
+  text-shadow: inherit;
 }
 
 /* === D1.3 v383: канонический — без -webkit-text-fill-color === */
 span[class^="tajweed-"] {
-  display: inline !important;
-  white-space: normal !important;
-  font-weight: 500 !important;
-  line-height: 2 !important;
+  display: inline;
+  white-space: normal;
+  font-weight: 500;
+  line-height: 2;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -23,29 +23,29 @@ span[class^="tajweed-"] {
 /* === TAJWEED: БАЗОВЫЕ СТИЛИ (цвета правил) === */
 /* D1 v383: дубликат span[class^="tajweed-"] удалён, канон выше */
 
-.tajweed-madda_normal { color: #537FFF !important; }
-.tajweed-madda_permissible { color: #4050FF !important; }
-.tajweed-madda_obligatory { color: #2144C1 !important; }
-.tajweed-madda_necessary { color: #000EBC !important; }
-.tajweed-qalqalah { color: #DD0008 !important; }
-.tajweed-ghunnah { color: #FF7E1E !important; }
-.tajweed-ikhfa, .tajweed-ikhfa_shafawi { color: #9400A8 !important; }
-.tajweed-idghaam_ghunnah { color: #169777 !important; }
-.tajweed-idghaam_no_ghunnah { color: #169200 !important; }
-.tajweed-idghaam_shafawi { color: #58B800 !important; }
-.tajweed-idghaam_mutajanisayn, .tajweed-idghaam_mutaqaribayn { color: #A1A1A1 !important; }
-.tajweed-iqlab { color: #26BFFD !important; }
-.tajweed-tafkhim { color: #1E3A8A !important; }
+.tajweed-madda_normal { color: #537FFF; }
+.tajweed-madda_permissible { color: #4050FF; }
+.tajweed-madda_obligatory { color: #2144C1; }
+.tajweed-madda_necessary { color: #000EBC; }
+.tajweed-qalqalah { color: #DD0008; }
+.tajweed-ghunnah { color: #FF7E1E; }
+.tajweed-ikhfa, .tajweed-ikhfa_shafawi { color: #9400A8; }
+.tajweed-idghaam_ghunnah { color: #169777; }
+.tajweed-idghaam_no_ghunnah { color: #169200; }
+.tajweed-idghaam_shafawi { color: #58B800; }
+.tajweed-idghaam_mutajanisayn, .tajweed-idghaam_mutaqaribayn { color: #A1A1A1; }
+.tajweed-iqlab { color: #26BFFD; }
+.tajweed-tafkhim { color: #1E3A8A; }
 
 /* ДОБАВЛЕНО: Отсутствующие цвета для серых букв (теперь они видны) */
-.tajweed-ham_wasl, .tajweed-laam_shamsiyah, .tajweed-silent { color: #666666 !important; }
+.tajweed-ham_wasl, .tajweed-laam_shamsiyah, .tajweed-silent { color: #666666; }
 
 /* Сохранение арабского соединения (shaping) */
 .tajweed-span {
-  display: inline !important;
-  white-space: normal !important;
-  font-weight: 500 !important;
-  line-height: 2 !important;
+  display: inline;
+  white-space: normal;
+  font-weight: 500;
+  line-height: 2;
 }
 
 /* Блок правил под аятом */
@@ -150,44 +150,44 @@ span[class^="tajweed-"] {
    Цвета правил остаются различимыми; формы букв и shaping не меняются.
    ============================================================ */
 [data-theme="dark"] .tajweed-madda_normal,
-[data-theme="mono"] .tajweed-madda_normal { color: #9CB7FF !important; }
+[data-theme="mono"] .tajweed-madda_normal { color: #9CB7FF; }
 [data-theme="dark"] .tajweed-madda_permissible,
-[data-theme="mono"] .tajweed-madda_permissible { color: #B2B7FF !important; }
+[data-theme="mono"] .tajweed-madda_permissible { color: #B2B7FF; }
 [data-theme="dark"] .tajweed-madda_obligatory,
-[data-theme="mono"] .tajweed-madda_obligatory { color: #90A9FF !important; }
+[data-theme="mono"] .tajweed-madda_obligatory { color: #90A9FF; }
 [data-theme="dark"] .tajweed-madda_necessary,
-[data-theme="mono"] .tajweed-madda_necessary { color: #AAB8FF !important; }
+[data-theme="mono"] .tajweed-madda_necessary { color: #AAB8FF; }
 [data-theme="dark"] .tajweed-qalqalah,
-[data-theme="mono"] .tajweed-qalqalah { color: #FF8589 !important; }
+[data-theme="mono"] .tajweed-qalqalah { color: #FF8589; }
 [data-theme="dark"] .tajweed-ghunnah,
-[data-theme="mono"] .tajweed-ghunnah { color: #FFB47D !important; }
+[data-theme="mono"] .tajweed-ghunnah { color: #FFB47D; }
 [data-theme="dark"] .tajweed-ikhfa,
 [data-theme="dark"] .tajweed-ikhfa_shafawi,
 [data-theme="mono"] .tajweed-ikhfa,
-[data-theme="mono"] .tajweed-ikhfa_shafawi { color: #DDA8F2 !important; }
+[data-theme="mono"] .tajweed-ikhfa_shafawi { color: #DDA8F2; }
 [data-theme="dark"] .tajweed-idghaam_ghunnah,
-[data-theme="mono"] .tajweed-idghaam_ghunnah { color: #70D7B7 !important; }
+[data-theme="mono"] .tajweed-idghaam_ghunnah { color: #70D7B7; }
 [data-theme="dark"] .tajweed-idghaam_no_ghunnah,
-[data-theme="mono"] .tajweed-idghaam_no_ghunnah { color: #9AD978 !important; }
+[data-theme="mono"] .tajweed-idghaam_no_ghunnah { color: #9AD978; }
 [data-theme="dark"] .tajweed-idghaam_shafawi,
-[data-theme="mono"] .tajweed-idghaam_shafawi { color: #B8DF7E !important; }
+[data-theme="mono"] .tajweed-idghaam_shafawi { color: #B8DF7E; }
 [data-theme="dark"] .tajweed-idghaam_mutajanisayn,
 [data-theme="dark"] .tajweed-idghaam_mutaqaribayn,
 [data-theme="mono"] .tajweed-idghaam_mutajanisayn,
-[data-theme="mono"] .tajweed-idghaam_mutaqaribayn { color: #C4C4C4 !important; }
+[data-theme="mono"] .tajweed-idghaam_mutaqaribayn { color: #C4C4C4; }
 [data-theme="dark"] .tajweed-iqlab,
-[data-theme="mono"] .tajweed-iqlab { color: #83D9F5 !important; }
+[data-theme="mono"] .tajweed-iqlab { color: #83D9F5; }
 [data-theme="dark"] .tajweed-tafkhim,
-[data-theme="mono"] .tajweed-tafkhim { color: #91AEFF !important; }
+[data-theme="mono"] .tajweed-tafkhim { color: #91AEFF; }
 [data-theme="dark"] .tajweed-ham_wasl,
 [data-theme="dark"] .tajweed-laam_shamsiyah,
 [data-theme="dark"] .tajweed-silent,
 [data-theme="mono"] .tajweed-ham_wasl,
 [data-theme="mono"] .tajweed-laam_shamsiyah,
-[data-theme="mono"] .tajweed-silent { color: #B8B8B8 !important; }
+[data-theme="mono"] .tajweed-silent { color: #B8B8B8; }
 
 [data-theme="dark"] span[class*="tajweed-"],
 [data-theme="mono"] span[class*="tajweed-"] {
-  text-shadow: inherit !important;
-  font-weight: 500 !important;
+  text-shadow: inherit;
+  font-weight: 500;
 }

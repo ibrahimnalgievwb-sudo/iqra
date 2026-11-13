@@ -890,3 +890,35 @@ document.addEventListener('click', function(e) {
     }
   }
 });
+
+/* ============================================================
+   v413: HERO-БЛИК. Проставляет data-t (копию текста) на hero-элементы,
+   чтобы CSS-оверлей ::after прорисовал блик поверх сплошного текста.
+   Наблюдатель следит только за childList/characterData (без цикла).
+   ============================================================ */
+(function () {
+  var SEL = '.spiritual-card .sc-ar-bismillah, .spiritual-card .sc-ar-alyaq, .dash-quote .dq-ar, .bismillah-card .b-ar';
+  var queued = false;
+  function mark() {
+    queued = false;
+    try {
+      document.querySelectorAll(SEL).forEach(function (el) {
+        var t = el.textContent || '';
+        if (el.getAttribute('data-t') !== t) el.setAttribute('data-t', t);
+      });
+    } catch (e) {}
+  }
+  function schedule() {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(mark);
+  }
+  function start() {
+    mark();
+    try {
+      new MutationObserver(schedule).observe(document.body, { childList: true, subtree: true, characterData: true });
+    } catch (e) {}
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
+  else start();
+})();

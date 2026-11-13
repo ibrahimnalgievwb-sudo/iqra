@@ -1,6 +1,6 @@
 /* ============================================================
    BASE.CSS — Сброс, шрифты, базовая типографика, a11y-фокус
-   Проект «Икра» · v410
+   Проект «Икра» · v413
    ============================================================ */
 
 /* ---------- RESET ---------- */
@@ -78,84 +78,61 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   input, textarea, select { font-size: 16px !important; }
 }
 
-/* ---------- ARABIC FONT BASE ---------- */
-.ar-font {
-  font-family:"Noto Naskh Arabic","Amiri","SF Arabic","Geeza Pro",serif;
-  font-feature-settings:"liga" 1, "calt" 1;
+/* ---------- ARABIC: ЕДИНЫЙ БЛОК (v413) ----------
+   Один источник правды вместо трёх. Цвет и тень идут из токенов темы,
+   поэтому отдельные dark/mono/prefers-color-scheme копии не нужны.
+   Сплошной цвет, вес 500, line-height 2. Градиентов на буквах нет. */
+.ar-font, [lang="ar"], [lang^="ar-"], .arabic, .read-ayah-ar,
+.tasbih-card .ar, .mem-block .mb-ar, .content-card .c-ar, .dash-quote .dq-ar,
+.bismillah-card .b-ar, .spiritual-card .sc-ar-bismillah, .spiritual-card .sc-ar-alyaq,
+.counter .ar, .preview-card .pv-ar, .next-toast .nt-ar, .ob-ar-preview {
+  font-family: "Noto Naskh Arabic", "Amiri", "SF Arabic", "Geeza Pro", serif;
+  font-size-adjust: 0.52;
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1, "rlig" 1;
+  font-kerning: normal;
+  font-synthesis: none;
   font-weight: 500;
-  line-height: 2 !important;
-  letter-spacing: normal !important;
-  word-spacing: normal !important;
-  overflow-wrap: break-word;
-  word-wrap: break-word;
+  line-height: 2;
+  letter-spacing: normal;
+  word-spacing: normal;
   word-break: normal;
+  overflow-wrap: break-word;
   hyphens: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  max-width: 100%;
-  min-width: 0;
-  padding: 8px 0;
-  display: block;
-  overflow: visible;
-  color: var(--gold-text-light);
+  color: var(--arabic-gold, var(--gold-text-light));
+  background: none;
+  -webkit-text-stroke: 0;
+  text-shadow: var(--arabic-glow), var(--arabic-depth);
 }
-@supports (font-variation-settings: normal) {
-  .ar-font { font-synthesis: none; }
+.ar-font { display: block; max-width: 100%; min-width: 0; padding: 8px 0; }
+
+/* Цветовые spans таджвида сохраняют свои цвета и получают ту же тень. */
+.ar-font span[class*="tajweed-"], .read-ayah-ar span[class*="tajweed-"] {
+  font-weight: 500; line-height: 2; text-shadow: inherit; background: none;
 }
 
-/* ---------- UNIFIED ARABIC TYPOGRAPHY ----------
-   Сплошной цвет, Medium 500, чёткое сглаживание и деликатная грань.
-   Тени не используют размытие; градиентная заливка текста отключена. */
-.ar-font, [lang="ar"], .arabic, .read-ayah-ar, .tasbih-card .ar, .mem-block .mb-ar,
-.content-card .c-ar, .dash-quote .dq-ar, .bismillah-card .b-ar,
-.spiritual-card .sc-ar-bismillah, .spiritual-card .sc-ar-alyaq,
-.counter .ar, .preview-card .pv-ar, .next-toast .nt-ar {
-  color: var(--gold-text-light);
-  background: none !important;
-  -webkit-text-stroke: 0 !important;
-  font-weight: 500 !important;
-  line-height: 2 !important;
-  letter-spacing: normal;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8), 0 2px 1px rgba(139, 101, 8, 0.3);
+/* ---------- HERO-БЛИК (вариант B) ----------
+   Узкая полоса света проходит по буквам раз в 7 секунд.
+   Это декоративный оверлей ::after: сам текст остаётся сплошным.
+   data-t выставляет app.js. Только на hero-элементах. */
+.spiritual-card .sc-ar-bismillah[data-t],
+.spiritual-card .sc-ar-alyaq[data-t],
+.dash-quote .dq-ar[data-t],
+.bismillah-card .b-ar[data-t] { position: relative; }
+.spiritual-card .sc-ar-bismillah[data-t]::after,
+.spiritual-card .sc-ar-alyaq[data-t]::after,
+.dash-quote .dq-ar[data-t]::after,
+.bismillah-card .b-ar[data-t]::after {
+  content: attr(data-t);
+  position: absolute; inset: 0; padding: inherit;
+  color: transparent; text-shadow: none; pointer-events: none;
+  background: linear-gradient(105deg, transparent 38%, var(--arabic-shine) 50%, transparent 62%) 0 0 / 260% 100% no-repeat;
+  -webkit-background-clip: text; background-clip: text;
+  animation: iqra-shine 7s ease-in-out infinite;
 }
-
-/* Тёмная и монохромная темы — светлый золотой текст, чёткая тень */
-[data-theme="dark"] .ar-font, [data-theme="mono"] .ar-font,
-[data-theme="dark"] [lang="ar"], [data-theme="mono"] [lang="ar"],
-[data-theme="dark"] .arabic, [data-theme="mono"] .arabic,
-[data-theme="dark"] .read-ayah-ar, [data-theme="mono"] .read-ayah-ar,
-[data-theme="dark"] .tasbih-card .ar, [data-theme="mono"] .tasbih-card .ar,
-[data-theme="dark"] .mem-block .mb-ar, [data-theme="mono"] .mem-block .mb-ar,
-[data-theme="dark"] .content-card .c-ar, [data-theme="mono"] .content-card .c-ar,
-[data-theme="dark"] .dash-quote .dq-ar, [data-theme="mono"] .dash-quote .dq-ar,
-[data-theme="dark"] .bismillah-card .b-ar, [data-theme="mono"] .bismillah-card .b-ar,
-[data-theme="dark"] .spiritual-card .sc-ar-bismillah, [data-theme="mono"] .spiritual-card .sc-ar-bismillah,
-[data-theme="dark"] .spiritual-card .sc-ar-alyaq, [data-theme="mono"] .spiritual-card .sc-ar-alyaq,
-[data-theme="dark"] .counter .ar, [data-theme="mono"] .counter .ar,
-[data-theme="dark"] .preview-card .pv-ar, [data-theme="mono"] .preview-card .pv-ar,
-[data-theme="dark"] .next-toast .nt-ar, [data-theme="mono"] .next-toast .nt-ar {
-  color: var(--gold-text-dark);
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.15), 0 2px 2px rgba(0, 0, 0, 0.8);
-}
-
-/* Тёмная тема — системная, если тема приложения ещё не выбрана */
-@media (prefers-color-scheme: dark) {
-  html:not([data-theme]) .ar-font,
-  html:not([data-theme]) [lang="ar"], html:not([data-theme]) .arabic,
-  html:not([data-theme]) .read-ayah-ar, html:not([data-theme]) .tasbih-card .ar,
-  html:not([data-theme]) .mem-block .mb-ar, html:not([data-theme]) .content-card .c-ar,
-  html:not([data-theme]) .dash-quote .dq-ar, html:not([data-theme]) .bismillah-card .b-ar,
-  html:not([data-theme]) .spiritual-card .sc-ar-bismillah,
-  html:not([data-theme]) .spiritual-card .sc-ar-alyaq,
-  html:not([data-theme]) .counter .ar, html:not([data-theme]) .preview-card .pv-ar,
-  html:not([data-theme]) .next-toast .nt-ar {
-    color: var(--gold-text-dark);
-    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.15), 0 2px 2px rgba(0, 0, 0, 0.8);
-  }
-}
+@keyframes iqra-shine { 0%, 55% { background-position: 0 0; } 100% { background-position: 100% 0; } }
 
 /* ---------- REDUCED MOTION (D-06) ---------- */
 @media (prefers-reduced-motion: reduce) {
@@ -179,8 +156,8 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   .cal-nav button:focus-visible,
   .cal-day:focus-visible,
   .stepper button:focus-visible {
-    outline: 2px solid var(--accent) !important;
-    outline-offset: 2px !important;
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
   }
 }
 button::-moz-focus-inner { border: 0; padding: 0; }
@@ -193,65 +170,9 @@ button, .btn, .icon-btn, .fab, .ayah-share-btn, .star-btn, .filter-chip, .preset
 
 
 /* ============================================================
-   IQRA V412 — КАНОНИЧЕСКАЯ ТИПОГРАФИКА
-   Единая сплошная заливка и одинаковая грань на каждой строке.
+   IQRA V413 — ТИПОГРАФИКА ЛАТИНИЦЫ/КИРИЛЛИЦЫ
    ============================================================ */
-html, body {
-  line-height: 1.52;
-  font-kerning: normal;
-  font-optical-sizing: auto;
-}
-
-.ar-font,
-[lang="ar"], [lang^="ar-"],
-.arabic,
-.read-ayah-ar,
-.tasbih-card .ar,
-.mem-block .mb-ar,
-.content-card .c-ar,
-.dash-quote .dq-ar,
-.bismillah-card .b-ar,
-.spiritual-card .sc-ar-bismillah,
-.spiritual-card .sc-ar-alyaq,
-.counter .ar,
-.preview-card .pv-ar,
-.next-toast .nt-ar,
-.ob-ar-preview {
-  color: var(--arabic-gold, var(--gold-text-light)) !important;
-  background: transparent !important;
-  background-image: none !important;
-  -webkit-background-clip: border-box !important;
-  background-clip: border-box !important;
-  -webkit-text-stroke: 0 transparent !important;
-  font-family: "Noto Naskh Arabic", "Amiri", "SF Arabic", "Geeza Pro", serif;
-  font-size-adjust: 0.52;
-  font-feature-settings: "kern" 1, "liga" 1, "calt" 1, "rlig" 1;
-  font-kerning: normal;
-  font-synthesis: none;
-  font-weight: 500 !important;
-  line-height: 2 !important;
-  letter-spacing: normal !important;
-  word-spacing: normal !important;
-  word-break: normal !important;
-  overflow-wrap: break-word;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-  text-shadow:
-    0 1px 0 var(--arabic-highlight),
-    0 2px 0 var(--arabic-edge),
-    0 3px 2px rgba(0, 0, 0, 0.10);
-}
-
-/* Цветовые spans таджвида сохраняют свои цвета, но получают ту же грань. */
-.ar-font span[class*="tajweed-"],
-.read-ayah-ar span[class*="tajweed-"] {
-  font-weight: 500 !important;
-  line-height: 2 !important;
-  text-shadow: inherit !important;
-  background: none !important;
-  background-image: none !important;
-}
+html, body { line-height: 1.52; font-kerning: normal; font-optical-sizing: auto; }
 
 /* Читабельность русских переводов и вспомогательных строк. */
 .read-ayah-tr,
