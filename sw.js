@@ -1,10 +1,10 @@
 /* ============================================================
-   SW.JS — Service Worker проекта «Икра» v387
+   SW.JS — Service Worker проекта «Икра» v390
    Cache-first для статики, network-first для API/навигации,
    stale-while-revalidate для данных. SKIP_WAITING поддерживается.
    ============================================================ */
 
-const SW_VERSION   = 'iqra-v389';
+const SW_VERSION   = 'iqra-v390';
 const SW_VER_SHORT = SW_VERSION.replace(/^iqra-/, '');
 const CACHE_STATIC = 'iqra-static-' + SW_VER_SHORT;
 const CACHE_DATA   = 'iqra-data-'   + SW_VER_SHORT;
