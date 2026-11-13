@@ -2,7 +2,8 @@
 
 /* ============================================================
    DASHBOARD.JS — Главный экран, приветствие, цитата дня
-   Проект «Икра» · v383 (рефакторинг)
+   Проект «Икра» · v387 (Этап 3.5)
+   Прогресс-баров нет — патч D-06 не требуется.
    ============================================================ */
 
 function getDailyQuote() {
@@ -70,7 +71,7 @@ function renderDashboard() {
     if (lr && lr.type === 'quran') {
       const q = getQuranById(lr.id);
       if (q) {
-        contEl.innerHTML = `<div class="continue-card" onclick="openRead('${q.id}')"><div class="cc-label">Продолжить чтение</div><div class="cc-title">${esc(q.title)}</div><div class="cc-sub">${esc(q.subtitle||'')}</div></div>`;
+        contEl.innerHTML = `<div class="continue-card" onclick="openRead('${esc(q.id)}')"><div class="cc-label">Продолжить чтение</div><div class="cc-title">${esc(q.title)}</div><div class="cc-sub">${esc(q.subtitle||'')}</div></div>`;
       } else {
         contEl.innerHTML = `<div class="continue-card" onclick="openRead('q1')"><div class="cc-label">Начать с Аль-Фатихи</div><div class="cc-title">Аль-Фатиха</div><div class="cc-sub">Открывающая · 7 аятов</div></div>`;
       }
