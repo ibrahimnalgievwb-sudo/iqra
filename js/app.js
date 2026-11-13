@@ -2,9 +2,19 @@
 
 /* ============================================================
    APP.JS — Точка входа, навигация, UI-ядро, SW, PWA, debug
-   Проект «Икра» · v383 (рефакторинг)
-   Загружается последним. Глобальные переменные состояния — здесь.
+   Проект «Икра» · v387 (Этап 3.5)
+   D-10: добавлена escapeHtml(); аудит innerHTML проведён —
+   все места с пользовательскими/внешними данными используют
+   esc() / escNl() / escapeHtml() из storage.js.
    ============================================================ */
+
+/* ---------- XSS: escape helper (D-10) ---------- */
+function escapeHtml(s) {
+  if (typeof esc === 'function') return esc(s);
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function(c) {
+    return ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[c];
+  });
+}
 
 /* ---------- iOS DETECTION ---------- */
 (function(){
@@ -109,11 +119,11 @@ function confirmAsync(title, sub, okText, cancelText) {
   return new Promise(function(resolve) {
     okText = okText || 'Подтвердить';
     cancelText = cancelText || 'Отмена';
-    var html = '<h2>' + esc(title) + '</h2>' +
+    var html = '<h2>' + escapeHtml(title) + '</h2>' +
       (sub ? '<div style="font-size:14px;color:var(--muted);margin-bottom:20px;line-height:1.5">' + escNl(sub) + '</div>' : '') +
       '<div style="display:flex;gap:10px;">' +
-        '<button class="btn secondary" id="cf-cancel" style="flex:1;margin:0;">' + esc(cancelText) + '</button>' +
-        '<button class="btn" id="cf-ok" style="flex:1;margin:0;">' + esc(okText) + '</button>' +
+        '<button class="btn secondary" id="cf-cancel" style="flex:1;margin:0;">' + escapeHtml(cancelText) + '</button>' +
+        '<button class="btn" id="cf-ok" style="flex:1;margin:0;">' + escapeHtml(okText) + '</button>' +
       '</div>';
     var modal = document.getElementById('modal-content');
     modal.innerHTML = html;
@@ -139,10 +149,9 @@ function confirmAsync(title, sub, okText, cancelText) {
 function openDay(key) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(key)) return;
   const entry = state.history[key]; const [y,m,d] = key.split('-');
-  const MONTHS_L = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
-  let html = `<h2>${d}.${m}.${y}</h2><div style="font-size:13px;color:var(--muted);margin-bottom:16px">${formatHijri(new Date(+y, +m - 1, +d))}</div>`;
+  let html = `<h2>${escapeHtml(d)}.${escapeHtml(m)}.${escapeHtml(y)}</h2><div style="font-size:13px;color:var(--muted);margin-bottom:16px">${escapeHtml(formatHijri(new Date(+y, +m - 1, +d)))}</div>`;
   if (!entry || !entry.total) html += `<div style="color:var(--muted);padding:20px 0;text-align:center">В этот день счёта не было</div>`;
-  else { for (const [tid,cnt] of Object.entries(entry.byId)) { const t=getById(tid); const name=t?(t.transcription||t.arabic):'Удалённый тасбих'; html += `<div class="modal-row"><span>${esc(name)}</span><span class="num">${cnt}</span></div>`; } html += `<div class="modal-total"><span>Всего</span><span class="num">${entry.total}</span></div>`; }
+  else { for (const [tid,cnt] of Object.entries(entry.byId)) { const t=getById(tid); const name=t?(t.transcription||t.arabic):'Удалённый тасбих'; html += `<div class="modal-row"><span>${escapeHtml(name)}</span><span class="num">${escapeHtml(cnt)}</span></div>`; } html += `<div class="modal-total"><span>Всего</span><span class="num">${escapeHtml(entry.total)}</span></div>`; }
   html += `<button class="btn secondary" style="margin-top:20px" onclick="closeModal()">Закрыть</button>`;
   document.getElementById('modal-content').innerHTML = html;
   document.getElementById('modal-bg').classList.add('active');
@@ -168,6 +177,8 @@ function showScreen(id) {
   if (id==='screen-dua') setNav('dua');
   if (id==='screen-hadith') setNav('hadith');
   if (id==='screen-cal') setNav('cal');
+  if (id==='screen-path') setNav('path');
+  if (id==='screen-library') setNav('library');
   window.scrollTo(0,0);
   saveNavContext();
 }
@@ -841,7 +852,7 @@ window.addEventListener('appinstalled', () => {
   else console.log('✓ Inline-обработчики: парность в порядке');
 })();
 
-/* ---------- FOCUS MODE (v365) ---------- */
+/* ---------- FOCUS MODE ---------- */
 (function initFocusMode() {
   var body = document.getElementById('read-body');
   if (!body) return;
@@ -856,7 +867,7 @@ window.addEventListener('appinstalled', () => {
   }, { passive: true });
 })();
 
-/* ---------- HAPTIC (v365) ---------- */
+/* ---------- HAPTIC ---------- */
 (function initHaptic() {
   document.addEventListener('click', function(e) {
     if (!state || !state.settings || !state.settings.vibrate) return;
