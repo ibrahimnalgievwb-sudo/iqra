@@ -1,10 +1,9 @@
 /* ============================================================
-   SW.JS — Service Worker проекта «Икра» v417 (Этап 3.6)
+   SW.JS — Service Worker проекта «Икра» v416
    ============================================================ */
 
-const SW_VERSION   = 'iqra-v417'; /* МЕНЯЙ ВЕРСИЮ ТОЛЬКО ЗДЕСЬ */
+const SW_VERSION   = 'iqra-v416'; /* МЕНЯЙ ВЕРСИЮ ТОЛЬКО ЗДЕСЬ */
 const SW_VER_SHORT = SW_VERSION.replace(/^iqra-/, '');
-
 const CACHE_STATIC = 'iqra-static-' + SW_VER_SHORT;
 const CACHE_DATA   = 'iqra-data-'   + SW_VER_SHORT;
 const CACHE_FONTS  = 'iqra-fonts-'  + SW_VER_SHORT;
@@ -37,7 +36,6 @@ const PRECACHE_STATIC = [
   './js/components/search.js',
   './js/components/share.js',
   './js/components/onboarding.js',
-  './js/components/tafsir.js',
   './assets/icons/icon-192.png',
   './assets/icons/icon-512.png',
   './assets/icons/icon-maskable-512.png',
@@ -51,21 +49,18 @@ const PRECACHE_DATA = [
   './data/duas.json',
   './data/hadiths.json',
   './data/tasbihs.json',
-  './data/knowledge-base.json',
-  './data/tafsirs.json'
+  './data/knowledge-base.json'
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil((async () => {
     const cacheS = await caches.open(CACHE_STATIC);
     const cacheD = await caches.open(CACHE_DATA);
-
     await Promise.all(
       PRECACHE_STATIC.map((url) =>
         cacheS.add(url).catch((e) => console.warn('[SW] precache static skip:', url, e && e.message))
       )
     );
-
     await Promise.all(
       PRECACHE_DATA.map((url) =>
         cacheD.add(url).catch((e) => console.warn('[SW] precache data skip:', url, e && e.message))
@@ -84,7 +79,6 @@ self.addEventListener('activate', (event) => {
         .map((key) => caches.delete(key))
     );
     await self.clients.claim();
-
     const clients = await self.clients.matchAll({ type: 'window' });
     clients.forEach((client) => {
       try { client.postMessage({ type: 'SW_UPDATED', version: SW_VERSION }); } catch (e) {}
@@ -119,7 +113,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  if (/.(woff2?|ttf|otf)$/i.test(url.pathname)) {
+  if (/\.(woff2?|ttf|otf)$/i.test(url.pathname)) {
     event.respondWith(cacheFirst(req, CACHE_FONTS));
     return;
   }
@@ -189,7 +183,6 @@ async function networkFirstNavigation(req) {
 async function staleWhileRevalidate(req, cacheName) {
   const cache = await caches.open(cacheName);
   const cached = await cache.match(req);
-
   const networkPromise = fetch(req)
     .then((res) => {
       if (res && res.ok) {
@@ -198,12 +191,10 @@ async function staleWhileRevalidate(req, cacheName) {
       return res;
     })
     .catch(() => null);
-
   if (cached) {
     networkPromise;
     return cached;
   }
-
   const fresh = await networkPromise;
   if (fresh) return fresh;
   return new Response('{}', { headers: { 'Content-Type': 'application/json' }, status: 504 });
