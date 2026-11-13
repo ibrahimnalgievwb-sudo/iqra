@@ -1,6 +1,6 @@
 /* ============================================================
    BASE.CSS — Сброс, шрифты, базовая типографика, a11y-фокус
-   Проект «Икра» · v405 (арабская типографика вынесена в единый блок)
+   Проект «Икра» · v409 (Финальная полировка)
    ============================================================ */
 
 /* ---------- RESET ---------- */
@@ -20,6 +20,9 @@ html, body {
   text-size-adjust:100%;
   text-rendering: optimizeLegibility;
 }
+
+/* ЗАЩИТА ОТ РАЗРЫВА ВЕРСТКИ: картинки и svg не могут быть больше контейнера */
+img, svg { max-width: 100%; height: auto; }
 
 /* ---------- PREMIUM TAP FEEDBACK (D-06: transform + opacity only) ---------- */
 button, .btn, .icon-btn, .fab, .ayah-share-btn, .star-btn, .filter-chip, .preset-chip, .ob-option, .tasbih-card, .content-card, .dash-quote, .dash-quick, .continue-card, .cal-day, .nav button {
@@ -89,9 +92,9 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   .ar-font { font-synthesis: none; }
 }
 
-/* ---------- UNIFIED ARABIC TYPOGRAPHY (v405) ----------
-   Сплошной золотой цвет, вес 500, без градиентов.
-   Аяты — контент, а не заголовок. line-height ≥ 1.8, без отрицательного tracking. */
+/* ---------- UNIFIED ARABIC TYPOGRAPHY (v409) ----------
+   Сплошной золотой цвет, вес 500. Текст выглядит металлическим
+   за счет 4-слойной тени (фаска сверху, объем, падающая тень). */
 [lang="ar"], .arabic, .read-ayah-ar, .tasbih-card .ar, .mem-block .mb-ar,
 .content-card .c-ar, .dash-quote .dq-ar, .bismillah-card .b-ar,
 .spiritual-card .sc-ar-bismillah, .spiritual-card .sc-ar-alyaq,
@@ -103,7 +106,13 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   font-weight: 500;
   line-height: 1.8;
   letter-spacing: normal;
-  text-shadow: 0 1px 0 rgba(255,255,255,0.6), 0 2px 3px rgba(0,0,0,0.15);
+  
+  /* МЕТАЛЛИЧЕСКИЙ БЛЕСК (ФАСКА) */
+  text-shadow: 
+    0 -1px 0 rgba(255, 255, 255, 0.9),  /* Яркий блик на верхней кромке */
+    0 1px 0 rgba(255, 255, 255, 0.4),   /* Внутренний свет */
+    0 2px 0 rgba(0, 0, 0, 0.1),         /* Резкая грань объема */
+    0 3px 4px rgba(0, 0, 0, 0.3);       /* Мягкая падающая тень */
 }
 
 /* Тёмная тема — явно заданная */
@@ -123,7 +132,10 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 [data-theme="mono"] .next-toast .nt-ar {
   color: var(--gold-text-dark);
   -webkit-text-fill-color: var(--gold-text-dark);
-  text-shadow: 0 1px 0 rgba(255,255,255,0.2), 0 2px 3px rgba(0,0,0,0.4);
+  text-shadow: 
+    0 -1px 0 rgba(255, 255, 255, 0.4),
+    0 1px 0 rgba(0, 0, 0, 0.6),
+    0 3px 6px rgba(0, 0, 0, 0.5);
 }
 [data-theme="dark"] .ar-font,
 [data-theme="mono"] .ar-font {
@@ -131,7 +143,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   -webkit-text-fill-color: var(--gold-text-dark);
 }
 
-/* Тёмная тема — системная (без явного data-theme="light"/"dark"/"mono") */
+/* Тёмная тема — системная */
 @media (prefers-color-scheme: dark) {
   html:not([data-theme]) [lang="ar"], html:not([data-theme]) .arabic,
   html:not([data-theme]) .read-ayah-ar, html:not([data-theme]) .tasbih-card .ar,
@@ -144,7 +156,10 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   html:not([data-theme]) .ar-font {
     color: var(--gold-text-dark);
     -webkit-text-fill-color: var(--gold-text-dark);
-    text-shadow: 0 1px 0 rgba(255,255,255,0.2), 0 2px 3px rgba(0,0,0,0.4);
+    text-shadow: 
+      0 -1px 0 rgba(255, 255, 255, 0.4),
+      0 1px 0 rgba(0, 0, 0, 0.6),
+      0 3px 6px rgba(0, 0, 0, 0.5);
   }
 }
 
