@@ -1,7 +1,8 @@
 "use strict";
+
 /* ============================================================
    APP.JS — Точка входа, навигация, UI-ядро, SW, PWA, debug
-   Проект «Икра» · v417 (Этап 3.6)
+   Проект «Икра» · v410
    ============================================================ */
 
 /* ---------- XSS: escape helper (D-10) ---------- */
@@ -16,7 +17,7 @@ function escapeHtml(s) {
 (function(){
   var ua = navigator.userAgent || '';
   var isIOS = /iPad|iPhone|iPod/.test(ua)
-    || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+           || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   if (isIOS) document.documentElement.classList.add('is-ios');
 })();
 
@@ -41,7 +42,6 @@ function escapeHtml(s) {
 /* ---------- GLOBAL STATE ---------- */
 let activeId = null, editingId = null;
 let activeDuaId = null, activeQuranId = null, activeHadithId = null, activeNightId = null;
-let activeTafsirId = null;
 let quranFilter = 'all';
 let activeReadId = null;
 let _lastScreenName = null, _lastScreenTs = null;
@@ -104,28 +104,28 @@ function showMarkToast(text) {
 }
 
 /* ---------- MODAL / CONFIRM ---------- */
-function closeModal() {
-  document.getElementById('modal-bg').classList.remove('active');
+function closeModal() { 
+  document.getElementById('modal-bg').classList.remove('active'); 
   if (_pendingConfirmResolve) {
     const r = _pendingConfirmResolve;
     _pendingConfirmResolve = null;
     r(false);
   }
 }
-
 function confirmAsync(title, sub, okText, cancelText) {
   return new Promise(function(resolve) {
     okText = okText || 'Подтвердить';
     cancelText = cancelText || 'Отмена';
     var html = '<h2>' + escapeHtml(title) + '</h2>' +
       (sub ? '<div style="font-size:14px;color:var(--muted);margin-bottom:20px;line-height:1.5">' + escNl(sub) + '</div>' : '') +
-      '<div style="display:flex;gap:10px">' +
-      '<button class="btn secondary" id="cf-cancel" style="flex:1;margin:0">' + escapeHtml(cancelText) + '</button>' +
-      '<button class="btn" id="cf-ok" style="flex:1;margin:0">' + escapeHtml(okText) + '</button>' +
+      '<div style="display:flex;gap:10px;">' +
+        '<button class="btn secondary" id="cf-cancel" style="flex:1;margin:0;">' + escapeHtml(cancelText) + '</button>' +
+        '<button class="btn" id="cf-ok" style="flex:1;margin:0;">' + escapeHtml(okText) + '</button>' +
       '</div>';
     var modal = document.getElementById('modal-content');
     modal.innerHTML = html;
     document.getElementById('modal-bg').classList.add('active');
+    
     function done(v) {
       if (state.settings.vibrate && navigator.vibrate) navigator.vibrate(10);
       _pendingConfirmResolve = null;
@@ -135,6 +135,7 @@ function confirmAsync(title, sub, okText, cancelText) {
       resolve(v);
     }
     _pendingConfirmResolve = done;
+    
     document.getElementById('cf-ok').onclick = function(){ done(true); };
     document.getElementById('cf-cancel').onclick = function(){ done(false); };
     var bg = document.getElementById('modal-bg');
@@ -164,7 +165,7 @@ function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   const nav = document.getElementById('nav');
-  const tabs = ['screen-dashboard','screen-tasbih','screen-quran','screen-night','screen-dua','screen-hadith','screen-cal','screen-path','screen-library','screen-tafsir-detail'];
+  const tabs = ['screen-dashboard','screen-tasbih','screen-quran','screen-night','screen-dua','screen-hadith','screen-cal','screen-path','screen-library'];
   nav.style.display = tabs.includes(id) ? 'flex' : 'none';
   if (id==='screen-dashboard') setNav('dashboard');
   if (id==='screen-tasbih') setNav('tasbih');
@@ -175,11 +176,9 @@ function showScreen(id) {
   if (id==='screen-cal') setNav('cal');
   if (id==='screen-path') setNav('path');
   if (id==='screen-library') setNav('library');
-  if (id==='screen-tafsir-detail') setNav('library');
   window.scrollTo(0,0);
   saveNavContext();
 }
-
 function setNav(tab) {
   document.querySelectorAll('.nav button').forEach(function(b) {
     var active = b.dataset.tab === tab;
@@ -188,26 +187,18 @@ function setNav(tab) {
     else b.removeAttribute('aria-current');
   });
 }
-
 function setLibraryTab(tab) {
-  const bDua = document.getElementById('lib-tab-dua');
-  const bHad = document.getElementById('lib-tab-hadith');
-  const bTaf = document.getElementById('lib-tab-tafsir');
-  if (bDua) bDua.classList.toggle('active', tab === 'dua');
-  if (bHad) bHad.classList.toggle('active', tab === 'hadith');
-  if (bTaf) bTaf.classList.toggle('active', tab === 'tafsir');
+  document.getElementById('lib-tab-dua').classList.toggle('active', tab === 'dua');
+  document.getElementById('lib-tab-hadith').classList.toggle('active', tab === 'hadith');
   document.getElementById('library-dua-list').style.display = tab === 'dua' ? 'flex' : 'none';
   document.getElementById('library-hadith-list').style.display = tab === 'hadith' ? 'flex' : 'none';
-  const tList = document.getElementById('library-tafsir-list');
-  if (tList) tList.style.display = tab === 'tafsir' ? 'flex' : 'none';
   if (tab === 'dua') renderDuaList();
-  else if (tab === 'hadith') renderHadithList();
-  else if (tab === 'tafsir' && typeof renderTafsirList === 'function') renderTafsirList();
+  else renderHadithList();
 }
-
 async function switchTab(tab) {
   trackEvent('tab/' + tab, 'Вкладка: ' + tab);
   if (state.settings.vibrate && navigator.vibrate) navigator.vibrate(10);
+
   if (tab === 'dashboard') {
     renderDashboard();
     showScreen('screen-dashboard');
@@ -220,7 +211,7 @@ async function switchTab(tab) {
     setQuranFilter('all');
     showScreen('screen-quran');
   }
-  else if (tab === 'path') {
+   else if (tab === 'path') {
     activePathTag = null;
     pathShowAll = false;
     const inp = document.getElementById('path-search');
@@ -246,7 +237,6 @@ function saveNavContext() {
     quranId: activeQuranId || null,
     duaId: activeDuaId || null,
     hadithId: activeHadithId || null,
-    tafsirId: activeTafsirId || null,
     tasbihId: activeId || null,
     nightId: (typeof activeNightId === 'number') ? activeNightId : null,
     readId: (typeof activeReadId !== 'undefined' && activeReadId) ? activeReadId : null,
@@ -277,7 +267,6 @@ function initDebugMode() {
     }
   } catch(e) {}
 }
-
 function showDebugResult(text) {
   var ov = document.getElementById('debug-overlay');
   if (!ov) {
@@ -300,12 +289,10 @@ function showDebugResult(text) {
   if (out) out.textContent = text;
   ov.classList.add('active');
 }
-
 function copyDebugOutput() {
   var out = document.getElementById('debug-output');
   if (out) copyToClipboard(out.textContent || '');
 }
-
 async function runTajweedDiagnostics() {
   showDebugResult('Идёт проверка...\n\nЗапрос к API. Подождите 5–10 секунд.');
   var out = [];
@@ -315,6 +302,7 @@ async function runTajweedDiagnostics() {
   out.push('standalone: ' + window.matchMedia('(display-mode: standalone)').matches);
   out.push('SW controller: ' + (navigator.serviceWorker && navigator.serviceWorker.controller ? 'yes' : 'no'));
   out.push('');
+
   var url = 'https://api.alquran.cloud/v1/surah/112/quran-tajweed';
   out.push('--- 1. FETCH ---');
   out.push('URL: ' + url);
@@ -348,8 +336,9 @@ async function runTajweedDiagnostics() {
     showDebugResult(out.join('\n'));
     return;
   }
+
   out.push('--- 2. PARSER ---');
-  out.push('Contains [code] pattern: ' + /\[[a-zA-Z](?::\d+)?\]/.test(text));
+  out.push('Contains [code[ pattern: ' + /\[([a-zA-Z])(?::\d+)?\[/.test(text));
   out.push('Contains <tajweed pattern: ' + /<tajweed/i.test(text));
   var result;
   try {
@@ -364,6 +353,7 @@ async function runTajweedDiagnostics() {
   out.push(result.text.slice(0, 300));
   out.push('Rules HTML present: ' + (result.rules ? 'yes' : 'no'));
   out.push('');
+
   out.push('--- 3. DOM/CSS ---');
   var testDiv = document.createElement('div');
   testDiv.className = 'read-ayah-ar ar-font';
@@ -402,11 +392,14 @@ async function testScreenTajweed(kind) {
   try { closeMemorize(); } catch(e) {}
   var ov = document.getElementById('debug-overlay');
   if (ov) ov.classList.add('active');
+
   var id = 'q112';
   var item = getQuranById(id);
   if (!item) { showDebugResult('ERROR: q112 не найден'); return; }
+
   if (kind === 'read') openRead(id);
   else openQuran(id);
+
   for (var i = 1; i <= 60; i++) {
     await new Promise(function(r){ setTimeout(r, 1000); });
     var pre = document.getElementById('debug-output');
@@ -418,14 +411,17 @@ async function testScreenTajweed(kind) {
     }
     if (ov) ov.classList.add('active');
   }
+
   var container = kind === 'read' ? document.getElementById('read-body') : document.getElementById('quran-detail-content');
   var out = [];
   out.push('=== SCREEN TEST: ' + kind + ' ===');
   out.push('Time: ' + new Date().toISOString());
   out.push('');
   if (!container) { out.push('ERROR: container not found'); showDebugResult(out.join('\n')); return; }
+
   var arEls = container.querySelectorAll('.read-ayah-ar');
   out.push('read-ayah-ar elements: ' + arEls.length);
+
   var totalSpans = 0;
   var withSpans = 0;
   var firstSpanColor = '';
@@ -440,6 +436,7 @@ async function testScreenTajweed(kind) {
   out.push('Total tajweed spans: ' + totalSpans);
   out.push('Ayahs with spans: ' + withSpans + ' / ' + arEls.length);
   out.push('First span color: ' + (firstSpanColor || 'n/a'));
+
   if (arEls[0]) {
     var el0 = arEls[0];
     var cs0 = getComputedStyle(el0);
@@ -470,9 +467,9 @@ function initApp() {
     console.error('Ошибка инициализации:', e);
   } finally {
     var splash = document.getElementById('splash-screen');
-    if (splash) {
-      splash.classList.add('hidden');
-      setTimeout(function(){ splash.remove(); }, 400);
+    if (splash) { 
+      splash.classList.add('hidden'); 
+      setTimeout(function(){ splash.remove(); }, 400); 
     }
   }
 }
@@ -494,9 +491,9 @@ async function _boot() {
   } catch (e) {
     console.error('Ошибка загрузки данных:', e);
     var splash = document.getElementById('splash-screen');
-    if (splash) {
-      splash.classList.add('hidden');
-      setTimeout(function(){ splash.remove(); }, 400);
+    if (splash) { 
+      splash.classList.add('hidden'); 
+      setTimeout(function(){ splash.remove(); }, 400); 
     }
   }
 }
@@ -529,6 +526,7 @@ document.addEventListener('visibilitychange', ()=>{ if (document.visibilityState
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible') checkReminders();
 });
+
 document.addEventListener('keydown', (e) => {
   if (e.key !== 'Escape') return;
   const tag = (e.target && e.target.tagName) || '';
@@ -562,12 +560,14 @@ document.addEventListener('keydown', (e) => {
 if ('serviceWorker' in navigator) {
   var _swRefreshing = false;
   var _swReg = null;
+
   function swReload() {
     if (_swRefreshing) return;
     _swRefreshing = true;
     console.log('SW: доступно обновление. Перезагрузите приложение вручную.');
     setTimeout(function(){ _swRefreshing = false; }, 30000);
   }
+
   function activateWaiting(reg) {
     if (!reg) return;
     if (reg.waiting) {
@@ -581,6 +581,7 @@ if ('serviceWorker' in navigator) {
       });
     }
   }
+
   function handleUpdate(reg) {
     _swReg = reg;
     activateWaiting(reg);
@@ -594,6 +595,7 @@ if ('serviceWorker' in navigator) {
       });
     });
   }
+
   window.addEventListener('load', function() {
     navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).then(function(reg) {
       handleUpdate(reg);
@@ -612,12 +614,14 @@ if ('serviceWorker' in navigator) {
       });
     }).catch(function() {});
   });
+
   navigator.serviceWorker.addEventListener('controllerchange', function() {
     swReload();
   });
+
   navigator.serviceWorker.addEventListener('message', function(e) {
     if (e.data && e.data.type === 'SW_UPDATED') {
-      swReload();
+      swReload(); /* Вызов без проверки версии */
     }
   });
 }
@@ -668,7 +672,6 @@ if ('serviceWorker' in navigator) {
         if (activeQuranId) st.quranId = activeQuranId;
         if (activeDuaId) st.duaId = activeDuaId;
         if (activeHadithId) st.hadithId = activeHadithId;
-        if (activeTafsirId) st.tafsirId = activeTafsirId;
         if (typeof activeNightId === 'number') st.nightId = activeNightId;
         try { history.pushState(st, ''); } catch(e) {}
       }
@@ -730,8 +733,6 @@ if ('serviceWorker' in navigator) {
         if (activeDuaId !== st.duaId || currentScreen() !== 'screen-dua-detail') openDua(st.duaId);
       } else if (st.screen === 'screen-hadith-detail' && st.hadithId) {
         if (activeHadithId !== st.hadithId || currentScreen() !== 'screen-hadith-detail') openHadith(st.hadithId);
-      } else if (st.screen === 'screen-tafsir-detail' && st.tafsirId) {
-        if (activeTafsirId !== st.tafsirId || currentScreen() !== 'screen-tafsir-detail') openTafsir(st.tafsirId);
       } else if (st.screen === 'screen-night-detail' && typeof st.nightId === 'number') {
         if (activeNightId !== st.nightId || currentScreen() !== 'screen-night-detail') openNight(st.nightId);
       } else if (st.screen === 'screen-counter' && st.tasbihId) {
@@ -778,7 +779,6 @@ window.addEventListener('beforeinstallprompt', (e) => {
     }, 3000);
   }
 });
-
 (function initIOSInstallBanner() {
   const ua = navigator.userAgent || '';
   const isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
@@ -797,7 +797,6 @@ window.addEventListener('beforeinstallprompt', (e) => {
     }, 5000);
   }
 })();
-
 function installPWA() {
   const b = document.getElementById('install-banner');
   if (b) b.classList.remove('show');
@@ -811,13 +810,11 @@ function installPWA() {
     deferredPrompt = null;
   });
 }
-
 function dismissInstall() {
   const b = document.getElementById('install-banner');
   if (b) b.classList.remove('show');
   try { localStorage.setItem('iqra_install_dismissed', '1'); } catch(e) {}
 }
-
 window.addEventListener('appinstalled', () => {
   const b = document.getElementById('install-banner');
   if (b) b.classList.remove('show');
@@ -826,20 +823,19 @@ window.addEventListener('appinstalled', () => {
 
 /* ---------- STRUCTURE / INLINE CHECKS ---------- */
 (function checkStructure(){
-  var expected = ['screen-dashboard','screen-tasbih','screen-quran','screen-night','screen-dua','screen-hadith','screen-cal','screen-quran-detail','screen-night-detail','screen-dua-detail','screen-hadith-detail','screen-tafsir-detail','screen-form','screen-counter','screen-settings','read-mode','memorize-mode','search-overlay','nav','modal-bg','onboarding','save-indicator'];
+  var expected = ['screen-dashboard','screen-tasbih','screen-quran','screen-night','screen-dua','screen-hadith','screen-cal','screen-quran-detail','screen-night-detail','screen-dua-detail','screen-hadith-detail','screen-form','screen-counter','screen-settings','read-mode','memorize-mode','search-overlay','nav','modal-bg','onboarding','save-indicator'];
   var missing = [];
   expected.forEach(function(id){ if (!document.getElementById(id)) missing.push(id); });
   if (missing.length) console.error('⚠️ Структура — отсутствуют: ' + missing.join(', '));
   else console.log('✓ Структура: все ключевые элементы на месте');
 })();
-
 (function checkInlineHandlers(){
   var attrs = ['onclick','oninput','onchange','onsubmit'];
   var problems = [];
   attrs.forEach(function(a){
     document.querySelectorAll('[' + a + ']').forEach(function(el){
       var v = el.getAttribute(a) || '';
-      if (/\s[a-z-]+=\s$/.test(v)) {
+      if (/\s[a-z-]+=\s*$/.test(v)) {
         problems.push('<' + el.tagName.toLowerCase() + '> ' + a + '=' + JSON.stringify(v));
       }
       var opens = (v.match(/\(/g) || []).length;
