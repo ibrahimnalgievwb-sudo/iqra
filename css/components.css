@@ -1,6 +1,6 @@
 /* ============================================================
    COMPONENTS.CSS — UI-компоненты
-   Проект «Икра» · v390
+   Проект «Икра» · v394
    ============================================================ */
 
 /* === READ / ARABIC === */
@@ -25,51 +25,28 @@
   -webkit-box-decoration-break: clone;
 }
 
-/* === GOLD FOIL TEXT (Luxury) === */
+/* === GOLD FOIL TEXT (Luxury v6) === */
 .read-ayah-ar, .tasbih-card .ar, .mem-block .mb-ar, .content-card .c-ar, .dash-quote .dq-ar, .bismillah-card .b-ar, .spiritual-card .sc-ar-bismillah, .spiritual-card .sc-ar-alyaq, .counter .ar, .preview-card .pv-ar, .next-toast .nt-ar {
-  /* Сложный градиент с резкими бликами (эффект фольги) */
-  background: linear-gradient(135deg, 
-    #8B6508 0%, 
-    #D4AF37 20%, 
-    #FFF3B0 35%, /* Яркий блик */
-    #D4AF37 50%, 
-    #8B6508 65%, 
-    #F5C542 80%, 
-    #8B6508 100%
-  ) !important;
-  -webkit-background-clip: text !important;
-  background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
-  color: transparent !important;
-  
-  /* Тень для объёма (эффект тиснения) */
+  color: #B8860B !important;
+  -webkit-text-fill-color: #B8860B !important;
   text-shadow: 
-    0 1px 0 rgba(255, 255, 255, 0.4), /* Верхний блик */
-    0 2px 3px rgba(0, 0, 0, 0.25); /* Нижняя тень */
-    
-  font-weight: normal !important; 
+    0px 1px 0px rgba(255, 255, 255, 0.5),
+    0px 2px 3px rgba(0, 0, 0, 0.25),
+    0px 1px 2px rgba(0, 0, 0, 0.15);
+  font-weight: 500 !important;
   -webkit-text-stroke: 0 !important;
+  background: none !important;
 }
 
-/* Для светлой темы делаем градиент чуть темнее, чтобы текст не терялся */
 [data-theme="light"] .read-ayah-ar, 
 [data-theme="light"] .tasbih-card .ar,
 [data-theme="light"] .content-card .c-ar,
-[data-theme="light"] .dash-quote .dq-ar,
-[data-theme="light"] .spiritual-card .sc-ar-bismillah {
-  background: linear-gradient(135deg, 
-    #5C4033 0%, /* Тёмно-коричневый */
-    #B8860B 20%, 
-    #FFD700 40%, 
-    #B8860B 60%, 
-    #5C4033 80%, 
-    #B8860B 100%
-  ) !important;
-  -webkit-background-clip: text !important;
-  background-clip: text !important;
+[data-theme="light"] .dash-quote .dq-ar {
+  color: #8B6508 !important;
+  -webkit-text-fill-color: #8B6508 !important;
   text-shadow: 
-    0 1px 0 rgba(255, 255, 255, 0.6), 
-    0 2px 2px rgba(0, 0, 0, 0.35); /* Чуть сильнее тень */
+    0px 1px 0px rgba(255, 255, 255, 0.8),
+    0px 2px 2px rgba(0, 0, 0, 0.3);
 }
 
 /* === UNIFIED THEME OVERRIDES === */
@@ -81,22 +58,6 @@
 
 .content-card:active, .tasbih-card:active, .dash-quote:active, .dash-quick:active, .continue-card:active { transform: scale(.975); border-color: var(--gold-accent, var(--ar-g2)); box-shadow: var(--shadow-gold), inset 0 1px 0 rgba(212,175,55,.2); }
 .content-card:active, .tasbih-card:active, .dash-quote:active, .dash-quick:active { transform:scale(.98); border-color: var(--gold-accent); box-shadow: 0 0 16px rgba(212,175,55,.2); }
-
-.read-ayah-num { background: rgba(212,175,55,.15); color: var(--gold-accent); border: 1px solid rgba(212,175,55,.3); }
-.read-ayah.ayat-mode .read-ayah-num { background: var(--gold-standard); color: #000; }
-.toggle input:checked + .slider { background: var(--gold-standard); box-shadow: var(--gold-glow-sm); }
-.toggle input:checked + .slider::before { transform:translateX(16px); background: #0A0A0A; box-shadow: 0 1px 3px rgba(0,0,0,.4); }
-.seg button.active, .prog-tabs button.active { background: var(--gold-standard); color: #0A0A0A; font-weight: 700; box-shadow: var(--gold-glow-sm); }
-.field input:focus, .field textarea:focus { border-color: var(--gold-accent); box-shadow: 0 0 8px rgba(212,175,55,.2); }
-.learned-toggle.done { background: rgba(212,175,55,.1); border-color: var(--gold-accent); }
-.learned-toggle.done .lt-icon { background: var(--gold-standard); color: #000; }
-.cal-day.has-count { background: rgba(212,175,55,.15); border: 1px solid rgba(212,175,55,.3); }
-.mini-ring .ring-fg, .counter .ring-fg { stroke: var(--gold-accent); }
-.stat-card .sc-value { color: var(--gold-accent); }
-.stat-card { grid-column: span 2; background: linear-gradient(135deg, rgba(212,175,55,.15), rgba(212,175,55,.05)) !important; }
-.btn.danger { background: transparent; color:#ff4d4d; border: 1px solid rgba(255,77,77,.3); }
-.btn.danger:active { background: rgba(255,77,77,.15); }
-.bismillah-card { border: 1px dashed var(--gold-accent); }
 
 /* === D-06: PROGRESS BARS via transform === */
 .top-progress > div { height:100%; width:100%; transform: scaleX(0); transform-origin: left center; background: var(--gold-standard); transition: transform .3s ease; }
@@ -110,9 +71,33 @@
 .bar-chart .bar { flex:1; height:100%; background:var(--accent); border-radius:3px 3px 0 0; transform: scaleY(0); transform-origin: bottom center; transition: transform .3s ease; }
 .bar-chart .bar.today { background:var(--accent2); }
 
-/* SVG ring — stroke-dashoffset (D-06 разрешает для SVG) */
+/* SVG ring — stroke-dashoffset */
 .counter .ring-fg { stroke:var(--accent); transition: stroke-dashoffset .35s ease; }
 .mini-ring .ring-fg { stroke:var(--accent); transition: stroke-dashoffset .35s ease; }
+
+/* === CARDS & BUTTONS (Premium v3) === */
+.content-card, .tasbih-card, .dash-quote, .spiritual-card {
+  border-radius: 20px;
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+/* Кнопки */
+.btn, .fab, .icon-btn.starred {
+  background: linear-gradient(135deg, #BF953F 0%, #FCF6BA 50%, #B38728 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  box-shadow: 
+    0 4px 15px rgba(212, 175, 55, 0.3),
+    0 1px 2px rgba(0, 0, 0, 0.1);
+  color: #0A0A0A !important;
+  transition: transform 0.08s ease-out, box-shadow 0.08s ease-out;
+}
+.btn:active, .fab:active {
+  transform: scale(0.98);
+  box-shadow: 0 2px 8px rgba(212, 175, 55, 0.2);
+}
 
 /* === ICON-BTN / .ico === */
 .icon-btn { width:42px; height:42px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:var(--card); color:var(--text); font-size:18px; }
