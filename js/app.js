@@ -179,7 +179,14 @@ function showScreen(id) {
   window.scrollTo(0,0);
   saveNavContext();
 }
-function setNav(tab) { document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab)); }
+function setNav(tab) {
+  document.querySelectorAll('.nav button').forEach(function(b) {
+    var active = b.dataset.tab === tab;
+    b.classList.toggle('active', active);
+    if (active) b.setAttribute('aria-current', 'page');
+    else b.removeAttribute('aria-current');
+  });
+}
 function setLibraryTab(tab) {
   document.getElementById('lib-tab-dua').classList.toggle('active', tab === 'dua');
   document.getElementById('lib-tab-hadith').classList.toggle('active', tab === 'hadith');

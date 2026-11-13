@@ -109,3 +109,106 @@
 @media (max-width: 360px) {
   :root { --nav-height: 46px; }
 }
+
+
+/* ============================================================
+   IQRA V412 — ЕДИНАЯ ПАЛИТРА И ТОКЕНЫ НАВИГАЦИИ
+   Золото текста остаётся сплошным цветом: без текстовых градиентов.
+   ============================================================ */
+:root {
+  --nav-height: 72px;
+  --card-outline: rgba(145, 109, 35, 0.18);
+  --card-shadow: 0 8px 24px rgba(48, 37, 16, 0.055), 0 1px 2px rgba(48, 37, 16, 0.035);
+  --nav-active-surface: rgba(191, 149, 63, 0.11);
+  --nav-active-border: rgba(191, 149, 63, 0.26);
+  --arabic-gold: #8B650F;
+  --arabic-highlight: rgba(255, 255, 255, 0.92);
+  --arabic-edge: rgba(126, 91, 12, 0.25);
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+  --bg: #F7F5EF;
+  --card: #FCFBF7;
+  --card2: #F0EDE5;
+  --text: #211F1A;
+  --muted: #625D53;
+  --border: #D8D1C5;
+  --shadow: rgba(42, 33, 17, 0.10);
+  --accent-rgb: 33, 31, 26;
+  --ripple: rgba(33, 31, 26, 0.13);
+  --gold-standard: #C6A24B;
+  --gold-highlight: #F0D58A;
+  --gold-deep: #896317;
+  --gold-fill: #B88B2D;
+  --gold-text-light: #8B650F;
+  --arabic-gold: #8B650F;
+  --arabic-highlight: rgba(255, 255, 255, 0.94);
+  --arabic-edge: rgba(126, 91, 12, 0.25);
+  --nav-surface: rgba(252, 251, 247, 0.96);
+  --nav-border: rgba(145, 109, 35, 0.22);
+  --nav-muted: #686154;
+  --card-outline: rgba(145, 109, 35, 0.18);
+  --card-shadow: 0 8px 24px rgba(48, 37, 16, 0.055), 0 1px 2px rgba(48, 37, 16, 0.035);
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #050505;
+  --card: #121211;
+  --card2: #1D1C19;
+  --text: #F7F4EC;
+  --muted: #B8B1A3;
+  --border: #353229;
+  --shadow: rgba(0, 0, 0, 0.68);
+  --accent-rgb: 247, 244, 236;
+  --ripple: rgba(247, 244, 236, 0.16);
+  --gold-standard: #D2B15C;
+  --gold-highlight: #F4D98A;
+  --gold-deep: #9B762A;
+  --gold-text-dark: #F0CC70;
+  --arabic-gold: #F0CC70;
+  --arabic-highlight: rgba(255, 255, 255, 0.20);
+  --arabic-edge: rgba(0, 0, 0, 0.72);
+  --nav-surface: rgba(8, 8, 8, 0.96);
+  --nav-border: rgba(212, 175, 55, 0.20);
+  --nav-muted: #AAA69B;
+  --card-outline: rgba(212, 175, 55, 0.17);
+  --card-shadow: 0 10px 28px rgba(0, 0, 0, 0.26), inset 0 1px 0 rgba(255, 255, 255, 0.035);
+}
+
+[data-theme="mono"] {
+  color-scheme: dark;
+  --bg: #0B0B0B;
+  --card: #181818;
+  --card2: #242424;
+  --text: #F2F2F2;
+  --muted: #BDBDBD;
+  --border: #414141;
+  --shadow: rgba(0, 0, 0, 0.68);
+  --accent-rgb: 242, 242, 242;
+  --ripple: rgba(242, 242, 242, 0.17);
+  --gold-standard: #D8C58D;
+  --gold-highlight: #F0E4BE;
+  --gold-deep: #9D8B5A;
+  --gold-text-dark: #E4D4A5;
+  --arabic-gold: #E4D4A5;
+  --arabic-highlight: rgba(255, 255, 255, 0.16);
+  --arabic-edge: rgba(0, 0, 0, 0.72);
+  --nav-surface: rgba(17, 17, 17, 0.97);
+  --nav-border: rgba(220, 205, 164, 0.18);
+  --nav-muted: #B0B0B0;
+  --card-outline: rgba(220, 205, 164, 0.15);
+  --card-shadow: 0 10px 28px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.025);
+}
+
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme]) {
+    --arabic-gold: #F0CC70;
+    --arabic-highlight: rgba(255, 255, 255, 0.20);
+    --arabic-edge: rgba(0, 0, 0, 0.72);
+    --nav-surface: rgba(8, 8, 8, 0.96);
+    --nav-border: rgba(212, 175, 55, 0.20);
+    --nav-muted: #AAA69B;
+  }
+}

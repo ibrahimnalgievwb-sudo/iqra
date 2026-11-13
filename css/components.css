@@ -612,3 +612,200 @@
   word-break: break-word;
   overflow-wrap: break-word;
 }
+
+
+/* ============================================================
+   IQRA V412 — КОМПОНЕНТЫ ЧТЕНИЯ, КАРТОЧКИ И ПЕРЕКЛЮЧАТЕЛИ
+   ============================================================ */
+
+/* Единая глубина поверхностей; не добавляем тяжёлых чёрных теней. */
+.content-card, .tasbih-card, .detail-hero, .bismillah-card, .modal,
+.read-ayah, .dash-quote, .dash-progress, .dash-greeting, .dash-stats,
+.dash-quick, .continue-card, .daily-goal, .bar-chart, .stat, .stat-card,
+.spiritual-card, .mem-block, .dash-grid-item {
+  border-color: var(--card-outline);
+  box-shadow: var(--card-shadow);
+}
+
+[data-theme="dark"] .content-card,
+[data-theme="dark"] .tasbih-card,
+[data-theme="dark"] .detail-hero,
+[data-theme="dark"] .bismillah-card,
+[data-theme="dark"] .read-ayah,
+[data-theme="dark"] .dash-quote,
+[data-theme="dark"] .dash-progress,
+[data-theme="dark"] .dash-greeting,
+[data-theme="dark"] .dash-stats,
+[data-theme="dark"] .dash-quick,
+[data-theme="dark"] .continue-card,
+[data-theme="dark"] .daily-goal,
+[data-theme="dark"] .bar-chart,
+[data-theme="dark"] .stat,
+[data-theme="dark"] .stat-card,
+[data-theme="dark"] .spiritual-card,
+[data-theme="dark"] .mem-block,
+[data-theme="dark"] .dash-grid-item,
+[data-theme="mono"] .content-card,
+[data-theme="mono"] .tasbih-card,
+[data-theme="mono"] .detail-hero,
+[data-theme="mono"] .bismillah-card,
+[data-theme="mono"] .read-ayah,
+[data-theme="mono"] .dash-quote,
+[data-theme="mono"] .dash-progress,
+[data-theme="mono"] .dash-greeting,
+[data-theme="mono"] .dash-stats,
+[data-theme="mono"] .dash-quick,
+[data-theme="mono"] .continue-card,
+[data-theme="mono"] .daily-goal,
+[data-theme="mono"] .bar-chart,
+[data-theme="mono"] .stat,
+[data-theme="mono"] .stat-card,
+[data-theme="mono"] .spiritual-card,
+[data-theme="mono"] .mem-block,
+[data-theme="mono"] .dash-grid-item {
+  background: var(--card);
+  border-color: var(--card-outline);
+  box-shadow: var(--card-shadow);
+}
+
+/* Высота строки одинакова для всех частей аята, включая огласовки. */
+.read-ayah-ar {
+  font-weight: 500 !important;
+  line-height: 2 !important;
+  padding-top: 10px;
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+}
+
+.read-ayah-tr { line-height: 1.65; margin-bottom: 8px; }
+.read-ayah-trn { line-height: 1.72; font-size: clamp(15px, 3.8vw, 17px); }
+.detail-hero .dh-text { line-height: 1.75; }
+.content-card .c-tr { line-height: 1.62; }
+
+/* Кнопки действий — ясная иерархия, стабильный контраст, единая высота. */
+.btn {
+  min-height: 48px;
+  padding: 14px 18px;
+  border-radius: 14px;
+  font-weight: 700;
+  letter-spacing: -0.005em;
+  box-shadow: 0 4px 13px rgba(212, 175, 55, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.48) !important;
+}
+
+.btn:hover {
+  box-shadow: 0 6px 17px rgba(212, 175, 55, 0.23), inset 0 1px 0 rgba(255, 255, 255, 0.52) !important;
+}
+
+.btn.secondary, .btn-inline, .show-all-btn {
+  color: var(--gold-text-light) !important;
+  border: 1.5px solid var(--gold-fill) !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  font-weight: 650;
+}
+
+[data-theme="dark"] .btn.secondary,
+[data-theme="dark"] .btn-inline,
+[data-theme="dark"] .show-all-btn,
+[data-theme="mono"] .btn.secondary,
+[data-theme="mono"] .btn-inline,
+[data-theme="mono"] .show-all-btn {
+  color: var(--gold-text-dark) !important;
+  border-color: var(--gold-text-dark) !important;
+}
+
+.btn.secondary svg.ico, .btn-inline svg.ico, .show-all-btn svg.ico,
+.ayah-share-btn svg.ico {
+  fill: none;
+  stroke: currentColor;
+}
+
+/* Фильтры и вкладки образуют одну систему сегментированных контролов. */
+.search-filters .filter-chip,
+.path-chip {
+  min-height: 34px;
+  padding: 7px 13px;
+  border-radius: 999px;
+  background: var(--card);
+  border: 1px solid var(--card-outline);
+  color: var(--muted);
+  font-weight: 550;
+  transition: color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+}
+
+.search-filters .filter-chip.active,
+.path-chip.active {
+  background: var(--nav-active-surface) !important;
+  color: var(--gold-text-light) !important;
+  border: 1px solid var(--nav-active-border) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+  font-weight: 700;
+}
+
+[data-theme="dark"] .search-filters .filter-chip.active,
+[data-theme="dark"] .path-chip.active,
+[data-theme="mono"] .search-filters .filter-chip.active,
+[data-theme="mono"] .path-chip.active {
+  color: var(--gold-text-dark) !important;
+}
+
+.seg, .prog-tabs {
+  padding: 4px;
+  gap: 4px;
+  border: 1px solid var(--card-outline);
+  border-radius: 13px;
+  background: var(--card2);
+}
+
+.seg button, .prog-tabs button {
+  min-height: 36px;
+  border-radius: 10px;
+  color: var(--muted);
+  font-weight: 600;
+  transition: color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
+}
+
+.seg button.active, .prog-tabs button.active {
+  color: var(--gold-text-light);
+  background: var(--card);
+  border: 1px solid var(--card-outline);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.07), inset 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
+[data-theme="dark"] .seg button.active,
+[data-theme="dark"] .prog-tabs button.active,
+[data-theme="mono"] .seg button.active,
+[data-theme="mono"] .prog-tabs button.active {
+  color: var(--gold-text-dark);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.035);
+}
+
+/* Ссылки-действия и иконки не теряют контраст при смене темы. */
+.ayah-share-btn, .show-all-btn {
+  min-height: 42px;
+  border-radius: 13px;
+  font-weight: 650;
+}
+
+.icon-btn {
+  width: 42px;
+  height: 42px;
+  border-color: var(--card-outline);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.045);
+}
+
+.dash-grid-item {
+  min-height: 104px;
+  padding: 16px 12px;
+  border-radius: 18px;
+  gap: 10px;
+}
+
+.dash-grid-item .dgi-icon { width: 29px; height: 29px; }
+.dash-grid-item .dgi-title { line-height: 1.35; font-weight: 600; }
+
+@media (max-width: 380px) {
+  .detail-actions { gap: 6px; }
+  .detail-actions .btn { white-space: normal; line-height: 1.25; min-height: 48px; padding: 12px 7px; }
+  .read-ayah { padding: 22px 16px; }
+}

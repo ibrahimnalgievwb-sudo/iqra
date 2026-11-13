@@ -143,3 +143,51 @@ span[class^="tajweed-"] {
   border-radius: 12px; font-size: 12px; color: var(--muted); line-height: 1.5;
 }
 .tajweed-error a { color: var(--gold-accent); text-decoration: underline; cursor: pointer; }
+
+
+/* ============================================================
+   IQRA V412 — КОНТРАСТ ТАДЖВИДА В ТЁМНОЙ И МОНО ТЕМАХ
+   Цвета правил остаются различимыми; формы букв и shaping не меняются.
+   ============================================================ */
+[data-theme="dark"] .tajweed-madda_normal,
+[data-theme="mono"] .tajweed-madda_normal { color: #9CB7FF !important; }
+[data-theme="dark"] .tajweed-madda_permissible,
+[data-theme="mono"] .tajweed-madda_permissible { color: #B2B7FF !important; }
+[data-theme="dark"] .tajweed-madda_obligatory,
+[data-theme="mono"] .tajweed-madda_obligatory { color: #90A9FF !important; }
+[data-theme="dark"] .tajweed-madda_necessary,
+[data-theme="mono"] .tajweed-madda_necessary { color: #AAB8FF !important; }
+[data-theme="dark"] .tajweed-qalqalah,
+[data-theme="mono"] .tajweed-qalqalah { color: #FF8589 !important; }
+[data-theme="dark"] .tajweed-ghunnah,
+[data-theme="mono"] .tajweed-ghunnah { color: #FFB47D !important; }
+[data-theme="dark"] .tajweed-ikhfa,
+[data-theme="dark"] .tajweed-ikhfa_shafawi,
+[data-theme="mono"] .tajweed-ikhfa,
+[data-theme="mono"] .tajweed-ikhfa_shafawi { color: #DDA8F2 !important; }
+[data-theme="dark"] .tajweed-idghaam_ghunnah,
+[data-theme="mono"] .tajweed-idghaam_ghunnah { color: #70D7B7 !important; }
+[data-theme="dark"] .tajweed-idghaam_no_ghunnah,
+[data-theme="mono"] .tajweed-idghaam_no_ghunnah { color: #9AD978 !important; }
+[data-theme="dark"] .tajweed-idghaam_shafawi,
+[data-theme="mono"] .tajweed-idghaam_shafawi { color: #B8DF7E !important; }
+[data-theme="dark"] .tajweed-idghaam_mutajanisayn,
+[data-theme="dark"] .tajweed-idghaam_mutaqaribayn,
+[data-theme="mono"] .tajweed-idghaam_mutajanisayn,
+[data-theme="mono"] .tajweed-idghaam_mutaqaribayn { color: #C4C4C4 !important; }
+[data-theme="dark"] .tajweed-iqlab,
+[data-theme="mono"] .tajweed-iqlab { color: #83D9F5 !important; }
+[data-theme="dark"] .tajweed-tafkhim,
+[data-theme="mono"] .tajweed-tafkhim { color: #91AEFF !important; }
+[data-theme="dark"] .tajweed-ham_wasl,
+[data-theme="dark"] .tajweed-laam_shamsiyah,
+[data-theme="dark"] .tajweed-silent,
+[data-theme="mono"] .tajweed-ham_wasl,
+[data-theme="mono"] .tajweed-laam_shamsiyah,
+[data-theme="mono"] .tajweed-silent { color: #B8B8B8 !important; }
+
+[data-theme="dark"] span[class*="tajweed-"],
+[data-theme="mono"] span[class*="tajweed-"] {
+  text-shadow: inherit !important;
+  font-weight: 500 !important;
+}
