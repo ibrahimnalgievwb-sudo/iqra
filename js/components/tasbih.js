@@ -2,7 +2,8 @@
 
 /* ============================================================
    TASBIH.JS — Список тасбихов, счётчик, drag&drop, форма CRUD
-   Проект «Икра» · v383 (рефакторинг)
+   Проект «Икра» · v387 (Этап 3.5)
+   D-06: dg-bar через scaleX, top-progress-bar через scaleX.
    ============================================================ */
 
 let dragStartY = 0, dragStartX = 0;
@@ -24,7 +25,8 @@ function renderTasbih() {
   
   const goalSlot = document.getElementById('daily-goal-slot');
   if (goal > 0) {
-    goalSlot.innerHTML = `<div class="daily-goal"><div class="dg-top"><div class="dg-label">Сегодня</div><div class="dg-num">${done} <span>/ ${goal}</span></div></div><div class="dg-bar"><div style="width:${pct}%"></div></div></div>`;
+    /* D-06: dg-bar via transform: scaleX */
+    goalSlot.innerHTML = `<div class="daily-goal"><div class="dg-top"><div class="dg-label">Сегодня</div><div class="dg-num">${done} <span>/ ${goal}</span></div></div><div class="dg-bar"><div style="transform: scaleX(${(pct/100).toFixed(4)}); transform-origin: left center; width: 100%;"></div></div></div>`;
   } else {
     goalSlot.innerHTML = '';
   }
@@ -143,6 +145,7 @@ function renderTasbih() {
     body.appendChild(pRow);
     card.appendChild(body);
 
+    /* SVG mini-ring — stroke-dashoffset, D-06 не трогает */
     const ring = document.createElement('div');
     ring.className = 'mini-ring';
     ring.innerHTML = `<svg width="52" height="52"><circle class="ring-bg" cx="26" cy="26" r="${R}" fill="none" stroke-width="3.5"/><circle class="ring-fg" cx="26" cy="26" r="${R}" fill="none" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${off}"/></svg><div class="ring-num">${Math.round(p*100)}%</div>`;
@@ -231,7 +234,24 @@ function cardPointerUp(e) {
 }
 
 function openCounter(id) { activeId=id; const t=getById(id); if (!t) return; try { localStorage.setItem('iqra_last_tasbih', id); } catch(e) {} trackEvent('tasbih/' + id, 'Тасбих: ' + id); document.getElementById('c-ar').textContent=t.arabic; document.getElementById('c-tr').textContent=t.transcription; document.getElementById('c-trn').textContent=t.translation; document.getElementById('c-target').textContent='из '+t.target; updateCounterUI(); showScreen('screen-counter'); if (state.settings.wakeLock) requestWakeLock(); }
-function updateCounterUI() { const t=getById(activeId); if (!t) return; const numEl=document.getElementById('c-num'); numEl.textContent=t.current; const done=t.current>=t.target; numEl.classList.toggle('done', done); document.getElementById('c-cycles').textContent='Циклов: '+t.cycles; const R=44, C=2*Math.PI*R; const _tg=Math.max(1, Number(t.target)||0); const p=Math.min(1, Math.max(0, (Number(t.current)||0)/_tg)); document.getElementById('c-ring').setAttribute('stroke-dashoffset', C*(1-p)); document.getElementById('top-progress-bar').style.width=(p*100)+'%'; }
+
+function updateCounterUI() {
+  const t=getById(activeId); if (!t) return;
+  const numEl=document.getElementById('c-num');
+  numEl.textContent=t.current;
+  const done=t.current>=t.target;
+  numEl.classList.toggle('done', done);
+  document.getElementById('c-cycles').textContent='Циклов: '+t.cycles;
+  const R=44, C=2*Math.PI*R;
+  const _tg=Math.max(1, Number(t.target)||0);
+  const p=Math.min(1, Math.max(0, (Number(t.current)||0)/_tg));
+  /* SVG ring — stroke-dashoffset (не layout, D-06 разрешает) */
+  document.getElementById('c-ring').setAttribute('stroke-dashoffset', C*(1-p));
+  /* D-06: top-progress-bar via transform: scaleX */
+  var tp = document.getElementById('top-progress-bar');
+  if (tp) tp.style.transform = 'scaleX(' + p + ')';
+}
+
 function tap(e) {
   const t=getById(activeId); if (!t) return;
   const area=document.getElementById('counter-area'); const rect=area.getBoundingClientRect();
