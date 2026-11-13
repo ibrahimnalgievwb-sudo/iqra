@@ -1,6 +1,6 @@
 /* ============================================================
    LAYOUT.CSS — Каркас, экраны, навигация, скролл-контейнеры
-   Проект «Икра» · v387 (Этап 3.5)
+   Проект «Икра» · v387 (Этап 3.5, финал)
    ============================================================ */
 
 /* === SCREEN SWITCHING === */
@@ -14,11 +14,11 @@
 .read-slide-next { animation: slideInRight .25s ease-out; }
 .read-slide-prev { animation: slideInLeft .25s ease-out; }
 
-/* === HEADER (Z-3a: NO safe-top, body handles it) === */
+/* === HEADER (Z-3a: NO safe-top — body handles it) === */
 .header { display:flex; align-items:center; justify-content:space-between; padding: var(--space-2) var(--space-3); gap: var(--space-2); min-height:56px; }
 .header h1 { font-family:"Inter", system-ui, sans-serif; font-size: var(--fs-lg); font-weight: var(--h1-weight, 600); margin:0; letter-spacing:-.02em; line-height:1.2; }
 
-/* === SCROLL CONTAINERS (D-05: --space-3 = 12-16px, --space-4 = 16-24px) === */
+/* === SCROLL CONTAINERS === */
 .list, .form, .cal, .settings { flex:1; overflow-y:auto; min-height:0; padding:0 var(--space-3) calc(var(--space-4) + var(--nav-height) + env(safe-area-inset-bottom, 0px)); -webkit-overflow-scrolling:touch; min-width:0; width:100%; max-width:100%; box-sizing:border-box; }
 .content-list { flex:1; overflow-y:auto; min-height:0; padding:0 var(--space-3) calc(var(--space-4) + var(--nav-height) + env(safe-area-inset-bottom, 0px)); -webkit-overflow-scrolling:touch; min-width:0; width:100%; max-width:100%; box-sizing:border-box; }
 .detail-body { padding:0 var(--space-4) calc(var(--space-4) + var(--nav-height) + env(safe-area-inset-bottom, 0px)); flex:1; overflow-y:auto; min-height:0; -webkit-overflow-scrolling:touch; min-width:0; width:100%; max-width:100%; box-sizing:border-box; }
@@ -104,9 +104,9 @@
   .nav { height: calc(46px + env(safe-area-inset-bottom, 0px)); }
 }
 
-/* === TOP PROGRESS (D-06: no width transition) === */
+/* === TOP PROGRESS (D-06: transform only) === */
 .top-progress { position:fixed; top:0; left:0; right:0; height:3px; z-index:5; pointer-events:none; }
-.top-progress > div { height:100%; width:0%; background: var(--gold-standard); }
+.top-progress > div { height:100%; width:100%; transform: scaleX(0); transform-origin: left center; background: var(--gold-standard); transition: transform .3s ease; }
 
 /* === COUNTER === */
 .counter { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; padding: var(--space-4) var(--space-3) calc(var(--space-4) + var(--nav-height) + env(safe-area-inset-bottom, 0px)); text-align:center; position:relative; cursor:pointer; overflow-x:hidden; overflow-y:auto; -webkit-overflow-scrolling:touch; min-height:0; min-width:0; width:100%; max-width:100%; box-sizing:border-box; }
@@ -138,7 +138,7 @@
 #onboarding .ob-nav { display: flex; gap: var(--space-2); padding: var(--space-3) var(--space-4) calc(var(--space-4) + env(safe-area-inset-bottom)); max-width: 420px; width: 100%; margin: 0 auto; }
 #onboarding .ob-dots { display: flex; gap: 6px; justify-content: center; padding: 0 0 var(--space-2); }
 
-/* === DASH HEADER (block 1) === */
+/* === DASH HEADER === */
 .dash-header { align-items: flex-start; padding: var(--space-2) var(--space-3) 6px; gap: var(--space-2); min-height: 0; }
 .dash-header-left { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
 .dash-salam { font-size: var(--fs-sm); font-weight: 600; color: var(--text); line-height: 1.35; overflow-wrap: break-word; max-width: 100%; }
@@ -149,7 +149,7 @@
   .dash-hijri-gold { font-size: var(--fs-xs); }
 }
 
-/* === DASH HEADER RESTRUCTURE (block 2, Stage 3.2) === */
+/* === DASH HEADER RESTRUCTURE === */
 .dash-header { align-items: flex-start; padding: var(--space-2) var(--space-3) 6px; gap: var(--space-2); min-height: 0; }
 .dash-header-left { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
 .dash-hijri-gold { font-size: var(--fs-xs); font-weight: 800; letter-spacing: .2px; line-height: 1.3; min-height: 1em; }
