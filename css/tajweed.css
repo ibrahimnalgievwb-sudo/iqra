@@ -4,43 +4,48 @@
    Порядок правил сохранён 1:1 с исходным <style>.
    ============================================================ */
 
-/* === D1.1 v383: канонический tajweed-span === */
+/* === D1.1: канонический tajweed-span === */
 span[class*="tajweed-"] {
   background: none !important;
-  text-shadow: none !important;
-  -webkit-text-fill-color: currentColor !important;
+  text-shadow: inherit !important;
 }
 
 /* === D1.3 v383: канонический — без -webkit-text-fill-color === */
 span[class^="tajweed-"] {
   display: inline !important;
   white-space: normal !important;
+  font-weight: 500 !important;
+  line-height: 2 !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* === TAJWEED: БАЗОВЫЕ СТИЛИ (цвета правил) === */
 /* D1 v383: дубликат span[class^="tajweed-"] удалён, канон выше */
 
-.tajweed-madda_normal { color: #537FFF !important; -webkit-text-fill-color: #537FFF !important; }
-.tajweed-madda_permissible { color: #4050FF !important; -webkit-text-fill-color: #4050FF !important; }
-.tajweed-madda_obligatory { color: #2144C1 !important; -webkit-text-fill-color: #2144C1 !important; }
-.tajweed-madda_necessary { color: #000EBC !important; -webkit-text-fill-color: #000EBC !important; }
-.tajweed-qalqalah { color: #DD0008 !important; -webkit-text-fill-color: #DD0008 !important; }
-.tajweed-ghunnah { color: #FF7E1E !important; -webkit-text-fill-color: #FF7E1E !important; }
-.tajweed-ikhfa, .tajweed-ikhfa_shafawi { color: #9400A8 !important; -webkit-text-fill-color: #9400A8 !important; }
-.tajweed-idghaam_ghunnah { color: #169777 !important; -webkit-text-fill-color: #169777 !important; }
-.tajweed-idghaam_no_ghunnah { color: #169200 !important; -webkit-text-fill-color: #169200 !important; }
-.tajweed-idghaam_shafawi { color: #58B800 !important; -webkit-text-fill-color: #58B800 !important; }
-.tajweed-idghaam_mutajanisayn, .tajweed-idghaam_mutaqaribayn { color: #A1A1A1 !important; -webkit-text-fill-color: #A1A1A1 !important; }
-.tajweed-iqlab { color: #26BFFD !important; -webkit-text-fill-color: #26BFFD !important; }
-.tajweed-tafkhim { color: #1E3A8A !important; -webkit-text-fill-color: #1E3A8A !important; }
+.tajweed-madda_normal { color: #537FFF !important; }
+.tajweed-madda_permissible { color: #4050FF !important; }
+.tajweed-madda_obligatory { color: #2144C1 !important; }
+.tajweed-madda_necessary { color: #000EBC !important; }
+.tajweed-qalqalah { color: #DD0008 !important; }
+.tajweed-ghunnah { color: #FF7E1E !important; }
+.tajweed-ikhfa, .tajweed-ikhfa_shafawi { color: #9400A8 !important; }
+.tajweed-idghaam_ghunnah { color: #169777 !important; }
+.tajweed-idghaam_no_ghunnah { color: #169200 !important; }
+.tajweed-idghaam_shafawi { color: #58B800 !important; }
+.tajweed-idghaam_mutajanisayn, .tajweed-idghaam_mutaqaribayn { color: #A1A1A1 !important; }
+.tajweed-iqlab { color: #26BFFD !important; }
+.tajweed-tafkhim { color: #1E3A8A !important; }
 
 /* ДОБАВЛЕНО: Отсутствующие цвета для серых букв (теперь они видны) */
-.tajweed-ham_wasl, .tajweed-laam_shamsiyah, .tajweed-silent { color: #666666 !important; -webkit-text-fill-color: #666666 !important; }
+.tajweed-ham_wasl, .tajweed-laam_shamsiyah, .tajweed-silent { color: #666666 !important; }
 
 /* Сохранение арабского соединения (shaping) */
 .tajweed-span {
   display: inline !important;
   white-space: normal !important;
+  font-weight: 500 !important;
+  line-height: 2 !important;
 }
 
 /* Блок правил под аятом */

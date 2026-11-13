@@ -1,8 +1,8 @@
 /* ============================================================
-   SW.JS — Service Worker проекта «Икра» v410
+   SW.JS — Service Worker проекта «Икра» v411
    ============================================================ */
 
-const SW_VERSION   = 'iqra-v410'; /* МЕНЯЙ ВЕРСИЮ ТОЛЬКО ЗДЕСЬ */
+const SW_VERSION   = 'iqra-v411'; /* МЕНЯЙ ВЕРСИЮ ТОЛЬКО ЗДЕСЬ */
 const SW_VER_SHORT = SW_VERSION.replace(/^iqra-/, '');
 const CACHE_STATIC = 'iqra-static-' + SW_VER_SHORT;
 const CACHE_DATA   = 'iqra-data-'   + SW_VER_SHORT;
@@ -72,15 +72,16 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil((async () => {
     const keys = await caches.keys();
+    const ownedCachePattern = /^iqra-(static|data|fonts)-/;
     await Promise.all(
       keys
-        .filter((k) => k !== CACHE_STATIC && k !== CACHE_DATA && k !== CACHE_FONTS)
-        .map((k) => caches.delete(k))
+        .filter((key) => ownedCachePattern.test(key) && ![CACHE_STATIC, CACHE_DATA, CACHE_FONTS].includes(key))
+        .map((key) => caches.delete(key))
     );
     await self.clients.claim();
     const clients = await self.clients.matchAll({ type: 'window' });
-    clients.forEach((c) => {
-      try { c.postMessage({ type: 'SW_UPDATED', version: SW_VERSION }); } catch (e) {}
+    clients.forEach((client) => {
+      try { client.postMessage({ type: 'SW_UPDATED', version: SW_VERSION }); } catch (e) {}
     });
   })());
 });

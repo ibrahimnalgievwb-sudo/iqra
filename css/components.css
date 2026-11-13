@@ -5,7 +5,7 @@
 /* === READ / ARABIC === */
 .read-ayah-ar { 
   font-size: calc(var(--fs-ar) * var(--ar-scale)); 
-  line-height: 2.2 !important; 
+  line-height: 2 !important; 
   direction:rtl; 
   text-align:right !important; 
   padding: 8px 0; 
@@ -34,10 +34,55 @@
   overflow-wrap: break-word;
   hyphens: auto;
 }
-[data-theme="dark"] .content-card, [data-theme="dark"] .tasbih-card, [data-theme="dark"] .dash-quote, [data-theme="dark"] .dash-quick, [data-theme="dark"] .continue-card, [data-theme="dark"] .read-ayah, [data-theme="dark"] .detail-hero, [data-theme="dark"] .spiritual-card { 
-  background: var(--card); 
-  border-color: rgba(212,175,55,.3); 
-  box-shadow: 0 4px 12px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.05); 
+[data-theme="dark"] .content-card, [data-theme="mono"] .content-card,
+[data-theme="dark"] .tasbih-card, [data-theme="mono"] .tasbih-card,
+[data-theme="dark"] .dash-quote, [data-theme="mono"] .dash-quote,
+[data-theme="dark"] .dash-progress, [data-theme="mono"] .dash-progress,
+[data-theme="dark"] .dash-quick, [data-theme="mono"] .dash-quick,
+[data-theme="dark"] .dash-stats, [data-theme="mono"] .dash-stats,
+[data-theme="dark"] .continue-card, [data-theme="mono"] .continue-card,
+[data-theme="dark"] .read-ayah, [data-theme="mono"] .read-ayah,
+[data-theme="dark"] .detail-hero, [data-theme="mono"] .detail-hero,
+[data-theme="dark"] .bismillah-card, [data-theme="mono"] .bismillah-card,
+[data-theme="dark"] .spiritual-card, [data-theme="mono"] .spiritual-card,
+[data-theme="dark"] .mem-block, [data-theme="mono"] .mem-block,
+[data-theme="dark"] .daily-goal, [data-theme="mono"] .daily-goal,
+[data-theme="dark"] .bar-chart, [data-theme="mono"] .bar-chart,
+[data-theme="dark"] .stat, [data-theme="mono"] .stat,
+[data-theme="dark"] .stat-card, [data-theme="mono"] .stat-card,
+[data-theme="dark"] .dash-greeting, [data-theme="mono"] .dash-greeting,
+[data-theme="dark"] .settings-group, [data-theme="mono"] .settings-group,
+[data-theme="dark"] .cal-grid, [data-theme="mono"] .cal-grid,
+[data-theme="dark"] .modal, [data-theme="mono"] .modal {
+  background: var(--card);
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme]) .content-card,
+  html:not([data-theme]) .tasbih-card,
+  html:not([data-theme]) .dash-quote,
+  html:not([data-theme]) .dash-progress,
+  html:not([data-theme]) .dash-quick,
+  html:not([data-theme]) .dash-stats,
+  html:not([data-theme]) .continue-card,
+  html:not([data-theme]) .read-ayah,
+  html:not([data-theme]) .detail-hero,
+  html:not([data-theme]) .bismillah-card,
+  html:not([data-theme]) .spiritual-card,
+  html:not([data-theme]) .mem-block,
+  html:not([data-theme]) .daily-goal,
+  html:not([data-theme]) .bar-chart,
+  html:not([data-theme]) .stat,
+  html:not([data-theme]) .stat-card,
+  html:not([data-theme]) .dash-greeting,
+  html:not([data-theme]) .settings-group,
+  html:not([data-theme]) .cal-grid,
+  html:not([data-theme]) .modal {
+    background: var(--card);
+    border: 1px solid rgba(212, 175, 55, 0.15);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  }
 }
 
 /* === PROGRESS BARS === */
@@ -64,7 +109,7 @@
 }
 .btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(212, 175, 55, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.6) !important;
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
 }
 .btn:active { 
   transform: translateY(2px) !important; 
@@ -80,6 +125,23 @@
   box-shadow: none !important; 
   transition: background 0.2s ease, transform 0.2s ease;
 }
+/* Контраст outline-кнопок в тёмной теме и в системном dark-режиме */
+[data-theme="dark"] .btn.secondary, [data-theme="dark"] .btn-inline, [data-theme="dark"] .show-all-btn,
+[data-theme="mono"] .btn.secondary, [data-theme="mono"] .btn-inline, [data-theme="mono"] .show-all-btn {
+  color: var(--gold-text-dark) !important;
+  border: 1.5px solid var(--gold-text-dark) !important;
+  background: transparent !important;
+}
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme]) .btn.secondary,
+  html:not([data-theme]) .btn-inline,
+  html:not([data-theme]) .show-all-btn {
+    color: var(--gold-text-dark) !important;
+    border: 1.5px solid var(--gold-text-dark) !important;
+    background: transparent !important;
+  }
+}
+
 .btn.secondary:hover, .btn-inline:hover, .show-all-btn:hover {
   background: rgba(212, 175, 55, 0.05) !important;
   transform: translateY(-1px);
@@ -99,6 +161,8 @@
 .icon-btn { width:42px; height:42px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:var(--card); color:var(--gold-standard); border: 1px solid rgba(212,175,55,0.2); }
 .icon-btn:active { background:var(--card2); transform:scale(.95); }
 .icon-btn.ghost { background:transparent; border:none; }
+.btn svg, .btn-inline svg, .show-all-btn svg { color: inherit; fill: currentColor; stroke: currentColor; }
+.btn svg.ico, .btn-inline svg.ico, .show-all-btn svg.ico { fill: none; stroke: currentColor; }
 .ico { display: inline-block; width: clamp(20px, 6vw, 28px); height: clamp(20px, 6vw, 28px); fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; vertical-align: middle; }
 
 /* === SEARCH === */
@@ -539,3 +603,12 @@
 .show-all-btn { display: flex; align-items: center; justify-content: center; gap: var(--space-2); width: 100%; padding: var(--space-3); margin-top: var(--space-2); margin-bottom: var(--space-4); border-radius: 16px; background: var(--card); border: 1px dashed var(--gold-accent); color: var(--gold-accent); font-weight: 600; font-size: var(--fs-md); cursor: pointer; }
 .path-empty { text-align: center; padding: 40px var(--space-4); color: var(--muted); font-size: var(--fs-md); line-height: 1.6; }
 .btn-inline { display: inline-block !important; vertical-align: middle !important; border: 1px solid var(--gold-standard) !important; color: var(--gold-standard) !important; background: transparent !important; border-radius: 8px !important; padding: 6px 12px !important; cursor: pointer !important; font-size: var(--fs-sm) !important; margin: 12px auto 0 !important; }
+
+/* === ЕДИНАЯ ГЕОМЕТРИЯ КАРТОЧЕК === */
+.content-card, .tasbih-card, .detail-hero, .bismillah-card, .modal, .read-ayah,
+.dash-quote, .dash-progress, .dash-greeting, .dash-stats, .dash-quick,
+.continue-card, .daily-goal, .bar-chart, .stat, .stat-card, .spiritual-card, .mem-block {
+  padding: 24px 20px;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}

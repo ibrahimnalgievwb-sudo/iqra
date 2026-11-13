@@ -590,27 +590,22 @@ if ('serviceWorker' in navigator) {
   }
 
   window.addEventListener('load', function() {
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then(function(regs) {
-        regs.forEach(function(r) { r.unregister(); });
-        return navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' });
-      }).then(function(reg) {
-        handleUpdate(reg);
+    navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).then(function(reg) {
+      handleUpdate(reg);
+      try { reg.update(); } catch(e) {}
+      setInterval(function() {
+        if (document.visibilityState !== 'visible') return;
         try { reg.update(); } catch(e) {}
-        setInterval(function() {
-          if (document.visibilityState !== 'visible') return;
+      }, 5 * 60 * 1000);
+      document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'visible') {
           try { reg.update(); } catch(e) {}
-        }, 5 * 60 * 1000);
-        document.addEventListener('visibilitychange', function() {
-          if (document.visibilityState === 'visible') {
-            try { reg.update(); } catch(e) {}
-          }
-        });
-        window.addEventListener('focus', function() {
-          try { reg.update(); } catch(e) {}
-        });
-      }).catch(function() {});
-    }
+        }
+      });
+      window.addEventListener('focus', function() {
+        try { reg.update(); } catch(e) {}
+      });
+    }).catch(function() {});
   });
 
   navigator.serviceWorker.addEventListener('controllerchange', function() {
