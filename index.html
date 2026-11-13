@@ -18,13 +18,10 @@
 <link rel="apple-touch-icon" href="./assets/icons/apple-touch-icon.png">
 <link rel="manifest" href="./manifest.json">
 <link rel="preconnect" href="https://cloud.umami.is" crossorigin>
-<link rel="preconnect" href="https://gateway.umami.is" crossorigin>
 <link rel="preconnect" href="https://api.alquran.cloud" crossorigin>
 
-<!-- iOS-детектор: должен сработать до применения base.css (is-ios -> height:100vh вместо 100dvh) -->
 <script>if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1))document.documentElement.classList.add('is-ios');</script>
 
-<!-- Z-1: тема ДО применения CSS, чтобы избежать мигания -->
 <script>
 (function(){
   try {
@@ -47,10 +44,8 @@
 })();
 </script>
 
-<!-- Umami: аналитика (goatcounter удалён по решению Директора) -->
 <script async src="https://cloud.umami.is/script.js" data-website-id="ccc49755-faf3-4ad6-993c-9f8be18a1746"></script>
 
-<!-- Страховочный error-handler: должен работать до загрузки app.js -->
 <script>
 window.addEventListener('error', function(e) {
   var splash = document.getElementById('splash-screen');
@@ -62,7 +57,6 @@ window.addEventListener('error', function(e) {
 });
 </script>
 
-<!-- CSS: строгий порядок -->
 <link rel="preload" href="./css/fonts.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="./css/fonts.css"></noscript>
 <link rel="stylesheet" href="./css/variables.css">
@@ -105,7 +99,6 @@ window.addEventListener('error', function(e) {
   <symbol id="i-scroll-to-top" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></symbol>
 </svg>
 
-<!-- DASHBOARD -->
 <div class="screen active" id="screen-dashboard">
   <div class="header dash-header" style="justify-content: flex-end;">
     <div class="dash-header-actions">
@@ -147,7 +140,6 @@ window.addEventListener('error', function(e) {
   </div>
 </div>
 
-<!-- TASBIH -->
 <div class="screen" id="screen-tasbih">
   <div class="header"><h1>Тасбих</h1><div style="display:flex;gap:6px"><button class="icon-btn ghost" onclick="openSearch()" aria-label="Поиск"><svg class="ico"><use href="#i-search"/></svg></button><button class="icon-btn" onclick="openSettings()" aria-label="Настройки"><svg class="ico"><use href="#i-settings"/></svg></button></div></div>
   <div class="list" id="home-list">
@@ -166,7 +158,6 @@ window.addEventListener('error', function(e) {
   <button class="fab" onclick="openForm()" aria-label="Новый тасбих"><svg class="ico ico-lg"><use href="#i-plus"/></svg></button>
 </div>
 
-<!-- COUNTER -->
 <div class="screen" id="screen-counter">
   <div class="top-progress"><div id="top-progress-bar"></div></div>
   <div class="header">
@@ -197,14 +188,12 @@ window.addEventListener('error', function(e) {
   </div>
 </div>
 
-<!-- NEXT TOAST -->
 <div class="next-toast" id="next-toast">
   <div><div class="nt-label">Далее</div><div class="nt-name" id="nt-name"></div></div>
   <div class="nt-ar ar-font" id="nt-ar"></div>
   <button class="nt-btn" onclick="goNext()">→</button>
 </div>
 
-<!-- FORM -->
 <div class="screen" id="screen-form">
   <div class="header">
     <button class="icon-btn ghost" onclick="cancelForm()" aria-label="Назад"><svg class="ico"><use href="#i-arrow-left"/></svg></button>
@@ -234,7 +223,6 @@ window.addEventListener('error', function(e) {
   </div>
 </div>
 
-<!-- QURAN LIST -->
 <div class="screen" id="screen-quran">
   <div class="header"><h1>Коран</h1><button class="icon-btn ghost" onclick="openSearch()" aria-label="Поиск"><svg class="ico"><use href="#i-search"/></svg></button></div>
   <div style="padding:0 16px 12px;">
@@ -248,7 +236,6 @@ window.addEventListener('error', function(e) {
   <div class="content-list" id="quran-list"></div>
 </div>
 
-<!-- QURAN DETAIL -->
 <div class="screen" id="screen-quran-detail">
   <div class="header">
     <button class="icon-btn ghost" onclick="goQuranList()" aria-label="Назад"><svg class="ico"><use href="#i-arrow-left"/></svg></button>
@@ -258,13 +245,11 @@ window.addEventListener('error', function(e) {
   <div class="detail-body" id="quran-detail-content"></div>
 </div>
 
-<!-- NIGHT LIST -->
 <div class="screen" id="screen-night">
   <div class="header"><h1>Ночное чтение</h1><button class="icon-btn ghost" onclick="openSearch()" aria-label="Поиск"><svg class="ico"><use href="#i-search"/></svg></button></div>
   <div class="content-list" id="night-list"></div>
 </div>
 
-<!-- NIGHT DETAIL -->
 <div class="screen" id="screen-night-detail">
   <div class="header">
     <button class="icon-btn ghost" onclick="goNightList()" aria-label="Назад"><svg class="ico"><use href="#i-arrow-left"/></svg></button>
@@ -274,13 +259,11 @@ window.addEventListener('error', function(e) {
   <div class="detail-body" id="night-detail-content"></div>
 </div>
 
-<!-- DUAS LIST -->
 <div class="screen" id="screen-dua">
   <div class="header"><h1>Дуа</h1><button class="icon-btn ghost" onclick="openSearch()" aria-label="Поиск"><svg class="ico"><use href="#i-search"/></svg></button></div>
   <div class="content-list" id="dua-list"></div>
 </div>
 
-<!-- DUA DETAIL -->
 <div class="screen" id="screen-dua-detail">
   <div class="header">
     <button class="icon-btn ghost" onclick="goDuaList()" aria-label="Назад"><svg class="ico"><use href="#i-arrow-left"/></svg></button>
@@ -290,13 +273,11 @@ window.addEventListener('error', function(e) {
   <div class="detail-body" id="dua-detail-content"></div>
 </div>
 
-<!-- HADITHS LIST -->
 <div class="screen" id="screen-hadith">
   <div class="header"><h1>Хадисы</h1><button class="icon-btn ghost" onclick="openSearch()" aria-label="Поиск"><svg class="ico"><use href="#i-search"/></svg></button></div>
   <div class="content-list" id="hadith-list"></div>
 </div>
 
-<!-- HADITH DETAIL -->
 <div class="screen" id="screen-hadith-detail">
   <div class="header">
     <button class="icon-btn ghost" onclick="goHadithList()" aria-label="Назад"><svg class="ico"><use href="#i-arrow-left"/></svg></button>
@@ -306,7 +287,6 @@ window.addEventListener('error', function(e) {
   <div class="detail-body" id="hadith-detail-content"></div>
 </div>
 
-<!-- CALENDAR -->
 <div class="screen" id="screen-cal">
   <div class="header"><h1>Прогресс</h1><div style="width:42px"></div></div>
   <div class="cal">
@@ -319,7 +299,6 @@ window.addEventListener('error', function(e) {
   </div>
 </div>
 
-<!-- PATH -->
 <div class="screen" id="screen-path">
   <div class="header">
     <button class="icon-btn ghost" onclick="switchTab('dashboard')" aria-label="Назад"><svg class="ico"><use href="#i-arrow-left"/></svg></button>
@@ -337,7 +316,6 @@ window.addEventListener('error', function(e) {
   <div class="content-list" id="path-results" style="padding-top: 0;"></div>
 </div>
 
-<!-- LIBRARY -->
 <div class="screen" id="screen-library">
   <div class="header">
     <button class="icon-btn ghost" onclick="switchTab('dashboard')" aria-label="Назад"><svg class="ico"><use href="#i-arrow-left"/></svg></button>
@@ -354,7 +332,6 @@ window.addEventListener('error', function(e) {
   <div class="content-list" id="library-hadith-list" style="display:none; flex-direction:column; padding-top: 0;"></div>
 </div>
 
-<!-- SETTINGS -->
 <div class="screen" id="screen-settings">
   <div class="header">
     <button class="icon-btn ghost" onclick="goHome()" aria-label="Назад"><svg class="ico"><use href="#i-arrow-left"/></svg></button>
@@ -425,7 +402,6 @@ window.addEventListener('error', function(e) {
   </div>
 </div>
 
-<!-- READ MODE -->
 <div class="fullscreen" id="read-mode">
   <div class="fs-header">
     <button class="icon-btn ghost" onclick="closeRead()" aria-label="Закрыть"><svg class="ico"><use href="#i-x"/></svg></button>
@@ -441,7 +417,6 @@ window.addEventListener('error', function(e) {
   </div>
 </div>
 
-<!-- MEMORIZE MODE -->
 <div class="fullscreen" id="memorize-mode">
   <div class="fs-header">
     <button class="icon-btn ghost" onclick="closeMemorize()" aria-label="Закрыть"><svg class="ico"><use href="#i-x"/></svg></button>
@@ -456,7 +431,6 @@ window.addEventListener('error', function(e) {
   </div>
 </div>
 
-<!-- NAV -->
 <div class="nav" id="nav">
   <button class="active" data-tab="dashboard" onclick="switchTab('dashboard')" aria-label="Главная">
     <svg class="ico"><use href="#i-home"/></svg>
@@ -562,7 +536,6 @@ window.addEventListener('error', function(e) {
   </div>
 </div>
 
-<!-- Баннер установки PWA -->
 <div class="install-banner" id="install-banner">
   <div class="ib-text">Установить Iqra на главный экран?</div>
   <button class="ib-install" onclick="installPWA()">Установить</button>
@@ -582,7 +555,6 @@ window.addEventListener('error', function(e) {
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<!-- JS: строгий порядок. app.js — последним. -->
 <script src="./js/api.js"></script>
 <script src="./js/storage.js"></script>
 <script src="./js/components/quran.js"></script>
