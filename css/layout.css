@@ -1,5 +1,5 @@
 /* ============================================================
-   LAYOUT.CSS — Проект «Икра» · v409 (Финальная полировка)
+   LAYOUT.CSS — Проект «Икра» · v410
    ============================================================ */
 
 /* === SCREEN SWITCHING === */
@@ -25,7 +25,7 @@
 .home-controls { display:flex; gap: var(--space-2); margin-bottom: var(--space-2); flex-wrap:wrap; }
 #cards-container { min-height:24px; }
 
-/* === NAV (Premium Light Glass, v409) === */
+/* === NAV === */
 .nav {
   width: 100%;
   max-width: 600px;
@@ -184,8 +184,17 @@
   display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important;
   overflow-x: auto !important; justify-content: flex-start !important;
   gap: var(--space-2) !important; 
-  padding: 4px var(--space-3) 6px var(--space-3) !important; /* Добавлен верхний отступ для предотвращения среза */
+  padding: 4px var(--space-3) 6px var(--space-3) !important;
   box-sizing: border-box; width: 100%; min-width: 0; max-width: 100%;
   border-bottom: none !important; scrollbar-width: none; -webkit-overflow-scrolling: touch;
 }
 #path-chips-container::-webkit-scrollbar { display: none; }
+
+/* === SPLASH SCREEN === */
+#splash-screen {
+  position: fixed; inset: 0; background: var(--bg); z-index: 999999;
+  display: flex; align-items: center; justify-content: center;
+  transition: opacity 0.4s ease;
+}
+#splash-screen.hidden { opacity: 0; pointer-events: none; }
+#splash-screen img { max-width: 120px; max-height: 120px; width: 100%; height: auto; aspect-ratio: 1/1; object-fit: contain; }
