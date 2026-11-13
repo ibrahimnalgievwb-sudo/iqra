@@ -1,5 +1,5 @@
 /* ============================================================
-   LAYOUT.CSS — Проект «Икра» · v400 (Premium Fixed)
+   LAYOUT.CSS — Проект «Икра» · v402 (Fixed)
    ============================================================ */
 
 /* === SCREEN SWITCHING === */
@@ -25,42 +25,42 @@
 .home-controls { display:flex; gap: var(--space-2); margin-bottom: var(--space-2); flex-wrap:wrap; }
 #cards-container { min-height:24px; }
 
-/* === NAV (Premium Floating Glass Dock) === */
+/* === NAV (Premium Light Glass) === */
 .nav {
   width: 100%;
   max-width: 600px;
   margin: 0 auto;
   display: flex;
-  background: rgba(245, 245, 245, 0.85); /* Светлая тема */
+  background: rgba(245, 245, 245, 0.85);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border-top: 1px solid rgba(212, 175, 55, 0.2);
-  padding-bottom: calc(4px + var(--safe-bottom));
-  padding-left: max(12px, var(--safe-left));
-  padding-right: max(12px, var(--safe-right));
+  border-top: 1px solid rgba(212, 175, 55, 0.25);
+  padding: 8px max(16px, var(--safe-left)) calc(8px + var(--safe-bottom)) max(16px, var(--safe-right));
   flex-shrink: 0;
   height: calc(64px + var(--safe-bottom));
   box-sizing: border-box;
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
+  gap: 8px;
 }
 [data-theme="dark"] .nav, [data-theme="mono"] .nav {
   background: rgba(18, 18, 18, 0.85);
+  border-top-color: rgba(212, 175, 55, 0.15);
 }
 
 .nav button {
   flex: 1 1 0%;
   min-width: 0;
-  padding: 8px 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 4px;
   background: transparent !important;
   border: none;
   color: var(--muted);
-  position: relative;
-  transition: color 0.3s ease;
+  padding: 4px 0;
+  border-radius: 12px;
+  transition: all 0.2s ease;
 }
 .nav button .ico {
   width: 24px;
@@ -68,8 +68,8 @@
   background: transparent !important;
   background-image: none !important;
   box-shadow: none !important;
+  fill: none !important;
   color: currentColor;
-  transition: transform 0.2s ease;
 }
 .nav button .nav-label {
   font-size: 10px;
@@ -77,21 +77,13 @@
   color: currentColor;
   line-height: 1;
 }
-.nav button.active { color: var(--gold-standard); }
-.nav button.active .ico { color: var(--gold-standard) !important; transform: translateY(-2px); }
-.nav button.active .nav-label { color: var(--gold-standard) !important; font-weight: 800; }
-.nav button.active::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 20px;
-  height: 3px;
-  border-radius: 0 0 4px 4px;
-  background: var(--gold-standard);
-  box-shadow: 0 0 8px rgba(212, 175, 55, 0.6);
+/* Активная вкладка */
+.nav button.active {
+  color: var(--gold-standard);
+  background: rgba(212, 175, 55, 0.1); /* Легкая золотая подложка */
 }
+.nav button.active .ico { color: var(--gold-standard) !important; }
+.nav button.active .nav-label { color: var(--gold-standard) !important; font-weight: 800; }
 
 /* === TOP PROGRESS === */
 .top-progress { position:fixed; top:0; left:0; right:0; height:3px; z-index:5; pointer-events:none; }
