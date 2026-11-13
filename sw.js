@@ -1,10 +1,8 @@
 /* ============================================================
    SW.JS — Service Worker проекта «Икра» v391
-   Cache-first для статики, network-first для API/навигации,
-   stale-while-revalidate для данных. SKIP_WAITING поддерживается.
    ============================================================ */
 
-const SW_VERSION   = 'iqra-v391';
+const SW_VERSION   = 'iqra-v391'; /* МЕНЯЙ ВЕРСИЮ ТОЛЬКО ЗДЕСЬ */
 const SW_VER_SHORT = SW_VERSION.replace(/^iqra-/, '');
 const CACHE_STATIC = 'iqra-static-' + SW_VER_SHORT;
 const CACHE_DATA   = 'iqra-data-'   + SW_VER_SHORT;
@@ -54,7 +52,6 @@ const PRECACHE_DATA = [
   './data/knowledge-base.json'
 ];
 
-/* ---------- INSTALL ---------- */
 self.addEventListener('install', (event) => {
   event.waitUntil((async () => {
     const cacheS = await caches.open(CACHE_STATIC);
@@ -72,7 +69,6 @@ self.addEventListener('install', (event) => {
   })());
 });
 
-/* ---------- ACTIVATE ---------- */
 self.addEventListener('activate', (event) => {
   event.waitUntil((async () => {
     const keys = await caches.keys();
@@ -89,14 +85,12 @@ self.addEventListener('activate', (event) => {
   })());
 });
 
-/* ---------- MESSAGE: SKIP_WAITING ---------- */
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }
 });
 
-/* ---------- FETCH ---------- */
 self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;
@@ -104,16 +98,12 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(req.url);
   const isSameOrigin = url.origin === self.location.origin;
 
-  if (
-    url.hostname === 'api.alquran.cloud' ||
-    url.hostname === 'api.quran.foundation'
-  ) {
+  if (url.hostname === 'api.alquran.cloud' || url.hostname === 'api.quran.foundation') {
     event.respondWith(networkFirst(req));
     return;
   }
 
-  /* Umami — только сеть, без кэша. GoatCounter удалён по решению Директора. */
-  if (url.hostname === 'cloud.umami.is') {
+  if (url.hostname === 'cloud.umami.is' || url.hostname === 'gateway.umami.is') {
     return;
   }
 
@@ -138,7 +128,6 @@ self.addEventListener('fetch', (event) => {
   }
 });
 
-/* ---------- STRATEGIES ---------- */
 async function cacheFirst(req, cacheName) {
   const cache = await caches.open(cacheName);
   const cached = await cache.match(req, { ignoreSearch: false });
