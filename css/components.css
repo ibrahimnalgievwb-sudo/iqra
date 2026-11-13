@@ -1,8 +1,6 @@
 /* ============================================================
    COMPONENTS.CSS — UI-компоненты
-   Проект «Икра» · v387 (Этап 3.5, ревизия 3 — премиум-золото)
-   Изменения: металлический градиент текста 135deg, drop-shadow,
-   навигация без серых кругов и золотой заливки.
+   Проект «Икра» · v389 (Этап 3.5, ревизия 4 — премиум-золото)
    ============================================================ */
 
 /* === READ / ARABIC === */
@@ -499,7 +497,6 @@
 [data-theme="light"] .search-filters .filter-chip.active, [data-theme="light"] #onboarding .ob-option.active, [data-theme="light"] .next-toast .nt-btn { background: var(--gold-gradient) !important; color: #0A0A0A !important; border: 1.5px solid transparent !important; box-shadow: var(--gold-glow-sm) !important; }
 [data-theme="light"] .ayah-share-btn:active { background: #0A0A0A; color: var(--gold-standard); border-color: var(--gold-standard); }
 
-/* Fallback (A4 v385) — из списка убран .nav button.active .ico */
 .btn, .fab, .icon-btn.starred, .search-filters .filter-chip.active, #onboarding .ob-option.active, .content-card .star-btn.active, .next-toast .nt-btn, .install-banner .ib-install { background-color: var(--gold-standard) !important; }
 .btn.danger { background-color: transparent !important; background-image: none !important; color: #ff4d4d !important; border: 1px solid rgba(255,77,77,.3) !important; }
 .ayah-share-btn:active { background-color: var(--gold-standard); }
@@ -544,49 +541,31 @@
 
 .gold-text, .ar-font:not(textarea):not(input), .text-gold-metallic, .read-ayah-ar { line-height: 2.2 !important; }
 .nav button.active .nav-label, .gold-link, .toast { color: var(--gold-standard) !important; }
-/* Из списка убран .nav button.active .ico — новая навигация без заливки */
 .btn, .fab, .icon-btn.starred, .install-banner .ib-install { background-image: var(--gold-gradient) !important; color: #0A0A0A !important; }
 
-/* === E2 v387: МЕТАЛЛИЧЕСКИЙ ГРАДИЕНТ АРАБСКОГО ТЕКСТА ===
-   Ключевые изменения:
-   - 135deg с 5 стопами → металлический блеск (тёмный → почти белый → тёмный → почти белый → тёмный)
-   - background-size: 100% 100% + background-attachment: local → однородность по блоку
-   - filter: drop-shadow → объём, чтобы текст не сливался с фоном */
+/* === GOLD METALLIC TEXT (Fixed) === */
 .read-ayah-ar, .tasbih-card .ar, .mem-block .mb-ar, .content-card .c-ar, .dash-quote .dq-ar, .bismillah-card .b-ar, .spiritual-card .sc-ar-bismillah, .spiritual-card .sc-ar-alyaq, .counter .ar, .preview-card .pv-ar, .next-toast .nt-ar {
-  background: var(--gold-text-gradient) !important;
-  background-size: 100% 100% !important;
-  background-attachment: local !important;
-  background-position: 0 0 !important;
+  background: linear-gradient(to bottom, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%) !important;
   -webkit-background-clip: text !important;
   background-clip: text !important;
   -webkit-text-fill-color: transparent !important;
   color: transparent !important;
+  
+  /* Четкость */
+  -webkit-text-stroke: 0 !important;
   text-shadow: none !important;
-  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.5)) !important;
+  font-weight: normal !important;
+  letter-spacing: 0.5px;
+  
+  /* Блеск и объем (Drop Shadow дает эффект тиснения) */
+  filter: drop-shadow(0px 1px 1px rgba(255, 255, 255, 0.4)) drop-shadow(0px -1px 1px rgba(0, 0, 0, 0.15));
 }
 
-/* Светлая тема: чуть меньшая тень (иначе грязь на белом) + text-stroke для контура */
-[data-theme="light"] .read-ayah-ar,
+/* На светлой теме усиливаем тени, чтобы текст не терялся */
+[data-theme="light"] .read-ayah-ar, 
 [data-theme="light"] .tasbih-card .ar,
-[data-theme="light"] .mem-block .mb-ar,
 [data-theme="light"] .content-card .c-ar,
-[data-theme="light"] .dash-quote .dq-ar,
-[data-theme="light"] .bismillah-card .b-ar,
-[data-theme="light"] .spiritual-card .sc-ar-bismillah,
-[data-theme="light"] .spiritual-card .sc-ar-alyaq,
-[data-theme="light"] .counter .ar,
-[data-theme="light"] .preview-card .pv-ar,
-[data-theme="light"] .next-toast .nt-ar {
-  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.35)) !important;
-  -webkit-text-stroke: 0.4px rgba(74, 54, 0, 0.35) !important;
-}
-
-/* Safari-страховка при отсутствии background-clip: text */
-@supports not ((-webkit-background-clip: text) or (background-clip: text)) {
-  .read-ayah-ar, .tasbih-card .ar, .mem-block .mb-ar, .content-card .c-ar, .dash-quote .dq-ar, .bismillah-card .b-ar, .spiritual-card .sc-ar-bismillah, .spiritual-card .sc-ar-alyaq, .counter .ar, .preview-card .pv-ar, .next-toast .nt-ar {
-    background: none !important;
-    color: var(--gold-text-base) !important;
-    -webkit-text-fill-color: var(--gold-text-base) !important;
-    filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.5)) !important;
-  }
+[data-theme="light"] .dash-quote .dq-ar {
+  filter: drop-shadow(0px 1px 1px rgba(0,0,0,0.3)) !important;
+  -webkit-text-stroke: 0 !important;
 }
