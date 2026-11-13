@@ -1,6 +1,5 @@
 /* ============================================================
-   LAYOUT.CSS — Каркас, экраны, навигация, скролл-контейнеры
-   Проект «Икра» · v394
+   LAYOUT.CSS — Проект «Икра» · v400 (Premium Fixed)
    ============================================================ */
 
 /* === SCREEN SWITCHING === */
@@ -26,28 +25,26 @@
 .home-controls { display:flex; gap: var(--space-2); margin-bottom: var(--space-2); flex-wrap:wrap; }
 #cards-container { min-height:24px; }
 
-/* === NAV (Premium Floating Glass Dock v3) === */
+/* === NAV (Premium Floating Glass Dock) === */
 .nav {
   width: 100%;
   max-width: 600px;
   margin: 0 auto;
   display: flex;
-  background: rgba(255, 255, 255, 0.72); /* Светлая тема */
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  
-  border-top: 1px solid rgba(212, 175, 55, 0.25);
+  background: rgba(245, 245, 245, 0.85); /* Светлая тема */
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-top: 1px solid rgba(212, 175, 55, 0.2);
   padding-bottom: calc(4px + var(--safe-bottom));
   padding-left: max(12px, var(--safe-left));
   padding-right: max(12px, var(--safe-right));
   flex-shrink: 0;
   height: calc(64px + var(--safe-bottom));
   box-sizing: border-box;
-  box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.04);
 }
-
 [data-theme="dark"] .nav, [data-theme="mono"] .nav {
-  background: rgba(18, 18, 18, 0.72);
+  background: rgba(18, 18, 18, 0.85);
 }
 
 .nav button {
@@ -59,13 +56,12 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  background: transparent;
+  background: transparent !important;
   border: none;
   color: var(--muted);
   position: relative;
   transition: color 0.3s ease;
 }
-
 .nav button .ico {
   width: 24px;
   height: 24px;
@@ -75,41 +71,26 @@
   color: currentColor;
   transition: transform 0.2s ease;
 }
-
 .nav button .nav-label {
   font-size: 10px;
   font-weight: 600;
   color: currentColor;
   line-height: 1;
 }
-
-/* Активная вкладка */
-.nav button.active {
-  color: var(--gold-standard);
-}
-
-.nav button.active .ico {
-  color: var(--gold-standard) !important;
-  transform: translateY(-1px);
-}
-
-.nav button.active .nav-label {
-  color: var(--gold-standard) !important;
-  font-weight: 800;
-}
-
-/* Тонкий золотой индикатор-линия над активной иконкой */
+.nav button.active { color: var(--gold-standard); }
+.nav button.active .ico { color: var(--gold-standard) !important; transform: translateY(-2px); }
+.nav button.active .nav-label { color: var(--gold-standard) !important; font-weight: 800; }
 .nav button.active::before {
   content: '';
   position: absolute;
   top: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 24px;
+  width: 20px;
   height: 3px;
-  border-radius: 0 0 3px 3px;
+  border-radius: 0 0 4px 4px;
   background: var(--gold-standard);
-  box-shadow: 0 0 8px rgba(212, 175, 55, 0.7);
+  box-shadow: 0 0 8px rgba(212, 175, 55, 0.6);
 }
 
 /* === TOP PROGRESS === */
