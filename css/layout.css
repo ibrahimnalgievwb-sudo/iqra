@@ -1,6 +1,6 @@
 /* ============================================================
    LAYOUT.CSS — Каркас, экраны, навигация, скролл-контейнеры
-   Проект «Икра» · v387 (Этап 3.5, ревизия 3 — премиум-навигация)
+   Проект «Икра» · v389 (Этап 3.5, ревизия 4 — премиум-навигация)
    ============================================================ */
 
 /* === SCREEN SWITCHING === */
@@ -26,108 +26,79 @@
 .home-controls { display:flex; gap: var(--space-2); margin-bottom: var(--space-2); flex-wrap:wrap; }
 #cards-container { min-height:24px; }
 
-/* === NAV (ревизия 3: без серых кругов, без золотой заливки) === */
-.nav { 
-  width:100%; 
+/* === NAV (Premium Fixed) === */
+.nav {
+  width: 100%;
   max-width: 600px;
   margin: 0 auto;
-  display:flex; 
-  background: var(--card); 
-  border-top:1px solid var(--border); 
-  padding-bottom: calc(4px + var(--safe-bottom));
-  padding-left: max(24px, var(--safe-left));
-  padding-right: max(24px, var(--safe-right));
-  flex-shrink:0; 
-  height:calc(var(--nav-height) + env(safe-area-inset-bottom, 0px)); 
-  box-sizing:border-box; 
+  display: flex;
+  background: var(--bg);
+  border-top: 1px solid rgba(212, 175, 55, 0.15);
+  padding-bottom: calc(6px + var(--safe-bottom));
+  padding-left: max(16px, var(--safe-left));
+  padding-right: max(16px, var(--safe-right));
+  flex-shrink: 0;
+  height: calc(64px + var(--safe-bottom));
+  box-sizing: border-box;
+  box-shadow: 0 -4px 12px rgba(0,0,0,0.03);
 }
 .nav button {
   flex: 1 1 0%;
   min-width: 0;
-  padding: 6px 2px 4px;
+  padding: 8px 0 4px 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-end;
-  gap: 4px;
+  justify-content: center;
+  gap: 6px;
   z-index: 2;
-  color: var(--muted);
+  color: #8E8E93;
   background: transparent;
   box-sizing: border-box;
   position: relative;
+  border: none;
 }
-
-/* Иконка: без фона, без круга, без тени. Только цвет stroke. */
 .nav button .ico {
-  width: clamp(24px, 7vw, 30px);
-  height: clamp(24px, 7vw, 30px);
+  width: 26px;
+  height: 26px;
   background: transparent;
+  background-image: none !important;
   border: none;
   box-shadow: none;
-  border-radius: 0;
-  color: var(--muted);
-  fill: none;
-  stroke: currentColor;
-  transition: color var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-bounce);
-  -webkit-tap-highlight-color: transparent;
-  -webkit-touch-callout: none;
-  overflow: visible;
+  color: currentColor;
+  transition: transform 0.2s var(--ease-bounce), color 0.2s ease;
 }
-.nav button:active .ico { transform: scale(.9); }
-
-/* Активная иконка: просто золотой stroke + мягкое свечение, БЕЗ заливки */
-.nav button.active .ico {
+.nav button.active {
   color: var(--gold-standard);
-  filter: drop-shadow(0 0 6px rgba(212, 175, 55, 0.45));
 }
-.nav button.active .ico { animation: navIn var(--dur-slow) var(--ease-out) both; }
-@keyframes navIn { from { opacity:.4; transform: scale(.94); } to { opacity:1; transform: scale(1); } }
-
-/* Тонкая золотая полоска над активной иконкой */
-.nav button::before {
-  content: '';
-  position: absolute;
-  top: 2px;
-  left: 50%;
-  transform: translateX(-50%) scaleX(0);
-  width: 20px;
-  height: 3px;
-  border-radius: 3px;
-  background: var(--gold-standard);
-  opacity: 0;
-  transition: transform var(--dur-base) var(--ease-out), opacity var(--dur-base) var(--ease-out);
-  pointer-events: none;
+.nav button.active .ico {
+  color: var(--gold-standard) !important;
+  transform: translateY(-2px) scale(1.05);
 }
-.nav button.active::before {
-  transform: translateX(-50%) scaleX(1);
-  opacity: 1;
-}
-
 .nav button .nav-label {
-  font-size: 9px;
+  font-size: 10px;
   line-height: 1.1;
   font-weight: 600;
   white-space: nowrap;
-  max-width: 100%;
   text-align: center;
-  color: #A0A0A0;
-  margin-top: 2px;
-  transition: color var(--dur-base) var(--ease-out);
+  color: currentColor;
+  transition: color 0.2s ease;
 }
-.nav button.active .nav-label { color: var(--gold-standard); font-weight: 700; }
-
-@media (max-width: 420px) {
-  .nav button .ico { width: 28px; height: 28px; }
+.nav button.active .nav-label {
+  color: var(--gold-standard);
+  font-weight: 800;
 }
-@media (max-width: 380px) {
-  .nav button .ico { width: 26px; height: 26px; }
-}
-@media (max-width: 360px) {
-  .nav button .nav-label { display: none; }
-  .nav button .ico { width: 30px; height: 30px; }
-  .nav button { justify-content: center; padding: 6px 0; }
-  .nav button::before { top: 4px; }
-  .nav { height: calc(46px + env(safe-area-inset-bottom, 0px)); }
+.nav button.active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 3px;
+  background: var(--gold-standard);
+  border-radius: 0 0 4px 4px;
+  box-shadow: 0 2px 6px rgba(212, 175, 55, 0.4);
 }
 
 /* === TOP PROGRESS (D-06) === */
