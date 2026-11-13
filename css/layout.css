@@ -1,5 +1,5 @@
 /* ============================================================
-   LAYOUT.CSS — Проект «Икра» · v405 (Fixed nav, токены v405)
+   LAYOUT.CSS — Проект «Икра» · v409 (Финальная полировка)
    ============================================================ */
 
 /* === SCREEN SWITCHING === */
@@ -25,7 +25,7 @@
 .home-controls { display:flex; gap: var(--space-2); margin-bottom: var(--space-2); flex-wrap:wrap; }
 #cards-container { min-height:24px; }
 
-/* === NAV (Premium Light Glass, v405) === */
+/* === NAV (Premium Light Glass, v409) === */
 .nav {
   width: 100%;
   max-width: 600px;
@@ -76,7 +76,6 @@
   color: currentColor;
   line-height: 1;
 }
-/* Активная вкладка — цвет + лёгкая подложка на кнопке, но не на SVG */
 .nav button.active {
   color: var(--gold-text-light);
   opacity: 1;
@@ -86,7 +85,6 @@
 .nav button.active .ico { color: var(--gold-text-light) !important; }
 .nav button.active .nav-label { color: var(--gold-text-light) !important; font-weight: 800; }
 
-/* Тёмная тема — явно заданная */
 [data-theme="dark"] .nav, [data-theme="mono"] .nav {
   background: rgba(10, 10, 10, 0.72);
   border-top-color: rgba(245, 197, 66, 0.12);
@@ -101,21 +99,14 @@
   color: var(--gold-text-dark) !important;
 }
 
-/* Тёмная тема — системная (без явного data-theme) */
 @media (prefers-color-scheme: dark) {
   html:not([data-theme]) .nav {
     background: rgba(10, 10, 10, 0.72);
     border-top-color: rgba(245, 197, 66, 0.12);
   }
-  html:not([data-theme]) .nav button.active {
-    color: var(--gold-text-dark);
-  }
-  html:not([data-theme]) .nav button.active .ico {
-    color: var(--gold-text-dark) !important;
-  }
-  html:not([data-theme]) .nav button.active .nav-label {
-    color: var(--gold-text-dark) !important;
-  }
+  html:not([data-theme]) .nav button.active { color: var(--gold-text-dark); }
+  html:not([data-theme]) .nav button.active .ico { color: var(--gold-text-dark) !important; }
+  html:not([data-theme]) .nav button.active .nav-label { color: var(--gold-text-dark) !important; }
 }
 
 /* === TOP PROGRESS === */
@@ -153,8 +144,8 @@
 #onboarding .ob-dots { display: flex; gap: 6px; justify-content: center; padding: 0 0 var(--space-2); }
 
 /* === DASH HEADER === */
-.dash-header { align-items: flex-start; padding: var(--space-2) var(--space-3) 6px; gap: var(--space-2); min-height: 0; }
-.dash-header-left { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+.dash-header { align-items: flex-start; padding: var(--space-3) var(--space-3) var(--space-4); gap: var(--space-2); min-height: 0; }
+.dash-header-left { display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1; }
 .dash-salam { font-size: var(--fs-sm); font-weight: 600; color: var(--text); line-height: 1.35; overflow-wrap: break-word; max-width: 100%; }
 .dash-hijri-gold { font-size: var(--fs-xs); font-weight: 800; letter-spacing: .2px; line-height: 1.3; min-height: 1em; }
 .dash-header-actions { display: flex; gap: 6px; flex-shrink: 0; align-items: flex-start; }
@@ -192,7 +183,8 @@
 #path-chips-container {
   display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important;
   overflow-x: auto !important; justify-content: flex-start !important;
-  gap: var(--space-2) !important; padding: 0 var(--space-3) var(--space-2) var(--space-3) !important;
+  gap: var(--space-2) !important; 
+  padding: 4px var(--space-3) 6px var(--space-3) !important; /* Добавлен верхний отступ для предотвращения среза */
   box-sizing: border-box; width: 100%; min-width: 0; max-width: 100%;
   border-bottom: none !important; scrollbar-width: none; -webkit-overflow-scrolling: touch;
 }
