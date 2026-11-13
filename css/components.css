@@ -744,3 +744,76 @@
   .detail-actions .btn { white-space: normal; line-height: 1.25; min-height: 48px; padding: 12px 7px; }
   .read-ayah { padding: 22px 16px; }
 }
+
+
+/* ============================================================
+   IQRA V415 — СПИСКИ (Коран, Дуа, Хадисы): ЕДИНАЯ КОНЦЕПЦИЯ
+   Золотая кромка-«слиток», медальон номера, золотые кнопки-акценты.
+   Без !important: специфичность выше старых тем-блоков.
+   ============================================================ */
+html[data-theme] .content-card, html:not([data-theme]) .content-card {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(var(--card), var(--card)) padding-box,
+    linear-gradient(180deg, var(--card-edge-hi), var(--card-edge-lo)) border-box;
+}
+
+/* Медальон номера суры */
+.content-card .c-num {
+  background: radial-gradient(circle at 30% 25%, rgba(240, 204, 112, 0.20), rgba(240, 204, 112, 0.04));
+  color: var(--gold-text-light);
+  border: 1.5px solid var(--nav-active-border);
+  box-shadow: inset 0 0 0 3px var(--card), inset 0 0 0 4px var(--card-outline);
+}
+
+/* Плашка «С аята 7» */
+.content-card .c-badge {
+  background: var(--nav-active-surface);
+  color: var(--gold-text-light);
+  border: 1px solid var(--nav-active-border);
+  font-weight: 600;
+}
+
+/* Избранное: контурная золотая, активная заливается золотом с тёмной звездой */
+.content-card .star-btn {
+  background: transparent;
+  color: var(--gold-text-light);
+  border: 1px solid var(--card-outline);
+}
+.content-card .star-btn.active {
+  background: var(--gold-gradient);
+  color: #1c1917;
+  border-color: transparent;
+}
+
+[data-theme="dark"] .content-card .c-num, [data-theme="mono"] .content-card .c-num,
+[data-theme="dark"] .content-card .c-badge, [data-theme="mono"] .content-card .c-badge,
+[data-theme="dark"] .content-card .star-btn, [data-theme="mono"] .content-card .star-btn { color: var(--gold-text-dark); }
+[data-theme="dark"] .content-card .star-btn.active, [data-theme="mono"] .content-card .star-btn.active { color: #1c1917; }
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme]) .content-card .c-num, html:not([data-theme]) .content-card .c-badge,
+  html:not([data-theme]) .content-card .star-btn { color: var(--gold-text-dark); }
+  html:not([data-theme]) .content-card .star-btn.active { color: #1c1917; }
+}
+
+/* Поле поиска: золотая лупа в зарезервированном слоте и видимый фокус */
+.search-wrap::before {
+  content: "";
+  position: absolute; left: 14px; top: 50%;
+  width: 18px; height: 18px; transform: translateY(-50%);
+  background: var(--gold-text-light); opacity: 0.9; pointer-events: none; z-index: 1;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7.5'/%3E%3Cpath d='m21 21-4.5-4.5'/%3E%3C/svg%3E") center / contain no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7.5'/%3E%3Cpath d='m21 21-4.5-4.5'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+[data-theme="dark"] .search-wrap::before, [data-theme="mono"] .search-wrap::before { background: var(--gold-text-dark); }
+@media (prefers-color-scheme: dark) { html:not([data-theme]) .search-wrap::before { background: var(--gold-text-dark); } }
+
+.search-wrap input {
+  border-color: var(--card-outline);
+  transition: border-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
+}
+.search-wrap input::placeholder { color: var(--muted); opacity: 0.8; }
+.search-wrap input:focus {
+  border-color: var(--gold-standard);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.14);
+}

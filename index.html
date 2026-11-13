@@ -144,7 +144,7 @@ window.addEventListener('error', function(e) {
   <div class="header"><h1>Тасбих</h1><div style="display:flex;gap:6px"><button class="icon-btn ghost" onclick="openSearch()" aria-label="Поиск"><svg class="ico"><use href="#i-search"/></svg></button><button class="icon-btn" onclick="openSettings()" aria-label="Настройки"><svg class="ico"><use href="#i-settings"/></svg></button></div></div>
   <div class="list" id="home-list">
     <div class="home-controls">
-      <div class="search-wrap"><input id="search" placeholder="Поиск..." oninput="debouncedRenderTasbih()"></div>
+      <div class="search-wrap"><input id="search" placeholder="Поиск…" oninput="debouncedRenderTasbih()"></div>
       <select class="sort-select" id="sort" onchange="renderTasbih()">
         <option value="manual">Порядок</option>
         <option value="alpha">А-Я</option>
@@ -226,7 +226,7 @@ window.addEventListener('error', function(e) {
 <div class="screen" id="screen-quran">
   <div class="header"><h1>Коран</h1><button class="icon-btn ghost" onclick="openSearch()" aria-label="Поиск"><svg class="ico"><use href="#i-search"/></svg></button></div>
   <div style="padding:0 16px 12px;">
-    <div class="search-wrap"><input id="quran-search" placeholder="Поиск по Корану..." oninput="debouncedRenderQuranList()"></div>
+    <div class="search-wrap"><input id="quran-search" placeholder="Поиск по Корану…" oninput="debouncedRenderQuranList()"></div>
   </div>
   <div class="search-filters" style="padding: 0 16px 12px; border: none; flex-direction: row; overflow-x: auto; scrollbar-width: none;">
     <button class="filter-chip active" data-q-filter="all" onclick="setQuranFilter('all')">Все</button>
@@ -459,7 +459,7 @@ window.addEventListener('error', function(e) {
 <div class="fullscreen" id="search-overlay">
   <div class="fs-header">
     <button class="icon-btn ghost" onclick="closeSearch()" aria-label="Закрыть"><svg class="ico"><use href="#i-x"/></svg></button>
-    <input id="global-search-input" placeholder="Поиск по приложению..." oninput="debouncedRenderGlobalSearch()" autocomplete="off">
+    <input id="global-search-input" placeholder="Поиск по приложению…" oninput="debouncedRenderGlobalSearch()" autocomplete="off">
     <div style="width:42px"></div>
   </div>
   <div class="search-filters" id="search-filters">

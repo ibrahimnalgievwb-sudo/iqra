@@ -29,7 +29,8 @@ span[class^="tajweed-"] {
 .tajweed-madda_necessary { color: #000EBC; }
 .tajweed-qalqalah { color: #DD0008; }
 .tajweed-ghunnah { color: #FF7E1E; }
-.tajweed-ikhfa, .tajweed-ikhfa_shafawi { color: #9400A8; }
+.tajweed-ikhfa { color: #9400A8; }
+.tajweed-ikhfa_shafawi { color: #D500B7; }
 .tajweed-idghaam_ghunnah { color: #169777; }
 .tajweed-idghaam_no_ghunnah { color: #169200; }
 .tajweed-idghaam_shafawi { color: #58B800; }
@@ -38,7 +39,7 @@ span[class^="tajweed-"] {
 .tajweed-tafkhim { color: #1E3A8A; }
 
 /* ДОБАВЛЕНО: Отсутствующие цвета для серых букв (теперь они видны) */
-.tajweed-ham_wasl, .tajweed-laam_shamsiyah, .tajweed-silent { color: #666666; }
+.tajweed-ham_wasl, .tajweed-laam_shamsiyah, .tajweed-silent { color: var(--tajweed-silent); }
 
 /* Сохранение арабского соединения (shaping) */
 .tajweed-span {
@@ -150,21 +151,21 @@ span[class^="tajweed-"] {
    Цвета правил остаются различимыми; формы букв и shaping не меняются.
    ============================================================ */
 [data-theme="dark"] .tajweed-madda_normal,
-[data-theme="mono"] .tajweed-madda_normal { color: #9CB7FF; }
+[data-theme="mono"] .tajweed-madda_normal { color: #A9C4FF; }
 [data-theme="dark"] .tajweed-madda_permissible,
-[data-theme="mono"] .tajweed-madda_permissible { color: #B2B7FF; }
+[data-theme="mono"] .tajweed-madda_permissible { color: #90A4FF; }
 [data-theme="dark"] .tajweed-madda_obligatory,
-[data-theme="mono"] .tajweed-madda_obligatory { color: #90A9FF; }
+[data-theme="mono"] .tajweed-madda_obligatory { color: #7B8DFF; }
 [data-theme="dark"] .tajweed-madda_necessary,
-[data-theme="mono"] .tajweed-madda_necessary { color: #AAB8FF; }
+[data-theme="mono"] .tajweed-madda_necessary { color: #6676FF; }
 [data-theme="dark"] .tajweed-qalqalah,
 [data-theme="mono"] .tajweed-qalqalah { color: #FF8589; }
 [data-theme="dark"] .tajweed-ghunnah,
 [data-theme="mono"] .tajweed-ghunnah { color: #FFB47D; }
 [data-theme="dark"] .tajweed-ikhfa,
+[data-theme="mono"] .tajweed-ikhfa { color: #DDA8F2; }
 [data-theme="dark"] .tajweed-ikhfa_shafawi,
-[data-theme="mono"] .tajweed-ikhfa,
-[data-theme="mono"] .tajweed-ikhfa_shafawi { color: #DDA8F2; }
+[data-theme="mono"] .tajweed-ikhfa_shafawi { color: #FF8AE6; }
 [data-theme="dark"] .tajweed-idghaam_ghunnah,
 [data-theme="mono"] .tajweed-idghaam_ghunnah { color: #70D7B7; }
 [data-theme="dark"] .tajweed-idghaam_no_ghunnah,
@@ -184,10 +185,24 @@ span[class^="tajweed-"] {
 [data-theme="dark"] .tajweed-silent,
 [data-theme="mono"] .tajweed-ham_wasl,
 [data-theme="mono"] .tajweed-laam_shamsiyah,
-[data-theme="mono"] .tajweed-silent { color: #B8B8B8; }
+[data-theme="mono"] .tajweed-silent { color: var(--tajweed-silent); }
 
 [data-theme="dark"] span[class*="tajweed-"],
 [data-theme="mono"] span[class*="tajweed-"] {
   text-shadow: inherit;
   font-weight: 500;
 }
+
+
+/* ============================================================
+   IQRA V415 — ВИДИМОСТЬ ПРАВИЛ В РЕЖИМЕ ЧТЕНИЯ
+   Класс .has-tajweed ставит api.js, когда правила реально отрисованы.
+   Нейтральная основа + без золотого свечения на буквах: цвета правил
+   читаются чисто, а нетронутые буквы не спорят с оранжевым и лаймовым.
+   Если таджвид не загрузился, класс снимается и текст остаётся золотым.
+   ============================================================ */
+.read-ayah-ar.has-tajweed { color: var(--tajweed-base); text-shadow: none; }
+.read-ayah-ar.has-tajweed span[class*="tajweed-"] { text-shadow: none; }
+
+/* Точки легенды под аятом берут цвет правила из темы, а не из JSON. */
+.ayah-tajweed-rules .rule-item i[class*="tajweed-"] { background: currentColor; }

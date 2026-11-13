@@ -28,18 +28,17 @@
     "n": "madda_normal",
     "p": "madda_permissible",
     "m": "madda_necessary",
-    "q": "qalqalah",
     "o": "madda_obligatory",
-    "c": "ikhfa",
-    "f": "idghaam_ghunnah",
+    "q": "qalqalah",
+    "g": "ghunnah",
+    "f": "ikhfa",
+    "c": "ikhfa_shafawi",
     "w": "idghaam_shafawi",
     "i": "iqlab",
-    "a": "idghaam_mutajanisayn",
-    "u": "idghaam_mutaqaribayn",
-    "d": "idghaam_no_ghunnah",
-    "b": "ikhfa_shafawi",
-    "g": "ghunnah",
-    "e": "tafkhim"
+    "a": "idghaam_ghunnah",
+    "u": "idghaam_no_ghunnah",
+    "d": "idghaam_mutajanisayn",
+    "b": "idghaam_mutaqaribayn"
   },
   "tajweedRuleNames": {
     "ham_wasl": "Хамзат васл",
@@ -58,13 +57,12 @@
     "idghaam_shafawi": "Идгам шафави",
     "idghaam_mutajanisayn": "Идгам мутаджанисайн",
     "idghaam_mutaqaribayn": "Идгам мутакарибайн",
-    "iqlab": "Иклаб",
-    "tafkhim": "Тафхим"
+    "iqlab": "Иклаб"
   },
   "tajweedRuleColors": {
-    "ham_wasl": "#666666",
-    "silent": "#666666",
-    "laam_shamsiyah": "#666666",
+    "ham_wasl": "#AAAAAA",
+    "silent": "#AAAAAA",
+    "laam_shamsiyah": "#AAAAAA",
     "madda_normal": "#537FFF",
     "madda_permissible": "#4050FF",
     "madda_obligatory": "#2144C1",
@@ -72,13 +70,12 @@
     "qalqalah": "#DD0008",
     "ghunnah": "#FF7E1E",
     "ikhfa": "#9400A8",
-    "ikhfa_shafawi": "#9400A8",
+    "ikhfa_shafawi": "#D500B7",
     "idghaam_ghunnah": "#169777",
     "idghaam_no_ghunnah": "#169200",
     "idghaam_shafawi": "#58B800",
     "idghaam_mutajanisayn": "#A1A1A1",
     "idghaam_mutaqaribayn": "#A1A1A1",
-    "iqlab": "#26BFFD",
-    "tafkhim": "#1E3A8A"
+    "iqlab": "#26BFFD"
   }
 }

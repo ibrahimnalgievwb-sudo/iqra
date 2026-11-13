@@ -2,7 +2,7 @@
 
 /* ============================================================
    API.JS — Загрузка JSON-данных, Tajweed API, аналитика
-   Проект «Икра» · v387 (Этап 3.5)
+   Проект «Икра» · v415 (Этап 3.5)
    Заполняет глобальные DEFAULT_* для storage.js.
    D-10: renderTajweedHtml экранирует всё содержимое через esc().
          trackEvent — только имя+title события, без личных данных.
@@ -253,7 +253,7 @@ async function applyTajweedToContainer(container, item) {
           const raw = el.dataset.raw || '';
           if (tajweedText && _isValidTajweedText(tajweedText)) {
             const result = renderTajweedHtml(tajweedText);
-            el.innerHTML = result.text;
+            el.innerHTML = result.text; el.classList.add('has-tajweed');
             const existingRules = ayahBlock.querySelector('.ayah-tajweed-rules');
             if (existingRules) existingRules.remove();
             if (result.rules) {
@@ -262,7 +262,7 @@ async function applyTajweedToContainer(container, item) {
               el.insertAdjacentElement('afterend', rulesContainer);
             }
           } else {
-            el.innerHTML = esc(raw);
+            el.innerHTML = esc(raw); el.classList.remove('has-tajweed');
           }
         });
       } else {
@@ -278,11 +278,11 @@ async function applyTajweedToContainer(container, item) {
         const raw = el.dataset.raw || '';
         return fetchTajweedText(verseKey).then(function(tajweed) {
           if (!tajweed || !_isValidTajweedText(tajweed)) {
-            el.innerHTML = esc(raw);
+            el.innerHTML = esc(raw); el.classList.remove('has-tajweed');
             return false;
           }
           const result = renderTajweedHtml(tajweed);
-          el.innerHTML = result.text;
+          el.innerHTML = result.text; el.classList.add('has-tajweed');
           const existingRules = ayahBlock.querySelector('.ayah-tajweed-rules');
           if (existingRules) existingRules.remove();
           if (result.rules) {
@@ -292,7 +292,7 @@ async function applyTajweedToContainer(container, item) {
           }
           return true;
         }).catch(function() {
-          el.innerHTML = esc(raw);
+          el.innerHTML = esc(raw); el.classList.remove('has-tajweed');
           return false;
         });
       }));
@@ -369,7 +369,7 @@ function renderTajweedHtml(text) {
     const items = Array.from(rulesFound).map(function(rule) {
       const color = TAJWEED_RULE_COLORS[rule] || '#666';
       const name = TAJWEED_RULE_NAMES[rule] || rule;
-      return '<span class="rule-item"><i style="background:' + color + ';"></i>' + name + '</span>';
+      return '<span class="rule-item"><i class="tajweed-' + esc(rule) + '"></i>' + name + '</span>';
     }).join('');
     rulesHtml = '<div class="ayah-tajweed-rules">' + items + '</div>';
   }

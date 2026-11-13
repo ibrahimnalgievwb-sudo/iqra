@@ -2,7 +2,7 @@
 
 /* ============================================================
    READER.JS — Режим чтения, навигация по сурам, закладки
-   Проект «Икра» · v383 (рефакторинг)
+   Проект «Икра» · v416
    ============================================================ */
 
 function readPrevSurah() {
@@ -14,6 +14,37 @@ function readNextSurah() {
   if (!activeReadId) return;
   const idx = state.quran.findIndex(q => q.id === activeReadId);
   if (idx > -1 && idx < state.quran.length - 1) { openRead(state.quran[idx + 1].id, null, 'next'); }
+}
+
+/* Справка по таджвиду. Точки берут цвет из CSS-классов правил, поэтому
+   совпадают с буквами в любой теме. Описания — общепринятые определения;
+   разметка букв приходит готовой из API и приложением не меняется. */
+const TAJWEED_LEGEND = [
+  ['madda_normal', 'Мадд 2 — естественное удлинение, 2 счёта'],
+  ['madda_permissible', 'Мадд 2/4/6 — допустимое удлинение'],
+  ['madda_obligatory', 'Мадд 4–5 — обязательное удлинение'],
+  ['madda_necessary', 'Мадд 6 — необходимое удлинение, 6 счётов'],
+  ['qalqalah', 'Калькаля — «отскок» звука на буквах ق ط ب ج د с сукуном'],
+  ['ghunnah', 'Гунна — носовой звук, 2 счёта'],
+  ['ikhfa', 'Ихфа — сокрытие нун сакины или танвина перед 15 буквами'],
+  ['ikhfa_shafawi', 'Ихфа шафави — сокрытие мим сакины'],
+  ['idghaam_ghunnah', 'Идгам с гунной — буквы ي ن م و'],
+  ['idghaam_no_ghunnah', 'Идгам без гунны — буквы ل ر'],
+  ['idghaam_shafawi', 'Идгам шафави — слияние мим сакины с мим'],
+  ['idghaam_mutajanisayn', 'Идгам мутаджанисайн — слияние букв одного выхода'],
+  ['idghaam_mutaqaribayn', 'Идгам мутакарибайн — слияние букв близких выходов'],
+  ['iqlab', 'Иклаб — нун сакина или танвин перед ب переходит в мим'],
+  ['ham_wasl', 'Хамзат васль — не произносится при слитном чтении'],
+  ['laam_shamsiyah', 'Лям шамсия — сливается со следующей буквой'],
+  ['silent', 'Немая буква']
+];
+function tajweedLegendHtml() {
+  const items = TAJWEED_LEGEND.map(function (r) {
+    return '<span class="tl-item"><i class="tajweed-' + r[0] + '"></i><span>' + r[1] + '</span></span>';
+  }).join('');
+  return '<details class="tajweed-legend"><summary><span class="tl-title">Справка по таджвиду</span></summary>' +
+    '<div class="tl-items">' + items + '</div>' +
+    '<div class="tl-note">Чтение хафс ʿан ʿасым. Разметка букв — готовая (Al Quran Cloud), приложение её не изменяет.</div></details>';
 }
 
 async function openRead(id, targetAyahIdx, dir) {
@@ -29,23 +60,7 @@ async function openRead(id, targetAyahIdx, dir) {
   if (item.bismillah) {
     bismillahHtml = `<div class="bismillah-card"><div class="b-ar ar-font">${item.bismillah.arabic}</div><div class="b-tr">${item.bismillah.transcription}</div><div class="b-trn">${item.bismillah.translation}</div></div>`;
   }
-  const legendHtml = `
-    <div class="tajweed-legend">
-      <div class="tl-title">Справка по Таджвиду</div>
-      <div class="tl-items">
-        <span class="tl-item"><i style="background:#537FFF;"></i> Мадд 2 — естественное удлинение (2 счёта)</span>
-        <span class="tl-item"><i style="background:#4050FF;"></i> Мадд 2/4/6 — допустимое удлинение</span>
-        <span class="tl-item"><i style="background:#2144C1;"></i> Мадд 4-5 — обязательное удлинение</span>
-        <span class="tl-item"><i style="background:#000EBC;"></i> Мадд 6 — необходимое удлинение</span>
-        <span class="tl-item"><i style="background:#DD0008;"></i> Калькаля — «отскакивание» звука</span>
-        <span class="tl-item"><i style="background:#FF7E1E;"></i> Гунна — назализация (2 счёта)</span>
-        <span class="tl-item"><i style="background:#9400A8;"></i> Ихфа — сокрытие «нун» с назализацией</span>
-        <span class="tl-item"><i style="background:#169777;"></i> Идгам с гунной</span>
-        <span class="tl-item"><i style="background:#169200;"></i> Идгам без гунны</span>
-        <span class="tl-item"><i style="background:#AAAAAA;"></i> Хамзат васл / Лям шамсия / Немые</span>
-      </div>
-    </div>
-  `;
+  const legendHtml = tajweedLegendHtml();
   container.innerHTML = `
     <div class="detail-hero" style="background: transparent; border: none; box-shadow: none; padding: 0; margin-bottom: 10px;">
       <div class="dh-title" style="text-align: center; font-size: 24px;">${esc(item.title)}</div>
