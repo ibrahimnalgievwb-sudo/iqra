@@ -2,7 +2,7 @@
 
 /* ============================================================
    APP.JS — Точка входа, навигация, UI-ядро, SW, PWA, debug
-   Проект «Икра» · v387 (Этап 3.5)
+   Проект «Икра» · v391
    D-10: добавлена escapeHtml(); аудит innerHTML проведён —
    все места с пользовательскими/внешними данными используют
    esc() / escNl() / escapeHtml() из storage.js.
@@ -294,7 +294,6 @@ async function runTajweedDiagnostics() {
   var out = [];
   out.push('=== TAJWEED DIAGNOSTICS ===');
   out.push('Time: ' + new Date().toISOString());
-  out.push('APP_VERSION: ' + APP_VERSION);
   out.push('UA: ' + navigator.userAgent);
   out.push('standalone: ' + window.matchMedia('(display-mode: standalone)').matches);
   out.push('SW controller: ' + (navigator.serviceWorker && navigator.serviceWorker.controller ? 'yes' : 'no'));
@@ -413,7 +412,6 @@ async function testScreenTajweed(kind) {
   var out = [];
   out.push('=== SCREEN TEST: ' + kind + ' ===');
   out.push('Time: ' + new Date().toISOString());
-  out.push('APP_VERSION: ' + APP_VERSION);
   out.push('');
   if (!container) { out.push('ERROR: container not found'); showDebugResult(out.join('\n')); return; }
 
@@ -624,9 +622,7 @@ if ('serviceWorker' in navigator) {
 
   navigator.serviceWorker.addEventListener('message', function(e) {
     if (e.data && e.data.type === 'SW_UPDATED') {
-      if (e.data.version && e.data.version !== APP_VERSION) {
-        swReload();
-      }
+      swReload(); /* Вызов без проверки версии */
     }
   });
 }
