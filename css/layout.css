@@ -1,5 +1,5 @@
 /* ============================================================
-   LAYOUT.CSS — Проект «Икра» · v402 (Fixed)
+   LAYOUT.CSS — Проект «Икра» · v405 (Fixed nav, токены v405)
    ============================================================ */
 
 /* === SCREEN SWITCHING === */
@@ -25,26 +25,22 @@
 .home-controls { display:flex; gap: var(--space-2); margin-bottom: var(--space-2); flex-wrap:wrap; }
 #cards-container { min-height:24px; }
 
-/* === NAV (Premium Light Glass) === */
+/* === NAV (Premium Light Glass, v405) === */
 .nav {
   width: 100%;
   max-width: 600px;
   margin: 0 auto;
   display: flex;
-  background: rgba(245, 245, 245, 0.85);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border-top: 1px solid rgba(212, 175, 55, 0.25);
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(212, 175, 55, 0.15);
   padding: 8px max(16px, var(--safe-left)) calc(8px + var(--safe-bottom)) max(16px, var(--safe-right));
   flex-shrink: 0;
   height: calc(64px + var(--safe-bottom));
   box-sizing: border-box;
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
   gap: 8px;
-}
-[data-theme="dark"] .nav, [data-theme="mono"] .nav {
-  background: rgba(18, 18, 18, 0.85);
-  border-top-color: rgba(212, 175, 55, 0.15);
 }
 
 .nav button {
@@ -58,9 +54,10 @@
   background: transparent !important;
   border: none;
   color: var(--muted);
+  opacity: var(--nav-inactive-opacity);
   padding: 4px 0;
   border-radius: 12px;
-  transition: all 0.2s ease;
+  transition: opacity 160ms ease, color 160ms ease;
 }
 .nav button .ico {
   width: 24px;
@@ -69,6 +66,8 @@
   background-image: none !important;
   box-shadow: none !important;
   fill: none !important;
+  stroke: currentColor;
+  stroke-width: 1.8;
   color: currentColor;
 }
 .nav button .nav-label {
@@ -77,13 +76,47 @@
   color: currentColor;
   line-height: 1;
 }
-/* Активная вкладка */
+/* Активная вкладка — цвет + лёгкая подложка на кнопке, но не на SVG */
 .nav button.active {
-  color: var(--gold-standard);
-  background: rgba(212, 175, 55, 0.1); /* Легкая золотая подложка */
+  color: var(--gold-text-light);
+  opacity: 1;
+  background: var(--nav-active-bg);
+  border-radius: 12px;
 }
-.nav button.active .ico { color: var(--gold-standard) !important; }
-.nav button.active .nav-label { color: var(--gold-standard) !important; font-weight: 800; }
+.nav button.active .ico { color: var(--gold-text-light) !important; }
+.nav button.active .nav-label { color: var(--gold-text-light) !important; font-weight: 800; }
+
+/* Тёмная тема — явно заданная */
+[data-theme="dark"] .nav, [data-theme="mono"] .nav {
+  background: rgba(10, 10, 10, 0.72);
+  border-top-color: rgba(245, 197, 66, 0.12);
+}
+[data-theme="dark"] .nav button.active, [data-theme="mono"] .nav button.active {
+  color: var(--gold-text-dark);
+}
+[data-theme="dark"] .nav button.active .ico, [data-theme="mono"] .nav button.active .ico {
+  color: var(--gold-text-dark) !important;
+}
+[data-theme="dark"] .nav button.active .nav-label, [data-theme="mono"] .nav button.active .nav-label {
+  color: var(--gold-text-dark) !important;
+}
+
+/* Тёмная тема — системная (без явного data-theme) */
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme]) .nav {
+    background: rgba(10, 10, 10, 0.72);
+    border-top-color: rgba(245, 197, 66, 0.12);
+  }
+  html:not([data-theme]) .nav button.active {
+    color: var(--gold-text-dark);
+  }
+  html:not([data-theme]) .nav button.active .ico {
+    color: var(--gold-text-dark) !important;
+  }
+  html:not([data-theme]) .nav button.active .nav-label {
+    color: var(--gold-text-dark) !important;
+  }
+}
 
 /* === TOP PROGRESS === */
 .top-progress { position:fixed; top:0; left:0; right:0; height:3px; z-index:5; pointer-events:none; }
