@@ -2,8 +2,13 @@
 
 /* ============================================================
    API.JS — Загрузка JSON-данных, Tajweed API, аналитика
-   Проект «Икра» · v383 (рефакторинг)
+   Проект «Икра» · v387 (Этап 3.5)
    Заполняет глобальные DEFAULT_* для storage.js.
+   D-10: renderTajweedHtml экранирует всё содержимое через esc().
+         trackEvent — только имя+title события, без личных данных.
+         Umami (cloud.umami.is) сохранён по решению Директора.
+         GoatCounter вызов остаётся, но window.goatcounter
+         отсутствует — безопасный no-op.
    ============================================================ */
 
 const UMAMI_SRC        = 'https://cloud.umami.is/script.js';
@@ -306,7 +311,7 @@ async function applyTajweedToContainer(container, item) {
       const retryId = activeReadId || (item && item.id) || '';
       loader.className = 'tajweed-error';
       loader.innerHTML = 'Таджвид временно недоступен' + (errorMsg ? ' (' + esc(errorMsg) + ')' : '') +
-        '. <a href="#" onclick="event.preventDefault(); if(activeReadId) closeRead(); setTimeout(function(){ openRead(\'' + retryId + '\'); }, 120); return false;">Повторить</a>';
+        '. <a href="#" onclick="event.preventDefault(); if(activeReadId) closeRead(); setTimeout(function(){ openRead(\'' + esc(retryId) + '\'); }, 120); return false;">Повторить</a>';
       setTimeout(function(){
         if (loader.parentNode) loader.parentNode.removeChild(loader);
       }, 8000);
