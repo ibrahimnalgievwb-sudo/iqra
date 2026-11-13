@@ -2,7 +2,8 @@
 
 /* ============================================================
    MEMORIZE.JS — Режим заучивания (изучение + проверка)
-   Проект «Икра» · v383 (рефакторинг)
+   Проект «Икра» · v387 (Этап 3.5)
+   D-06: mem-progress-bar через transform: scaleX().
    ============================================================ */
 
 function openMemorizeFor(item) {
@@ -23,7 +24,9 @@ function renderMemorize() {
   if (!a) return;
   document.getElementById('mem-title').textContent = memorizeItem.title;
   const pct = ((memorizeStep + 1) / total) * 100;
-  document.getElementById('mem-progress-bar').style.width = pct + '%';
+  /* D-06: progress bar via transform: scaleX */
+  var pb = document.getElementById('mem-progress-bar');
+  if (pb) pb.style.transform = 'scaleX(' + (pct / 100) + ')';
   const phaseLabel = memorizePhase === 'learn' ? 'Заучивание' : 'Проверка';
   const stepInfo = `<div class="mem-step"><span>${phaseLabel} · Аят ${memorizeStep+1} из ${total}</span><span class="phase">${memorizePhase==='learn'?'изучаем':'проверяем'}</span></div>`;
   let body = '';
