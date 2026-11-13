@@ -1,8 +1,8 @@
 /* ============================================================
-   SW.JS — Service Worker проекта «Икра» v406
+   SW.JS — Service Worker проекта «Икра» v409
    ============================================================ */
 
-const SW_VERSION   = 'iqra-v406'; /* МЕНЯЙ ВЕРСИЮ ТОЛЬКО ЗДЕСЬ */
+const SW_VERSION   = 'iqra-v409'; /* МЕНЯЙ ВЕРСИЮ ТОЛЬКО ЗДЕСЬ */
 const SW_VER_SHORT = SW_VERSION.replace(/^iqra-/, '');
 const CACHE_STATIC = 'iqra-static-' + SW_VER_SHORT;
 const CACHE_DATA   = 'iqra-data-'   + SW_VER_SHORT;
