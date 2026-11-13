@@ -1,6 +1,8 @@
 /* ============================================================
    COMPONENTS.CSS — UI-компоненты
-   Проект «Икра» · v387 (Этап 3.5, финал)
+   Проект «Икра» · v387 (Этап 3.5, ревизия 3 — премиум-золото)
+   Изменения: металлический градиент текста 135deg, drop-shadow,
+   навигация без серых кругов и золотой заливки.
    ============================================================ */
 
 /* === READ / ARABIC === */
@@ -26,13 +28,6 @@
   -webkit-box-decoration-break: clone;
 }
 
-/* D-03: контраст золота на светлой теме */
-[data-theme="light"] .read-ayah-ar,
-[data-theme="light"] .tasbih-card .ar {
-  -webkit-text-stroke: 0.5px rgba(122, 90, 0, 0.5) !important;
-  filter: drop-shadow(0px 1px 1px rgba(0,0,0,0.15)) !important;
-}
-
 @media (max-width: 420px) { .read-ayah { margin-bottom: 12px; padding: var(--space-3); border-radius: 16px; } .read-ayah-ar { padding-top: 15px; padding-bottom: 15px; margin-bottom: 8px; min-height: calc(80px * var(--ar-scale)); } }
 
 .read-surah-title, .detail-hero .dh-title { font-family: "Inter", system-ui, sans-serif; font-weight: 300; letter-spacing: -0.01em; }
@@ -42,7 +37,6 @@
 
 [data-theme="dark"] .content-card, [data-theme="dark"] .tasbih-card, [data-theme="dark"] .dash-quote, [data-theme="dark"] .dash-quick, [data-theme="dark"] .continue-card, [data-theme="dark"] .read-ayah, [data-theme="dark"] .detail-hero { background-image: linear-gradient(180deg, rgba(255,255,255,.015), rgba(0,0,0,.10)); border-color: rgba(212,175,55,.32); }
 
-/* D-06: hover через transform, не box-shadow */
 .content-card:hover, .tasbih-card:hover, .dash-quote:hover, .dash-quick:hover, .continue-card:hover { border-color: rgba(212,175,55,.55); transform: translateY(-1px); }
 
 .content-card:active, .tasbih-card:active, .dash-quote:active, .dash-quick:active, .continue-card:active { transform: scale(.975); border-color: var(--gold-accent, var(--ar-g2)); box-shadow: var(--shadow-gold), inset 0 1px 0 rgba(212,175,55,.2); }
@@ -57,7 +51,6 @@
 .learned-toggle.done { background: rgba(212,175,55,.1); border-color: var(--gold-accent); }
 .learned-toggle.done .lt-icon { background: var(--gold-standard); color: #000; }
 .cal-day.has-count { background: rgba(212,175,55,.15); border: 1px solid rgba(212,175,55,.3); }
-.mini-ring .ring-fg, .counter .ring-fg { stroke: var(--gold-accent); }
 .stat-card .sc-value { color: var(--gold-accent); }
 .stat-card { grid-column: span 2; background: linear-gradient(135deg, rgba(212,175,55,.15), rgba(212,175,55,.05)) !important; }
 .btn.danger { background: transparent; color:#ff4d4d; border: 1px solid rgba(255,77,77,.3); }
@@ -126,7 +119,7 @@
 .fab { position:fixed; right:24px; bottom:calc(100px + var(--nav-safe)); width:60px; height:60px; border-radius:50%; background: var(--gold-gradient); color:#0A0A0A; font-size:30px; font-weight:300; display:flex; align-items:center; justify-content:center; box-shadow: var(--gold-glow); z-index:100; transition: transform var(--dur-fast) var(--ease-out); }
 .fab:active { transform:scale(.92); }
 
-/* === COUNTER INNER (Z-6: --fs-ar-lg) === */
+/* === COUNTER INNER === */
 .counter .ar { font-size: calc(var(--fs-ar-lg) * var(--ar-scale)); direction:rtl; padding:6px 0 16px 0 !important; margin:0 !important; max-width:90%; overflow-wrap: break-word; word-break: normal !important; }
 .counter .tr { font-size: var(--fs-md); color:var(--muted); margin-bottom:4px; overflow-wrap: break-word; }
 .counter .trn { font-size: var(--fs-sm); color:var(--muted); margin-bottom:28px; overflow-wrap: break-word; }
@@ -506,9 +499,10 @@
 [data-theme="light"] .search-filters .filter-chip.active, [data-theme="light"] #onboarding .ob-option.active, [data-theme="light"] .next-toast .nt-btn { background: var(--gold-gradient) !important; color: #0A0A0A !important; border: 1.5px solid transparent !important; box-shadow: var(--gold-glow-sm) !important; }
 [data-theme="light"] .ayah-share-btn:active { background: #0A0A0A; color: var(--gold-standard); border-color: var(--gold-standard); }
 
+/* Fallback (A4 v385) — из списка убран .nav button.active .ico */
 .btn, .fab, .icon-btn.starred, .search-filters .filter-chip.active, #onboarding .ob-option.active, .content-card .star-btn.active, .next-toast .nt-btn, .install-banner .ib-install { background-color: var(--gold-standard) !important; }
 .btn.danger { background-color: transparent !important; background-image: none !important; color: #ff4d4d !important; border: 1px solid rgba(255,77,77,.3) !important; }
-.nav button.active .ico, .ayah-share-btn:active { background-color: var(--gold-standard); }
+.ayah-share-btn:active { background-color: var(--gold-standard); }
 
 /* === SAFE-AREA OVERRIDES === */
 .toast { bottom: calc(90px + var(--nav-safe)) !important; }
@@ -550,22 +544,49 @@
 
 .gold-text, .ar-font:not(textarea):not(input), .text-gold-metallic, .read-ayah-ar { line-height: 2.2 !important; }
 .nav button.active .nav-label, .gold-link, .toast { color: var(--gold-standard) !important; }
-.btn, .fab, .icon-btn.starred, .install-banner .ib-install, .nav button.active .ico { background-image: var(--gold-gradient) !important; color: #0A0A0A !important; }
+/* Из списка убран .nav button.active .ico — новая навигация без заливки */
+.btn, .fab, .icon-btn.starred, .install-banner .ib-install { background-image: var(--gold-gradient) !important; color: #0A0A0A !important; }
 
-/* === E2: золотой вертикальный градиент === */
+/* === E2 v387: МЕТАЛЛИЧЕСКИЙ ГРАДИЕНТ АРАБСКОГО ТЕКСТА ===
+   Ключевые изменения:
+   - 135deg с 5 стопами → металлический блеск (тёмный → почти белый → тёмный → почти белый → тёмный)
+   - background-size: 100% 100% + background-attachment: local → однородность по блоку
+   - filter: drop-shadow → объём, чтобы текст не сливался с фоном */
 .read-ayah-ar, .tasbih-card .ar, .mem-block .mb-ar, .content-card .c-ar, .dash-quote .dq-ar, .bismillah-card .b-ar, .spiritual-card .sc-ar-bismillah, .spiritual-card .sc-ar-alyaq, .counter .ar, .preview-card .pv-ar, .next-toast .nt-ar {
-  background-image: linear-gradient(180deg, var(--gold-text-deep) 0%, var(--gold-text-shade) 18%, var(--gold-text-base) 42%, var(--gold-text-lit) 50%, var(--gold-text-base) 58%, var(--gold-text-shade) 82%, var(--gold-text-deep) 100%) !important;
+  background: var(--gold-text-gradient) !important;
+  background-size: 100% 100% !important;
+  background-attachment: local !important;
+  background-position: 0 0 !important;
   -webkit-background-clip: text !important;
   background-clip: text !important;
   -webkit-text-fill-color: transparent !important;
   color: transparent !important;
   text-shadow: none !important;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.5)) !important;
 }
 
+/* Светлая тема: чуть меньшая тень (иначе грязь на белом) + text-stroke для контура */
+[data-theme="light"] .read-ayah-ar,
+[data-theme="light"] .tasbih-card .ar,
+[data-theme="light"] .mem-block .mb-ar,
+[data-theme="light"] .content-card .c-ar,
+[data-theme="light"] .dash-quote .dq-ar,
+[data-theme="light"] .bismillah-card .b-ar,
+[data-theme="light"] .spiritual-card .sc-ar-bismillah,
+[data-theme="light"] .spiritual-card .sc-ar-alyaq,
+[data-theme="light"] .counter .ar,
+[data-theme="light"] .preview-card .pv-ar,
+[data-theme="light"] .next-toast .nt-ar {
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.35)) !important;
+  -webkit-text-stroke: 0.4px rgba(74, 54, 0, 0.35) !important;
+}
+
+/* Safari-страховка при отсутствии background-clip: text */
 @supports not ((-webkit-background-clip: text) or (background-clip: text)) {
   .read-ayah-ar, .tasbih-card .ar, .mem-block .mb-ar, .content-card .c-ar, .dash-quote .dq-ar, .bismillah-card .b-ar, .spiritual-card .sc-ar-bismillah, .spiritual-card .sc-ar-alyaq, .counter .ar, .preview-card .pv-ar, .next-toast .nt-ar {
-    background-image: none;
-    color: var(--gold-text-base);
-    -webkit-text-fill-color: var(--gold-text-base);
+    background: none !important;
+    color: var(--gold-text-base) !important;
+    -webkit-text-fill-color: var(--gold-text-base) !important;
+    filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.5)) !important;
   }
 }
