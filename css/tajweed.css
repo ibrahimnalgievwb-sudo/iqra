@@ -206,3 +206,26 @@ span[class^="tajweed-"] {
 
 /* Точки легенды под аятом берут цвет правила из темы, а не из JSON. */
 .ayah-tajweed-rules .rule-item i[class*="tajweed-"] { background: currentColor; }
+
+
+/* ============================================================
+   IQRA V416 — СПРАВКА ПО ТАДЖВИДУ (сворачиваемая, цвета из тем)
+   ============================================================ */
+details.tajweed-legend > summary {
+  list-style: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+details.tajweed-legend > summary::-webkit-details-marker { display: none; }
+details.tajweed-legend > summary::after {
+  content: ""; flex: none; width: 8px; height: 8px;
+  border-right: 2px solid var(--gold-accent); border-bottom: 2px solid var(--gold-accent);
+  transform: rotate(45deg); transition: transform var(--dur-base) var(--ease-out);
+}
+details.tajweed-legend[open] > summary::after { transform: rotate(225deg); }
+details.tajweed-legend .tl-title { margin-bottom: 0; }
+details.tajweed-legend[open] .tl-title { margin-bottom: 0; }
+details.tajweed-legend .tl-items { display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 12px; }
+.tajweed-legend .tl-item { align-items: flex-start; line-height: 1.4; }
+.tajweed-legend .tl-item i { flex: none; margin-top: 4px; }
+.tajweed-legend .tl-item i[class*="tajweed-"] { background: currentColor; }
+.tajweed-legend .tl-note { margin-top: 12px; font-size: 11px; line-height: 1.5; color: var(--muted); }

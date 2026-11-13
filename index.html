@@ -326,22 +326,10 @@ window.addEventListener('error', function(e) {
     <div class="seg" style="width:100%;">
       <button class="active" id="lib-tab-dua" onclick="setLibraryTab('dua')">Дуа</button>
       <button id="lib-tab-hadith" onclick="setLibraryTab('hadith')">Хадисы</button>
-      <button id="lib-tab-tafsir" onclick="setLibraryTab('tafsir')">Тафсиры</button>
     </div>
   </div>
   <div class="content-list" id="library-dua-list" style="display:flex; flex-direction:column; padding-top: 0;"></div>
   <div class="content-list" id="library-hadith-list" style="display:none; flex-direction:column; padding-top: 0;"></div>
-  <div class="content-list" id="library-tafsir-list" style="display:none; flex-direction:column; padding-top: 0;"></div>
-</div>
-
-<!-- ПАТЧ 3: Новый экран для детального просмотра тафсира -->
-<div class="screen" id="screen-tafsir-detail">
-  <div class="header">
-    <button class="icon-btn ghost" onclick="goTafsirList()" aria-label="Назад"><svg class="ico"><use href="#i-arrow-left"/></svg></button>
-    <h1 style="font-size:16px">Тафсир</h1>
-    <button class="icon-btn ghost" id="tafsir-detail-star" onclick="detailStarClick()" aria-label="Избранное"><svg class="ico"><use href="#i-star"/></svg></button>
-  </div>
-  <div class="detail-body" id="tafsir-detail-content"></div>
 </div>
 
 <div class="screen" id="screen-settings">
@@ -567,8 +555,6 @@ window.addEventListener('error', function(e) {
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<!-- ПАТЧ 4: Подключение скрипта taфсиров -->
-<script src="./js/components/tafsir.js"></script>
 <script src="./js/api.js"></script>
 <script src="./js/storage.js"></script>
 <script src="./js/components/quran.js"></script>
