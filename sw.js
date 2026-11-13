@@ -4,7 +4,7 @@
    stale-while-revalidate для данных. SKIP_WAITING поддерживается.
    ============================================================ */
 
-const SW_VERSION   = 'iqra-v387';
+const SW_VERSION   = 'iqra-v388';
 const SW_VER_SHORT = SW_VERSION.replace(/^iqra-/, '');
 const CACHE_STATIC = 'iqra-static-' + SW_VER_SHORT;
 const CACHE_DATA   = 'iqra-data-'   + SW_VER_SHORT;
