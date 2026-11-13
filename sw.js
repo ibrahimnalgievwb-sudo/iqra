@@ -1,11 +1,10 @@
 /* ============================================================
-   SW.JS — Service Worker проекта «Икра» v386 (рефакторинг)
+   SW.JS — Service Worker проекта «Икра» v387
    Cache-first для статики, network-first для API/навигации,
-   stale-while-revalidate для данных. SKIP_WAITING поддерживается
-   (его отправляет app.js при обновлении).
+   stale-while-revalidate для данных. SKIP_WAITING поддерживается.
    ============================================================ */
 
-const SW_VERSION   = 'iqra-v386';
+const SW_VERSION   = 'iqra-v387';
 const SW_VER_SHORT = SW_VERSION.replace(/^iqra-/, '');
 const CACHE_STATIC = 'iqra-static-' + SW_VER_SHORT;
 const CACHE_DATA   = 'iqra-data-'   + SW_VER_SHORT;
@@ -60,7 +59,6 @@ self.addEventListener('install', (event) => {
   event.waitUntil((async () => {
     const cacheS = await caches.open(CACHE_STATIC);
     const cacheD = await caches.open(CACHE_DATA);
-    // addAll ломается целиком при одном 404 — грузим по одному
     await Promise.all(
       PRECACHE_STATIC.map((url) =>
         cacheS.add(url).catch((e) => console.warn('[SW] precache static skip:', url, e && e.message))
@@ -104,7 +102,6 @@ self.addEventListener('fetch', (event) => {
   if (req.method !== 'GET') return;
 
   const url = new URL(req.url);
-
   const isSameOrigin = url.origin === self.location.origin;
 
   if (
@@ -115,10 +112,8 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  if (
-    url.hostname === 'iqra-stats.goatcounter.com' ||
-    url.hostname === 'cloud.umami.is'
-  ) {
+  /* Umami — только сеть, без кэша. GoatCounter удалён по решению Директора. */
+  if (url.hostname === 'cloud.umami.is') {
     return;
   }
 
