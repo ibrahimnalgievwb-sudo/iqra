@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://cloud.umami.is; worker-src 'self'; img-src 'self' data: blob: https://iqra-stats.goatcounter.com https://cloud.umami.is; font-src 'self' https://api.quran.foundation; connect-src 'self' https://iqra-stats.goatcounter.com https://api.quran.foundation https://api.alquran.cloud https://alquran.api.islamic.network https://cloud.umami.is; object-src 'none'; base-uri 'none'; form-action 'none';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cloud.umami.is; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://api.alquran.cloud https://api.quran.foundation https://cloud.umami.is https://api-gateway.umami.dev;">
 <meta name="referrer" content="no-referrer">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -17,10 +17,37 @@
 <link rel="icon" type="image/png" href="./assets/icons/favicon.png">
 <link rel="apple-touch-icon" href="./assets/icons/apple-touch-icon.png">
 <link rel="manifest" href="./manifest.json">
-<link rel="preconnect" href="https://iqra-stats.goatcounter.com" crossorigin>
+<link rel="preconnect" href="https://cloud.umami.is" crossorigin>
+<link rel="preconnect" href="https://api.alquran.cloud" crossorigin>
 
 <!-- iOS-детектор: должен сработать до применения base.css (is-ios -> height:100vh вместо 100dvh) -->
 <script>if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1))document.documentElement.classList.add('is-ios');</script>
+
+<!-- Z-1: тема ДО применения CSS, чтобы избежать мигания -->
+<script>
+(function(){
+  try {
+    var theme = 'auto';
+    var raw = localStorage.getItem('iqra_data');
+    if (raw) {
+      try {
+        var d = JSON.parse(raw);
+        if (d && d.settings && d.settings.theme) theme = d.settings.theme;
+      } catch(e) {}
+    }
+    if (theme === 'night') theme = 'dark';
+    if (theme === 'auto') {
+      theme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+    }
+    document.documentElement.setAttribute('data-theme', theme);
+  } catch(e) {
+    document.documentElement.setAttribute('data-theme', 'light');
+  }
+})();
+</script>
+
+<!-- Umami: аналитика (goatcounter удалён по решению Директора) -->
+<script async src="https://cloud.umami.is/script.js" data-website-id="ccc49755-faf3-4ad6-993c-9f8be18a1746"></script>
 
 <!-- Страховочный error-handler: должен работать до загрузки app.js -->
 <script>
@@ -59,11 +86,11 @@ window.addEventListener('error', function(e) {
   <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01Z"/></symbol>
   <symbol id="i-star-filled" viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01Z" fill="currentColor"/></symbol>
   <symbol id="i-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h5v-6h4v6h5V9.5"/></symbol>
-<symbol id="i-misbaha" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1.4" fill="currentColor" stroke="none"/><circle cx="18" cy="7" r="1.4" fill="currentColor" stroke="none"/><circle cx="20" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="18" cy="17" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.4" fill="currentColor" stroke="none"/><circle cx="6" cy="17" r="1.4" fill="currentColor" stroke="none"/><circle cx="4" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="6" cy="7" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="2.4" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-misbaha" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1.4" fill="currentColor" stroke="none"/><circle cx="18" cy="7" r="1.4" fill="currentColor" stroke="none"/><circle cx="20" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="18" cy="17" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.4" fill="currentColor" stroke="none"/><circle cx="6" cy="17" r="1.4" fill="currentColor" stroke="none"/><circle cx="4" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="6" cy="7" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="2.4" fill="currentColor" stroke="none"/></symbol>
   <symbol id="i-book" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5h7a3 3 0 0 1 3 3v12a2.5 2.5 0 0 0-2.5-2.5H2z"/><path d="M22 5h-7a3 3 0 0 0-3 3v12a2.5 2.5 0 0 1 2.5-2.5H22z"/></symbol>
   <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/><circle cx="17" cy="5" r="1" fill="currentColor" stroke="none"/><circle cx="20" cy="8" r="0.7" fill="currentColor" stroke="none"/></symbol>
-<symbol id="i-dua" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><g transform="translate(0,1.2) scale(0.55,0.9)"><path vector-effect="non-scaling-stroke" d="M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2"/><path vector-effect="non-scaling-stroke" d="M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2"/><path vector-effect="non-scaling-stroke" d="M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8"/><path vector-effect="non-scaling-stroke" d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></g><g transform="translate(24,1.2) scale(-0.55,0.9)"><path vector-effect="non-scaling-stroke" d="M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2"/><path vector-effect="non-scaling-stroke" d="M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2"/><path vector-effect="non-scaling-stroke" d="M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8"/><path vector-effect="non-scaling-stroke" d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></g></symbol>
-<symbol id="i-scroll" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v14"/><path d="M16 12h2"/><path d="M16 8h2"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/><path d="M6 12h2"/><path d="M6 8h2"/></symbol>
+  <symbol id="i-dua" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><g transform="translate(0,1.2) scale(0.55,0.9)"><path vector-effect="non-scaling-stroke" d="M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2"/><path vector-effect="non-scaling-stroke" d="M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2"/><path vector-effect="non-scaling-stroke" d="M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8"/><path vector-effect="non-scaling-stroke" d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></g><g transform="translate(24,1.2) scale(-0.55,0.9)"><path vector-effect="non-scaling-stroke" d="M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2"/><path vector-effect="non-scaling-stroke" d="M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2"/><path vector-effect="non-scaling-stroke" d="M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8"/><path vector-effect="non-scaling-stroke" d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></g></symbol>
+  <symbol id="i-scroll" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v14"/><path d="M16 12h2"/><path d="M16 8h2"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/><path d="M6 12h2"/><path d="M6 8h2"/></symbol>
   <symbol id="i-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><rect x="5" y="13" width="3.5" height="8" rx="1.5"/><rect x="10.5" y="8" width="3.5" height="13" rx="1.5"/><rect x="16" y="3" width="3.5" height="18" rx="1.5"/><circle cx="6.75" cy="11.5" r="0.8" fill="currentColor" stroke="none"/><circle cx="12.25" cy="6.5" r="0.8" fill="currentColor" stroke="none"/><circle cx="17.75" cy="1.5" r="0.8" fill="currentColor" stroke="none"/></symbol>
   <symbol id="i-lightbulb" viewBox="0 0 24 24"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.3h6c0-1 .4-1.8 1-2.3A7 7 0 0 0 12 2z"/></symbol>
   <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><circle cx="12" cy="8" r="0.9" fill="currentColor" stroke="none"/></symbol>
@@ -73,7 +100,7 @@ window.addEventListener('error', function(e) {
   <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></symbol>
   <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M5 12h14"/></symbol>
   <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
-     <symbol id="i-bookmark" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></symbol>
+  <symbol id="i-bookmark" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></symbol>
   <symbol id="i-scroll-to-top" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></symbol>
 </svg>
 
@@ -87,29 +114,17 @@ window.addEventListener('error', function(e) {
   </div>
   
   <div class="list" id="dashboard-list">
-    
-    <!-- 1. Аят (первый элемент) -->
     <div id="dash-spiritual"></div> 
-    
-     <!-- 2. Аккуратное приветствие под Аятом (с датой) -->
     <div class="dash-greeting-block">
       <div class="dash-salam-subtle">Ассаляму алейкум</div>
       <div class="dash-hijri-gold text-gold-metallic" id="dash-hijri-header"></div>
     </div>
-    
-    <!-- 3. Продолжение (Продолжить чтение / Аль-Фатиха) -->
     <div id="dash-continue-block"></div>
-
-    <!-- 4. Призыв (Что тревожит вашу душу?) -->
     <div class="dash-call-card" onclick="switchTab('path')">
       <div class="dcc-title">Что тревожит вашу душу?</div>
       <div class="dcc-sub">Найдите ответ в Коране и Сунне</div>
     </div>
-
-    <!-- 5. Цитата дня -->
     <div class="dash-quote" id="dash-quote" onclick="dashQuoteTap()"></div>
-    
-    <!-- 6. Сетка 2х2 (Быстрый доступ) -->
     <div class="dash-grid-2x2">
       <div class="dash-grid-item" onclick="openNight(0)">
         <svg class="ico dgi-icon"><use href="#i-moon"/></svg>
@@ -128,7 +143,6 @@ window.addEventListener('error', function(e) {
         <div class="dgi-title">Дуа дня</div>
       </div>
     </div>
-
   </div>
 </div>
 
@@ -236,8 +250,8 @@ window.addEventListener('error', function(e) {
 <!-- QURAN DETAIL -->
 <div class="screen" id="screen-quran-detail">
   <div class="header">
-       <button class="icon-btn ghost" onclick="goQuranList()" aria-label="Назад"><svg class="ico"><use href="#i-arrow-left"/></svg></button>
-<h1 style="font-size:16px" id="quran-detail-title">Текст</h1>
+    <button class="icon-btn ghost" onclick="goQuranList()" aria-label="Назад"><svg class="ico"><use href="#i-arrow-left"/></svg></button>
+    <h1 style="font-size:16px" id="quran-detail-title">Текст</h1>
     <button class="icon-btn ghost" id="quran-detail-star" onclick="detailStarClick()" aria-label="Избранное"><svg class="ico"><use href="#i-star"/></svg></button>
   </div>
   <div class="detail-body" id="quran-detail-content"></div>
@@ -268,7 +282,7 @@ window.addEventListener('error', function(e) {
 <!-- DUA DETAIL -->
 <div class="screen" id="screen-dua-detail">
   <div class="header">
-       <button class="icon-btn ghost" onclick="goDuaList()" aria-label="Назад"><svg class="ico"><use href="#i-arrow-left"/></svg></button>
+    <button class="icon-btn ghost" onclick="goDuaList()" aria-label="Назад"><svg class="ico"><use href="#i-arrow-left"/></svg></button>
     <h1 style="font-size:16px">Дуа</h1>
     <button class="icon-btn ghost" id="dua-detail-star" onclick="detailStarClick()" aria-label="Избранное"><svg class="ico"><use href="#i-star"/></svg></button>
   </div>
@@ -284,7 +298,7 @@ window.addEventListener('error', function(e) {
 <!-- HADITH DETAIL -->
 <div class="screen" id="screen-hadith-detail">
   <div class="header">
-     <button class="icon-btn ghost" onclick="goHadithList()" aria-label="Назад"><svg class="ico"><use href="#i-arrow-left"/></svg></button>
+    <button class="icon-btn ghost" onclick="goHadithList()" aria-label="Назад"><svg class="ico"><use href="#i-arrow-left"/></svg></button>
     <h1 style="font-size:16px">Хадис</h1>
     <button class="icon-btn ghost" id="hadith-detail-star" onclick="detailStarClick()" aria-label="Избранное"><svg class="ico"><use href="#i-star"/></svg></button>
   </div>
@@ -295,10 +309,10 @@ window.addEventListener('error', function(e) {
 <div class="screen" id="screen-cal">
   <div class="header"><h1>Прогресс</h1><div style="width:42px"></div></div>
   <div class="cal">
-       <div class="prog-tabs">
+    <div class="prog-tabs">
       <button data-pt="overview" class="active" onclick="setProgTab('overview')">Обзор</button>
       <button data-pt="calendar" onclick="setProgTab('calendar')">Календарь</button>
-       <button data-pt="learned" onclick="setProgTab('learned')">Заучено</button>
+      <button data-pt="learned" onclick="setProgTab('learned')">Заучено</button>
     </div>
     <div id="prog-body"></div>
   </div>
@@ -311,22 +325,15 @@ window.addEventListener('error', function(e) {
     <h1>Путь</h1>
     <div style="width:42px"></div>
   </div>
-  
   <div style="padding: 0 16px 12px;">
     <div class="search-wrap">
       <input id="path-search" placeholder="Что тревожит вашу душу?" oninput="debouncedRenderPath()">
     </div>
   </div>
-
-  <!-- Контейнер для чипсов ALL_TAGS -->
   <div class="path-chips-wrapper">
     <div class="search-filters" id="path-chips-container"></div>
   </div>
-
-  <!-- Контейнер для результатов -->
-  <div class="content-list" id="path-results" style="padding-top: 0;">
-    <!-- Результаты будут генерироваться через JS -->
-  </div>
+  <div class="content-list" id="path-results" style="padding-top: 0;"></div>
 </div>
 
 <!-- LIBRARY -->
@@ -358,14 +365,14 @@ window.addEventListener('error', function(e) {
       <div class="sg-title">Внешний вид</div>
       <div class="setting-row">
         <div><div class="lbl">Тема</div></div>
-             <div class="seg" id="theme-seg">
+        <div class="seg" id="theme-seg">
           <button data-theme="light" onclick="setTheme('light')">Светлая</button>
           <button data-theme="dark" onclick="setTheme('dark')">Тёмная</button>
           <button data-theme="auto" onclick="setTheme('auto')">Авто</button>
           <button data-theme="mono" onclick="setTheme('mono')">Моно</button>
         </div>
       </div>
-          <div class="setting-row" style="flex-direction:column; align-items:stretch; gap:10px;">
+      <div class="setting-row" style="flex-direction:column; align-items:stretch; gap:10px;">
         <div class="lbl">Размер арабского текста</div>
         <div class="seg" id="size-seg">
           <button data-size="0.85" onclick="setArSize(0.85)">S</button>
@@ -375,7 +382,7 @@ window.addEventListener('error', function(e) {
         </div>
         <div class="ar-size-preview"><span class="ar ar-font" id="ar-preview">سُبْحَانَ اللَّهِ</span></div>
       </div>
-         <div class="setting-row"><div><div class="lbl">Цвета таджвида</div><div class="sub">Встроены в режим чтения (Hafs V4)</div></div><span style="color:var(--gold-accent); font-weight:700;">Вкл.</span></div>
+      <div class="setting-row"><div><div class="lbl">Цвета таджвида</div><div class="sub">Встроены в режим чтения (Hafs V4)</div></div><span style="color:var(--gold-accent); font-weight:700;">Вкл.</span></div>
     </div>
     <div class="settings-group">
       <div class="sg-title">Счёт</div>
@@ -383,7 +390,7 @@ window.addEventListener('error', function(e) {
         <div><div class="lbl">Дневная цель</div></div>
         <input id="daily-goal-input" type="number" inputmode="numeric" min="0" max="1000000" style="width:100px; background:var(--card2); border:none; border-radius:10px; padding:10px 12px; text-align:right; font-size:17px; font-weight:700; outline:none; color:var(--text);" onchange="setDailyGoal(this.value)">
       </div>
-           <div class="setting-row"><div><div class="lbl">Автопереход</div></div><label class="toggle"><input type="checkbox" id="opt-autonext"><span class="slider"></span></label></div>
+      <div class="setting-row"><div><div class="lbl">Автопереход</div></div><label class="toggle"><input type="checkbox" id="opt-autonext"><span class="slider"></span></label></div>
       <div class="setting-row"><div><div class="lbl">Не гасить экран</div></div><label class="toggle"><input type="checkbox" id="opt-wake"><span class="slider"></span></label></div>
       <div class="setting-row"><div><div class="lbl">Уведомление о цели</div><div class="sub">Показать сообщение при достижении дневной цели</div></div><label class="toggle"><input type="checkbox" id="opt-goal-notify"><span class="slider"></span></label></div>
     </div>
@@ -593,7 +600,5 @@ window.addEventListener('error', function(e) {
 <script src="./js/components/onboarding.js"></script>
 <script src="./js/deprecated.js"></script>
 <script src="./js/app.js"></script>
-
-<script data-goatcounter="https://iqra-stats.goatcounter.com/count" async src="./count.js"></script>
 </body>
 </html>
