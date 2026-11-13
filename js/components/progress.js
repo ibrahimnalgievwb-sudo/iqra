@@ -3,9 +3,8 @@
 /* ============================================================
    PROGRESS.JS — Раздел «Прогресс»: обзор, календарь, заучено,
                 избранное + закладки
-   Проект «Икра» · v383 (рефакторинг)
-   Зависимости: calculateStreak, formatDateShort (storage.js),
-                openDay (app.js), openBookmark/removeBookmark (reader.js).
+   Проект «Икра» · v387 (Этап 3.5)
+   D-06: goal-бар через scaleX, bar-chart через scaleY.
    ============================================================ */
 
 const MONTHS = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
@@ -41,13 +40,13 @@ function renderProgressFavorites() {
   if (bms.length) {
     html += '<div class="settings-group"><div class="progress-section-title">Закладки</div>';
     bms.forEach(b => {
-      html += '<div class="learned-item mark-item"><div onclick="openBookmark(\'' + b.id + '\')" style="cursor:pointer;flex:1;min-width:0"><div class="li-title">' + esc(b.label) + '</div><div class="li-sub">' + new Date(b.ts).toLocaleDateString('ru-RU') + '</div></div><button class="mi-del" onclick="removeBookmark(\'' + b.id + '\')" aria-label="Удалить">×</button></div>';
+      html += '<div class="learned-item mark-item"><div onclick="openBookmark(\'' + esc(b.id) + '\')" style="cursor:pointer;flex:1;min-width:0"><div class="li-title">' + esc(b.label) + '</div><div class="li-sub">' + new Date(b.ts).toLocaleDateString('ru-RU') + '</div></div><button class="mi-del" onclick="removeBookmark(\'' + esc(b.id) + '\')" aria-label="Удалить">×</button></div>';
     });
     html += '</div>';
   }
-  if (favQ.length) { html += `<div class="settings-group"><div class="progress-section-title">Суры и аяты</div>`; favQ.forEach(q => { html += `<div class="learned-item" onclick="openQuran('${q.id}')" style="cursor:pointer"><div><div class="li-title">${esc(q.title)}</div><div class="li-sub">${esc(q.subtitle||'')}</div></div><div class="li-check">★</div></div>`; }); html += `</div>`; }
-  if (favD.length) { html += `<div class="settings-group"><div class="progress-section-title">Дуа</div>`; favD.forEach(d => { html += `<div class="learned-item" onclick="openDua('${d.id}')" style="cursor:pointer"><div><div class="li-title">${esc(d.title)}</div><div class="li-sub">${esc(d.subtitle||'')}</div></div><div class="li-check">★</div></div>`; }); html += `</div>`; }
-  if (favH.length) { html += `<div class="settings-group"><div class="progress-section-title">Хадисы</div>`; favH.forEach(h => { html += `<div class="learned-item" onclick="openHadith('${h.id}')" style="cursor:pointer"><div><div class="li-title">${esc(h.title)}</div><div class="li-sub">${esc(h.subtitle||'')}</div></div><div class="li-check">★</div></div>`; }); html += `</div>`; }
+  if (favQ.length) { html += `<div class="settings-group"><div class="progress-section-title">Суры и аяты</div>`; favQ.forEach(q => { html += `<div class="learned-item" onclick="openQuran('${esc(q.id)}')" style="cursor:pointer"><div><div class="li-title">${esc(q.title)}</div><div class="li-sub">${esc(q.subtitle||'')}</div></div><div class="li-check">★</div></div>`; }); html += `</div>`; }
+  if (favD.length) { html += `<div class="settings-group"><div class="progress-section-title">Дуа</div>`; favD.forEach(d => { html += `<div class="learned-item" onclick="openDua('${esc(d.id)}')" style="cursor:pointer"><div><div class="li-title">${esc(d.title)}</div><div class="li-sub">${esc(d.subtitle||'')}</div></div><div class="li-check">★</div></div>`; }); html += `</div>`; }
+  if (favH.length) { html += `<div class="settings-group"><div class="progress-section-title">Хадисы</div>`; favH.forEach(h => { html += `<div class="learned-item" onclick="openHadith('${esc(h.id)}')" style="cursor:pointer"><div><div class="li-title">${esc(h.title)}</div><div class="li-sub">${esc(h.subtitle||'')}</div></div><div class="li-check">★</div></div>`; }); html += `</div>`; }
   if (!bms.length && !favQ.length && !favD.length && !favH.length) {
     html += '<div class="empty">Пока пусто.<br>Нажимайте ★ на карточках и добавляйте закладки в режиме чтения.</div>';
   }
@@ -69,7 +68,7 @@ function renderProgressOverview() {
     <div class="stat-card" style="grid-column: span 2; background:linear-gradient(135deg, rgba(var(--accent-rgb), .15), rgba(var(--accent-rgb), .05));">
       <div class="sc-label">Сегодня</div>
       <div style="display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;"><div class="sc-value" style="font-size:44px;">${todayTotal}</div><div style="font-size:15px; color:var(--muted); font-weight:500;">/ ${goal} · ${goalPct}%</div></div>
-      <div style="margin-top:10px; height:6px; background:var(--card2); border-radius:3px; overflow:hidden;"><div style="width:${goalPct}%; height:100%; background:var(--accent); border-radius:3px;"></div></div>
+      <div style="margin-top:10px; height:6px; background:var(--card2); border-radius:3px; overflow:hidden;"><div style="transform: scaleX(${goalPct/100}); transform-origin: left center; width: 100%; height:100%; background:var(--accent); border-radius:3px;"></div></div>
     </div>
       <div class="stat-grid">
       <div class="stat-card"><div class="sc-label">Всего зикра</div><div class="sc-value">${totalAll}</div><div class="sc-sub">за всё время</div></div>
@@ -113,7 +112,8 @@ function renderProgressCalendar() {
   }
   const maxV = Math.max(1, ...daily);
   const today = new Date();
-  let bars = daily.map((v,i)=>{ const h=v>0?Math.max(4,(v/maxV)*100):2; const isToday=(today.getFullYear()===y && today.getMonth()===m && today.getDate()===i+1); return `<div class="bar ${isToday?'today':''}" style="height:${h}%"></div>`; }).join('');
+  /* D-06: bar-chart via transform: scaleY */
+  let bars = daily.map((v,i)=>{ const h=v>0?Math.max(4,(v/maxV)*100):2; const isToday=(today.getFullYear()===y && today.getMonth()===m && today.getDate()===i+1); return `<div class="bar ${isToday?'today':''}" style="transform:scaleY(${(h/100).toFixed(4)});transform-origin:bottom center;height:100%"></div>`; }).join('');
   let labels = '';
   for (let d=1; d<=daily.length; d++) { if (d===1 || d%5===0 || d===daily.length) labels += `<span>${d}</span>`; else labels += `<span></span>`; }
   body.innerHTML = `
