@@ -1,6 +1,6 @@
 /* ============================================================
    VARIABLES.CSS — CSS-переменные, палитра золота, темы
-   Проект «Икра» · v383 (рефакторинг)
+   Проект «Икра» · v387 (Этап 3.5, финал)
    ============================================================ */
 
 :root {   
@@ -16,18 +16,39 @@
   --accent-rgb: 10, 10, 10; --ripple:rgba(10,10,10,.15);   
   --ar-g2:var(--gold-standard);
 
-  /* Единый золотой стандарт «Икра» v378 */
-  --gold-standard: #D4AF37; /* Богатый металлический цвет без желтизны */
-  --gold-accent: var(--gold-standard); /* Для совместимости с кнопками */
-  --gold-glow: 0 4px 12px rgba(212, 175, 55, 0.35);
-  --gold-glow-sm: 0 2px 8px rgba(212, 175, 55, 0.2);
+  /* D-04: safe-area токены */
+  --safe-top:    env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left:   env(safe-area-inset-left, 0px);
+  --safe-right:  env(safe-area-inset-right, 0px);
+
+  /* D-05 + Z-6: fluid typography & spacing (320px → 768px+) */
+  --fs-xs:  clamp(10px, 2.4vw, 12px);
+  --fs-sm:  clamp(12px, 3.0vw, 14px);
+  --fs-md:  clamp(14px, 3.6vw, 16px);
+  --fs-lg:  clamp(16px, 4.2vw, 20px);
+  --fs-xl:  clamp(20px, 5.4vw, 28px);
+  --fs-ar:  clamp(22px, 6.0vw, 32px);
+  --fs-ar-lg: clamp(24px, 7.0vw, 36px);
+  --space-1: clamp(4px,  1.2vw, 6px);
+  --space-2: clamp(8px,  2.0vw, 12px);
+  --space-3: clamp(12px, 3.0vw, 16px);
+  --space-4: clamp(16px, 4.0vw, 24px);
+
+  /* D-09: премиальное золото — токены */
+  --gold-standard:  #D4AF37;
+  --gold-highlight: #F2D06B;
+  --gold-deep:      #A67C00;
+  --gold-accent: var(--gold-standard);
+  --gold-glow:      0 0 12px rgba(212, 175, 55, 0.45);
+  --gold-glow-sm:   0 2px 8px rgba(212, 175, 55, 0.2);
+  --gold-gradient:  linear-gradient(135deg, #A67C00 0%, #F2D06B 45%, #D4AF37 60%, #A67C00 100%);
   --gold-text-hi:   #FFF3B0;
   --gold-text-lit:  #F5C542;
-  --gold-text-base: #D4A017;
-  --gold-text-shade:#A67C00;
-  --gold-text-deep: #7A5A00;
+  --gold-text-base:  #E5C158;
+  --gold-text-shade: #C9A227;
+  --gold-text-deep:  #8B6508;
 
-  /* PREMIUM BUTTONS v5 */
   --gold-soft: rgba(197,160,89,.15);
   --gold-star: var(--gold-standard);
   --danger: #C96A5A;
@@ -40,6 +61,11 @@
   --text:#0A0A0A; --muted:#3D3D3D; --border:#C8C8C8; --shadow:rgba(0,0,0,.12);
   --accent-rgb: 10, 10, 10; --ripple:rgba(10,10,10,.15);
   --ar-g2:var(--gold-standard);
+
+  --gold-text-base:  #B8860B;
+  --gold-text-shade: #8B6508;
+  --gold-text-deep:  #4A3600;
+  --gold-glow:       0 1px 2px rgba(122, 90, 0, 0.35);
 }
 
 [data-theme="dark"] {
@@ -49,8 +75,6 @@
   --ar-g2:var(--gold-standard);
 }
 
-/* A3 v383: iOS drop-shadow удалён */
-
 [data-theme="mono"] {
   --bg:#0D0D0D; --card:#1C1C1C; --card2:#2A2A2A; --accent:#FFFFFF; --accent2:#E8E8E8;
   --text:#FFFFFF; --muted:#C4C4C4; --border:#424242; --shadow:rgba(0,0,0,.70);
@@ -58,7 +82,6 @@
   --ar-g2:var(--gold-standard);
 }
 
-/* U3: на узких экранах — уменьшенная высота навигации */
 @media (max-width: 360px) {
   :root { --nav-height: 46px; }
 }
