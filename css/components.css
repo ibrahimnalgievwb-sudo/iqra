@@ -42,7 +42,7 @@
 .btn { 
   display:flex; align-items:center; justify-content:center; width: 100%; padding: 16px; 
   border-radius: 14px; font-size: var(--fs-md); font-weight: 800; 
-  background: linear-gradient(135deg, #BF953F 0%, #FCF6BA 50%, #B38728 100%) !important; 
+  background: var(--gold-gradient) !important; /* ИСПОЛЬЗУЕМ ТОКЕН */
   color: #1c1917 !important; 
   border: 1px solid rgba(255,255,255,0.4) !important; 
   box-shadow: var(--shadow-button) !important; 
@@ -66,7 +66,7 @@
 .btn.danger { background: transparent !important; color: #ff4d4d !important; border: 1.5px solid rgba(255,77,77,.3) !important; box-shadow: none !important; }
 
 /* === FAB === */
-.fab { position:fixed; right:24px; bottom:calc(100px + var(--nav-safe)); width:60px; height:60px; border-radius:50%; background: linear-gradient(135deg, #BF953F 0%, #FCF6BA 50%, #B38728 100%); color:#0A0A0A; font-size:30px; display:flex; align-items:center; justify-content:center; box-shadow: 0 4px 15px rgba(212,175,55,0.4); z-index:100; transition: transform var(--dur-fast); border: 1px solid rgba(255,255,255,0.4); }
+.fab { position:fixed; right:24px; bottom:calc(100px + var(--nav-safe)); width:60px; height:60px; border-radius:50%; background: var(--gold-gradient); color:#0A0A0A; font-size:30px; display:flex; align-items:center; justify-content:center; box-shadow: 0 4px 15px rgba(212,175,55,0.4); z-index:100; transition: transform var(--dur-fast); border: 1px solid rgba(255,255,255,0.4); }
 .fab:active { transform:scale(.92); }
 
 /* === ICONS === */
