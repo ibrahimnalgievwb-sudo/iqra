@@ -2,14 +2,14 @@
 
 /* ============================================================
    STORAGE.JS — Состояние, localStorage, миграции, утилиты данных
-   Проект «Икра» · v387 (Этап 3.5)
+   Проект «Икра» · v390 (Этап 3.5)
    Глобальные DEFAULT_* заполняются в api.js (loadAllData).
    D-10: только localStorage, никаких fetch/XHR с личными данными.
    ============================================================ */
 
 const STORAGE_KEY = 'iqra_data';
 const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
-const APP_VERSION = 'iqra-v389';
+const APP_VERSION = 'iqra-v390';
 
 const BACKUP_SCHEMA = 2;
 const LIMITS = { tasbihs:1000, history:10000, historyDays:365, reminders:50, textLen:1000, idLen:100, targetMax:100000, cyclesMax:1000000 };
