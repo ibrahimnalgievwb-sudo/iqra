@@ -86,7 +86,7 @@
   letter-spacing: -0.02em;
 }
 .dash-greeting-block .dash-hijri-gold {
-  color: var(--muted) !important;
+  color: var(--muted);
   font-size: var(--fs-xs);
   font-weight: 500;
   letter-spacing: 0.2px;
@@ -109,12 +109,12 @@
 /* === PATH TAB: chips wrapper === */
 .path-chips-wrapper { width: 100%; max-width: 100%; min-width: 0; box-sizing: border-box; }
 #path-chips-container {
-  display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important;
-  overflow-x: auto !important; justify-content: flex-start !important;
-  gap: var(--space-2) !important; 
-  padding: 4px var(--space-3) 6px var(--space-3) !important;
+  display: flex; flex-direction: row; flex-wrap: nowrap;
+  overflow-x: auto; justify-content: flex-start;
+  gap: var(--space-2); 
+  padding: 4px var(--space-3) 6px var(--space-3);
   box-sizing: border-box; width: 100%; min-width: 0; max-width: 100%;
-  border-bottom: none !important; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  border-bottom: none; scrollbar-width: none; -webkit-overflow-scrolling: touch;
 }
 #path-chips-container::-webkit-scrollbar { display: none; }
 

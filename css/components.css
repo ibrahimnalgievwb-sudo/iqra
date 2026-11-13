@@ -96,62 +96,41 @@
 .bar-chart .bars { display:flex; align-items:flex-end; gap:2px; height:100px; }
 .bar-chart .bar { flex:1; height:100%; background:var(--accent); border-radius:3px 3px 0 0; transform: scaleY(0); transform-origin: bottom center; transition: transform .3s ease; }
 
-/* === BUTTONS === */
-.btn { 
-  display:flex; align-items:center; justify-content:center; width: 100%; padding: 16px; 
-  border-radius: 14px; font-size: var(--fs-md); font-weight: 800; 
-  background: var(--gold-gradient) !important; 
-  color: #1c1917 !important; 
-  border: 1px solid rgba(255,255,255,0.4) !important; 
-  box-shadow: var(--shadow-button) !important; 
-  margin-bottom: var(--space-2); 
+/* === BUTTONS (v413) ===
+   Единый блок вместо трёх наслоённых. Без !important: приоритет задаёт
+   специфичность и ПОРЯДОК правил (hover, active, secondary, theme, danger). */
+.btn {
+  display: flex; align-items: center; justify-content: center; width: 100%;
+  min-height: 48px; padding: 14px 18px; margin-bottom: var(--space-2);
+  border-radius: 14px; font-size: var(--fs-md); font-weight: 700; letter-spacing: -0.005em;
+  background: var(--gold-gradient); color: #1c1917;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 4px 13px rgba(212, 175, 55, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.48);
   transition: transform 160ms ease, box-shadow 160ms ease;
 }
-.btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
-}
-.btn:active { 
-  transform: translateY(2px) !important; 
-  box-shadow: var(--shadow-button-active) !important; 
-  transition-duration: 60ms;
-}
+.btn:hover { transform: translateY(-2px); box-shadow: 0 6px 17px rgba(212, 175, 55, 0.23), inset 0 1px 0 rgba(255, 255, 255, 0.52); }
+.btn:active { transform: translateY(2px); box-shadow: var(--shadow-button-active); transition-duration: 60ms; }
 
-/* Премиальная outline-кнопка (Читать суру полностью, Назад и т.д.) */
-.btn.secondary, .btn-inline, .show-all-btn { 
-  background: transparent !important; 
-  color: #1c1917 !important; 
-  border: 1.5px solid var(--gold-fill) !important; 
-  box-shadow: none !important; 
+/* Outline-кнопки (Читать суру полностью, Назад и т.д.) */
+.btn.secondary, .btn-inline, .show-all-btn {
+  background: transparent; color: var(--gold-text-light);
+  border: 1.5px solid var(--gold-fill); box-shadow: none; font-weight: 650;
   transition: background 0.2s ease, transform 0.2s ease;
 }
-/* Контраст outline-кнопок в тёмной теме и в системном dark-режиме */
+/* Тёмная, mono и системная тёмная темы: светлое золото, не чёрный на чёрном */
 [data-theme="dark"] .btn.secondary, [data-theme="dark"] .btn-inline, [data-theme="dark"] .show-all-btn,
 [data-theme="mono"] .btn.secondary, [data-theme="mono"] .btn-inline, [data-theme="mono"] .show-all-btn {
-  color: var(--gold-text-dark) !important;
-  border: 1.5px solid var(--gold-text-dark) !important;
-  background: transparent !important;
+  color: var(--gold-text-dark); border-color: var(--gold-text-dark);
 }
 @media (prefers-color-scheme: dark) {
-  html:not([data-theme]) .btn.secondary,
-  html:not([data-theme]) .btn-inline,
-  html:not([data-theme]) .show-all-btn {
-    color: var(--gold-text-dark) !important;
-    border: 1.5px solid var(--gold-text-dark) !important;
-    background: transparent !important;
+  html:not([data-theme]) .btn.secondary, html:not([data-theme]) .btn-inline, html:not([data-theme]) .show-all-btn {
+    color: var(--gold-text-dark); border-color: var(--gold-text-dark);
   }
 }
+.btn.secondary:hover, .btn-inline:hover, .show-all-btn:hover { background: rgba(212, 175, 55, 0.05); transform: translateY(-1px); }
+.btn.secondary:active, .btn-inline:active, .show-all-btn:active { transform: scale(0.98); background: rgba(212, 175, 55, 0.1); }
 
-.btn.secondary:hover, .btn-inline:hover, .show-all-btn:hover {
-  background: rgba(212, 175, 55, 0.05) !important;
-  transform: translateY(-1px);
-}
-.btn.secondary:active, .btn-inline:active, .show-all-btn:active {
-  transform: scale(0.98) !important;
-  background: rgba(212, 175, 55, 0.1) !important;
-}
-
-.btn.danger { background: transparent !important; color: #ff4d4d !important; border: 1.5px solid rgba(255,77,77,.3) !important; box-shadow: none !important; }
+.btn.danger { background: transparent; color: #ff4d4d; border: 1.5px solid rgba(255, 77, 77, 0.3); box-shadow: none; }
 
 /* === FAB === */
 .fab { position:fixed; right:24px; bottom:calc(100px + var(--nav-safe)); width:60px; height:60px; border-radius:50%; background: var(--gold-gradient); color:#0A0A0A; font-size:30px; display:flex; align-items:center; justify-content:center; box-shadow: 0 4px 15px rgba(212,175,55,0.4); z-index:100; transition: transform var(--dur-fast); border: 1px solid rgba(255,255,255,0.4); }
@@ -588,9 +567,9 @@
   transform: translateZ(0);
 }
 .path-chip:active { transform: scale(0.95); }
-.show-all-btn { display: flex; align-items: center; justify-content: center; gap: var(--space-2); width: 100%; padding: var(--space-3); margin-top: var(--space-2); margin-bottom: var(--space-4); border-radius: 16px; background: var(--card); border: 1px dashed var(--gold-accent); color: var(--gold-accent); font-weight: 600; font-size: var(--fs-md); cursor: pointer; }
+.show-all-btn { display: flex; align-items: center; justify-content: center; gap: var(--space-2); width: 100%; padding: var(--space-3); margin-top: var(--space-2); margin-bottom: var(--space-4); border-radius: 16px; font-size: var(--fs-md); cursor: pointer; }
 .path-empty { text-align: center; padding: 40px var(--space-4); color: var(--muted); font-size: var(--fs-md); line-height: 1.6; }
-.btn-inline { display: inline-block !important; vertical-align: middle !important; border: 1px solid var(--gold-standard) !important; color: var(--gold-standard) !important; background: transparent !important; border-radius: 8px !important; padding: 6px 12px !important; cursor: pointer !important; font-size: var(--fs-sm) !important; margin: 12px auto 0 !important; }
+.btn-inline, .btn.btn-inline { display: inline-block; vertical-align: middle; border-radius: 8px; padding: 6px 12px; cursor: pointer; font-size: var(--fs-sm); margin: 12px auto 0; }
 
 /* === ЕДИНАЯ ГЕОМЕТРИЯ КАРТОЧЕК === */
 .content-card, .tasbih-card, .detail-hero, .bismillah-card, .modal, .read-ayah,
@@ -669,38 +648,6 @@
 .read-ayah-trn { line-height: 1.72; font-size: clamp(15px, 3.8vw, 17px); }
 .detail-hero .dh-text { line-height: 1.75; }
 .content-card .c-tr { line-height: 1.62; }
-
-/* Кнопки действий — ясная иерархия, стабильный контраст, единая высота. */
-.btn {
-  min-height: 48px;
-  padding: 14px 18px;
-  border-radius: 14px;
-  font-weight: 700;
-  letter-spacing: -0.005em;
-  box-shadow: 0 4px 13px rgba(212, 175, 55, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.48) !important;
-}
-
-.btn:hover {
-  box-shadow: 0 6px 17px rgba(212, 175, 55, 0.23), inset 0 1px 0 rgba(255, 255, 255, 0.52) !important;
-}
-
-.btn.secondary, .btn-inline, .show-all-btn {
-  color: var(--gold-text-light) !important;
-  border: 1.5px solid var(--gold-fill) !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  font-weight: 650;
-}
-
-[data-theme="dark"] .btn.secondary,
-[data-theme="dark"] .btn-inline,
-[data-theme="dark"] .show-all-btn,
-[data-theme="mono"] .btn.secondary,
-[data-theme="mono"] .btn-inline,
-[data-theme="mono"] .show-all-btn {
-  color: var(--gold-text-dark) !important;
-  border-color: var(--gold-text-dark) !important;
-}
 
 .btn.secondary svg.ico, .btn-inline svg.ico, .show-all-btn svg.ico,
 .ayah-share-btn svg.ico {
