@@ -622,14 +622,13 @@ if ('serviceWorker' in navigator) {
     swReload();
   });
 
-  navigator.serviceWorker.addEventListener('message', function(e) {
-    if (e.data && e.data.type === 'SW_UPDATED') {
-      if (e.data.version && e.data.version !== APP_VERSION) {
-        swReload();
-      }
+navigator.serviceWorker.addEventListener('message', function(e) {
+  if (e.data && e.data.type === 'SW_UPDATED') {
+    if (e.data.version && e.data.version !== APP_VERSION) {
+      swReload();   // → «Перезагрузите приложение вручную»
     }
-  });
-}
+  }
+});
 
 /* ---------- BACK BUTTON (iOS swipe + Android system back) ---------- */
 (function(){
