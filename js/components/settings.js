@@ -3,7 +3,7 @@
 /* ============================================================
    SETTINGS.JS — Настройки, темы (sunrise/sunset), напоминания,
                  экспорт/импорт/сброс, дневная цель
-   Проект «Икра» · v383 (рефакторинг)
+   Проект «Икра» · v417
    ============================================================ */
 
 /* ---------- OPEN SETTINGS ---------- */
@@ -21,7 +21,7 @@ function openSettings() {
 function setDailyGoal(v) { state.settings.dailyGoal = Math.max(0, Math.min(1000000, parseInt(v)||0)); save(); }
 
 /* ---------- REMINDERS ---------- */
-function renderReminders() { const el=document.getElementById('reminders-list'); if (!state.reminders.length) { el.innerHTML=`<div style="padding:14px 16px;color:var(--muted);font-size:13px">Пока нет напоминаний</div>`; return; } el.innerHTML = state.reminders.map((r,i)=>`<div class="reminder-row"><div class="rr-top"><input type="time" value="${r.time}" onchange="updateReminderField(${i},'time',this.value)"><label class="toggle"><input type="checkbox" ${r.on?'checked':''} onchange="toggleReminder(${i}, this.checked)"><span class="slider"></span></label><button class="del" onclick="deleteReminder(${i})">×</button></div><input type="text" value="${esc(r.message||'')}" placeholder="Сообщение (необязательно)" maxlength="200" onchange="updateReminderField(${i},'message',this.value)"></div>`).join(''); }
+function renderReminders() { const el=document.getElementById('reminders-list'); if (!state.reminders.length) { el.innerHTML=`<div style="padding:14px 16px;color:var(--muted);font-size:13px">Пока нет напоминаний</div>`; return; } el.innerHTML = state.reminders.map((r,i)=>`<div class="reminder-row"><div class="rr-top"><input type="time" value="${esc(r.time)}" onchange="updateReminderField(${i},'time',this.value)"><label class="toggle"><input type="checkbox" ${r.on?'checked':''} onchange="toggleReminder(${i}, this.checked)"><span class="slider"></span></label><button class="del" onclick="deleteReminder(${i})">×</button></div><input type="text" value="${esc(r.message||'')}" placeholder="Сообщение (необязательно)" maxlength="200" onchange="updateReminderField(${i},'message',this.value)"></div>`).join(''); }
 function addReminder() { if (state.reminders.length >= LIMITS.reminders) { alert('Максимум '+LIMITS.reminders+' напоминаний'); return; } const t=document.getElementById('new-reminder-time').value; const mi=document.getElementById('new-reminder-msg'); const msg=(mi?mi.value:'').trim().slice(0,200); if (!t || !/^\d{2}:\d{2}$/.test(t)) return; state.reminders.push({time:t,on:true,lastFired:'',message:msg}); if (mi) mi.value=''; save(); renderReminders(); if ('Notification' in window && Notification.permission === 'default') { try { const p = Notification.requestPermission(); if (p && typeof p.catch === 'function') p.catch(function(){}); } catch(e) {} } }
 function updateReminderField(i, field, v) { if (field==='time') { if (!/^\d{2}:\d{2}$/.test(v)) return; state.reminders[i].time=v; } else if (field==='message') { state.reminders[i].message=String(v||'').trim().slice(0,200); } save(); }
 function toggleReminder(i,v) { state.reminders[i].on = v; save(); }
@@ -43,7 +43,7 @@ function _regionForTheme() {
     11: { lat: 48.5, lon: 135.0 },
     12: { lat: 48.5, lon: 135.0 }
   };
-  return table[off] || { lat: 55.75, lon: 37.62 };
+  return table[off] || { lat: 45, lon: off * 15 };
 }
 function getSunTimes(date) {
   const rad = Math.PI / 180;
@@ -75,13 +75,13 @@ function applyTheme() {
   }
   if (t === 'mono') {
     document.documentElement.setAttribute('data-theme', 'mono');
-    setMetaTheme('#0D0D0D');
+    setMetaTheme('#0B0B0B');
   } else if (t === 'light') {
     document.documentElement.setAttribute('data-theme', 'light');
-    setMetaTheme('#FFFFFF');
+    setMetaTheme('#F7F5EF');
   } else if (t === 'dark') {
     document.documentElement.setAttribute('data-theme', 'dark');
-    setMetaTheme('#000000');
+    setMetaTheme('#050505');
   } else {
     const now = new Date();
     const nowMin = now.getHours() * 60 + now.getMinutes();
@@ -94,7 +94,7 @@ function applyTheme() {
       isDark = (h >= 19 || h < 6);
     }
     document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
-    setMetaTheme(isDark ? '#000000' : '#FFFFFF');
+    setMetaTheme(isDark ? '#050505' : '#F7F5EF');
   }
   document.querySelectorAll('#theme-seg button').forEach(b=>b.classList.toggle('active', b.dataset.theme===t));
 }
@@ -143,6 +143,56 @@ function exportData() {
   if (state.settings.vibrate && navigator.vibrate) navigator.vibrate(15);
 }
 
+/* ---------- IMPORT: ОЧИСТКА ВХОДНЫХ ДАННЫХ (v417) ----------
+   Резервная копия — недоверенный ввод. Всё, что попадёт в state и затем в
+   разметку, приводится к ожидаемым типам и диапазонам. */
+function _impSafeId(id) { return (typeof id === 'string' && /^[a-zA-Z0-9_-]{1,100}$/.test(id)) ? id : null; }
+function _impNumMap(raw) {
+  const out = {};
+  if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
+    Object.keys(raw).forEach(function (k) {
+      const v = raw[k];
+      if (_impSafeId(k) && typeof v === 'number' && isFinite(v) && v >= 0) out[k] = Math.min(Math.floor(v), 10000000);
+    });
+  }
+  return out;
+}
+function sanitizeSettings(raw) {
+  const src = (raw && typeof raw === 'object' && !Array.isArray(raw)) ? raw : {};
+  const base = defaultSettings();
+  const num = function (v, min, max, d) { return (typeof v === 'number' && isFinite(v)) ? Math.min(max, Math.max(min, v)) : d; };
+  const bool = function (v, d) { return typeof v === 'boolean' ? v : d; };
+  const out = {};
+  out.theme = ['auto', 'light', 'dark', 'mono'].indexOf(src.theme) >= 0 ? src.theme : base.theme;
+  out.arSize = num(src.arSize, 0.8, 1.6, base.arSize);
+  out.dailyGoal = Math.floor(num(src.dailyGoal, 0, 1000000, base.dailyGoal));
+  ['autoNext', 'wakeLock', 'sound', 'vibrate', 'goalNotify'].forEach(function (k) { out[k] = bool(src[k], base[k]); });
+  out.tajweedMode = bool(src.tajweedMode, false);
+  const lr = src.lastRead;
+  out.lastRead = (lr && typeof lr === 'object' && ['quran', 'dua', 'hadith'].indexOf(lr.type) >= 0 && _impSafeId(lr.id))
+    ? { type: lr.type, id: lr.id, ts: (typeof lr.ts === 'number' && isFinite(lr.ts)) ? lr.ts : Date.now() } : null;
+  out.lastScreen = (typeof src.lastScreen === 'string' && /^screen-[a-z0-9-]{1,40}$/.test(src.lastScreen)) ? src.lastScreen : null;
+  out.readScrolls = _impNumMap(src.readScrolls);
+  out.readAyah = _impNumMap(src.readAyah);
+  return out;
+}
+function sanitizeReminders(raw) {
+  if (!Array.isArray(raw)) return [];
+  const out = [];
+  raw.forEach(function (r) {
+    if (out.length >= LIMITS.reminders || !r || typeof r !== 'object') return;
+    const m = /^(\d{2}):(\d{2})$/.exec(String(r.time || ''));
+    if (!m || +m[1] > 23 || +m[2] > 59) return;
+    out.push({
+      time: m[1] + ':' + m[2],
+      on: r.on === true,
+      lastFired: (typeof r.lastFired === 'string' && /^[0-9-]{0,10}$/.test(r.lastFired)) ? r.lastFired : '',
+      message: String(r.message == null ? '' : r.message).slice(0, 200)
+    });
+  });
+  return out;
+}
+
 function validateImport(d) {
   if (!d || typeof d !== 'object' || Array.isArray(d)) return null;
   if (!Array.isArray(d.tasbihs)) return null;
@@ -157,11 +207,9 @@ function validateImport(d) {
     clean.cycles = (typeof t.cycles === 'number' && isFinite(t.cycles) && t.cycles >= 0) ? Math.floor(t.cycles) : 0;
     return clean;
   }).filter(Boolean);
-      safe.settings = (d.settings && typeof d.settings === 'object' && !Array.isArray(d.settings)) ? d.settings : {};
-      safe.settings.readScrolls = (safe.settings.readScrolls && typeof safe.settings.readScrolls === 'object' && !Array.isArray(safe.settings.readScrolls)) ? safe.settings.readScrolls : {};
-      safe.settings.readAyah = (safe.settings.readAyah && typeof safe.settings.readAyah === 'object' && !Array.isArray(safe.settings.readAyah)) ? safe.settings.readAyah : {};
+  safe.settings = sanitizeSettings(d.settings);
   safe.history = (d.history && typeof d.history === 'object' && !Array.isArray(d.history)) ? d.history : {};
-  safe.reminders = Array.isArray(d.reminders) ? d.reminders : [];
+  safe.reminders = sanitizeReminders(d.reminders);
   safe.duas = Array.isArray(d.duas) ? d.duas.filter(x => x && typeof x === 'object' && safeId(x.id)).map(x => { const c = Object.assign({}, x); c.id = safeId(x.id); return c; }) : [];
   safe.hadiths = Array.isArray(d.hadiths) ? d.hadiths.filter(x => x && typeof x === 'object' && safeId(x.id)).map(x => { const c = Object.assign({}, x); c.id = safeId(x.id); return c; }) : [];
   safe.migrations = (d.migrations && typeof d.migrations === 'object' && !Array.isArray(d.migrations)) ? d.migrations : {};
@@ -175,6 +223,14 @@ function validateImport(d) {
     c.id = safeId(x.id); c.quranId = safeId(x.quranId); c.ayahIdx = Math.floor(x.ayahIdx);
     return c;
   }) : [];
+  safe.quranLearned = {};
+  if (Array.isArray(d.quran)) {
+    d.quran.forEach(function (x) {
+      if (x && typeof x === 'object' && safeId(x.id) && x.learned === true) {
+        safe.quranLearned[x.id] = /^\d{4}-\d{2}-\d{2}$/.test(String(x.learnedAt || '')) ? x.learnedAt : '';
+      }
+    });
+  }
   return safe;
 }
 
@@ -188,6 +244,8 @@ function importData(e) {
     const validated = validateImport(parsed);
     if (!validated) { alert('Файл не похож на резервную копию'); e.target.value = ''; return; }
     if (!await confirmAsync('Импорт данных?', 'Текущие данные будут полностью заменены.', 'Импортировать', 'Отмена')) { e.target.value = ''; return; }
+    const quranLearned = validated.quranLearned || {};
+    delete validated.quranLearned;
     const currentMigrations = state.migrations || {};
     const incomingMigrations = Object.assign({}, validated.migrations || {});
     delete incomingMigrations.onboarded;
@@ -199,6 +257,9 @@ function importData(e) {
     mergedMigrations.prophetTitleFix_v1 = false;
     state = Object.assign({}, state, validated);
     state.quran = JSON.parse(JSON.stringify(DEFAULT_QURAN));
+    state.quran.forEach(function (q) {
+      if (Object.prototype.hasOwnProperty.call(quranLearned, q.id)) { q.learned = true; q.learnedAt = quranLearned[q.id]; }
+    });
     state.migrations = mergedMigrations;
     saveNow();
     state = load();
@@ -225,7 +286,7 @@ async function resetAll() {
     localStorage.removeItem('iqra_last_tasbih');
     localStorage.removeItem('iqra_install_dismissed');
     localStorage.removeItem('iqra_tajweed_cache');
-    var _qk = Object.keys(localStorage).filter(function(k){ return k.indexOf('iqra_quote_') === 0; });
+    var _qk = Object.keys(localStorage).filter(function(k){ return k.indexOf('iqra_quote_') === 0 || k.indexOf('iqra_tajweed_') === 0; });
     _qk.forEach(function(k){ localStorage.removeItem(k); });
   } catch(e) {}
   location.reload();

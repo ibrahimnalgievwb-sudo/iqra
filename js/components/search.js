@@ -81,7 +81,7 @@ function renderGlobalSearch() {
       const sub = it.subtitle ? '<div class="c-sub">' + esc(it.subtitle) + '</div>' : '';
       const ar = it.arabic ? '<div class="c-ar ar-font">' + esc(it.arabic) + '</div>' : '';
       const tr = it.translation ? '<div class="c-tr">' + esc(it.translation) + '</div>' : '';
-      return '<div class="content-card" onclick="searchOpen(\'' + type + '\',\'' + it.id + '\')"><div class="c-title">' + esc(t) + '</div>' + sub + ar + tr + '</div>';
+      return '<div class="content-card" onclick="searchOpen(\'' + type + '\',\'' + escAttr(it.id) + '\')"><div class="c-title">' + esc(t) + '</div>' + sub + ar + tr + '</div>';
     }).join('');
   };
 

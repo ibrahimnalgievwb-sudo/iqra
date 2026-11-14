@@ -204,7 +204,29 @@ function load() {
     } catch(e) {}
     s.migrations.tajweedCacheFix_v5 = true;
   }
-  
+
+  /* v417: единый источник контента. Дуа и хадисы всегда берутся из data/*.json,
+     а у пользователя сохраняются только его отметки «выучено». Так исправления
+     текстов и источников доходят до всех установок, а не только до новых. */
+  (function canonicalizeContent() {
+    function sync(list, defaults) {
+      var prev = new Map((Array.isArray(list) ? list : [])
+        .filter(function (x) { return x && typeof x === 'object' && x.id; })
+        .map(function (x) { return [x.id, x]; }));
+      var defIds = new Set(defaults.map(function (d) { return d.id; }));
+      var out = defaults.map(function (d) {
+        var item = cloneData(d);
+        var p = prev.get(d.id);
+        if (p) item.learned = !!p.learned;
+        return item;
+      });
+      prev.forEach(function (x, id) { if (!defIds.has(id)) out.push(x); });
+      return out;
+    }
+    if (Array.isArray(DEFAULT_DUAS) && DEFAULT_DUAS.length) s.duas = sync(s.duas, DEFAULT_DUAS);
+    if (Array.isArray(DEFAULT_HADITHS) && DEFAULT_HADITHS.length) s.hadiths = sync(s.hadiths, DEFAULT_HADITHS);
+  })();
+
   return s;
 }
 

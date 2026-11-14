@@ -2,7 +2,7 @@
 
 /* ============================================================
    READER.JS — Режим чтения, навигация по сурам, закладки
-   Проект «Икра» · v416
+   Проект «Икра» · v417
    ============================================================ */
 
 function readPrevSurah() {
@@ -58,7 +58,7 @@ async function openRead(id, targetAyahIdx, dir) {
   const ayahs = parseAyahs(item);
   let bismillahHtml = '';
   if (item.bismillah) {
-    bismillahHtml = `<div class="bismillah-card"><div class="b-ar ar-font">${item.bismillah.arabic}</div><div class="b-tr">${item.bismillah.transcription}</div><div class="b-trn">${item.bismillah.translation}</div></div>`;
+    bismillahHtml = `<div class="bismillah-card"><div class="b-ar ar-font">${esc(item.bismillah.arabic)}</div><div class="b-tr">${esc(item.bismillah.transcription)}</div><div class="b-trn">${esc(item.bismillah.translation)}</div></div>`;
   }
   const legendHtml = tajweedLegendHtml();
   container.innerHTML = `
@@ -74,12 +74,12 @@ async function openRead(id, targetAyahIdx, dir) {
       if (item.type === 'surah') { verseKey = `${item.number}:${idx + 1}`; }
       else if (item.type === 'ayat' && item.number && !String(item.number).includes('-')) { verseKey = String(item.number); }
       return `
-       <div class="read-ayah ${item.type==='ayat'?'ayat-mode':''}" id="ayah-${idx}" data-verse-key="${verseKey}">
+       <div class="read-ayah ${item.type==='ayat'?'ayat-mode':''}" id="ayah-${idx}" data-verse-key="${escAttr(verseKey)}">
         <div class="read-ayah-num">${a.num}</div>
         <div class="read-ayah-ar ar-font" data-raw="${esc(a.ar)}">${esc(a.ar)}${item.type==='surah' ? ' <span class="read-ayah-marker">' + ayahMarker(a.num) + '</span>' : ''}</div>
         ${a.tr ? `<div class="read-ayah-tr">${esc(a.tr)}</div>` : ''}
         <div class="read-ayah-trn">${esc(a.trn)}</div>
-        <button class="ayah-share-btn" onclick="shareAyah('${item.id}',${idx})"><svg class="ico ico-sm"><use href="#i-upload"/></svg>Поделиться аятом</button>
+        <button class="ayah-share-btn" onclick="shareAyah('${escAttr(item.id)}',${idx})"><svg class="ico ico-sm"><use href="#i-upload"/></svg>Поделиться аятом</button>
       </div>
     `}).join('')}
     ${item.source ? `<div class="dh-section" style="margin-top:20px;"><div class="dh-label">Источник</div><div class="dh-text muted" style="font-size:13px;">${esc(item.source)}</div></div>` : ''}

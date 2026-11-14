@@ -14,6 +14,8 @@ function getDailyQuote() {
       return JSON.parse(cached);
     }
   } catch(e) {}
+  /* чистим цитаты прошлых дней, чтобы ключи не копились */
+  try { Object.keys(localStorage).forEach(function (k) { if (k.indexOf('iqra_quote_') === 0 && k !== key) localStorage.removeItem(k); }); } catch (e) {}
   var q = getRandomQuote();
   try { localStorage.setItem(key, JSON.stringify(q)); } catch(e) {}
   return q;
@@ -29,7 +31,7 @@ function renderDashSpiritual() {
   if (!el) return;
 
   const q96 = DEFAULT_QURAN.find(q => q.id === 'q96');
-  if (!q96) return;
+  if (!q96 || !BISMILLAH) return;
 
   const arLines = (q96.arabic || '').split('\n');
   const trLines = (q96.transcription || '').split('\n');
@@ -41,13 +43,13 @@ function renderDashSpiritual() {
 
   el.innerHTML = `
     <div class="spiritual-card">
-      <div class="sc-ar-bismillah text-gold-metallic">${esc(BISMILLAH.arabic)}</div>
+      <div class="sc-ar-bismillah">${esc(BISMILLAH.arabic)}</div>
       <div class="sc-tr-bismillah">${esc(BISMILLAH.transcription)}</div>
       <div class="sc-trn-bismillah">${esc(BISMILLAH.translation)}</div>
       
       <div class="sc-divider"></div>
       
-      <div class="sc-ar-alyaq text-gold-metallic">${esc(arText)}</div>
+      <div class="sc-ar-alyaq">${esc(arText)}</div>
       <div class="sc-tr-alyaq">${esc(trText)}</div>
       <div class="sc-trn-alyaq">${esc(trnText)}</div>
       

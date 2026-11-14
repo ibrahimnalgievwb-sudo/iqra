@@ -11,7 +11,7 @@ function renderHadithList() {
   el.innerHTML = state.hadiths.map(h => {
     const fav = isFavorite(h.id);
     const star = `<button class="star-btn ${fav?'active':''}" aria-label="${fav?'Убрать из избранного':'Добавить в избранное'}: ${escAttr(h.title)}" onclick="starClick(event,'${escAttr(h.id)}','hadith')">${fav?'<svg class="ico"><use href="#i-star-filled"/></svg>':'<svg class="ico"><use href="#i-star"/></svg>'}</button>`;
-    return `<div class="content-card" onclick="openHadith('${h.id}')">${star}<div class="c-title">${esc(h.title)}</div><div class="c-sub">${esc(h.subtitle||'')}</div><div class="c-ar ar-font">${esc(h.arabic)}</div><div class="c-tr">${esc(h.translation)}</div></div>`;
+    return `<div class="content-card" onclick="openHadith('${escAttr(h.id)}')">${star}<div class="c-title">${esc(h.title)}</div><div class="c-sub">${esc(h.subtitle||'')}</div><div class="c-ar ar-font">${esc(h.arabic)}</div><div class="c-tr">${esc(h.translation)}</div></div>`;
   }).join('');
 }
 
@@ -33,7 +33,7 @@ function openHadith(id) {
       </div>
     </div>
     ${h.note ? `<div class="note-box"><svg class="ico ico-sm" style="flex-shrink:0;color:var(--accent2)"><use href="#i-lightbulb"/></svg><div>${escNl(h.note)}</div></div>` : ''}
-    <div class="detail-actions"><button class="btn" onclick="openMemorizeFor(getHadithById('${h.id}'))"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-lightbulb"/></svg>Заучить</button><button class="btn secondary" onclick="shareItem('hadith','${h.id}')"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-upload"/></svg>Поделиться</button></div>
+    <div class="detail-actions"><button class="btn" onclick="openMemorizeFor(getHadithById('${escAttr(h.id)}'))"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-lightbulb"/></svg>Заучить</button><button class="btn secondary" onclick="shareItem('hadith','${escAttr(h.id)}')"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-upload"/></svg>Поделиться</button></div>
     <div class="learned-toggle ${h.learned?'done':''}" onclick="toggleHadithLearned('${escAttr(h.id)}')">
       <div class="lt-icon">${h.learned?'✓':'<svg class="ico ico-sm"><use href="#i-book"/></svg>'}</div>
       <div class="lt-body"><div class="lt-title">${h.learned?'Изучено':'Отметить как изученный'}</div><div class="lt-sub">${h.learned?'Нажми, чтобы снять отметку':'Изучи хадис и отметь'}</div></div>

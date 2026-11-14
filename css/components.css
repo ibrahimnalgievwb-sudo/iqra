@@ -817,3 +817,15 @@ html[data-theme] .content-card, html:not([data-theme]) .content-card {
   border-color: var(--gold-standard);
   box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.14);
 }
+
+
+/* ============================================================
+   IQRA V417 — АКЦЕНТНЫЕ КАРТОЧКИ СПИСКА (рукья)
+   Вместо inline-стилей: та же золотая кромка, чуть сильнее и с золотой подложкой.
+   ============================================================ */
+html[data-theme] .content-card.content-card--feature, html:not([data-theme]) .content-card.content-card--feature {
+  background:
+    linear-gradient(var(--nav-active-surface), var(--nav-active-surface)) padding-box,
+    linear-gradient(var(--card), var(--card)) padding-box,
+    linear-gradient(180deg, var(--card-edge-hi), var(--card-edge-hi)) border-box;
+}

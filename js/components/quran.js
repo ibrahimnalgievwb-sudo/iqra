@@ -2,10 +2,13 @@
 
 /* ============================================================
    QURAN.JS — Список сур, фильтры, детали суры/аята
-   Проект «Икра» · v383 (рефакторинг)
+   Проект «Икра» · v417
    ============================================================ */
 
 var debouncedRenderQuranList = debounce(renderQuranList, 250);
+
+/* Первые N строк текста для карточки списка. Полный текст открывается в деталях и в режиме чтения. */
+function excerpt(text, lines) { return String(text || '').split('\n').slice(0, lines).join('\n'); }
 
 function renderQuranList() {
   const el = document.getElementById('quran-list');
@@ -41,8 +44,8 @@ function renderQuranList() {
   
   let html = '';
   if (quranFilter === 'ruqyah') {
-    html += `<div class="content-card" onclick="openDua('ruqyah_guide')" style="border: 1px solid var(--accent); background: rgba(var(--accent-rgb), 0.05);"><div class="c-title" style="color: var(--accent);">📖 Руководство по Рукье</div><div class="c-sub">Статус сидра · Аяты о колдовстве · Профилактика</div><div class="c-tr">Нажмите, чтобы прочитать важные наставления учёных и фетвы Ибн База</div></div>`;
-    html += `<div class="content-card" onclick="openQuran('ruqyah_araf')" style="border: 1px dashed var(--accent2);"><div class="c-badge">Рукья</div><div class="c-title">Аяты о колдовстве</div><div class="c-sub">Начните с аль-А'раф 117–119 · Юнус и Та Ха — ниже в списке</div><div class="c-ar ar-font">وَأَوْحَيْنَا إِلَىٰ مُوسَىٰ أَنْ أَلْقِ عَصَاكَ ۖ فَإِذَا هِيَ تَلْقَفُ مَا يَأْفِكُونَ</div><div class="c-tr">Читаются в составе шариатской рукьи на воду или над больным</div></div>`;
+    html += `<div class="content-card content-card--feature" onclick="openDua('ruqyah_guide')"><div class="c-title"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px;color:var(--gold-accent)"><use href="#i-book"/></svg>Руководство по Рукье</div><div class="c-sub">Статус сидра · Аяты о колдовстве · Профилактика</div><div class="c-tr">Нажмите, чтобы прочитать важные наставления учёных и фетвы Ибн База</div></div>`;
+    html += `<div class="content-card content-card--feature" onclick="openQuran('ruqyah_araf')"><div class="c-badge">Рукья</div><div class="c-title">Аяты о колдовстве</div><div class="c-sub">Начните с аль-А'раф 117–119 · Юнус и Та Ха — ниже в списке</div><div class="c-ar ar-font">وَأَوْحَيْنَا إِلَىٰ مُوسَىٰ أَنْ أَلْقِ عَصَاكَ ۖ فَإِذَا هِيَ تَلْقَفُ مَا يَأْفِكُونَ</div><div class="c-tr">Читаются в составе шариатской рукьи на воду или над больным</div></div>`;
   }
   
   html += items.map(item => {
@@ -55,7 +58,7 @@ function renderQuranList() {
       const ayahN = state.settings.readAyah[item.id] + 1;
       readBadge = `<div class="c-badge">С аята ${ayahN}</div>`;
     }
-    return `<div class="content-card${hasNum}" onclick="openQuran('${item.id}')">${numHtml}${star}${readBadge}<div class="c-title">${esc(item.title)}</div><div class="c-sub">${esc(item.subtitle||'')}</div><div class="c-ar ar-font">${esc(item.arabic)}</div><div class="c-tr">${esc(item.translation)}</div></div>`;
+    return `<div class="content-card${hasNum}" onclick="openQuran('${escAttr(item.id)}')">${numHtml}${star}${readBadge}<div class="c-title">${esc(item.title)}</div><div class="c-sub">${esc(item.subtitle||'')}</div><div class="c-ar ar-font">${esc(excerpt(item.arabic, 3))}</div><div class="c-tr">${esc(excerpt(item.translation, 3))}</div></div>`;
   }).join('');
   
   el.innerHTML = html;
@@ -79,7 +82,7 @@ function openQuran(id) {
   const el = document.getElementById('quran-detail-content');
   let bismillahHtml = '';
   if (item.bismillah) {
-    bismillahHtml = `<div class="bismillah-card"><div class="b-ar ar-font">${item.bismillah.arabic}</div><div class="b-tr">${item.bismillah.transcription}</div><div class="b-trn">${item.bismillah.translation}</div></div>`;
+    bismillahHtml = `<div class="bismillah-card"><div class="b-ar ar-font">${esc(item.bismillah.arabic)}</div><div class="b-tr">${esc(item.bismillah.transcription)}</div><div class="b-trn">${esc(item.bismillah.translation)}</div></div>`;
   }
   el.innerHTML = `
     <div class="detail-hero">
@@ -88,11 +91,11 @@ function openQuran(id) {
     </div>
     ${item.note ? `<div class="note-box"><svg class="ico ico-sm" style="flex-shrink:0;color:var(--accent2)"><use href="#i-lightbulb"/></svg><div>${escNl(item.note)}</div></div>` : ''}
     <div class="detail-actions">
-      <button class="btn secondary" onclick="openRead('${item.id}')"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-book"/></svg>Читать</button>
-      <button class="btn secondary" onclick="openMemorize('${item.id}')"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-lightbulb"/></svg>Заучить</button>
-      <button class="btn secondary" onclick="shareItem('quran','${item.id}')"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-upload"/></svg>Поделиться</button>
+      <button class="btn secondary" onclick="openRead('${escAttr(item.id)}')"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-book"/></svg>Читать</button>
+      <button class="btn secondary" onclick="openMemorize('${escAttr(item.id)}')"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-lightbulb"/></svg>Заучить</button>
+      <button class="btn secondary" onclick="shareItem('quran','${escAttr(item.id)}')"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-upload"/></svg>Поделиться</button>
     </div>
-    <div class="learned-toggle ${item.learned?'done':''}" onclick="toggleQuranLearned('${item.id}')">
+    <div class="learned-toggle ${item.learned?'done':''}" onclick="toggleQuranLearned('${escAttr(item.id)}')">
       <div class="lt-icon">${item.learned?'✓':'<svg class="ico ico-sm"><use href="#i-book"/></svg>'}</div>
       <div class="lt-body">
         <div class="lt-title">${item.learned?'Выучено':'Отметить как выучено'}</div>
@@ -111,7 +114,7 @@ function openQuran(id) {
         <div class="read-ayah-ar ar-font" data-raw="${escAttr(a.ar)}">${esc(a.ar)}${item.type==='surah' ? ' <span class="read-ayah-marker">' + ayahMarker(a.num) + '</span>' : ''}</div>
         ${a.tr ? `<div class="read-ayah-tr">${esc(a.tr)}</div>` : ''}
         <div class="read-ayah-trn">${esc(a.trn)}</div>
-        <button class="ayah-share-btn" onclick="shareAyah('${item.id}',${idx})"><svg class="ico ico-sm"><use href="#i-upload"/></svg>Поделиться аятом</button>
+        <button class="ayah-share-btn" onclick="shareAyah('${escAttr(item.id)}',${idx})"><svg class="ico ico-sm"><use href="#i-upload"/></svg>Поделиться аятом</button>
       </div>
       `;
     }).join('')}

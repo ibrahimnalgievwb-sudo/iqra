@@ -33,8 +33,8 @@ function openDua(id) {
       </div>
     </div>
     ${d.note ? `<div class="note-box"><svg class="ico ico-sm" style="flex-shrink:0;color:var(--accent2)"><use href="#i-lightbulb"/></svg><div>${escNl(d.note)}</div></div>` : ''}
-    <div class="detail-actions">${d.id === 'ruqyah_guide' || d.title && d.title.toLowerCase().includes('рукья') ? '' : `<button class="btn" onclick="openMemorizeFor(getDuaById('${d.id}'))"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-lightbulb"/></svg>Заучить</button>`}<button class="btn secondary" onclick="shareItem('dua','${d.id}')"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-upload"/></svg>Поделиться</button></div>
-    <div class="learned-toggle ${d.learned?'done':''}" onclick="toggleDuaLearned('${d.id}')">
+    <div class="detail-actions">${d.id === 'ruqyah_guide' || d.title && d.title.toLowerCase().includes('рукья') ? '' : `<button class="btn" onclick="openMemorizeFor(getDuaById('${escAttr(d.id)}'))"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-lightbulb"/></svg>Заучить</button>`}<button class="btn secondary" onclick="shareItem('dua','${escAttr(d.id)}')"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-upload"/></svg>Поделиться</button></div>
+    <div class="learned-toggle ${d.learned?'done':''}" onclick="toggleDuaLearned('${escAttr(d.id)}')">
       <div class="lt-icon">${d.learned?'✓':'<svg class="ico ico-sm"><use href="#i-book"/></svg>'}</div>
       <div class="lt-body"><div class="lt-title">${d.learned?'Выучено':'Отметить как выучено'}</div><div class="lt-sub">${d.learned?'Нажми, чтобы снять отметку':'Изучи дуа и отметь'}</div></div>
     </div>
