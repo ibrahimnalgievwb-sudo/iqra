@@ -2,13 +2,7 @@
 
 /* ============================================================
    API.JS — Загрузка JSON-данных, Tajweed API, аналитика
-   Проект «Икра» · v415 (Этап 3.5)
-   Заполняет глобальные DEFAULT_* для storage.js.
-   D-10: renderTajweedHtml экранирует всё содержимое через esc().
-         trackEvent — только имя+title события, без личных данных.
-         Umami (cloud.umami.is) сохранён по решению Директора.
-         GoatCounter вызов остаётся, но window.goatcounter
-         отсутствует — безопасный no-op.
+   Проект «Икра» · v420 (Умная книга: загрузка графа)
    ============================================================ */
 
 const UMAMI_SRC        = 'https://cloud.umami.is/script.js';
@@ -53,19 +47,35 @@ var TAJWEED_TAG_MAP = {};
 var TAJWEED_RULE_NAMES = {};
 var TAJWEED_RULE_COLORS = {};
 
+// НОВЫЕ ПЕРЕМЕННЫЕ ДЛЯ УМНОЙ КНИГИ
+var DEFAULT_TAFSIRS = [];
+var GRAPH_EDGES = [];
+var GRAPH_THEMES = [];
+
 async function loadAllData() {
-  const [tasbihsRes, duasRes, hadithsRes, quranRes, knowledgeRes] = await Promise.all([
+  const [
+    tasbihsRes, duasRes, hadithsRes, quranRes, knowledgeRes, 
+    tafsirsRes, edgesRes, themesRes 
+  ] = await Promise.all([
     fetch('./data/tasbihs.json'),
     fetch('./data/duas.json'),
     fetch('./data/hadiths.json'),
     fetch('./data/quran.json'),
-    fetch('./data/knowledge-base.json')
+    fetch('./data/knowledge-base.json'),
+    fetch('./data/tafsirs.json').catch(() => ({ json: () => ({ tafsirs: [] }) })),
+    fetch('./data/graph/edges.json').catch(() => ({ json: () => ({ edges: [] }) })),
+    fetch('./data/graph/themes.json').catch(() => ({ json: () => ({ themes: [] }) }))
   ]);
+  
   const tasbihsData = await tasbihsRes.json();
   const duasData = await duasRes.json();
   const hadithsData = await hadithsRes.json();
   const quranData = await quranRes.json();
   const knowledgeData = await knowledgeRes.json();
+  
+  const tafsirsData = await tafsirsRes.json();
+  const edgesData = await edgesRes.json();
+  const themesData = await themesRes.json();
 
   DEFAULT_TASBIHS = tasbihsData.defaults || [];
   PRESETS = tasbihsData.presets || [];
@@ -83,6 +93,11 @@ async function loadAllData() {
   TAJWEED_RULE_NAMES = knowledgeData.tajweedRuleNames || {};
   TAJWEED_RULE_COLORS = knowledgeData.tajweedRuleColors || {};
 
+  // ЗАГРУЖАЕМ УМНУЮ КНИГУ
+  DEFAULT_TAFSIRS = tafsirsData.tafsirs || [];
+  GRAPH_EDGES = edgesData.edges || [];
+  GRAPH_THEMES = themesData.themes || [];
+
   return {
     tasbihs: DEFAULT_TASBIHS,
     presets: PRESETS,
@@ -94,7 +109,10 @@ async function loadAllData() {
     nightOrder: NIGHT_ORDER,
     tajweedTagMap: TAJWEED_TAG_MAP,
     tajweedRuleNames: TAJWEED_RULE_NAMES,
-    tajweedRuleColors: TAJWEED_RULE_COLORS
+    tajweedRuleColors: TAJWEED_RULE_COLORS,
+    tafsirs: DEFAULT_TAFSIRS,
+    edges: GRAPH_EDGES,
+    themes: GRAPH_THEMES
   };
 }
 
