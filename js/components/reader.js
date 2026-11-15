@@ -2,7 +2,7 @@
 
 /* ============================================================
    READER.JS — Режим чтения, навигация по сурам, закладки
-   Проект «Икра» · v420 (Умная книга: тафсир в чтении)
+   Проект «Икра» · v421 (Умная книга: премиум-тафсир)
    ============================================================ */
 
 function readPrevSurah() {
@@ -17,36 +17,59 @@ function readNextSurah() {
 }
 
 const TAJWEED_LEGEND = [
-  ['madda_normal', 'Мадд 2 — естественное удлинение, 2 счёта'],
-  ['madda_permissible', 'Мадд 2/4/6 — допустимое удлинение'],
-  ['madda_obligatory', 'Мадд 4–5 — обязательное удлинение'],
-  ['madda_necessary', 'Мадд 6 — необходимое удлинение, 6 счётов'],
-  ['qalqalah', 'Калькаля — «отскок» звука на буквах ق ط ب ج د с сукуном'],
-  ['ghunnah', 'Гунна — носовой звук, 2 счёта'],
-  ['ikhfa', 'Ихфа — сокрытие нун сакины или танвина перед 15 буквами'],
-  ['ikhfa_shafawi', 'Ихфа шафави — сокрытие мим сакины'],
-  ['idghaam_ghunnah', 'Идгам с гунной — буквы ي ن م و'],
-  ['idghaam_no_ghunnah', 'Идгам без гунны — буквы ل ر'],
-  ['idghaam_shafawi', 'Идгам шафави — слияние мим сакины с мим'],
-  ['idghaam_mutajanisayn', 'Идгам мутаджанисайн — слияние букв одного выхода'],
-  ['idghaam_mutaqaribayn', 'Идгам мутакарибайн — слияние букв близких выходов'],
-  ['iqlab', 'Иклаб — нун сакина или танвин перед ب переходит в мим'],
-  ['ham_wasl', 'Хамзат васль — не произносится при слитном чтении'],
-  ['laam_shamsiyah', 'Лям шамсия — сливается со следующей буквой'],
+  ['madda_normal', 'Мадд 2 — естественное удлинение, 2 счёта'], ['madda_permissible', 'Мадд 2/4/6 — допустимое удлинение'],
+  ['madda_obligatory', 'Мадд 4–5 — обязательное удлинение'], ['madda_necessary', 'Мадд 6 — необходимое удлинение, 6 счётов'],
+  ['qalqalah', 'Калькаля — «отскок» звука на буквах ق ط ب ج د с сукуном'], ['ghunnah', 'Гунна — носовой звук, 2 счёта'],
+  ['ikhfa', 'Ихфа — сокрытие нун сакины или танвина перед 15 буквами'], ['ikhfa_shafawi', 'Ихфа шафави — сокрытие мим сакины'],
+  ['idghaam_ghunnah', 'Идгам с гунной — буквы ي ن م و'], ['idghaam_no_ghunnah', 'Идгам без гунны — буквы ل ر'],
+  ['idghaam_shafawi', 'Идгам шафави — слияние мим сакины с мим'], ['idghaam_mutajanisayn', 'Идгам мутаджанисайн — слияние букв одного выхода'],
+  ['idghaam_mutaqaribayn', 'Идгам мутакарибайн — слияние букв близких выходов'], ['iqlab', 'Иклаб — нун сакина или танвин перед ب переходит в мим'],
+  ['ham_wasl', 'Хамзат васль — не произносится при слитном чтении'], ['laam_shamsiyah', 'Лям шамсия — сливается со следующей буквой'],
   ['silent', 'Немая буква']
 ];
 function tajweedLegendHtml() {
-  const items = TAJWEED_LEGEND.map(function (r) {
-    return '<span class="tl-item"><i class="tajweed-' + r[0] + '"></i><span>' + r[1] + '</span></span>';
-  }).join('');
-  return '<details class="tajweed-legend"><summary><span class="tl-title">Справка по таджвиду</span></summary>' +
-    '<div class="tl-items">' + items + '</div>' +
-    '<div class="tl-note">Чтение хафс ʿан ʿасым. Разметка букв — готовая (Al Quran Cloud), приложение её не изменяет.</div></details>';
+  const items = TAJWEED_LEGEND.map(function (r) { return '<span class="tl-item"><i class="tajweed-' + r[0] + '"></i><span>' + r[1] + '</span></span>'; }).join('');
+  return '<details class="tajweed-legend"><summary><span class="tl-title">Справка по таджвиду</span></summary><div class="tl-items">' + items + '</div><div class="tl-note">Чтение хафс ʿан ʿасым. Разметка букв — готовая (Al Quran Cloud), приложение её не изменяет.</div></details>';
+}
+
+function getSmartTafsirHtml(ayahRef) {
+  if (!window.GRAPH_EDGES || !window.DEFAULT_TAFSIRS) return '';
+  const edges = window.GRAPH_EDGES.filter(e => e.to === `ayah:${ayahRef}` && e.type === 'tafsir_comments_ayah');
+  if (!edges.length) return '';
+  let html = '';
+  edges.forEach(edge => {
+    const tafsir = window.DEFAULT_TAFSIRS.find(t => t.id === edge.from.replace('tafsir:', ''));
+    if (tafsir) {
+      const scholar = window.GRAPH_SCHOLARS ? window.GRAPH_SCHOLARS.find(s => s.id === tafsir.scholar_id) : null;
+      const scholarName = scholar ? scholar.name_ru : 'Ибн Касир';
+      const scholarId = tafsir.scholar_id || 'ibn_kathir';
+      let sourceText = tafsir.evidence_source.locator;
+      if (sourceText.includes(';')) sourceText = sourceText.split(';')[0];
+      
+      html += `
+        <details class="tafsir-card" style="margin-top: 16px; background: rgba(0,0,0,0.15); border-radius: 12px; padding: 14px; border-left: 3px solid var(--gold-accent); text-align: left; direction: ltr;">
+          <summary style="font-weight: 700; color: var(--gold-accent); font-size: 14px; outline: none; display: flex; align-items: center; gap: 8px; cursor: pointer; list-style: none;">
+            <span class="arrow-icon" style="font-size: 10px; color: var(--muted); transition: transform 0.2s;">▶</span>
+            <svg class="ico ico-sm"><use href="#i-book"/></svg> Показать тафсир
+          </summary>
+          <div style="margin-top: 12px; font-size: 15px; line-height: 1.6; color: var(--text); border-top: 1px dashed var(--border); padding-top: 12px;">
+            ${escNl(tafsir.text_ru)}
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 14px;">
+              <div style="font-size: 12px; color: var(--muted); font-style: italic;">${esc(scholarName)} · ${esc(sourceText)}</div>
+              <button onclick="event.preventDefault(); openScholarInfo('${escAttr(scholarId)}')" class="btn secondary" style="width: auto; margin: 0; padding: 6px 12px; font-size: 12px; font-weight: 600; min-height: 30px; border-radius: 8px; display: flex; align-items: center; gap: 6px;">
+                <svg class="ico ico-sm"><use href="#i-info"/></svg> Справка
+              </button>
+            </div>
+          </div>
+        </details>
+      `;
+    }
+  });
+  return html;
 }
 
 async function openRead(id, targetAyahIdx, dir) {
-  const item = getQuranById(id);
-  if (!item) return;
+  const item = getQuranById(id); if (!item) return;
   activeReadId = id;
   trackEvent('read/' + id, 'Чтение: ' + item.title);
   saveLastRead('quran', id);
@@ -59,33 +82,6 @@ async function openRead(id, targetAyahIdx, dir) {
   }
   const legendHtml = tajweedLegendHtml();
 
-  function getTafsirHtml(ayahRef) {
-    if (!window.GRAPH_EDGES || !window.DEFAULT_TAFSIRS) return '';
-    const edges = window.GRAPH_EDGES.filter(e => e.to === `ayah:${ayahRef}` && e.type === 'tafsir_comments_ayah');
-    if (!edges.length) return '';
-    let html = '';
-    edges.forEach(edge => {
-      const tafsir = window.DEFAULT_TAFSIRS.find(t => t.id === edge.from.replace('tafsir:', ''));
-      if (tafsir) {
-        const locator = tafsir.evidence_source ? tafsir.evidence_source.locator : '';
-        html += `
-          <details class="tafsir-card" style="margin-top: 12px; background: rgba(0,0,0,0.15); border-radius: 12px; padding: 14px; border-left: 3px solid var(--gold-accent); text-align: left; direction: ltr; cursor: pointer;">
-            <summary style="font-weight: 700; color: var(--gold-accent); font-size: 14px; outline: none; display: flex; align-items: center; gap: 6px;">
-              <svg class="ico ico-sm"><use href="#i-book"/></svg> Показать тафсир (Ибн Касир)
-            </summary>
-            <div style="margin-top: 10px; font-size: 15px; line-height: 1.6; color: var(--text);">
-              ${escNl(tafsir.text_ru)}
-              <div style="margin-top: 10px; font-size: 12px; color: var(--muted); font-style: italic;">
-                Источник: ${esc(locator)}
-              </div>
-            </div>
-          </details>
-        `;
-      }
-    });
-    return html;
-  }
-
   container.innerHTML = `
     <div class="detail-hero" style="background: transparent; border: none; box-shadow: none; padding: 0; margin-bottom: 10px;">
       <div class="dh-title" style="text-align: center; font-size: 24px;">${esc(item.title)}</div>
@@ -95,20 +91,16 @@ async function openRead(id, targetAyahIdx, dir) {
     ${bismillahHtml}
     <div style="height:16px"></div>
     ${ayahs.map((a, idx) => {
-      let verseKey = '';
-      let ayahRef = `${item.id}#${idx + 1}`;
+      let verseKey = ''; let ayahRef = `${item.id}#${idx + 1}`;
       if (item.type === 'surah') { verseKey = `${item.number}:${idx + 1}`; }
       else if (item.type === 'ayat' && item.number && !String(item.number).includes('-')) { verseKey = String(item.number); ayahRef = `${item.id}#1`; }
-
       return `
        <div class="read-ayah ${item.type==='ayat'?'ayat-mode':''}" id="ayah-${idx}" data-verse-key="${escAttr(verseKey)}">
         <div class="read-ayah-num">${a.num}</div>
         <div class="read-ayah-ar ar-font" data-raw="${esc(a.ar)}">${esc(a.ar)}${item.type==='surah' ? ' <span class="read-ayah-marker">' + ayahMarker(a.num) + '</span>' : ''}</div>
         ${a.tr ? `<div class="read-ayah-tr">${esc(a.tr)}</div>` : ''}
         <div class="read-ayah-trn">${esc(a.trn)}</div>
-        
-        ${getTafsirHtml(ayahRef)}
-
+        ${getSmartTafsirHtml(ayahRef)}
         <button class="ayah-share-btn" onclick="shareAyah('${escAttr(item.id)}',${idx})"><svg class="ico ico-sm"><use href="#i-upload"/></svg>Поделиться аятом</button>
       </div>
     `}).join('')}
@@ -127,7 +119,7 @@ async function openRead(id, targetAyahIdx, dir) {
   var nextBtn = document.getElementById('btn-next-surah');
   if (prevBtn) { prevBtn.style.opacity = idx === 0 ? '0.3' : '1'; prevBtn.style.pointerEvents = idx === 0 ? 'none' : 'auto'; }
   if (nextBtn) { nextBtn.style.opacity = idx === state.quran.length - 1 ? '0.3' : '1'; nextBtn.style.pointerEvents = idx === state.quran.length - 1 ? 'none' : 'auto'; }
-  try { await applyTajweedToContainer(container, item); } catch(e) { console.warn('Tajweed load error:', e); }
+  try { await applyTajweedToContainer(container, item); } catch(e) {}
   if (state.settings.readScrolls && state.settings.readScrolls[id]) {
     const targetScroll = state.settings.readScrolls[id];
     requestAnimationFrame(() => { container.scrollTop = targetScroll; });
@@ -144,56 +136,36 @@ function closeRead() {
   }
   document.getElementById('read-mode').classList.remove('active');
   document.getElementById('btn-scroll-top').classList.remove('visible');
-  activeReadId = null;
-  saveNavContext();
+  activeReadId = null; saveNavContext();
 }
 
 function toggleScrollTop() {
-  var body = document.getElementById('read-body');
-  var btn = document.getElementById('btn-scroll-top');
+  var body = document.getElementById('read-body'); var btn = document.getElementById('btn-scroll-top');
   if (!body || !btn) return;
-  if (body.scrollTop > 300) btn.classList.add('visible');
-  else btn.classList.remove('visible');
+  if (body.scrollTop > 300) btn.classList.add('visible'); else btn.classList.remove('visible');
 }
-function scrollToTopRead() {
-  var body = document.getElementById('read-body');
-  if (body) body.scrollTo({ top: 0, behavior: 'smooth' });
-}
+function scrollToTopRead() { var body = document.getElementById('read-body'); if (body) body.scrollTo({ top: 0, behavior: 'smooth' }); }
 
 function currentAyahIdx() {
-  var body = document.getElementById('read-body');
-  if (!body) return 0;
-  var ayahs = body.querySelectorAll('.read-ayah');
-  if (!ayahs.length) return 0;
-  var bodyRect = body.getBoundingClientRect();
-  var mid = bodyRect.top + bodyRect.height * 0.35;
-  var best = 0;
-  for (var i = 0; i < ayahs.length; i++) {
-    var r = ayahs[i].getBoundingClientRect();
-    if (r.top <= mid) best = i; else break;
-  }
+  var body = document.getElementById('read-body'); if (!body) return 0;
+  var ayahs = body.querySelectorAll('.read-ayah'); if (!ayahs.length) return 0;
+  var bodyRect = body.getBoundingClientRect(); var mid = bodyRect.top + bodyRect.height * 0.35; var best = 0;
+  for (var i = 0; i < ayahs.length; i++) { var r = ayahs[i].getBoundingClientRect(); if (r.top <= mid) best = i; else break; }
   return best;
 }
 
 function addBookmarkFromRead() {
   if (!activeReadId) return;
-  var item = getQuranById(activeReadId);
-  if (!item) return;
+  var item = getQuranById(activeReadId); if (!item) return;
   var ayahIdx = currentAyahIdx();
   if (!Array.isArray(state.bookmarks)) state.bookmarks = [];
-  var exists = state.bookmarks.some(function(b){
-    return b.quranId === activeReadId && b.ayahIdx === ayahIdx;
-  });
+  var exists = state.bookmarks.some(function(b){ return b.quranId === activeReadId && b.ayahIdx === ayahIdx; });
   if (exists) { showMarkToast('Метка уже есть на этом аяте'); return; }
   if (state.bookmarks.length >= 50) { showMarkToast('Максимум 50 меток'); return; }
   var label = item.title + ' · аят ' + (ayahIdx + 1);
   if (label.length > 60) label = label.slice(0, 57) + '…';
-  state.bookmarks.push({
-    id: 'bm_' + Date.now(), quranId: activeReadId,
-    ayahIdx: ayahIdx, label: label, ts: Date.now()
-  });
-  save();
-  showMarkToast('Метка добавлена (аят ' + (ayahIdx + 1) + ')');
+  state.bookmarks.push({ id: 'bm_' + Date.now(), quranId: activeReadId, ayahIdx: ayahIdx, label: label, ts: Date.now() });
+  save(); showMarkToast('Метка добавлена (аят ' + (ayahIdx + 1) + ')');
   if (state.settings.vibrate && navigator.vibrate) navigator.vibrate(15);
 }
 
@@ -201,10 +173,7 @@ function removeBookmark(bmId) {
   if (!Array.isArray(state.bookmarks)) return;
   var i = state.bookmarks.findIndex(function(b){ return b.id === bmId; });
   if (i < 0) return;
-  state.bookmarks.splice(i, 1);
-  save();
-  renderProgress();
-  showMarkToast('Метка удалена');
+  state.bookmarks.splice(i, 1); save(); renderProgress(); showMarkToast('Метка удалена');
 }
 
 function openBookmark(bmId) {
@@ -213,8 +182,5 @@ function openBookmark(bmId) {
   if (!bm) return;
   if (!getQuranById(bm.quranId)) { showMarkToast('Текст недоступен'); return; }
   openRead(bm.quranId);
-  setTimeout(function(){
-    var el = document.getElementById('ayah-' + bm.ayahIdx);
-    if (el) el.scrollIntoView({ block: 'start', behavior: 'smooth' });
-  }, 400);
+  setTimeout(function(){ var el = document.getElementById('ayah-' + bm.ayahIdx); if (el) el.scrollIntoView({ block: 'start', behavior: 'smooth' }); }, 400);
 }
