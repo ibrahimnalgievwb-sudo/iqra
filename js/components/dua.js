@@ -44,5 +44,5 @@ function openDua(id) {
   showScreen('screen-dua-detail');
 }
 
-function toggleDuaLearned(id) { const d=getDuaById(id); if (!d) return; d.learned=!d.learned; save(); if (d.learned) { playChime(); if (navigator.vibrate) navigator.vibrate([20,40,20]); } openDua(id); }
+function toggleDuaLearned(id) { const d=getDuaById(id); if (!d) return; d.learned=!d.learned; save(); if (d.learned) { if (navigator.vibrate) navigator.vibrate([20,40,20]); } openDua(id); }
 function goDuaList() { activeDuaId=null; switchTab('library'); setLibraryTab('dua'); }

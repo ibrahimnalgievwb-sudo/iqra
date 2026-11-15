@@ -1,0 +1,225 @@
+{
+  "tafsirs": [
+    {
+      "id": "t_q1_2",
+      "ayah_ref": "q1#2",
+      "scholar_id": "ibn_kathir",
+      "kind": "hadith_in_tafsir",
+      "text_ru": "Если раб говорит: «Хвала Аллаху, Господу миров», Всевышний Аллах говорит: «Мой раб восхвалил Меня».",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_ru_1",
+        "locator": "том 1, с. 16 (по нумерации страниц файла издания); хадис Абу Хурайры, Муслим № 395, как приведён в самом тафсире"
+      },
+      "status": "draft"
+    },
+    {
+      "id": "t_q1_3",
+      "ayah_ref": "q1#3",
+      "scholar_id": "ibn_kathir",
+      "kind": "hadith_in_tafsir",
+      "text_ru": "Если раб говорит: «Милостивому и Милосердному», то Всевышний Аллах говорит: «Мой раб похвалил Меня».",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_ru_1",
+        "locator": "том 1, с. 16 (по нумерации страниц файла издания); хадис Абу Хурайры, Муслим № 395, как приведён в самом тафсире"
+      },
+      "status": "draft"
+    },
+    {
+      "id": "t_q1_4",
+      "ayah_ref": "q1#4",
+      "scholar_id": "ibn_kathir",
+      "kind": "hadith_in_tafsir",
+      "text_ru": "Если (раб) говорит «Царю в день суда», то Аллах говорит: «Мой раб прославил Меня».",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_ru_1",
+        "locator": "том 1, с. 16 (по нумерации страниц файла издания); хадис Абу Хурайры, Муслим № 395, как приведён в самом тафсире"
+      },
+      "status": "draft"
+    },
+    {
+      "id": "t_q1_5",
+      "ayah_ref": "q1#5",
+      "scholar_id": "ibn_kathir",
+      "kind": "hadith_in_tafsir",
+      "text_ru": "Если (раб) говорит: «Только Тебе мы поклоняемся, и только Тебя мы просим о помощи», (Аллах) говорит: «Это то, что между Мной и Моим рабом, и Моему рабу - то, что он просил».",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_ru_1",
+        "locator": "том 1, с. 16 (по нумерации страниц файла издания); хадис Абу Хурайры, Муслим № 395, как приведён в самом тафсире"
+      },
+      "status": "draft"
+    },
+    {
+      "id": "t_q1_6",
+      "ayah_ref": "q1#6",
+      "scholar_id": "ibn_kathir",
+      "kind": "hadith_in_tafsir",
+      "text_ru": "Если (раб) говорит: «Веди нас по прямой дороге, дороге тех, кого ты облагодетельствовал, не тех, кто под гневом, и не заблудших», (Аллах) говорит: «Это для Моего раба, и для Моего раба - то, что он просил».",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_ru_1",
+        "locator": "том 1, с. 16 (по нумерации страниц файла издания); хадис Абу Хурайры, Муслим № 395, как приведён в самом тафсире"
+      },
+      "status": "draft",
+      "ayah_ref_end": "q1#7"
+    },
+    {
+      "id": "t_kursi_1",
+      "ayah_ref": "q_ayat_kursi#1",
+      "scholar_id": "ibn_kathir",
+      "kind": "tafsir",
+      "text_ru": "Аят о Престоле – величайший из коранических аятов, как об этом говорится в достоверном хадисе, что «аят аль-Курси» (аят о Престоле) является наилучшим аятом в Коране.",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_ru_1",
+        "locator": "том 1, с. 358"
+      },
+      "status": "draft"
+    },
+    {
+      "id": "t_kursi_2",
+      "ayah_ref": "q_ayat_kursi#1",
+      "scholar_id": "ibn_kathir",
+      "kind": "hadith_in_tafsir",
+      "text_ru": "«Какой аят в книге Аллаха является величайшим?» […] Тогда мой отец ответил: «Аят аль-Курси (аят о Престоле)».",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_ru_1",
+        "locator": "том 1, с. 358; по тексту тафсира хадис передал имам Ахмад, этот же хадис передал Муслим"
+      },
+      "status": "draft"
+    },
+    {
+      "id": "t_yunus_1",
+      "ayah_ref": "ruqyah_yunus#1",
+      "scholar_id": "ibn_kathir",
+      "kind": "tafsir",
+      "text_ru": "Фараон решил прибегнуть к помощи колдунов против посланника от Аллаха Знающего сокровенное, и он проиграл, потерял Рай, и тем самым подверг для себя мучения в Аду.",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_t4_file",
+        "locator": "том 4 (файл 4_tom.pdf), с. 88"
+      },
+      "status": "draft"
+    },
+    {
+      "id": "t_yunus_2",
+      "ayah_ref": "ruqyah_yunus#1",
+      "scholar_id": "ibn_kathir",
+      "kind": "report_of_tabii",
+      "text_ru": "До нас дошло, что эти аяты из суры «Юунус» являются исцелением от колдовства. Надо почитать их над сосудом с водой, и полить его на околдованного.",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_t4_file",
+        "locator": "том 4 (файл 4_tom.pdf), с. 89; передаёт Ибн Абу Хатим от Лайса ибн Абу Салима"
+      },
+      "status": "draft",
+      "caution": "Это слова одного из последователей сподвижников (не хадис Пророка ﷺ). Надёжность цепочки и допустимость подачи требуют проверки знающим человеком; до проверки не публиковать."
+    },
+    {
+      "id": "t_asr_1",
+      "ayah_ref": "q103#3",
+      "kind": "tafsir",
+      "text_ru": "«И заповедали друг другу терпение!», т.е. быть стойкими перед бедствиями, невзгодами и вредом, наносимым людьми, призывая их к благому и запрещая им порицаемое.",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_juz_amma_2012",
+        "locator": "с. 155"
+      },
+      "scholar_id": "ibn_kathir",
+      "status": "draft"
+    },
+    {
+      "id": "t_asr_2",
+      "ayah_ref": "q103#1",
+      "ayah_ref_end": "q103#3",
+      "kind": "scholar_statement",
+      "text_ru": "Аш-Шафи‘и (да смилуется над ним Аллах) сказал: «Если бы люди поразмышляли над этой сурой, то она бы была для них достаточной».",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_juz_amma_2012",
+        "locator": "с. 154"
+      },
+      "scholar_id": "ibn_kathir",
+      "status": "draft"
+    },
+    {
+      "id": "t_ikhlas_1",
+      "ayah_ref": "q112#1",
+      "ayah_ref_end": "q112#4",
+      "kind": "hadith_in_tafsir",
+      "text_ru": "«Скажи: \"Он – Аллах Единый...\" (112:1-4) – это и есть треть Корана!» (х. аль-Бухари).",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_juz_amma_2012",
+        "locator": "с. 180; хадис Абу Са‘ида аль-Худри, как приведён в тафсире"
+      },
+      "scholar_id": "ibn_kathir",
+      "status": "draft"
+    },
+    {
+      "id": "t_ikhlas_2",
+      "ayah_ref": "q112#1",
+      "ayah_ref_end": "q112#4",
+      "kind": "hadith_in_tafsir",
+      "text_ru": "«Кто прочитал \"Скажи: \"Он, Аллах, Один...\" (112:1-4), тот прочитал треть Корана» (х. Ахмада).",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_juz_amma_2012",
+        "locator": "с. 180; со ссылкой на Убейи ибн Ка‘ба, как приведено в тафсире"
+      },
+      "scholar_id": "ibn_kathir",
+      "status": "draft"
+    },
+    {
+      "id": "t_ikhlas_3",
+      "ayah_ref": "q112#1",
+      "kind": "asbab_an_nuzul",
+      "text_ru": "Убейи ибн Ка‘б передаёт, что идолопоклонники сказали Пророку (да благословит его Аллах и приветствует): «Мухаммад, дай нам родословную твоего Господа». И Аллах ниспослал: [сура «Аль-Ихлас»] (х. Ахмада, ат-Тирмизи и ибн Маджи).",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_juz_amma_2012",
+        "locator": "с. 179; написание имени «Убейи ибн Ка‘аб» принято по печатному тексту"
+      },
+      "scholar_id": "ibn_kathir",
+      "status": "draft"
+    },
+    {
+      "id": "t_ikhlas_4",
+      "ayah_ref": "q112#1",
+      "kind": "hadith_in_tafsir",
+      "text_ru": "«Спросите его, почему он делает так?» […] «Скажите ему, что Аллах любит его» (х. аль-Бухари в «Книге единобожия»).",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_juz_amma_2012",
+        "locator": "с. 180; хадис ‘Аиши (рассказ о командире отряда, читавшем суру в молитве)"
+      },
+      "scholar_id": "ibn_kathir",
+      "status": "draft"
+    },
+    {
+      "id": "t_falaq_1",
+      "ayah_ref": "q113#1",
+      "kind": "hadith_in_tafsir",
+      "text_ru": "«Разве не видел ты аяты, которые мне были ниспосланы сегодня вечером, подобно которым я еще не видел? Это: «Скажи: \"Прибегаю к защите Господа рассвета\"» (113:1) и «Скажи: \"Прибегаю к защите Господа людей\"» (114:1) (х. Муслима, ат-Тирмизи и ан-Насаи).",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_juz_amma_2012",
+        "locator": "с. 184; хадис ‘Укбы ибн ‘Амира"
+      },
+      "scholar_id": "ibn_kathir",
+      "status": "draft"
+    },
+    {
+      "id": "t_falaq_2",
+      "ayah_ref": "q113#1",
+      "kind": "hadith_in_tafsir",
+      "text_ru": "«Что ты думаешь, о ‘Укайб? Читай эти две суры перед сном и после пробуждения» (х. Ахмада, Абу Дауда и ан-Насаи).",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_juz_amma_2012",
+        "locator": "с. 184; хадис ‘Укбы ибн ‘Амира"
+      },
+      "scholar_id": "ibn_kathir",
+      "status": "draft"
+    },
+    {
+      "id": "t_falaq_3",
+      "ayah_ref": "q113#1",
+      "kind": "hadith_in_tafsir",
+      "text_ru": "«Когда Посланник Аллаха (да благословит его Аллах и приветствует) чувствовал недомогание (или заболел), он читал над собой две суры аль-муавизатайн (\"Рассвет\" и «Люди») и дул на себя» (передали аль-Бухари, Абу Дауд и ан-Насаи).",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_juz_amma_2012",
+        "locator": "с. 184; хадис ‘Аиши"
+      },
+      "scholar_id": "ibn_kathir",
+      "status": "draft"
+    }
+  ]
+}

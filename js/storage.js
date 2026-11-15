@@ -22,7 +22,7 @@ function cloneData(obj) {
   return JSON.parse(JSON.stringify(obj));
 }
 
-function defaultSettings() { return { theme:'auto', arSize:1, dailyGoal:100, autoNext:true, wakeLock:true, sound:true, vibrate:true, goalNotify:false, lastRead:null, lastScreen:null }; }
+function defaultSettings() { return { theme:'auto', arSize:1, dailyGoal:100, autoNext:true, wakeLock:true, vibrate:true, goalNotify:false, lastRead:null, lastScreen:null }; }
 
 function load() {
   let s = null;
@@ -225,6 +225,7 @@ function load() {
     }
     if (Array.isArray(DEFAULT_DUAS) && DEFAULT_DUAS.length) s.duas = sync(s.duas, DEFAULT_DUAS);
     if (Array.isArray(DEFAULT_HADITHS) && DEFAULT_HADITHS.length) s.hadiths = sync(s.hadiths, DEFAULT_HADITHS);
+    if (s.settings) delete s.settings.sound; /* v419: звуков в приложении больше нет */
   })();
 
   return s;

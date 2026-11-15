@@ -11,7 +11,6 @@ function openSettings() {
   document.getElementById('daily-goal-input').value = state.settings.dailyGoal;
   document.getElementById('opt-autonext').checked = state.settings.autoNext;
   document.getElementById('opt-wake').checked = state.settings.wakeLock;
-  document.getElementById('opt-sound').checked = state.settings.sound;
     document.getElementById('opt-vibrate').checked = state.settings.vibrate;
   document.getElementById('opt-goal-notify').checked = !!state.settings.goalNotify;
   document.querySelectorAll('#size-seg button').forEach(b=>b.classList.toggle('active', parseFloat(b.dataset.size)===state.settings.arSize));
@@ -166,7 +165,7 @@ function sanitizeSettings(raw) {
   out.theme = ['auto', 'light', 'dark', 'mono'].indexOf(src.theme) >= 0 ? src.theme : base.theme;
   out.arSize = num(src.arSize, 0.8, 1.6, base.arSize);
   out.dailyGoal = Math.floor(num(src.dailyGoal, 0, 1000000, base.dailyGoal));
-  ['autoNext', 'wakeLock', 'sound', 'vibrate', 'goalNotify'].forEach(function (k) { out[k] = bool(src[k], base[k]); });
+  ['autoNext', 'wakeLock', 'vibrate', 'goalNotify'].forEach(function (k) { out[k] = bool(src[k], base[k]); });
   out.tajweedMode = bool(src.tajweedMode, false);
   const lr = src.lastRead;
   out.lastRead = (lr && typeof lr === 'object' && ['quran', 'dua', 'hadith'].indexOf(lr.type) >= 0 && _impSafeId(lr.id))

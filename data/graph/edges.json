@@ -1,0 +1,510 @@
+{
+  "edges": [
+    {
+      "id": "e_t_q1_2",
+      "type": "tafsir_comments_ayah",
+      "from": "tafsir:t_q1_2",
+      "to": "ayah:q1#2",
+      "status": "draft",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_ru_1",
+        "locator": "том 1, с. 16 (по нумерации страниц файла издания); хадис Абу Хурайры, Муслим № 395, как приведён в самом тафсире"
+      }
+    },
+    {
+      "id": "ea_t_q1_2",
+      "type": "tafsir_author",
+      "from": "tafsir:t_q1_2",
+      "to": "scholar:ibn_kathir",
+      "status": "draft",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_ru_1",
+        "locator": "том 1, титульная страница и с. 2"
+      }
+    },
+    {
+      "id": "e_t_q1_3",
+      "type": "tafsir_comments_ayah",
+      "from": "tafsir:t_q1_3",
+      "to": "ayah:q1#3",
+      "status": "draft",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_ru_1",
+        "locator": "том 1, с. 16 (по нумерации страниц файла издания); хадис Абу Хурайры, Муслим № 395, как приведён в самом тафсире"
+      }
+    },
+    {
+      "id": "ea_t_q1_3",
+      "type": "tafsir_author",
+      "from": "tafsir:t_q1_3",
+      "to": "scholar:ibn_kathir",
+      "status": "draft",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_ru_1",
+        "locator": "том 1, титульная страница и с. 2"
+      }
+    },
+    {
+      "id": "e_t_q1_4",
+      "type": "tafsir_comments_ayah",
+      "from": "tafsir:t_q1_4",
+      "to": "ayah:q1#4",
+      "status": "draft",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_ru_1",
+        "locator": "том 1, с. 16 (по нумерации страниц файла издания); хадис Абу Хурайры, Муслим № 395, как приведён в самом тафсире"
+      }
+    },
+    {
+      "id": "ea_t_q1_4",
+      "type": "tafsir_author",
+      "from": "tafsir:t_q1_4",
+      "to": "scholar:ibn_kathir",
+      "status": "draft",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_ru_1",
+        "locator": "том 1, титульная страница и с. 2"
+      }
+    },
+    {
+      "id": "e_t_q1_5",
+      "type": "tafsir_comments_ayah",
+      "from": "tafsir:t_q1_5",
+      "to": "ayah:q1#5",
+      "status": "draft",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_ru_1",
+        "locator": "том 1, с. 16 (по нумерации страниц файла издания); хадис Абу Хурайры, Муслим № 395, как приведён в самом тафсире"
+      }
+    },
+    {
+      "id": "ea_t_q1_5",
+      "type": "tafsir_author",
+      "from": "tafsir:t_q1_5",
+      "to": "scholar:ibn_kathir",
+      "status": "draft",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_ru_1",
+        "locator": "том 1, титульная страница и с. 2"
+      }
+    },
+    {
+      "id": "e_t_q1_6",
+      "type": "tafsir_comments_ayah",
+      "from": "tafsir:t_q1_6",
+      "to": "ayah:q1#6",
+      "status": "draft",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_ru_1",
+        "locator": "том 1, с. 16 (по нумерации страниц файла издания); хадис Абу Хурайры, Муслим № 395, как приведён в самом тафсире"
+      }
+    },
+    {
+      "id": "ea_t_q1_6",
+      "type": "tafsir_author",
+      "from": "tafsir:t_q1_6",
+      "to": "scholar:ibn_kathir",
+      "status": "draft",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_ru_1",
+        "locator": "том 1, титульная страница и с. 2"
+      }
+    },
+    {
+      "id": "e_t_kursi_1",
+      "type": "tafsir_comments_ayah",
+      "from": "tafsir:t_kursi_1",
+      "to": "ayah:q_ayat_kursi#1",
+      "status": "draft",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_ru_1",
+        "locator": "том 1, с. 358"
+      }
+    },
+    {
+      "id": "ea_t_kursi_1",
+      "type": "tafsir_author",
+      "from": "tafsir:t_kursi_1",
+      "to": "scholar:ibn_kathir",
+      "status": "draft",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_ru_1",
+        "locator": "титульная страница тома"
+      }
+    },
+    {
+      "id": "e_t_kursi_2",
+      "type": "tafsir_comments_ayah",
+      "from": "tafsir:t_kursi_2",
+      "to": "ayah:q_ayat_kursi#1",
+      "status": "draft",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_ru_1",
+        "locator": "том 1, с. 358; по тексту тафсира хадис передал имам Ахмад, этот же хадис передал Муслим"
+      }
+    },
+    {
+      "id": "ea_t_kursi_2",
+      "type": "tafsir_author",
+      "from": "tafsir:t_kursi_2",
+      "to": "scholar:ibn_kathir",
+      "status": "draft",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_ru_1",
+        "locator": "титульная страница тома"
+      }
+    },
+    {
+      "id": "e_t_yunus_1",
+      "type": "tafsir_comments_ayah",
+      "from": "tafsir:t_yunus_1",
+      "to": "ayah:ruqyah_yunus#1",
+      "status": "draft",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_t4_file",
+        "locator": "том 4 (файл 4_tom.pdf), с. 88"
+      }
+    },
+    {
+      "id": "ea_t_yunus_1",
+      "type": "tafsir_author",
+      "from": "tafsir:t_yunus_1",
+      "to": "scholar:ibn_kathir",
+      "status": "draft",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_t4_file",
+        "locator": "титульная страница тома"
+      }
+    },
+    {
+      "id": "e_t_yunus_2",
+      "type": "tafsir_comments_ayah",
+      "from": "tafsir:t_yunus_2",
+      "to": "ayah:ruqyah_yunus#1",
+      "status": "draft",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_t4_file",
+        "locator": "том 4 (файл 4_tom.pdf), с. 89; передаёт Ибн Абу Хатим от Лайса ибн Абу Салима"
+      }
+    },
+    {
+      "id": "ea_t_yunus_2",
+      "type": "tafsir_author",
+      "from": "tafsir:t_yunus_2",
+      "to": "scholar:ibn_kathir",
+      "status": "draft",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_t4_file",
+        "locator": "титульная страница тома"
+      }
+    },
+    {
+      "id": "e2_t_kursi_1",
+      "type": "tafsir_comments_ayah",
+      "from": "tafsir:t_kursi_1",
+      "to": "ayah:ruqyah_ayat_kursi#1",
+      "status": "draft",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_ru_1",
+        "locator": "том 1, с. 358"
+      }
+    },
+    {
+      "id": "e2_t_kursi_2",
+      "type": "tafsir_comments_ayah",
+      "from": "tafsir:t_kursi_2",
+      "to": "ayah:ruqyah_ayat_kursi#1",
+      "status": "draft",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_ru_1",
+        "locator": "том 1, с. 358; по тексту тафсира хадис передал имам Ахмад, этот же хадис передал Муслим"
+      }
+    },
+    {
+      "id": "r_yunus_araf",
+      "type": "ayah_related_ayah",
+      "from": "ayah:ruqyah_yunus#1",
+      "to": "ayah:ruqyah_araf#1",
+      "status": "draft",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_t4_file",
+        "locator": "том 4 (файл 4_tom.pdf), с. 88; в тафсире приведена история Мусы и колдунов Фараона из суры «Аль-А‘раф» (7:120-122)"
+      }
+    },
+    {
+      "id": "r_yunus_taha",
+      "type": "ayah_related_ayah",
+      "from": "ayah:ruqyah_yunus#1",
+      "to": "ayah:ruqyah_taha#1",
+      "status": "draft",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_t4_file",
+        "locator": "том 4 (файл 4_tom.pdf), с. 88; в тафсире указана сура «Таха» (20:67-69)"
+      }
+    },
+    {
+      "id": "e_t_asr_1",
+      "type": "tafsir_comments_ayah",
+      "from": "tafsir:t_asr_1",
+      "to": "ayah:q103#3",
+      "status": "draft",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_juz_amma_2012",
+        "locator": "с. 155"
+      }
+    },
+    {
+      "id": "ea_t_asr_1",
+      "type": "tafsir_author",
+      "from": "tafsir:t_asr_1",
+      "to": "scholar:ibn_kathir",
+      "status": "draft",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_juz_amma_2012",
+        "locator": "титульный лист и выходные данные"
+      }
+    },
+    {
+      "id": "e_t_asr_2",
+      "type": "tafsir_comments_ayah",
+      "from": "tafsir:t_asr_2",
+      "to": "ayah:q103#1",
+      "status": "draft",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_juz_amma_2012",
+        "locator": "с. 154"
+      }
+    },
+    {
+      "id": "ea_t_asr_2",
+      "type": "tafsir_author",
+      "from": "tafsir:t_asr_2",
+      "to": "scholar:ibn_kathir",
+      "status": "draft",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_juz_amma_2012",
+        "locator": "титульный лист и выходные данные"
+      }
+    },
+    {
+      "id": "e_t_ikhlas_1",
+      "type": "tafsir_comments_ayah",
+      "from": "tafsir:t_ikhlas_1",
+      "to": "ayah:q112#1",
+      "status": "draft",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_juz_amma_2012",
+        "locator": "с. 180; хадис Абу Са‘ида аль-Худри, как приведён в тафсире"
+      }
+    },
+    {
+      "id": "ea_t_ikhlas_1",
+      "type": "tafsir_author",
+      "from": "tafsir:t_ikhlas_1",
+      "to": "scholar:ibn_kathir",
+      "status": "draft",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_juz_amma_2012",
+        "locator": "титульный лист и выходные данные"
+      }
+    },
+    {
+      "id": "e_t_ikhlas_2",
+      "type": "tafsir_comments_ayah",
+      "from": "tafsir:t_ikhlas_2",
+      "to": "ayah:q112#1",
+      "status": "draft",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_juz_amma_2012",
+        "locator": "с. 180; со ссылкой на Убейи ибн Ка‘ба, как приведено в тафсире"
+      }
+    },
+    {
+      "id": "ea_t_ikhlas_2",
+      "type": "tafsir_author",
+      "from": "tafsir:t_ikhlas_2",
+      "to": "scholar:ibn_kathir",
+      "status": "draft",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_juz_amma_2012",
+        "locator": "титульный лист и выходные данные"
+      }
+    },
+    {
+      "id": "e_t_ikhlas_3",
+      "type": "tafsir_comments_ayah",
+      "from": "tafsir:t_ikhlas_3",
+      "to": "ayah:q112#1",
+      "status": "draft",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_juz_amma_2012",
+        "locator": "с. 179; написание имени «Убейи ибн Ка‘аб» принято по печатному тексту"
+      }
+    },
+    {
+      "id": "ea_t_ikhlas_3",
+      "type": "tafsir_author",
+      "from": "tafsir:t_ikhlas_3",
+      "to": "scholar:ibn_kathir",
+      "status": "draft",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_juz_amma_2012",
+        "locator": "титульный лист и выходные данные"
+      }
+    },
+    {
+      "id": "e_t_ikhlas_4",
+      "type": "tafsir_comments_ayah",
+      "from": "tafsir:t_ikhlas_4",
+      "to": "ayah:q112#1",
+      "status": "draft",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_juz_amma_2012",
+        "locator": "с. 180; хадис ‘Аиши (рассказ о командире отряда, читавшем суру в молитве)"
+      }
+    },
+    {
+      "id": "ea_t_ikhlas_4",
+      "type": "tafsir_author",
+      "from": "tafsir:t_ikhlas_4",
+      "to": "scholar:ibn_kathir",
+      "status": "draft",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_juz_amma_2012",
+        "locator": "титульный лист и выходные данные"
+      }
+    },
+    {
+      "id": "e_t_falaq_1",
+      "type": "tafsir_comments_ayah",
+      "from": "tafsir:t_falaq_1",
+      "to": "ayah:q113#1",
+      "status": "draft",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_juz_amma_2012",
+        "locator": "с. 184; хадис ‘Укбы ибн ‘Амира"
+      }
+    },
+    {
+      "id": "ea_t_falaq_1",
+      "type": "tafsir_author",
+      "from": "tafsir:t_falaq_1",
+      "to": "scholar:ibn_kathir",
+      "status": "draft",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_juz_amma_2012",
+        "locator": "титульный лист и выходные данные"
+      }
+    },
+    {
+      "id": "e_t_falaq_2",
+      "type": "tafsir_comments_ayah",
+      "from": "tafsir:t_falaq_2",
+      "to": "ayah:q113#1",
+      "status": "draft",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_juz_amma_2012",
+        "locator": "с. 184; хадис ‘Укбы ибн ‘Амира"
+      }
+    },
+    {
+      "id": "ea_t_falaq_2",
+      "type": "tafsir_author",
+      "from": "tafsir:t_falaq_2",
+      "to": "scholar:ibn_kathir",
+      "status": "draft",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_juz_amma_2012",
+        "locator": "титульный лист и выходные данные"
+      }
+    },
+    {
+      "id": "e_t_falaq_3",
+      "type": "tafsir_comments_ayah",
+      "from": "tafsir:t_falaq_3",
+      "to": "ayah:q113#1",
+      "status": "draft",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_juz_amma_2012",
+        "locator": "с. 184; хадис ‘Аиши"
+      }
+    },
+    {
+      "id": "ea_t_falaq_3",
+      "type": "tafsir_author",
+      "from": "tafsir:t_falaq_3",
+      "to": "scholar:ibn_kathir",
+      "status": "draft",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_juz_amma_2012",
+        "locator": "титульный лист и выходные данные"
+      }
+    },
+    {
+      "id": "e2_t_falaq_1",
+      "type": "tafsir_comments_ayah",
+      "from": "tafsir:t_falaq_1",
+      "to": "ayah:q114#1",
+      "status": "draft",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_juz_amma_2012",
+        "locator": "с. 184"
+      }
+    },
+    {
+      "id": "h_ikhlas_q112",
+      "type": "hadith_explains_ayah",
+      "from": "hadith:h_ikhlas",
+      "to": "ayah:q112#1",
+      "status": "draft",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_juz_amma_2012",
+        "locator": "с. 180; тот же хадис приведён в тафсире"
+      }
+    },
+    {
+      "id": "h_muaw_q113",
+      "type": "hadith_explains_ayah",
+      "from": "hadith:h_muawwizat",
+      "to": "ayah:q113#1",
+      "status": "draft",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_juz_amma_2012",
+        "locator": "с. 184; тот же хадис приведён в тафсире"
+      }
+    },
+    {
+      "id": "h_muaw_q114",
+      "type": "hadith_explains_ayah",
+      "from": "hadith:h_muawwizat",
+      "to": "ayah:q114#1",
+      "status": "draft",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_juz_amma_2012",
+        "locator": "с. 184; тот же хадис приведён в тафсире"
+      }
+    },
+    {
+      "id": "h_kursi_q",
+      "type": "hadith_explains_ayah",
+      "from": "hadith:h_kursi_greatest",
+      "to": "ayah:q_ayat_kursi#1",
+      "status": "draft",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_ru_1",
+        "locator": "том 1, с. 358; тот же хадис приведён в тафсире"
+      }
+    },
+    {
+      "id": "th_asr_sabr",
+      "type": "ayah_theme",
+      "from": "ayah:q103#3",
+      "to": "theme:sabr",
+      "status": "draft",
+      "evidence_source": {
+        "source_id": "tafsir_ibn_kathir_juz_amma_2012",
+        "locator": "с. 155; тафсир прямо разъясняет слова о терпении"
+      }
+    }
+  ]
+}

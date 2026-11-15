@@ -1,0 +1,9 @@
+{
+  "themes": [
+    {
+      "id": "sabr",
+      "title_ru": "Терпение",
+      "name_source": "перечень тем приложения (knowledge-base.json, allTags)"
+    }
+  ]
+}

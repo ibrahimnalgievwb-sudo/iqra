@@ -53,7 +53,7 @@ let memorizeItem = null, memorizeAyahs = [], memorizeStep = 0;
 let memorizePhase = 'learn', memorizeRevealed = false;
 let calDate = new Date();
 let progTab = 'overview';
-let wakeLock = null, nextToastTimer = null, audioCtx = null;
+let wakeLock = null, nextToastTimer = null;
 let dragEl = null, dragId = null, dragHoldTimer = null, suppressNextClick = false;
 let activePathTag = null;
 let pathShowAll = false;
@@ -64,10 +64,6 @@ let _reminderTimer = null;
 let _progFilter = '';
 
 /* ---------- AUDIO ---------- */
-function ensureAudio(){ try { if (!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)(); if (audioCtx.state==='suspended') audioCtx.resume(); } catch(e){} }
-function playClick() { if (!state.settings.sound) return; ensureAudio(); if (!audioCtx) return; const t=audioCtx.currentTime; const o=audioCtx.createOscillator(), g=audioCtx.createGain(); o.type='sine'; o.frequency.setValueAtTime(680,t); o.frequency.exponentialRampToValueAtTime(420,t+0.05); g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.08,t+0.005); g.gain.exponentialRampToValueAtTime(0.0001,t+0.09); o.connect(g).connect(audioCtx.destination); o.start(t); o.stop(t+0.1); }
-function playChime() { if (!state.settings.sound) return; ensureAudio(); if (!audioCtx) return; const t=audioCtx.currentTime; [660,880].forEach((f,i)=>{ const o=audioCtx.createOscillator(), g=audioCtx.createGain(); o.type='sine'; o.frequency.value=f; g.gain.setValueAtTime(0.0001,t+i*0.08); g.gain.exponentialRampToValueAtTime(0.06,t+i*0.08+0.02); g.gain.exponentialRampToValueAtTime(0.0001,t+i*0.08+0.5); o.connect(g).connect(audioCtx.destination); o.start(t+i*0.08); o.stop(t+i*0.08+0.55); }); }
-
 /* ---------- WAKELOCK ---------- */
 async function requestWakeLock() { try { if ('wakeLock' in navigator) { wakeLock=await navigator.wakeLock.request('screen'); wakeLock.addEventListener('release',()=>{wakeLock=null;}); } } catch(e){} }
 function releaseWakeLock() { try { if (wakeLock) { wakeLock.release(); wakeLock=null; } } catch(e){} }
@@ -507,7 +503,6 @@ if (document.readyState === 'loading') {
 /* ---------- SETTINGS LISTENERS (opt-*) ---------- */
 document.getElementById('opt-autonext').addEventListener('change', e=>{ state.settings.autoNext = e.target.checked; save(); });
 document.getElementById('opt-wake').addEventListener('change', e=>{ state.settings.wakeLock = e.target.checked; save(); });
-document.getElementById('opt-sound').addEventListener('change', e=>{ state.settings.sound = e.target.checked; save(); if (e.target.checked) playClick(); });
 document.getElementById('opt-vibrate').addEventListener('change', e=>{ state.settings.vibrate = e.target.checked; save(); });
 document.getElementById('opt-goal-notify').addEventListener('change', e=>{ state.settings.goalNotify = e.target.checked; save(); });
 
@@ -921,4 +916,11 @@ document.addEventListener('click', function(e) {
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
   else start();
+})();
+
+/* v418: защита от встраивания приложения в чужой iframe (clickjacking).
+   Директива frame-ancestors в meta-CSP не работает, поэтому защита на стороне скрипта. */
+(function () {
+  try { if (window.top !== window.self) { document.documentElement.style.display = 'none'; window.top.location = window.self.location; } }
+  catch (e) { document.documentElement.style.display = 'none'; }
 })();

@@ -129,7 +129,7 @@ function toggleQuranLearned(id) {
   item.learned = !item.learned;
   item.learnedAt = item.learned ? todayKey() : '';
   save();
-   if (item.learned) { playChime(); if (navigator.vibrate) navigator.vibrate([20,40,20]); }
+   if (item.learned) { if (navigator.vibrate) navigator.vibrate([20,40,20]); }
   openQuran(id);
 }
 

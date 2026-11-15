@@ -44,5 +44,5 @@ function openHadith(id) {
   showScreen('screen-hadith-detail');
 }
 
-function toggleHadithLearned(id) { const h=getHadithById(id); if (!h) return; h.learned=!h.learned; save(); if (h.learned) { playChime(); if (navigator.vibrate) navigator.vibrate([20,40,20]); } openHadith(id); }
+function toggleHadithLearned(id) { const h=getHadithById(id); if (!h) return; h.learned=!h.learned; save(); if (h.learned) { if (navigator.vibrate) navigator.vibrate([20,40,20]); } openHadith(id); }
 function goHadithList() { activeHadithId=null; switchTab('library'); setLibraryTab('hadith'); }

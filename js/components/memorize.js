@@ -54,7 +54,7 @@ function memNext() {
     if (memorizeStep < total - 1) { memorizeStep++; memorizeRevealed = false; renderMemorize(); }
     else {
       var doneItem = memorizeItem;
-      closeMemorize(); playChime();
+      closeMemorize(); 
       if (navigator.vibrate) navigator.vibrate([30,40,30]);
       if (doneItem && doneItem.id) {
         const q = getQuranById(doneItem.id);

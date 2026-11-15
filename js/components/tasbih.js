@@ -274,8 +274,8 @@ function tap(e) {
     if (state.settings.vibrate && navigator.vibrate) navigator.vibrate([40,60,40]);
   }
   const numEl=document.getElementById('c-num'); numEl.classList.remove('pulse'); void numEl.offsetWidth; numEl.classList.add('pulse');
-  if (completed) { trackEvent('complete/' + t.id, 'Цель достигнута: ' + t.id); playChime(); if (state.settings.vibrate && navigator.vibrate) navigator.vibrate([30,40,30]); if (state.settings.autoNext) setTimeout(showNextToast, 800); }
-  else { playClick(); if (state.settings.vibrate && navigator.vibrate) navigator.vibrate(8); }
+  if (completed) { trackEvent('complete/' + t.id, 'Цель достигнута: ' + t.id); if (state.settings.vibrate && navigator.vibrate) navigator.vibrate([30,40,30]); if (state.settings.autoNext) setTimeout(showNextToast, 800); }
+  else { if (state.settings.vibrate && navigator.vibrate) navigator.vibrate(8); }
 }
 function showNextToast() { const idx=state.tasbihs.findIndex(x=>x.id===activeId); const next=state.tasbihs[idx+1]; if (!next) return; const toast=document.getElementById('next-toast'); document.getElementById('nt-name').textContent=next.transcription||next.translation||'—'; document.getElementById('nt-ar').textContent=next.arabic||''; toast.classList.add('show'); clearTimeout(nextToastTimer); nextToastTimer=setTimeout(()=>toast.classList.remove('show'),5000); }
 function goNext() { const idx=state.tasbihs.findIndex(x=>x.id===activeId); const next=state.tasbihs[idx+1]; document.getElementById('next-toast').classList.remove('show'); if (next) openCounter(next.id); }

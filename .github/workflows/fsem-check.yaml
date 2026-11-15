@@ -1,0 +1,39 @@
+name: Проверка источников по ФСЭМ и графа знаний
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 6 1 * *'   # раз в месяц, 1-го числа
+  push:
+    paths: ['tools/**', 'data/**']
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Скачать актуальный список Минюста (если сайт доступен)
+        shell: bash
+        run: |
+          curl -fsSL --max-time 120 -A "Mozilla/5.0" -o tools/fsem/exportfsm.new.csv https://minjust.gov.ru/uploaded/files/exportfsm.csv \
+            && mv tools/fsem/exportfsm.new.csv tools/fsem/exportfsm.csv \
+            || echo "::warning::Сайт Минюста недоступен из GitHub; использую файл из репозитория, если он есть"
+      - name: Убедиться, что список есть
+        shell: bash
+        run: test -s tools/fsem/exportfsm.csv || { echo "::error::Нет tools/fsem/exportfsm.csv. Скачайте его на minjust.gov.ru (кнопка .csv) и загрузите в папку tools/fsem/"; exit 1; }
+      - name: Сверка источников со списком
+        shell: bash
+        run: python3 tools/fsem/fsem_check.py --csv tools/fsem/exportfsm.csv --sources tools/fsem/sources.json | tee fsem-report.txt
+      - name: Проверка графа знаний
+        shell: bash
+        run: python3 tools/validate_graph.py | tee -a fsem-report.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fsem-report
+          path: fsem-report.txt
