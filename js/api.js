@@ -2,7 +2,7 @@
 
 /* ============================================================
    API.JS — Загрузка JSON-данных, Tajweed API, аналитика
-   Проект «Икра» · v420 (Умная книга: загрузка графа)
+   Проект «Икра» · v421 (Умная книга: загрузка ученых)
    ============================================================ */
 
 const UMAMI_SRC        = 'https://cloud.umami.is/script.js';
@@ -14,19 +14,13 @@ function trackEvent(name, title) {
       window.umami.track(String(name).slice(0, 100), { title: String(title || name).slice(0, 200) });
     }
   } catch(e) {}
-  var data = {
-    path: '/event/' + String(name).slice(0, 100),
-    title: String(title || name).slice(0, 200),
-    event: true
-  };
+  var data = { path: '/event/' + String(name).slice(0, 100), title: String(title || name).slice(0, 200), event: true };
   var tries = 0;
   function attempt() {
     try {
       if (window.goatcounter && typeof window.goatcounter.count === 'function') {
         window.goatcounter.count(data);
-      } else if (tries < 10) {
-        tries++; setTimeout(attempt, 200);
-      }
+      } else if (tries < 10) { tries++; setTimeout(attempt, 200); }
     } catch (e) {}
   }
   attempt();
@@ -51,12 +45,10 @@ var TAJWEED_RULE_COLORS = {};
 var DEFAULT_TAFSIRS = [];
 var GRAPH_EDGES = [];
 var GRAPH_THEMES = [];
+var GRAPH_SCHOLARS = [];
 
 async function loadAllData() {
-  const [
-    tasbihsRes, duasRes, hadithsRes, quranRes, knowledgeRes, 
-    tafsirsRes, edgesRes, themesRes 
-  ] = await Promise.all([
+  const [tasbihsRes, duasRes, hadithsRes, quranRes, knowledgeRes, tafsirsRes, edgesRes, themesRes, scholarsRes] = await Promise.all([
     fetch('./data/tasbihs.json'),
     fetch('./data/duas.json'),
     fetch('./data/hadiths.json'),
@@ -64,7 +56,8 @@ async function loadAllData() {
     fetch('./data/knowledge-base.json'),
     fetch('./data/tafsirs.json').catch(() => ({ json: () => ({ tafsirs: [] }) })),
     fetch('./data/graph/edges.json').catch(() => ({ json: () => ({ edges: [] }) })),
-    fetch('./data/graph/themes.json').catch(() => ({ json: () => ({ themes: [] }) }))
+    fetch('./data/graph/themes.json').catch(() => ({ json: () => ({ themes: [] }) })),
+    fetch('./data/graph/scholars.json').catch(() => ({ json: () => ({ scholars: [] }) }))
   ]);
   
   const tasbihsData = await tasbihsRes.json();
@@ -72,10 +65,10 @@ async function loadAllData() {
   const hadithsData = await hadithsRes.json();
   const quranData = await quranRes.json();
   const knowledgeData = await knowledgeRes.json();
-  
   const tafsirsData = await tafsirsRes.json();
   const edgesData = await edgesRes.json();
   const themesData = await themesRes.json();
+  const scholarsData = await scholarsRes.json();
 
   DEFAULT_TASBIHS = tasbihsData.defaults || [];
   PRESETS = tasbihsData.presets || [];
@@ -97,30 +90,20 @@ async function loadAllData() {
   DEFAULT_TAFSIRS = tafsirsData.tafsirs || [];
   GRAPH_EDGES = edgesData.edges || [];
   GRAPH_THEMES = themesData.themes || [];
+  GRAPH_SCHOLARS = scholarsData.scholars || [];
 
   return {
-    tasbihs: DEFAULT_TASBIHS,
-    presets: PRESETS,
-    duas: DEFAULT_DUAS,
-    hadiths: DEFAULT_HADITHS,
-    quran: DEFAULT_QURAN,
-    allTags: ALL_TAGS,
-    bismillah: BISMILLAH,
-    nightOrder: NIGHT_ORDER,
-    tajweedTagMap: TAJWEED_TAG_MAP,
-    tajweedRuleNames: TAJWEED_RULE_NAMES,
-    tajweedRuleColors: TAJWEED_RULE_COLORS,
-    tafsirs: DEFAULT_TAFSIRS,
-    edges: GRAPH_EDGES,
-    themes: GRAPH_THEMES
+    tasbihs: DEFAULT_TASBIHS, presets: PRESETS, duas: DEFAULT_DUAS, hadiths: DEFAULT_HADITHS, quran: DEFAULT_QURAN,
+    allTags: ALL_TAGS, bismillah: BISMILLAH, nightOrder: NIGHT_ORDER, tajweedTagMap: TAJWEED_TAG_MAP,
+    tajweedRuleNames: TAJWEED_RULE_NAMES, tajweedRuleColors: TAJWEED_RULE_COLORS,
+    tafsirs: DEFAULT_TAFSIRS, edges: GRAPH_EDGES, themes: GRAPH_THEMES, scholars: GRAPH_SCHOLARS
   };
 }
 
-/* ---------- TAJWEED API (alquran.cloud) ---------- */
+/* ---------- TAJWEED API ---------- */
 const TAJWEED_CACHE_PREFIX = 'iqra_tajweed_v3_';
 const TAJWEED_FETCH_TIMEOUT = 15000;
 const TAJWEED_API_BASE = 'https://api.alquran.cloud/v1';
-
 const _tajweedQueue = [];
 let _tajweedActive = 0;
 const TAJWEED_MAX_CONCURRENT = 2;
@@ -129,63 +112,38 @@ function _processTajweedQueue() {
   if (_tajweedActive >= TAJWEED_MAX_CONCURRENT || _tajweedQueue.length === 0) return;
   const task = _tajweedQueue.shift();
   _tajweedActive++;
-  task().finally(() => {
-    _tajweedActive--;
-    _processTajweedQueue();
-  });
+  task().finally(() => { _tajweedActive--; _processTajweedQueue(); });
 }
 
 async function fetchWithTimeout(url, timeoutMs) {
   var controller = new AbortController();
   var timer = setTimeout(function(){ try { controller.abort(); } catch(e){} }, timeoutMs);
-  try {
-    return await fetch(url, { signal: controller.signal, cache: 'no-store' });
-  } finally {
-    clearTimeout(timer);
-  }
+  try { return await fetch(url, { signal: controller.signal, cache: 'no-store' }); } 
+  finally { clearTimeout(timer); }
 }
 
 function _isValidTajweedText(text) {
-  if (typeof text !== 'string' || text.length === 0) return false;
-  return /\[[a-zA-Z](?::\d+)?\[/.test(text);
+  return typeof text === 'string' && text.length > 0 && /\[[a-zA-Z](?::\d+)?\[/.test(text);
 }
 
 async function fetchTajweedText(verseKey) {
   const cacheKey = TAJWEED_CACHE_PREFIX + 'ayah_' + verseKey;
   try {
     const cached = localStorage.getItem(cacheKey);
-    if (cached) {
-      if (_isValidTajweedText(cached)) return cached;
-      localStorage.removeItem(cacheKey);
-    }
+    if (cached) { if (_isValidTajweedText(cached)) return cached; localStorage.removeItem(cacheKey); }
   } catch (e) {}
 
   const url = TAJWEED_API_BASE + '/ayah/' + verseKey + '/quran-tajweed';
-
   return new Promise((resolve) => {
     _tajweedQueue.push(async () => {
       try {
         const res = await fetchWithTimeout(url, TAJWEED_FETCH_TIMEOUT);
-        if (!res.ok) {
-          console.warn('[Tajweed] ayah HTTP ' + res.status + ' for ' + verseKey);
-          resolve(null);
-          return;
-        }
+        if (!res.ok) { resolve(null); return; }
         const json = await res.json();
         const text = json && json.data && json.data.text ? json.data.text : null;
-        if (text && _isValidTajweedText(text)) {
-          try { localStorage.setItem(cacheKey, text); } catch (e) {}
-          resolve(text);
-          return;
-        }
-        if (text) {
-          console.warn('[Tajweed] ayah ' + verseKey + ' returned non-tajweed text: ' + text.slice(0, 80));
-        }
+        if (text && _isValidTajweedText(text)) { try { localStorage.setItem(cacheKey, text); } catch (e) {} resolve(text); return; }
         resolve(null);
-      } catch (e) {
-        console.warn('[Tajweed] ayah fetch failed for ' + verseKey + ': ' + (e && e.message ? e.message : String(e)));
-        resolve(null);
-      }
+      } catch (e) { resolve(null); }
     });
     _processTajweedQueue();
   });
@@ -199,48 +157,28 @@ async function fetchTajweedSurah(surahNumber) {
       try {
         const parsed = JSON.parse(cached);
         let valid = false;
-        for (const k in parsed) {
-          if (_isValidTajweedText(parsed[k])) { valid = true; break; }
-        }
+        for (const k in parsed) { if (_isValidTajweedText(parsed[k])) { valid = true; break; } }
         if (valid) return parsed;
         localStorage.removeItem(cacheKey);
-      } catch (e) {
-        localStorage.removeItem(cacheKey);
-      }
+      } catch (e) { localStorage.removeItem(cacheKey); }
     }
   } catch (e) {}
 
   const url = TAJWEED_API_BASE + '/surah/' + surahNumber + '/quran-tajweed';
   try {
     const res = await fetchWithTimeout(url, TAJWEED_FETCH_TIMEOUT);
-    if (!res.ok) {
-      console.warn('[Tajweed] surah HTTP ' + res.status + ' for surah ' + surahNumber);
-      return null;
-    }
+    if (!res.ok) return null;
     const json = await res.json();
     const ayahs = json && json.data && json.data.ayahs ? json.data.ayahs : null;
-    if (!ayahs || !Array.isArray(ayahs)) {
-      console.warn('[Tajweed] surah ' + surahNumber + ': response missing ayahs');
-      return null;
-    }
-    const map = {};
-    let validCount = 0;
+    if (!ayahs || !Array.isArray(ayahs)) return null;
+    const map = {}; let validCount = 0;
     ayahs.forEach(function(a) {
-      if (a && a.numberInSurah && a.text) {
-        map[a.numberInSurah] = a.text;
-        if (_isValidTajweedText(a.text)) validCount++;
-      }
+      if (a && a.numberInSurah && a.text) { map[a.numberInSurah] = a.text; if (_isValidTajweedText(a.text)) validCount++; }
     });
-    if (validCount === 0) {
-      console.warn('[Tajweed] surah ' + surahNumber + ': no ayahs contained tajweed markers');
-      return null;
-    }
+    if (validCount === 0) return null;
     try { localStorage.setItem(cacheKey, JSON.stringify(map)); } catch (e) {}
     return map;
-  } catch (e) {
-    console.warn('[Tajweed] surah fetch failed for ' + surahNumber + ': ' + (e && e.message ? e.message : String(e)));
-    return null;
-  }
+  } catch (e) { return null; }
 }
 
 async function applyTajweedToContainer(container, item) {
@@ -253,19 +191,15 @@ async function applyTajweedToContainer(container, item) {
   loader.textContent = 'Загрузка правил таджвида…';
   container.insertBefore(loader, container.firstChild);
 
-  var success = false;
-  var errorMsg = '';
-
+  var success = false; var errorMsg = '';
   try {
     if (item.type === 'surah') {
       const surahMap = await fetchTajweedSurah(item.number);
       if (surahMap) {
         success = true;
         Array.from(elements).forEach(function(el) {
-          const ayahBlock = el.closest('.read-ayah');
-          if (!ayahBlock) return;
-          const verseKey = ayahBlock.dataset.verseKey;
-          if (!verseKey) return;
+          const ayahBlock = el.closest('.read-ayah'); if (!ayahBlock) return;
+          const verseKey = ayahBlock.dataset.verseKey; if (!verseKey) return;
           const ayahNum = parseInt(verseKey.split(':')[1], 10);
           const tajweedText = surahMap[ayahNum];
           const raw = el.dataset.raw || '';
@@ -279,26 +213,17 @@ async function applyTajweedToContainer(container, item) {
               rulesContainer.innerHTML = result.rules;
               el.insertAdjacentElement('afterend', rulesContainer);
             }
-          } else {
-            el.innerHTML = esc(raw); el.classList.remove('has-tajweed');
-          }
+          } else { el.innerHTML = esc(raw); el.classList.remove('has-tajweed'); }
         });
-      } else {
-        errorMsg = 'API не вернул данные';
-      }
+      } else { errorMsg = 'API не вернул данные'; }
     } else {
       const arr = Array.from(elements);
       const results = await Promise.all(arr.map(function(el) {
-        const ayahBlock = el.closest('.read-ayah');
-        if (!ayahBlock) return Promise.resolve(false);
-        const verseKey = ayahBlock.dataset.verseKey;
-        if (!verseKey) return Promise.resolve(false);
+        const ayahBlock = el.closest('.read-ayah'); if (!ayahBlock) return Promise.resolve(false);
+        const verseKey = ayahBlock.dataset.verseKey; if (!verseKey) return Promise.resolve(false);
         const raw = el.dataset.raw || '';
         return fetchTajweedText(verseKey).then(function(tajweed) {
-          if (!tajweed || !_isValidTajweedText(tajweed)) {
-            el.innerHTML = esc(raw); el.classList.remove('has-tajweed');
-            return false;
-          }
+          if (!tajweed || !_isValidTajweedText(tajweed)) { el.innerHTML = esc(raw); el.classList.remove('has-tajweed'); return false; }
           const result = renderTajweedHtml(tajweed);
           el.innerHTML = result.text; el.classList.add('has-tajweed');
           const existingRules = ayahBlock.querySelector('.ayah-tajweed-rules');
@@ -309,30 +234,20 @@ async function applyTajweedToContainer(container, item) {
             el.insertAdjacentElement('afterend', rulesContainer);
           }
           return true;
-        }).catch(function() {
-          el.innerHTML = esc(raw); el.classList.remove('has-tajweed');
-          return false;
-        });
+        }).catch(function() { el.innerHTML = esc(raw); el.classList.remove('has-tajweed'); return false; });
       }));
       success = results.some(function(r) { return r === true; });
       if (!success) errorMsg = 'API не вернул данные';
     }
-  } catch (e) {
-    console.warn('[Tajweed] apply error:', e);
-    errorMsg = e && e.message ? e.message : 'Ошибка';
-  }
+  } catch (e) { errorMsg = e && e.message ? e.message : 'Ошибка'; }
 
   if (loader.parentNode) {
-    if (success) {
-      loader.parentNode.removeChild(loader);
-    } else {
+    if (success) { loader.parentNode.removeChild(loader); } 
+    else {
       const retryId = activeReadId || (item && item.id) || '';
       loader.className = 'tajweed-error';
-      loader.innerHTML = 'Таджвид временно недоступен' + (errorMsg ? ' (' + esc(errorMsg) + ')' : '') +
-        '. <a href="#" onclick="event.preventDefault(); if(activeReadId) closeRead(); setTimeout(function(){ openRead(\'' + esc(retryId) + '\'); }, 120); return false;">Повторить</a>';
-      setTimeout(function(){
-        if (loader.parentNode) loader.parentNode.removeChild(loader);
-      }, 8000);
+      loader.innerHTML = 'Таджвид временно недоступен' + (errorMsg ? ' (' + esc(errorMsg) + ')' : '') + '. <a href="#" onclick="event.preventDefault(); if(activeReadId) closeRead(); setTimeout(function(){ openRead(\'' + esc(retryId) + '\'); }, 120); return false;">Повторить</a>';
+      setTimeout(function(){ if (loader.parentNode) loader.parentNode.removeChild(loader); }, 8000);
     }
   }
 }
@@ -340,57 +255,33 @@ async function applyTajweedToContainer(container, item) {
 function renderTajweedHtml(text) {
   if (!text) return { text: '', rules: '' };
   const rulesFound = new Set();
-  let html = '';
-  let i = 0;
-  const len = text.length;
-  let plainStart = 0;
+  let html = ''; let i = 0; const len = text.length; let plainStart = 0;
 
-  function flushPlain(end) {
-    if (end > plainStart) html += esc(text.slice(plainStart, end));
-  }
+  function flushPlain(end) { if (end > plainStart) html += esc(text.slice(plainStart, end)); }
 
   while (i < len) {
     if (text[i] === '[') {
       const m = text.slice(i).match(/^\[([a-zA-Z])(?::\d+)?\[/);
       if (m) {
         flushPlain(i);
-        const tag = m[1].toLowerCase();
-        const ruleName = TAJWEED_TAG_MAP[tag];
-        const tagEnd = i + m[0].length;
-        const closeIdx = text.indexOf(']', tagEnd);
-        if (closeIdx === -1) {
-          html += esc(text.slice(i));
-          i = len;
-          plainStart = len;
-          break;
-        }
+        const tag = m[1].toLowerCase(); const ruleName = TAJWEED_TAG_MAP[tag];
+        const tagEnd = i + m[0].length; const closeIdx = text.indexOf(']', tagEnd);
+        if (closeIdx === -1) { html += esc(text.slice(i)); i = len; plainStart = len; break; }
         const content = text.slice(tagEnd, closeIdx);
-        if (ruleName) {
-          rulesFound.add(ruleName);
-          html += '<span class="tajweed-' + ruleName + '">' + esc(content) + '</span>';
-        } else {
-          html += esc(content);
-        }
-        i = closeIdx + 1;
-        plainStart = i;
-      } else {
-        i++;
-      }
-    } else {
-      i++;
-    }
+        if (ruleName) { rulesFound.add(ruleName); html += '<span class="tajweed-' + ruleName + '">' + esc(content) + '</span>'; } 
+        else { html += esc(content); }
+        i = closeIdx + 1; plainStart = i;
+      } else { i++; }
+    } else { i++; }
   }
   flushPlain(len);
 
   let rulesHtml = '';
   if (rulesFound.size > 0) {
     const items = Array.from(rulesFound).map(function(rule) {
-      const color = TAJWEED_RULE_COLORS[rule] || '#666';
-      const name = TAJWEED_RULE_NAMES[rule] || rule;
-      return '<span class="rule-item"><i class="tajweed-' + esc(rule) + '"></i>' + name + '</span>';
+      return '<span class="rule-item"><i class="tajweed-' + esc(rule) + '"></i>' + (TAJWEED_RULE_NAMES[rule] || rule) + '</span>';
     }).join('');
     rulesHtml = '<div class="ayah-tajweed-rules">' + items + '</div>';
   }
-
   return { text: html, rules: rulesHtml };
 }
