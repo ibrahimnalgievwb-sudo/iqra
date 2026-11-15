@@ -2,12 +2,11 @@
 
 /* ============================================================
    QURAN.JS — Список сур, фильтры, детали суры/аята
-   Проект «Икра» · v417
+   Проект «Икра» · v420 (Умная книга: вывод тафсира)
    ============================================================ */
 
 var debouncedRenderQuranList = debounce(renderQuranList, 250);
 
-/* Первые N строк текста для карточки списка. Полный текст открывается в деталях и в режиме чтения. */
 function excerpt(text, lines) { return String(text || '').split('\n').slice(0, lines).join('\n'); }
 
 function renderQuranList() {
@@ -84,6 +83,34 @@ function openQuran(id) {
   if (item.bismillah) {
     bismillahHtml = `<div class="bismillah-card"><div class="b-ar ar-font">${esc(item.bismillah.arabic)}</div><div class="b-tr">${esc(item.bismillah.transcription)}</div><div class="b-trn">${esc(item.bismillah.translation)}</div></div>`;
   }
+  
+  function getTafsirHtml(ayahRef) {
+    if (!window.GRAPH_EDGES || !window.DEFAULT_TAFSIRS) return '';
+    const edges = window.GRAPH_EDGES.filter(e => e.to === `ayah:${ayahRef}` && e.type === 'tafsir_comments_ayah');
+    if (!edges.length) return '';
+    let html = '';
+    edges.forEach(edge => {
+      const tafsir = window.DEFAULT_TAFSIRS.find(t => t.id === edge.from.replace('tafsir:', ''));
+      if (tafsir) {
+        const locator = tafsir.evidence_source ? tafsir.evidence_source.locator : '';
+        html += `
+          <details class="tafsir-card" style="margin-top: 12px; background: var(--card2); border-radius: 12px; padding: 14px; border-left: 3px solid var(--gold-accent); text-align: left; direction: ltr; cursor: pointer;">
+            <summary style="font-weight: 700; color: var(--gold-accent); font-size: 14px; outline: none; display: flex; align-items: center; gap: 6px;">
+              <svg class="ico ico-sm"><use href="#i-book"/></svg> Показать тафсир (Ибн Касир)
+            </summary>
+            <div style="margin-top: 10px; font-size: 15px; line-height: 1.6; color: var(--text);">
+              ${escNl(tafsir.text_ru)}
+              <div style="margin-top: 10px; font-size: 12px; color: var(--muted); font-style: italic;">
+                Источник: ${esc(locator)}
+              </div>
+            </div>
+          </details>
+        `;
+      }
+    });
+    return html;
+  }
+
   el.innerHTML = `
     <div class="detail-hero">
       <div class="dh-title">${esc(item.title)}</div>
@@ -106,14 +133,26 @@ function openQuran(id) {
     <div style="height:16px"></div>
      ${ayahs.map((a, idx) => {
       let verseKey = '';
-      if (item.type === 'surah') verseKey = `${item.number}:${idx + 1}`;
-      else if (item.type === 'ayat' && item.number && !String(item.number).includes('-')) verseKey = String(item.number);
+      let ayahRef = '';
+      if (item.type === 'surah') {
+        verseKey = `${item.number}:${idx + 1}`;
+        ayahRef = `${item.id}#${idx + 1}`;
+      } else if (item.type === 'ayat' && item.number && !String(item.number).includes('-')) {
+        verseKey = String(item.number);
+        ayahRef = `${item.id}#1`;
+      } else {
+        ayahRef = `${item.id}#1`;
+      }
+
       return `
        <div class="read-ayah ${item.type==='ayat'?'ayat-mode':''}" data-verse-key="${verseKey}">
         <div class="read-ayah-num">${a.num}</div>
         <div class="read-ayah-ar ar-font" data-raw="${escAttr(a.ar)}">${esc(a.ar)}${item.type==='surah' ? ' <span class="read-ayah-marker">' + ayahMarker(a.num) + '</span>' : ''}</div>
         ${a.tr ? `<div class="read-ayah-tr">${esc(a.tr)}</div>` : ''}
         <div class="read-ayah-trn">${esc(a.trn)}</div>
+        
+        ${getTafsirHtml(ayahRef)}
+        
         <button class="ayah-share-btn" onclick="shareAyah('${escAttr(item.id)}',${idx})"><svg class="ico ico-sm"><use href="#i-upload"/></svg>Поделиться аятом</button>
       </div>
       `;
