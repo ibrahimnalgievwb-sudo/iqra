@@ -2,17 +2,31 @@
 
 /* ============================================================
    SCHOLAR-MODAL.JS — Справка об ученых (Умная книга)
-   Проект «Икра» · v421
+   Проект «Икра» · v422 (Защита от отсутствия данных)
    ============================================================ */
 
 window.openScholarInfo = function(scholarId) {
-  if (!window.GRAPH_SCHOLARS) return;
+  // 1. Проверка: загрузился ли вообще файл scholars.json
+  if (!window.GRAPH_SCHOLARS || !Array.isArray(window.GRAPH_SCHOLARS)) {
+    console.error("Ошибка: массив GRAPH_SCHOLARS не загружен или пуст.");
+    alert("Данные об ученых еще не загружены. Пожалуйста, перезагрузите приложение.");
+    return;
+  }
+
+  // 2. Проверка: есть ли ученый с таким ID
   const scholar = window.GRAPH_SCHOLARS.find(s => s.id === scholarId);
-  if (!scholar) return;
+  if (!scholar) {
+    console.error("Ошибка: ученый с ID '" + scholarId + "' не найден в scholars.json.");
+    alert("Информация об этом ученом пока недоступна в базе.");
+    return;
+  }
 
   const modalContent = document.getElementById('modal-content');
   const modalBg = document.getElementById('modal-bg');
-  if (!modalContent || !modalBg) return;
+  if (!modalContent || !modalBg) {
+    console.error("Ошибка: не найдены элементы модального окна в HTML.");
+    return;
+  }
 
   let bioSourceHtml = '';
   if (scholar.bio_source) {
