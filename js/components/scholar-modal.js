@@ -1,23 +1,44 @@
 "use strict";
 
 /* ============================================================
-   SCHOLAR-MODAL.JS — Справка об ученых (Умная книга)
-   Проект «Икра» · v422 (Защита от отсутствия данных)
+   SCHOLAR-MODAL.JS — Справка об ученых и передатчиках
+   Проект «Икра» · v423
    ============================================================ */
 
 window.openScholarInfo = function(scholarId) {
-  // 1. Проверка: загрузился ли вообще файл scholars.json
-  if (!window.GRAPH_SCHOLARS || !Array.isArray(window.GRAPH_SCHOLARS)) {
-    console.error("Ошибка: массив GRAPH_SCHOLARS не загружен или пуст.");
-    alert("Данные об ученых еще не загружены. Пожалуйста, перезагрузите приложение.");
+  if (!scholarId) {
+    alert("Информация недоступна.");
     return;
   }
 
-  // 2. Проверка: есть ли ученый с таким ID
-  const scholar = window.GRAPH_SCHOLARS.find(s => s.id === scholarId);
-  if (!scholar) {
-    console.error("Ошибка: ученый с ID '" + scholarId + "' не найден в scholars.json.");
-    alert("Информация об этом ученом пока недоступна в базе.");
+  // Сначала ищем в биографиях (DEFAULT_BIOGRAPHIES), потом в графе ученых (GRAPH_SCHOLARS)
+  let person = null;
+  let sourceType = '';
+
+  if (window.DEFAULT_BIOGRAPHIES && Array.isArray(window.DEFAULT_BIOGRAPHIES)) {
+    person = window.DEFAULT_BIOGRAPHIES.find(function(b) { return b && b.id === scholarId; });
+    if (person) sourceType = 'biography';
+  }
+  if (!person && window.GRAPH_SCHOLARS && Array.isArray(window.GRAPH_SCHOLARS)) {
+    const scholar = window.GRAPH_SCHOLARS.find(function(s) { return s && s.id === scholarId; });
+    if (scholar) {
+      person = {
+        id: scholar.id,
+        name: scholar.name_ru || scholar.name,
+        full_name: scholar.full_name || '',
+        type: 'scholar',
+        lifespan: scholar.lifespan || '',
+        description: scholar.note || scholar.description || '',
+        sources: scholar.bio_source ? [scholar.bio_source.locator || ''] : [],
+        verification_status: 'single_source'
+      };
+      sourceType = 'scholar';
+    }
+  }
+
+  if (!person) {
+    console.error("Не найден: " + scholarId);
+    alert("Информация об этом человеке пока недоступна в базе.");
     return;
   }
 
@@ -28,27 +49,47 @@ window.openScholarInfo = function(scholarId) {
     return;
   }
 
-  let bioSourceHtml = '';
-  if (scholar.bio_source) {
-    let loc = scholar.bio_source.locator || '';
-    if (loc.includes(';')) loc = loc.split(';')[0];
-    bioSourceHtml = `<div style="font-size: 11px; color: var(--muted); text-align: center; margin-top: 16px; font-style: italic;">Источник: ${esc(loc)}</div>`;
+  const typeLabels = { 'scholar': 'Учёный', 'transmitter': 'Передатчик' };
+  const typeLabel = typeLabels[person.type] || 'Учёный';
+
+  const statusLabels = {
+    'cross_checked': 'Проверено по нескольким источникам',
+    'single_source': 'Один источник',
+    'not_found': 'Данные не найдены'
+  };
+  const statusLabel = statusLabels[person.verification_status] || '';
+
+  const iconUse = person.type === 'transmitter' ? '#i-info' : '#i-book';
+
+  let sourcesHtml = '';
+  if (Array.isArray(person.sources) && person.sources.length) {
+    sourcesHtml = '<div style="margin-top:16px;font-size:12px;color:var(--muted);text-align:left;padding:10px;background:var(--card2);border-radius:8px;">' +
+      '<b style="color:var(--gold-accent);">Источники:</b>' +
+      '<ul style="margin:6px 0 0 18px;padding:0;">' +
+      person.sources.map(function(s) { return '<li style="margin-bottom:4px;">' + esc(s) + '</li>'; }).join('') +
+      '</ul>' +
+      '</div>';
   }
 
   modalContent.innerHTML = `
     <div style="width: 40px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 20px;"></div>
     
     <div style="width: 64px; height: 64px; border-radius: 50%; background: var(--card2); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; border: 2px solid var(--gold-standard); color: var(--gold-accent);">
-      <svg class="ico ico-lg"><use href="#i-book"/></svg>
+      <svg class="ico ico-lg"><use href="${iconUse}"/></svg>
     </div>
     
-    <h2 style="font-size: 20px; font-weight: 700; text-align: center; margin: 0 0 4px; color: var(--text);">${esc(scholar.name_ru)}</h2>
-    <div style="font-size: 13px; color: var(--gold-accent); text-align: center; font-weight: 600; margin-bottom: 20px;">${esc(scholar.role_ru)}</div>
+    <h2 style="font-size: 20px; font-weight: 700; text-align: center; margin: 0 0 4px; color: var(--text);">${esc(person.name)}</h2>
+    ${person.full_name ? '<div style="font-size: 13px; color: var(--muted); text-align: center; margin-bottom: 4px;">' + esc(person.full_name) + '</div>' : ''}
+    <div style="font-size: 13px; color: var(--gold-accent); text-align: center; font-weight: 600; margin-bottom: 6px;">${esc(typeLabel)}</div>
+    ${person.lifespan ? '<div style="font-size: 12px; color: var(--muted); text-align: center; margin-bottom: 16px;">' + esc(person.lifespan) + '</div>' : ''}
     
-    <div style="font-size: 14px; line-height: 1.6; color: var(--muted); text-align: center; padding-bottom: 20px; border-bottom: 1px dashed var(--border);">
-      ${scholar.note ? `<p style="margin:0;">${esc(scholar.note)}</p>` : '<p style="margin:0;">Биографические данные уточняются.</p>'}
-      ${bioSourceHtml}
+    <div style="font-size: 14px; line-height: 1.6; color: var(--text); padding-bottom: 16px; border-bottom: 1px dashed var(--border);">
+      ${person.description ? '<p style="margin:0;text-align:center;">' + esc(person.description) + '</p>' : '<p style="margin:0;text-align:center;color:var(--muted);">Биографические данные уточняются.</p>'}
     </div>
+    
+    ${sourcesHtml}
+    
+    ${statusLabel ? '<div style="font-size:11px;color:var(--muted);text-align:center;margin-top:12px;font-style:italic;">Статус проверки: ' + esc(statusLabel) + '</div>' : ''}
     
     <button class="btn secondary" style="display: block; width: 100%; margin-top: 24px; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: 600;" onclick="closeModal()">Закрыть</button>
   `;
