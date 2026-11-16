@@ -53,7 +53,7 @@ async function loadAllData() {
     fetch('./data/quran.json'),
     fetch('./data/knowledge-base.json'),
     fetch('./data/tafsirs.json').catch(() => ({ json: () => ({ tafsirs: [] }) })),
-    fetch('./data/tafsirs_fatiha.json').catch(() => ({ json: () => ({ tafsirs: [] }) })),
+    fetch('./data/tafsirs_fatiha.json').catch(() => ({ json: () => ({ tafsirs: [], biographies: [] }) })),
     fetch('./data/biographies.json').catch(() => ({ json: () => ({ biographies: [] }) })),
     fetch('./data/graph/edges.json').catch(() => ({ json: () => ({ edges: [] }) })),
     fetch('./data/graph/themes.json').catch(() => ({ json: () => ({ themes: [] }) })),
@@ -107,7 +107,12 @@ async function loadAllData() {
     if (!exists) mergedTafsirs.push(t);
   });
   DEFAULT_TAFSIRS = mergedTafsirs;
-  DEFAULT_BIOGRAPHIES = biographiesData.biographies || [];
+
+  // Объединение биографий: отдельный файл или внутри tafsirs_fatiha.json
+  var baseBiographies = biographiesData.biographies || [];
+  var fatihaBiographies = fatihaData.biographies || [];
+  DEFAULT_BIOGRAPHIES = baseBiographies.length ? baseBiographies : fatihaBiographies;
+
   GRAPH_EDGES = edgesData.edges || [];
   GRAPH_THEMES = themesData.themes || [];
   GRAPH_SCHOLARS = scholarsData.scholars || [];
