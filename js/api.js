@@ -2,7 +2,7 @@
 
 /* ============================================================
    API.JS — Загрузка JSON-данных, Tajweed API, аналитика
-   Проект «Икра» · v423
+   Проект «Икра» · v424 (Safe Load)
    ============================================================ */
 
 const UMAMI_SRC        = 'https://cloud.umami.is/script.js';
@@ -45,32 +45,36 @@ var GRAPH_EDGES = [];
 var GRAPH_THEMES = [];
 var GRAPH_SCHOLARS = [];
 
-async function loadAllData() {
-  const [tasbihsRes, duasRes, hadithsRes, quranRes, knowledgeRes, tafsirsRes, fatihaRes, biographiesRes, edgesRes, themesRes, scholarsRes] = await Promise.all([
-    fetch('./data/tasbihs.json'),
-    fetch('./data/duas.json'),
-    fetch('./data/hadiths.json'),
-    fetch('./data/quran.json'),
-    fetch('./data/knowledge-base.json'),
-    fetch('./data/tafsirs.json').catch(() => ({ json: () => ({ tafsirs: [] }) })),
-    fetch('./data/tafsirs_fatiha.json').catch(() => ({ json: () => ({ tafsirs: [], biographies: [] }) })),
-    fetch('./data/biographies.json').catch(() => ({ json: () => ({ biographies: [] }) })),
-    fetch('./data/graph/edges.json').catch(() => ({ json: () => ({ edges: [] }) })),
-    fetch('./data/graph/themes.json').catch(() => ({ json: () => ({ themes: [] }) })),
-    fetch('./data/graph/scholars.json').catch(() => ({ json: () => ({ scholars: [] }) }))
-  ]);
+// Безопасная загрузка JSON, чтобы ошибка в одном файле не ломала всё приложение
+async function safeFetchJSON(url, fallback = {}) {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('404 Not Found');
+    const text = await res.text();
+    if (!text) return fallback;
+    return JSON.parse(text);
+  } catch (e) {
+    console.warn(`[API] Ошибка загрузки/парсинга ${url}:`, e.message);
+    return fallback;
+  }
+}
 
-  const tasbihsData = await tasbihsRes.json();
-  const duasData = await duasRes.json();
-  const hadithsData = await hadithsRes.json();
-  const quranData = await quranRes.json();
-  const knowledgeData = await knowledgeRes.json();
-  const tafsirsData = await tafsirsRes.json();
-  const fatihaData = await fatihaRes.json();
-  const biographiesData = await biographiesRes.json();
-  const edgesData = await edgesRes.json();
-  const themesData = await themesRes.json();
-  const scholarsData = await scholarsRes.json();
+async function loadAllData() {
+  const [
+    tasbihsData, duasData, hadithsData, quranData, knowledgeData, 
+    tafsirsData, fatihaData, edgesData, themesData, scholarsData
+  ] = await Promise.all([
+    safeFetchJSON('./data/tasbihs.json', { defaults: [], presets: [] }),
+    safeFetchJSON('./data/duas.json', { duas: [] }),
+    safeFetchJSON('./data/hadiths.json', { hadiths: [] }),
+    safeFetchJSON('./data/quran.json', { quran: [] }),
+    safeFetchJSON('./data/knowledge-base.json', {}),
+    safeFetchJSON('./data/tafsirs.json', { tafsirs: [] }),
+    safeFetchJSON('./data/tafsirs_fatiha.json', { tafsirs: [], biographies: [] }),
+    safeFetchJSON('./data/graph/edges.json', { edges: [] }),
+    safeFetchJSON('./data/graph/themes.json', { themes: [] }),
+    safeFetchJSON('./data/graph/scholars.json', { scholars: [] })
+  ]);
 
   DEFAULT_TASBIHS = tasbihsData.defaults || [];
   PRESETS = tasbihsData.presets || [];
@@ -86,7 +90,7 @@ async function loadAllData() {
   TAJWEED_RULE_NAMES = knowledgeData.tajweedRuleNames || {};
   TAJWEED_RULE_COLORS = knowledgeData.tajweedRuleColors || {};
 
-  // Объединение тафсиров: tafsirs.json (плейсхолдеры) + tafsirs_fatiha.json (полные данные)
+  // Объединение тафсиров
   var baseTafsirs = tafsirsData.tafsirs || [];
   var fatihaTafsirs = fatihaData.tafsirs || [];
   var fatihaByKey = {};
@@ -107,17 +111,12 @@ async function loadAllData() {
     if (!exists) mergedTafsirs.push(t);
   });
   DEFAULT_TAFSIRS = mergedTafsirs;
-
-  // Объединение биографий: отдельный файл или внутри tafsirs_fatiha.json
-  var baseBiographies = biographiesData.biographies || [];
-  var fatihaBiographies = fatihaData.biographies || [];
-  DEFAULT_BIOGRAPHIES = baseBiographies.length ? baseBiographies : fatihaBiographies;
+  DEFAULT_BIOGRAPHIES = fatihaData.biographies || [];
 
   GRAPH_EDGES = edgesData.edges || [];
   GRAPH_THEMES = themesData.themes || [];
   GRAPH_SCHOLARS = scholarsData.scholars || [];
 
-  // Экспорт в window для доступа из компонентов
   window.DEFAULT_TAFSIRS = DEFAULT_TAFSIRS;
   window.DEFAULT_BIOGRAPHIES = DEFAULT_BIOGRAPHIES;
   window.GRAPH_EDGES = GRAPH_EDGES;
@@ -133,7 +132,6 @@ async function loadAllData() {
   };
 }
 
-/* ---------- Получение тафсира по суре и аяту (новый формат) ---------- */
 function getTafsirForAyah(surah, ayah) {
   if (!Array.isArray(DEFAULT_TAFSIRS)) return null;
   return DEFAULT_TAFSIRS.find(function(t) {
@@ -141,7 +139,6 @@ function getTafsirForAyah(surah, ayah) {
   }) || null;
 }
 
-/* ---------- Получение биографии по ID ---------- */
 function getBiographyById(id) {
   if (!Array.isArray(DEFAULT_BIOGRAPHIES)) return null;
   return DEFAULT_BIOGRAPHIES.find(function(b) { return b && b.id === id; }) || null;
