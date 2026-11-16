@@ -2,7 +2,7 @@
 
 /* ============================================================
    API.JS — Загрузка JSON-данных, Tajweed API, аналитика
-   Проект «Икра» · v421 (Умная книга: загрузка ученых)
+   Проект «Икра» · v422
    ============================================================ */
 
 const UMAMI_SRC        = 'https://cloud.umami.is/script.js';
@@ -26,7 +26,6 @@ function trackEvent(name, title) {
   attempt();
 }
 
-/* ---------- LOAD JSON DATA ---------- */
 var DEFAULT_TASBIHS = [];
 var PRESETS = [];
 var TAWHID_TASBIH = null;
@@ -40,8 +39,6 @@ var NIGHT_ORDER = [];
 var TAJWEED_TAG_MAP = {};
 var TAJWEED_RULE_NAMES = {};
 var TAJWEED_RULE_COLORS = {};
-
-// НОВЫЕ ПЕРЕМЕННЫЕ ДЛЯ УМНОЙ КНИГИ
 var DEFAULT_TAFSIRS = [];
 var GRAPH_EDGES = [];
 var GRAPH_THEMES = [];
@@ -74,19 +71,15 @@ async function loadAllData() {
   PRESETS = tasbihsData.presets || [];
   TAWHID_TASBIH = DEFAULT_TASBIHS.find(function(t){ return t.id === 'tawhid'; }) || DEFAULT_TASBIHS[0] || null;
   ISTIGHFAR_TASBIH = DEFAULT_TASBIHS.find(function(t){ return t.id === 'istighfar'; }) || DEFAULT_TASBIHS[1] || null;
-
   DEFAULT_DUAS = duasData.duas || [];
   DEFAULT_HADITHS = hadithsData.hadiths || [];
   DEFAULT_QURAN = quranData.quran || [];
-
   ALL_TAGS = knowledgeData.allTags || [];
   BISMILLAH = knowledgeData.bismillah || null;
   NIGHT_ORDER = knowledgeData.nightOrder || [];
   TAJWEED_TAG_MAP = knowledgeData.tajweedTagMap || {};
   TAJWEED_RULE_NAMES = knowledgeData.tajweedRuleNames || {};
   TAJWEED_RULE_COLORS = knowledgeData.tajweedRuleColors || {};
-
-  // ЗАГРУЖАЕМ УМНУЮ КНИГУ
   DEFAULT_TAFSIRS = tafsirsData.tafsirs || [];
   GRAPH_EDGES = edgesData.edges || [];
   GRAPH_THEMES = themesData.themes || [];
