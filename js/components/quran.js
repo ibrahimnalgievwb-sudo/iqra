@@ -58,44 +58,96 @@ function setQuranFilter(f) {
   if (typeof renderQuranList === 'function') renderQuranList();
 }
 
-function getSmartTafsirHtml(ayahRef) {
-  if (!window.GRAPH_EDGES || !window.DEFAULT_TAFSIRS) return '';
-  const edges = window.GRAPH_EDGES.filter(e => e.to === `ayah:${ayahRef}` && e.type === 'tafsir_comments_ayah');
-  if (!edges.length) return '';
-  let html = '';
-  edges.forEach(edge => {
-    const tafsir = window.DEFAULT_TAFSIRS.find(t => t.id === edge.from.replace('tafsir:', ''));
-    if (tafsir) {
-      const scholar = window.GRAPH_SCHOLARS ? window.GRAPH_SCHOLARS.find(s => s.id === tafsir.scholar_id) : null;
-      const scholarName = scholar ? scholar.name_ru : 'Ибн Касир';
-      const scholarId = tafsir.scholar_id || 'ibn_kathir';
-      
-      let sourceText = tafsir.evidence_source.locator;
-      if (sourceText.includes(';')) sourceText = sourceText.split(';')[0];
-      
-      html += `
-        <details class="tafsir-card" style="margin-top: 16px; background: var(--card2); border-radius: 12px; padding: 14px; border-left: 3px solid var(--gold-accent); text-align: left; direction: ltr;">
-          <summary style="font-weight: 700; color: var(--gold-accent); font-size: 14px; outline: none; display: flex; align-items: center; gap: 8px; cursor: pointer; list-style: none;">
-            <span class="arrow-icon" style="font-size: 10px; color: var(--muted); transition: transform 0.2s;">▶</span>
-            <svg class="ico ico-sm"><use href="#i-book"/></svg> Показать тафсир
-          </summary>
-          <div style="margin-top: 12px; font-size: 15px; line-height: 1.6; color: var(--text); border-top: 1px dashed var(--border); padding-top: 12px;">
-            ${escNl(tafsir.text_ru)}
-            
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 14px;">
-              <div style="font-size: 12px; color: var(--muted); font-style: italic;">
-                ${esc(scholarName)} · ${esc(sourceText)}
-              </div>
-              <button onclick="event.preventDefault(); openScholarInfo('${escAttr(scholarId)}')" class="btn secondary" style="width: auto; margin: 0; padding: 6px 12px; font-size: 12px; font-weight: 600; min-height: 30px; border-radius: 8px; display: flex; align-items: center; gap: 6px;">
-                <svg class="ico ico-sm"><use href="#i-info"/></svg> Справка
-              </button>
-            </div>
-          </div>
-        </details>
-      `;
+/* ---------- Умная книга: тафсир + хадисы + темы + биографии ---------- */
+function getSmartTafsirHtml(item, ayahNum) {
+  let surah = null, ayah = null;
+  if (item.type === 'surah') {
+    surah = item.number;
+    ayah = ayahNum;
+  } else if (item.type === 'ayat' && item.number) {
+    const parts = String(item.number).split(':');
+    if (parts.length === 2) {
+      surah = parseInt(parts[0], 10);
+      const ayahPart = parts[1];
+      if (ayahPart.includes('-')) {
+        const bounds = ayahPart.split('-').map(Number);
+        ayah = bounds[0] + (ayahNum - 1);
+        if (ayah > bounds[1]) ayah = bounds[1];
+      } else {
+        ayah = parseInt(ayahPart, 10);
+      }
     }
-  });
-  return html;
+  }
+  if (!surah || !ayah) return '';
+
+  const tafsir = (typeof getTafsirForAyah === 'function') ? getTafsirForAyah(surah, ayah) : null;
+  if (!tafsir) return '';
+
+  const isPlaceholder = tafsir.status === 'placeholder' || !tafsir.tafsir_text;
+  if (isPlaceholder) {
+    return `<div class="tafsir-card" style="margin-top:16px;background:var(--card2);border-radius:12px;padding:14px;border-left:3px solid var(--gold-accent);text-align:center;color:var(--muted);font-style:italic;font-size:13px;">${esc(tafsir.tafsir_text || 'Ин ша Аллах, здесь скоро появится тафсир')}</div>`;
+  }
+
+  const scholar = tafsir.source && tafsir.source.scholar ? tafsir.source.scholar : 'Ибн Касир';
+  const scholarId = (tafsir.source && tafsir.source.scholar_id) ? tafsir.source.scholar_id : 'ibn_kathir';
+  const book = (tafsir.source && tafsir.source.book) ? tafsir.source.book : '';
+  const volume = (tafsir.source && tafsir.source.volume) ? ('т. ' + tafsir.source.volume) : '';
+  const page = (tafsir.source && tafsir.source.page) ? tafsir.source.page : '';
+
+  let sourceLine = [scholar, book, volume, page].filter(Boolean).join(' · ');
+
+  let themesHtml = '';
+  if (Array.isArray(tafsir.themes) && tafsir.themes.length) {
+    themesHtml = '<div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:6px;">' +
+      tafsir.themes.map(function(th) { return '<span style="font-size:11px;padding:3px 8px;border-radius:6px;background:var(--gold-accent);color:#000;font-weight:600;">' + esc(th) + '</span>'; }).join('') +
+      '</div>';
+  }
+
+  let hadithsHtml = '';
+  if (Array.isArray(tafsir.hadiths) && tafsir.hadiths.length) {
+    hadithsHtml = '<div style="margin-top:14px;border-top:1px dashed var(--border);padding-top:10px;"><div style="font-size:12px;color:var(--gold-accent);font-weight:700;margin-bottom:8px;">Хадисы в тафсире</div>' +
+      tafsir.hadiths.map(function(h) {
+        const hTransmitter = h.transmitter || '';
+        const hTransmitterId = h.transmitter_id || '';
+        const hSource = h.source || '';
+        const hStatus = h.status || '';
+        const statusColor = hStatus === 'sahih' ? 'var(--gold-accent)' : (hStatus === 'hasan' ? 'var(--accent2)' : 'var(--muted)');
+        const transmitterClickable = hTransmitterId
+          ? '<a href="#" onclick="event.preventDefault(); openScholarInfo(\'' + escAttr(hTransmitterId) + '\')" style="color:var(--gold-accent);text-decoration:none;border-bottom:1px dotted var(--gold-accent);">' + esc(hTransmitter) + '</a>'
+          : esc(hTransmitter);
+        return '<div style="background:var(--card);border-radius:8px;padding:10px;margin-bottom:8px;font-size:13px;line-height:1.5;">' +
+          '<div style="color:var(--text);margin-bottom:6px;">«' + esc(h.text) + '»</div>' +
+          '<div style="font-size:11px;color:var(--muted);">Передал: ' + transmitterClickable + ' · Источник: ' + esc(hSource) + ' · <span style="color:' + statusColor + ';font-weight:600;">' + esc(hStatus) + '</span></div>' +
+          '</div>';
+      }).join('') +
+      '</div>';
+  }
+
+  let israiliyatHtml = '';
+  if (tafsir.israiliyat_note && tafsir.israiliyat_note.present) {
+    israiliyatHtml = '<div style="margin-top:14px;padding:10px;background:rgba(180,140,60,0.08);border-radius:8px;border-left:3px solid var(--gold-accent);font-size:12px;line-height:1.5;color:var(--muted);">' +
+      '<b style="color:var(--gold-accent);">Памятка об исраилят:</b> ' + esc(tafsir.israiliyat_note.text) +
+      '</div>';
+  }
+
+  return '<details class="tafsir-card" style="margin-top:16px;background:var(--card2);border-radius:12px;padding:14px;border-left:3px solid var(--gold-accent);text-align:left;direction:ltr;">' +
+    '<summary style="font-weight:700;color:var(--gold-accent);font-size:14px;outline:none;display:flex;align-items:center;gap:8px;cursor:pointer;list-style:none;">' +
+      '<span class="arrow-icon" style="font-size:10px;color:var(--muted);transition:transform 0.2s;">▶</span>' +
+      '<svg class="ico ico-sm"><use href="#i-book"/></svg> Показать тафсир' +
+    '</summary>' +
+    '<div style="margin-top:12px;font-size:15px;line-height:1.6;color:var(--text);border-top:1px dashed var(--border);padding-top:12px;">' +
+      escNl(tafsir.tafsir_text) +
+      themesHtml +
+      hadithsHtml +
+      israiliyatHtml +
+      '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-top:14px;">' +
+        '<div style="font-size:12px;color:var(--muted);font-style:italic;">' + esc(sourceLine) + '</div>' +
+        '<button onclick="event.preventDefault(); openScholarInfo(\'' + escAttr(scholarId) + '\')" class="btn secondary" style="width:auto;margin:0;padding:6px 12px;font-size:12px;font-weight:600;min-height:30px;border-radius:8px;display:flex;align-items:center;gap:6px;">' +
+          '<svg class="ico ico-sm"><use href="#i-info"/></svg> Справка' +
+        '</button>' +
+      '</div>' +
+    '</div>' +
+  '</details>';
 }
 
 function openQuran(id) {
@@ -135,9 +187,8 @@ function openQuran(id) {
     <div style="height:16px"></div>
      ${ayahs.map((a, idx) => {
       let verseKey = '';
-      let ayahRef = `${item.id}#${idx + 1}`;
       if (item.type === 'surah') { verseKey = `${item.number}:${idx + 1}`; }
-      else if (item.type === 'ayat' && item.number && !String(item.number).includes('-')) { verseKey = String(item.number); ayahRef = `${item.id}#1`; }
+      else if (item.type === 'ayat' && item.number && !String(item.number).includes('-')) { verseKey = String(item.number); }
 
       return `
        <div class="read-ayah ${item.type==='ayat'?'ayat-mode':''}" data-verse-key="${verseKey}">
@@ -145,7 +196,7 @@ function openQuran(id) {
         <div class="read-ayah-ar ar-font" data-raw="${escAttr(a.ar)}">${esc(a.ar)}${item.type==='surah' ? ' <span class="read-ayah-marker">' + ayahMarker(a.num) + '</span>' : ''}</div>
         ${a.tr ? `<div class="read-ayah-tr">${esc(a.tr)}</div>` : ''}
         <div class="read-ayah-trn">${esc(a.trn)}</div>
-        ${getSmartTafsirHtml(ayahRef)}
+        ${getSmartTafsirHtml(item, idx + 1)}
         <button class="ayah-share-btn" onclick="shareAyah('${escAttr(item.id)}',${idx})"><svg class="ico ico-sm"><use href="#i-upload"/></svg>Поделиться аятом</button>
       </div>
       `;
