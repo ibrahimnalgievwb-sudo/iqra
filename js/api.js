@@ -2,7 +2,7 @@
 
 /* ============================================================
    API.JS — Загрузка JSON-данных, Tajweed API, аналитика
-   Проект «Икра» · v422
+   Проект «Икра» · v423
    ============================================================ */
 
 const UMAMI_SRC        = 'https://cloud.umami.is/script.js';
@@ -40,29 +40,34 @@ var TAJWEED_TAG_MAP = {};
 var TAJWEED_RULE_NAMES = {};
 var TAJWEED_RULE_COLORS = {};
 var DEFAULT_TAFSIRS = [];
+var DEFAULT_BIOGRAPHIES = [];
 var GRAPH_EDGES = [];
 var GRAPH_THEMES = [];
 var GRAPH_SCHOLARS = [];
 
 async function loadAllData() {
-  const [tasbihsRes, duasRes, hadithsRes, quranRes, knowledgeRes, tafsirsRes, edgesRes, themesRes, scholarsRes] = await Promise.all([
+  const [tasbihsRes, duasRes, hadithsRes, quranRes, knowledgeRes, tafsirsRes, fatihaRes, biographiesRes, edgesRes, themesRes, scholarsRes] = await Promise.all([
     fetch('./data/tasbihs.json'),
     fetch('./data/duas.json'),
     fetch('./data/hadiths.json'),
     fetch('./data/quran.json'),
     fetch('./data/knowledge-base.json'),
     fetch('./data/tafsirs.json').catch(() => ({ json: () => ({ tafsirs: [] }) })),
+    fetch('./data/tafsirs_fatiha.json').catch(() => ({ json: () => ({ tafsirs: [] }) })),
+    fetch('./data/biographies.json').catch(() => ({ json: () => ({ biographies: [] }) })),
     fetch('./data/graph/edges.json').catch(() => ({ json: () => ({ edges: [] }) })),
     fetch('./data/graph/themes.json').catch(() => ({ json: () => ({ themes: [] }) })),
     fetch('./data/graph/scholars.json').catch(() => ({ json: () => ({ scholars: [] }) }))
   ]);
-  
+
   const tasbihsData = await tasbihsRes.json();
   const duasData = await duasRes.json();
   const hadithsData = await hadithsRes.json();
   const quranData = await quranRes.json();
   const knowledgeData = await knowledgeRes.json();
   const tafsirsData = await tafsirsRes.json();
+  const fatihaData = await fatihaRes.json();
+  const biographiesData = await biographiesRes.json();
   const edgesData = await edgesRes.json();
   const themesData = await themesRes.json();
   const scholarsData = await scholarsRes.json();
@@ -80,17 +85,61 @@ async function loadAllData() {
   TAJWEED_TAG_MAP = knowledgeData.tajweedTagMap || {};
   TAJWEED_RULE_NAMES = knowledgeData.tajweedRuleNames || {};
   TAJWEED_RULE_COLORS = knowledgeData.tajweedRuleColors || {};
-  DEFAULT_TAFSIRS = tafsirsData.tafsirs || [];
+
+  // Объединение тафсиров: tafsirs.json (плейсхолдеры) + tafsirs_fatiha.json (полные данные)
+  var baseTafsirs = tafsirsData.tafsirs || [];
+  var fatihaTafsirs = fatihaData.tafsirs || [];
+  var fatihaByKey = {};
+  fatihaTafsirs.forEach(function(t) {
+    if (t && t.surah != null && t.ayah != null) {
+      fatihaByKey[t.surah + ':' + t.ayah] = t;
+    }
+  });
+  var mergedTafsirs = baseTafsirs.map(function(t) {
+    var key = (t.surah != null && t.ayah != null) ? (t.surah + ':' + t.ayah) : null;
+    if (key && fatihaByKey[key]) return fatihaByKey[key];
+    return t;
+  });
+  fatihaTafsirs.forEach(function(t) {
+    if (!t || t.surah == null || t.ayah == null) return;
+    var key = t.surah + ':' + t.ayah;
+    var exists = mergedTafsirs.some(function(x) { return x.surah != null && x.ayah != null && (x.surah + ':' + x.ayah) === key; });
+    if (!exists) mergedTafsirs.push(t);
+  });
+  DEFAULT_TAFSIRS = mergedTafsirs;
+  DEFAULT_BIOGRAPHIES = biographiesData.biographies || [];
   GRAPH_EDGES = edgesData.edges || [];
   GRAPH_THEMES = themesData.themes || [];
   GRAPH_SCHOLARS = scholarsData.scholars || [];
+
+  // Экспорт в window для доступа из компонентов
+  window.DEFAULT_TAFSIRS = DEFAULT_TAFSIRS;
+  window.DEFAULT_BIOGRAPHIES = DEFAULT_BIOGRAPHIES;
+  window.GRAPH_EDGES = GRAPH_EDGES;
+  window.GRAPH_THEMES = GRAPH_THEMES;
+  window.GRAPH_SCHOLARS = GRAPH_SCHOLARS;
 
   return {
     tasbihs: DEFAULT_TASBIHS, presets: PRESETS, duas: DEFAULT_DUAS, hadiths: DEFAULT_HADITHS, quran: DEFAULT_QURAN,
     allTags: ALL_TAGS, bismillah: BISMILLAH, nightOrder: NIGHT_ORDER, tajweedTagMap: TAJWEED_TAG_MAP,
     tajweedRuleNames: TAJWEED_RULE_NAMES, tajweedRuleColors: TAJWEED_RULE_COLORS,
-    tafsirs: DEFAULT_TAFSIRS, edges: GRAPH_EDGES, themes: GRAPH_THEMES, scholars: GRAPH_SCHOLARS
+    tafsirs: DEFAULT_TAFSIRS, biographies: DEFAULT_BIOGRAPHIES,
+    edges: GRAPH_EDGES, themes: GRAPH_THEMES, scholars: GRAPH_SCHOLARS
   };
+}
+
+/* ---------- Получение тафсира по суре и аяту (новый формат) ---------- */
+function getTafsirForAyah(surah, ayah) {
+  if (!Array.isArray(DEFAULT_TAFSIRS)) return null;
+  return DEFAULT_TAFSIRS.find(function(t) {
+    return t && t.surah === surah && t.ayah === ayah;
+  }) || null;
+}
+
+/* ---------- Получение биографии по ID ---------- */
+function getBiographyById(id) {
+  if (!Array.isArray(DEFAULT_BIOGRAPHIES)) return null;
+  return DEFAULT_BIOGRAPHIES.find(function(b) { return b && b.id === id; }) || null;
 }
 
 /* ---------- TAJWEED API ---------- */
