@@ -64,7 +64,7 @@ function getSmartTafsirHtml(item, ayahNum) {
   if (item.type === 'surah') {
     surah = item.number;
     ayah = ayahNum;
-  } else if (item.type === 'ayat' && item.number) {
+  } else if (item.number) {
     const parts = String(item.number).split(':');
     if (parts.length === 2) {
       surah = parseInt(parts[0], 10);
@@ -188,7 +188,7 @@ function openQuran(id) {
      ${ayahs.map((a, idx) => {
       let verseKey = '';
       if (item.type === 'surah') { verseKey = `${item.number}:${idx + 1}`; }
-      else if (item.type === 'ayat' && item.number && !String(item.number).includes('-')) { verseKey = String(item.number); }
+      else if (item.number && !String(item.number).includes('-')) { verseKey = String(item.number); }
 
       return `
        <div class="read-ayah ${item.type==='ayat'?'ayat-mode':''}" data-verse-key="${verseKey}">
