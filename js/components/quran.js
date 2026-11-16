@@ -1,10 +1,5 @@
 "use strict";
 
-/* ============================================================
-   QURAN.JS — Список сур, фильтры, детали суры/аята
-   Проект «Икра» · v421 (Умная книга: премиум-тафсир)
-   ============================================================ */
-
 var debouncedRenderQuranList = debounce(renderQuranList, 250);
 function excerpt(text, lines) { return String(text || '').split('\n').slice(0, lines).join('\n'); }
 
@@ -63,7 +58,6 @@ function setQuranFilter(f) {
   if (typeof renderQuranList === 'function') renderQuranList();
 }
 
-// ПРЕМИУМ-КАРТОЧКА ТАФСИРА
 function getSmartTafsirHtml(ayahRef) {
   if (!window.GRAPH_EDGES || !window.DEFAULT_TAFSIRS) return '';
   const edges = window.GRAPH_EDGES.filter(e => e.to === `ayah:${ayahRef}` && e.type === 'tafsir_comments_ayah');
