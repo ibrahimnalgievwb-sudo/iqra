@@ -53,8 +53,18 @@ function getSmartTafsirHtml(item, ayahNum) {
   if (!tafsir) return '';
 
   const isPlaceholder = tafsir.status === 'placeholder' || !tafsir.tafsir_text;
+  
   if (isPlaceholder) {
-    return `<div class="tafsir-card" style="margin-top:16px;background:rgba(0,0,0,0.15);border-radius:12px;padding:14px;border-left:3px solid var(--gold-accent);text-align:center;color:var(--muted);font-style:italic;font-size:13px;">${esc(tafsir.tafsir_text || 'Ин ша Аллах, здесь скоро появится тафсир')}</div>`;
+    // Премиальный плейсхолдер под кнопкой
+    return `<details class="tafsir-card" style="margin-top:16px; background:rgba(0,0,0,0.15); border-radius:12px; padding:14px; border-left:3px solid var(--gold-accent); text-align:left; direction:ltr;">
+      <summary style="font-weight:700; color:var(--gold-accent); font-size:14px; outline:none; display:flex; align-items:center; gap:8px; cursor:pointer; list-style:none;">
+        <span class="arrow-icon" style="font-size:10px; color:var(--muted); transition:transform 0.2s;">▶</span>
+        <svg class="ico ico-sm"><use href="#i-book"/></svg> Тафсир
+      </summary>
+      <div style="margin-top:12px; font-size:14px; line-height:1.6; color:var(--muted); border-top:1px dashed var(--border); padding-top:12px; text-align:center; font-style:italic;">
+        ${esc(tafsir.tafsir_text || 'Ин ша Аллах, здесь скоро появится тафсир')}
+      </div>
+    </details>`;
   }
 
   const scholar = tafsir.source && tafsir.source.scholar ? tafsir.source.scholar : 'Ибн Касир';
@@ -102,7 +112,7 @@ function getSmartTafsirHtml(item, ayahNum) {
   return '<details class="tafsir-card" style="margin-top:16px;background:rgba(0,0,0,0.15);border-radius:12px;padding:14px;border-left:3px solid var(--gold-accent);text-align:left;direction:ltr;">' +
     '<summary style="font-weight:700;color:var(--gold-accent);font-size:14px;outline:none;display:flex;align-items:center;gap:8px;cursor:pointer;list-style:none;">' +
       '<span class="arrow-icon" style="font-size:10px;color:var(--muted);transition:transform 0.2s;">▶</span>' +
-      '<svg class="ico ico-sm"><use href="#i-book"/></svg> Показать тафсир' +
+      '<svg class="ico ico-sm"><use href="#i-book"/></svg> Тафсир' +
     '</summary>' +
     '<div style="margin-top:12px;font-size:15px;line-height:1.6;color:var(--text);border-top:1px dashed var(--border);padding-top:12px;">' +
       escNl(tafsir.tafsir_text) +
