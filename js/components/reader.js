@@ -33,7 +33,7 @@ function getSmartTafsirHtml(item, ayahNum) {
   if (item.type === 'surah') {
     surah = item.number;
     ayah = ayahNum;
-  } else if (item.type === 'ayat' && item.number) {
+  } else if (item.number) {
     const parts = String(item.number).split(':');
     if (parts.length === 2) {
       surah = parseInt(parts[0], 10);
@@ -144,9 +144,9 @@ async function openRead(id, targetAyahIdx, dir) {
     ${ayahs.map((a, idx) => {
       let verseKey = '';
       if (item.type === 'surah') { verseKey = `${item.number}:${idx + 1}`; }
-      else if (item.type === 'ayat' && item.number && !String(item.number).includes('-')) { verseKey = String(item.number); }
+      else if (item.number && !String(item.number).includes('-')) { verseKey = String(item.number); }
       return `
-       <div class="read-ayah ${item.type==='ayat'?'ayat-mode':''}" id="ayah-${idx}" data-verse-key="${escAttr(verseKey)}">
+       <div class="read-ayah ${item.type==='ayat'||item.type==='ruqyah'?'ayat-mode':''}" id="ayah-${idx}" data-verse-key="${escAttr(verseKey)}">
         <div class="read-ayah-num">${a.num}</div>
         <div class="read-ayah-ar ar-font" data-raw="${esc(a.ar)}">${esc(a.ar)}${item.type==='surah' ? ' <span class="read-ayah-marker">' + ayahMarker(a.num) + '</span>' : ''}</div>
         ${a.tr ? `<div class="read-ayah-tr">${esc(a.tr)}</div>` : ''}
