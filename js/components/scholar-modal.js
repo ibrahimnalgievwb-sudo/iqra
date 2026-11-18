@@ -1,23 +1,14 @@
 "use strict";
 
-/* ============================================================
-   SCHOLAR-MODAL.JS — Справка об ученых и передатчиках
-   Проект «Икра» · v423
-   ============================================================ */
-
 window.openScholarInfo = function(scholarId) {
   if (!scholarId) {
     alert("Информация недоступна.");
     return;
   }
 
-  // Сначала ищем в биографиях (DEFAULT_BIOGRAPHIES), потом в графе ученых (GRAPH_SCHOLARS)
   let person = null;
-  let sourceType = '';
-
   if (window.DEFAULT_BIOGRAPHIES && Array.isArray(window.DEFAULT_BIOGRAPHIES)) {
     person = window.DEFAULT_BIOGRAPHIES.find(function(b) { return b && b.id === scholarId; });
-    if (person) sourceType = 'biography';
   }
   if (!person && window.GRAPH_SCHOLARS && Array.isArray(window.GRAPH_SCHOLARS)) {
     const scholar = window.GRAPH_SCHOLARS.find(function(s) { return s && s.id === scholarId; });
@@ -32,7 +23,6 @@ window.openScholarInfo = function(scholarId) {
         sources: scholar.bio_source ? [scholar.bio_source.locator || ''] : [],
         verification_status: 'single_source'
       };
-      sourceType = 'scholar';
     }
   }
 
@@ -44,10 +34,12 @@ window.openScholarInfo = function(scholarId) {
 
   const modalContent = document.getElementById('modal-content');
   const modalBg = document.getElementById('modal-bg');
-  if (!modalContent || !modalBg) {
-    console.error("Ошибка: не найдены элементы модального окна в HTML.");
-    return;
-  }
+  if (!modalContent || !modalBg) return;
+
+  // Премиальный полупрозрачный фон и размытие (glassmorphism)
+  modalBg.style.backgroundColor = 'rgba(0, 0, 0, 0.45)';
+  modalBg.style.backdropFilter = 'blur(8px)';
+  modalBg.style.webkitBackdropFilter = 'blur(8px)';
 
   const typeLabels = { 'scholar': 'Учёный', 'transmitter': 'Передатчик' };
   const typeLabel = typeLabels[person.type] || 'Учёный';
