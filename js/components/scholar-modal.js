@@ -36,6 +36,10 @@ window.openScholarInfo = function(scholarId) {
   const modalBg = document.getElementById('modal-bg');
   if (!modalContent || !modalBg) return;
 
+  // Сбрасываем возможный класс tajweed-modal от предыдущей модалки,
+  // чтобы модалка учёного не унаследовала узкий glassmorphism-стиль.
+  modalContent.className = 'modal';
+
   // Премиальный полупрозрачный фон и размытие (glassmorphism)
   modalBg.style.backgroundColor = 'rgba(0, 0, 0, 0.45)';
   modalBg.style.backdropFilter = 'blur(8px)';
