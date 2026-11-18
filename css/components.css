@@ -29,7 +29,7 @@
   box-shadow: 0 4px 12px rgba(0,0,0,.04), inset 0 1px 0 rgba(255,255,255,.5); 
   background: var(--card); 
   border-radius: 20px; 
-  padding: 24px 20px; /* Увеличенные отступы */
+  padding: 24px 20px;
   word-break: break-word;
   overflow-wrap: break-word;
   hyphens: auto;
@@ -325,7 +325,7 @@
 .detail-actions .btn { flex: 1 1 0%; min-width: 0; padding: 16px 8px; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; justify-content: center; }
 
 /* === SETTINGS === */
-.settings-group { background:var(--card); border-radius:16px; margin-bottom: var(--space-3); overflow:hidden; padding: 0; /* Убираем общий паддинг для настроек, чтобы строки прилегали */ }
+.settings-group { background:var(--card); border-radius:16px; margin-bottom: var(--space-3); overflow:hidden; padding: 0; }
 .settings-group .sg-title { font-size: var(--fs-xs); color:var(--muted); text-transform:uppercase; letter-spacing:.5px; padding: var(--space-3) var(--space-3) 6px; font-weight:600; }
 .setting-row { display:flex; align-items:center; justify-content:space-between; padding: var(--space-3); border-top:1px solid var(--border); gap: var(--space-2); flex-wrap:wrap; }
 .setting-row:first-of-type { border-top:none; }
@@ -828,4 +828,202 @@ html[data-theme] .content-card.content-card--feature, html:not([data-theme]) .co
     linear-gradient(var(--nav-active-surface), var(--nav-active-surface)) padding-box,
     linear-gradient(var(--card), var(--card)) padding-box,
     linear-gradient(180deg, var(--card-edge-hi), var(--card-edge-hi)) border-box;
+}
+
+
+/* ============================================================
+   IQRA V426 — СПРАВКА ПО ТАДЖВИДУ (pop-up, glassmorphism, плотный)
+   Макет v4, согласован. Адаптировано под реальные токены проекта:
+   --accent / --accent-rgb здесь — контрастный ч/б, НЕ золото,
+   поэтому акценты таджвид-модалки используют --gold-accent и
+   фиксированный золотой RGB (212,175,55), как в tajweed.css.
+   ============================================================ */
+
+/* Кнопка «Таджвид» под аятом: скрыта, пока правил нет */
+.ayah-tajweed-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: var(--space-2);
+  margin-left: 8px;
+  background: transparent;
+  border: 1px solid var(--card-outline);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: var(--fs-sm);
+  color: var(--gold-accent);
+  cursor: pointer;
+  font-weight: 600;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+.ayah-tajweed-btn.visible { display: inline-flex; }
+.ayah-tajweed-btn:active { background: rgba(212, 175, 55, 0.10); }
+
+/* Лёгкая вуаль только для таджвид-модалки.
+   У модалки учёного свои инлайн-стили (rgba(0,0,0,.45)+blur 8px) —
+   их не перебиваем, это существующая фича. */
+.modal-bg:has(.tajweed-modal) {
+  background: rgba(20, 16, 10, 0.16);
+  -webkit-backdrop-filter: blur(0.6px);
+  backdrop-filter: blur(0.6px);
+}
+[data-theme="dark"] .modal-bg:has(.tajweed-modal),
+[data-theme="mono"] .modal-bg:has(.tajweed-modal) {
+  background: rgba(0, 0, 0, 0.22);
+}
+
+/* Сама модалка: плотное премиальное стекло */
+.modal.tajweed-modal {
+  position: relative;
+  width: 100%;
+  max-width: 360px;
+  max-height: 72vh;
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.74), rgba(255, 255, 255, 0.56));
+  -webkit-backdrop-filter: blur(14px) saturate(1.4) brightness(1.03);
+  backdrop-filter: blur(14px) saturate(1.4) brightness(1.03);
+  border: 1px solid rgba(212, 175, 55, 0.45);
+  box-shadow:
+    0 12px 34px rgba(20, 16, 10, 0.20),
+    0 2px 4px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.72);
+}
+.modal.tajweed-modal::before {
+  content: "";
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.8), transparent);
+  pointer-events: none;
+}
+[data-theme="dark"] .modal.tajweed-modal,
+[data-theme="mono"] .modal.tajweed-modal {
+  background: linear-gradient(180deg, rgba(26, 24, 21, 0.76), rgba(26, 24, 21, 0.60));
+  -webkit-backdrop-filter: blur(14px) saturate(1.3) brightness(0.98);
+  backdrop-filter: blur(14px) saturate(1.3) brightness(0.98);
+  border: 1px solid rgba(212, 175, 55, 0.32);
+  box-shadow:
+    0 12px 34px rgba(0, 0, 0, 0.48),
+    0 2px 4px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* Сверхкомпактная шапка */
+.modal.tajweed-modal .tm-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 9px 12px;
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.62), rgba(255, 255, 255, 0.36));
+  -webkit-backdrop-filter: blur(10px) saturate(1.3);
+  backdrop-filter: blur(10px) saturate(1.3);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.28);
+}
+[data-theme="dark"] .modal.tajweed-modal .tm-head,
+[data-theme="mono"] .modal.tajweed-modal .tm-head {
+  background: linear-gradient(180deg, rgba(26, 24, 21, 0.80), rgba(26, 24, 21, 0.52));
+  border-bottom: 1px solid rgba(212, 175, 55, 0.22);
+}
+.modal.tajweed-modal .tm-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--gold-accent);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  letter-spacing: 0.1px;
+}
+.modal.tajweed-modal .tm-title svg { width: 13px; height: 13px; }
+.modal.tajweed-modal .tm-close {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(212, 175, 55, 0.10);
+  border: 1px solid rgba(212, 175, 55, 0.30);
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s, transform 0.12s;
+}
+.modal.tajweed-modal .tm-close svg { width: 13px; height: 13px; }
+.modal.tajweed-modal .tm-close:active {
+  transform: scale(0.92);
+  background: rgba(212, 175, 55, 0.20);
+}
+
+/* Плотное тело */
+.modal.tajweed-modal .tm-body {
+  padding: 8px 12px 10px;
+  overflow-y: auto;
+  max-height: calc(72vh - 47px);
+}
+.modal.tajweed-modal .tm-ayah-label {
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 700;
+  margin: 0 0 4px;
+  opacity: 0.85;
+}
+.modal.tajweed-modal .tm-list { display: flex; flex-direction: column; }
+.modal.tajweed-modal .tm-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  padding: 5px 0;
+  border-bottom: 1px dashed rgba(212, 175, 55, 0.20);
+}
+.modal.tajweed-modal .tm-item:last-child { border-bottom: none; }
+.modal.tajweed-modal .tm-item i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+  flex: none;
+  margin-top: 4px;
+  background: currentColor;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.45);
+}
+[data-theme="dark"] .modal.tajweed-modal .tm-item i,
+[data-theme="mono"] .modal.tajweed-modal .tm-item i {
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.09);
+}
+.modal.tajweed-modal .tm-item .tm-txt { min-width: 0; flex: 1; }
+.modal.tajweed-modal .tm-item .tm-name {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.25;
+  margin: 0;
+}
+.modal.tajweed-modal .tm-item .tm-desc {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.35;
+  margin: 1px 0 0;
+}
+.modal.tajweed-modal .tm-note {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(212, 175, 55, 0.20);
+  font-size: 10px;
+  color: var(--muted);
+  line-height: 1.4;
+  font-style: italic;
 }
