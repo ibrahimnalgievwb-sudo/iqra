@@ -27,21 +27,72 @@ function tajweedLegendHtml() {
   return '<details class="tajweed-legend"><summary><span class="tl-title">Справка по таджвиду</span></summary><div class="tl-items">' + items + '</div><div class="tl-note">Чтение хафс ʿан ʿасым. Разметка букв — готовая (Al Quran Cloud), приложение её не изменяет.</div></details>';
 }
 
+function tajweedDescription(rule) {
+  for (var i = 0; i < TAJWEED_LEGEND.length; i++) {
+    if (TAJWEED_LEGEND[i][0] === rule) return TAJWEED_LEGEND[i][1];
+  }
+  return '';
+}
+
+function openTajweedInfo(ayahBlock) {
+  if (!ayahBlock) return;
+  var rulesEl = ayahBlock.querySelector('.ayah-tajweed-rules');
+  if (!rulesEl) return;
+  var items = rulesEl.querySelectorAll('.rule-item');
+  if (!items.length) return;
+
+  var numEl = ayahBlock.querySelector('.read-ayah-num');
+  var ayahNum = numEl ? numEl.textContent.trim() : '';
+  var seen = {};
+  var rows = '';
+
+  items.forEach(function (item) {
+    var i = item.querySelector('i');
+    if (!i) return;
+    var rule = null;
+    for (var k = 0; k < i.classList.length; k++) {
+      var c = i.classList[k];
+      if (c.indexOf('tajweed-') === 0) { rule = c.slice('tajweed-'.length); break; }
+    }
+    if (!rule || seen[rule]) return;
+    seen[rule] = true;
+    var name = item.textContent.trim();
+    var desc = tajweedDescription(rule);
+    rows += '<div class="tm-item"><i class="tajweed-' + escAttr(rule) + '"></i>' +
+      '<div class="tm-txt"><div class="tm-name">' + esc(name) + '</div>' +
+      (desc ? '<div class="tm-desc">' + esc(desc) + '</div>' : '') +
+      '</div></div>';
+  });
+
+  if (!rows) return;
+
+  var modal = document.getElementById('modal-content');
+  var bg = document.getElementById('modal-bg');
+  if (!modal || !bg) return;
+
+  modal.className = 'modal tajweed-modal';
+  modal.innerHTML =
+    '<div class="tm-head">' +
+      '<h2 class="tm-title"><svg class="ico ico-sm"><use href="#i-book"/></svg>Таджвид · аят ' + esc(ayahNum) + '</h2>' +
+      '<button class="tm-close" aria-label="Закрыть" onclick="closeModal()"><svg class="ico ico-sm"><use href="#i-x"/></svg></button>' +
+    '</div>' +
+    '<div class="tm-body">' +
+      '<div class="tm-ayah-label">Правила в этом аяте</div>' +
+      '<div class="tm-list">' + rows + '</div>' +
+      '<div class="tm-note">Чтение Хафс ʿан ʿАсым. Разметка — Al Quran Cloud.</div>' +
+    '</div>';
+
+  bg.classList.add('active');
+}
+
 function formatTafsirText(text) {
   if (!text) return '';
   let html = escNl(text);
   const terms = {
-    'тасмию': '(произнесение «Бисмиллях»)',
-    'тасмия': '(произнесение «Бисмиллях»)',
-    'тасмии': '(произнесения «Бисмиллях»)',
-    'басмаллы': '(фразы «Бисмиллях»)',
-    'басмалла': '(фраза «Бисмиллях»)',
-    'исраилят': '(предания израильтян)',
-    'исраилийят': '(предания израильтян)',
-    'иснадом': '(цепочкой передатчиков)',
-    'иснад': '(цепочка передатчиков)',
-    'кадариты': '(секта, отрицающая предопределение)',
-    'джабриты': '(секта, отрицающая свободу воли)'
+    'тасмию': '(произнесение «Бисмиллях»)', 'тасмия': '(произнесение «Бисмиллях»)', 'тасмии': '(произнесения «Бисмиллях»)',
+    'басмаллы': '(фразы «Бисмиллях»)', 'басмалла': '(фраза «Бисмиллях»)', 'исраилят': '(предания израильтян)',
+    'исраилийят': '(предания израильтян)', 'иснадом': '(цепочкой передатчиков)', 'иснад': '(цепочка передатчиков)',
+    'кадариты': '(секта, отрицающая предопределение)', 'джабриты': '(секта, отрицающая свободу воли)'
   };
   Object.keys(terms).forEach(term => {
     const regex = new RegExp(`(^|\\s|[.,!?()«»"'])(${term})(?=\\s|[.,!?()«»"']|$)`, 'gi');
@@ -202,6 +253,9 @@ async function openRead(id, targetAyahIdx, dir) {
         ${a.tr ? `<div class="read-ayah-tr">${esc(a.tr)}</div>` : ''}
         <div class="read-ayah-trn">${esc(a.trn)}</div>
         ${getSmartTafsirHtml(item, idx + 1)}
+        <button class="ayah-tajweed-btn" type="button" onclick="openTajweedInfo(this.closest('.read-ayah'))" aria-label="Справка по таджвиду">
+          <svg class="ico ico-sm"><use href="#i-info"/></svg>Таджвид
+        </button>
         <button class="ayah-share-btn" onclick="shareAyah('${escAttr(item.id)}',${idx})"><svg class="ico ico-sm"><use href="#i-upload"/></svg>Поделиться аятом</button>
       </div>
     `}).join('')}
@@ -221,6 +275,15 @@ async function openRead(id, targetAyahIdx, dir) {
   if (prevBtn) { prevBtn.style.opacity = idx === 0 ? '0.3' : '1'; prevBtn.style.pointerEvents = idx === 0 ? 'none' : 'auto'; }
   if (nextBtn) { nextBtn.style.opacity = idx === state.quran.length - 1 ? '0.3' : '1'; nextBtn.style.pointerEvents = idx === state.quran.length - 1 ? 'none' : 'auto'; }
   try { await applyTajweedToContainer(container, item); } catch(e) {}
+  try {
+    container.querySelectorAll('.read-ayah').forEach(function(ayahBlock) {
+      var btn = ayahBlock.querySelector('.ayah-tajweed-btn');
+      if (!btn) return;
+      var hasRules = ayahBlock.querySelector('.ayah-tajweed-rules .rule-item');
+      if (hasRules) btn.classList.add('visible');
+      else btn.classList.remove('visible');
+    });
+  } catch(e) {}
   if (state.settings.readScrolls && state.settings.readScrolls[id]) {
     const targetScroll = state.settings.readScrolls[id];
     requestAnimationFrame(() => { container.scrollTop = targetScroll; });
