@@ -82,6 +82,13 @@ function openTajweedInfo(ayahBlock) {
       '<div class="tm-note">Чтение Хафс ʿан ʿАсым. Разметка — Al Quran Cloud.</div>' +
     '</div>';
 
+  // Сброс инлайн-стилей, которые мог оставить openScholarInfo
+  // (rgba(0,0,0,.45) + blur(8px)). Иначе фон таджвид-модалки унаследует
+  // тёмный оверлей от предыдущей модалки учёного — визуальный регресс.
+  bg.style.backgroundColor = '';
+  bg.style.backdropFilter = '';
+  bg.style.webkitBackdropFilter = '';
+
   bg.classList.add('active');
 }
 
