@@ -47,14 +47,58 @@
 <script async src="https://cloud.umami.is/script.js" data-website-id="ccc49755-faf3-4ad6-993c-9f8be18a1746"></script>
 
 <script>
-window.addEventListener('error', function(e) {
-  var splash = document.getElementById('splash-screen');
-  if (splash) splash.style.display = 'none';
-  var errDiv = document.createElement('div');
-  errDiv.style.cssText = 'position:fixed;inset:0;background:#000;color:var(--gold-standard);z-index:999999;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;font-family:sans-serif;padding:20px;';
-  errDiv.innerHTML = '<h2 style="margin-bottom:10px;">Ошибка загрузки</h2><p style="font-size:14px;color:#fff;">Обновите приложение (сбросьте кэш).</p><p style="font-size:12px;margin-top:20px;opacity:.5;">' + (e.message || 'Syntax Error') + '</p>';
-  if (document.body) { document.body.appendChild(errDiv); } else { document.documentElement.appendChild(errDiv); }
-});
+(function () {
+  var toastTimer = null;
+
+  /* Приложение считается запущенным, когда страница разобрана и заставка скрыта или удалена */
+  function started() {
+    if (document.readyState === 'loading') return false;
+    var splash = document.getElementById('splash-screen');
+    return !splash || splash.classList.contains('hidden');
+  }
+
+  /* После запуска — мягкое уведомление вместо чёрного экрана */
+  function softNotice() {
+    var el = document.getElementById('toast');
+    if (!el) return;
+    el.textContent = 'Не удалось выполнить действие. Повторите.';
+    el.classList.add('show');
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { el.classList.remove('show'); }, 3000);
+  }
+
+  /* До запуска — полноэкранная ошибка (текст ошибки выводится как текст, не как HTML) */
+  function fatal(message) {
+    var splash = document.getElementById('splash-screen');
+    if (splash) splash.style.display = 'none';
+    var errDiv = document.createElement('div');
+    errDiv.style.cssText = 'position:fixed;inset:0;background:#000;color:var(--gold-standard);z-index:999999;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;font-family:sans-serif;padding:20px;';
+    var title = document.createElement('h2');
+    title.style.marginBottom = '10px';
+    title.textContent = 'Ошибка загрузки';
+    var hint = document.createElement('p');
+    hint.style.cssText = 'font-size:14px;color:#fff;';
+    hint.textContent = 'Обновите приложение (сбросьте кэш).';
+    var detail = document.createElement('p');
+    detail.style.cssText = 'font-size:12px;margin-top:20px;opacity:.5;';
+    detail.textContent = message || 'Syntax Error';
+    errDiv.appendChild(title);
+    errDiv.appendChild(hint);
+    errDiv.appendChild(detail);
+    if (document.body) { document.body.appendChild(errDiv); } else { document.documentElement.appendChild(errDiv); }
+  }
+
+  window.addEventListener('error', function (e) {
+    console.error('Ошибка:', e && e.message);
+    if (started()) { softNotice(); return; }
+    fatal(e && e.message);
+  });
+
+  window.addEventListener('unhandledrejection', function (e) {
+    console.error('Необработанная ошибка:', e && e.reason);
+    if (started()) softNotice();
+  });
+})();
 </script>
 
 <link rel="stylesheet" href="./css/fonts.css">

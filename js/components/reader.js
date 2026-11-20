@@ -120,7 +120,7 @@ function formatTafsirText(text) {
     scholar.names.forEach(name => {
       const safeName = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       const regex = new RegExp(`(^|\\s|[.,!?()«»"'])(${safeName})(?=\\s|[.,!?()«»"']|$)`, 'g');
-      html = html.replace(regex, `$1<a href="#" class="scholar-link" style="color:var(--text); font-weight:600; text-decoration:underline; text-decoration-color:var(--gold-accent); text-underline-offset:3px; text-decoration-thickness:1.5px; cursor:pointer;" onclick="event.preventDefault(); openScholarInfo('${scholar.id}')">$2</a>`);
+      html = html.replace(regex, `$1<a href="#" class="scholar-link" style="color:var(--text); font-weight:600; text-decoration:underline; text-decoration-color:var(--gold-accent); text-underline-offset:3px; text-decoration-thickness:1.5px; cursor:pointer;" onclick="event.preventDefault(); openScholarInfo('${escAttr(scholar.id)}')">$2</a>`);
     });
   });
   return html;

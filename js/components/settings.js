@@ -3,7 +3,7 @@
 /* ============================================================
    SETTINGS.JS — Настройки, темы (sunrise/sunset), напоминания,
                  экспорт/импорт/сброс, дневная цель
-   Проект «Икра» · v417
+   Проект «Икра» · v438
    ============================================================ */
 
 /* ---------- OPEN SETTINGS ---------- */
@@ -128,8 +128,7 @@ function exportCSV() {
 function exportData() {
   const payload = Object.assign({}, state, {
     __schema: BACKUP_SCHEMA,
-    __exportedAt: new Date().toISOString(),
-    __appVersion: APP_VERSION
+    __exportedAt: new Date().toISOString()
   });
   const data = JSON.stringify(payload, null, 2);
   const blob = new Blob([data], { type:'application/json' });
@@ -175,6 +174,28 @@ function sanitizeSettings(raw) {
   out.readAyah = _impNumMap(src.readAyah);
   return out;
 }
+/* История зикра: { 'ГГГГ-ММ-ДД': { total, byId: { id: число } } }.
+   Приложение читает entry.total и entry.byId без проверок, поэтому структура приводится к ожидаемой. */
+function sanitizeHistory(raw) {
+  const out = {};
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return out;
+  const keys = Object.keys(raw).filter(function (k) {
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(k);
+    return m && +m[2] >= 1 && +m[2] <= 12 && +m[3] >= 1 && +m[3] <= 31;
+  }).sort();
+  keys.slice(-LIMITS.historyDays).forEach(function (k) {
+    const e = raw[k];
+    if (!e || typeof e !== 'object' || Array.isArray(e)) return;
+    const byId = _impNumMap(e.byId);
+    let total = (typeof e.total === 'number' && isFinite(e.total) && e.total >= 0) ? Math.min(Math.floor(e.total), 10000000) : -1;
+    if (total < 0) {
+      total = 0;
+      Object.keys(byId).forEach(function (id) { total += byId[id]; });
+    }
+    out[k] = { total: total, byId: byId };
+  });
+  return out;
+}
 function sanitizeReminders(raw) {
   if (!Array.isArray(raw)) return [];
   const out = [];
@@ -207,7 +228,7 @@ function validateImport(d) {
     return clean;
   }).filter(Boolean);
   safe.settings = sanitizeSettings(d.settings);
-  safe.history = (d.history && typeof d.history === 'object' && !Array.isArray(d.history)) ? d.history : {};
+  safe.history = sanitizeHistory(d.history);
   safe.reminders = sanitizeReminders(d.reminders);
   safe.duas = Array.isArray(d.duas) ? d.duas.filter(x => x && typeof x === 'object' && safeId(x.id)).map(x => { const c = Object.assign({}, x); c.id = safeId(x.id); return c; }) : [];
   safe.hadiths = Array.isArray(d.hadiths) ? d.hadiths.filter(x => x && typeof x === 'object' && safeId(x.id)).map(x => { const c = Object.assign({}, x); c.id = safeId(x.id); return c; }) : [];

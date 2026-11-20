@@ -1,8 +1,32 @@
 "use strict";
 
+/* Сообщение внутри окна справки (вместо системного alert) */
+function _scholarNotice(text) {
+  var modalContent = document.getElementById('modal-content');
+  var modalBg = document.getElementById('modal-bg');
+  if (!modalContent || !modalBg) {
+    if (typeof showMarkToast === 'function') showMarkToast(text);
+    return;
+  }
+  modalContent.className = 'modal';
+  modalBg.style.backgroundColor = 'rgba(0, 0, 0, 0.45)';
+  modalBg.style.backdropFilter = 'blur(8px)';
+  modalBg.style.webkitBackdropFilter = 'blur(8px)';
+  modalContent.innerHTML = `
+    <div style="width: 40px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 20px;"></div>
+    <div style="width: 64px; height: 64px; border-radius: 50%; background: var(--card2); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; border: 2px solid var(--gold-standard); color: var(--gold-accent);">
+      <svg class="ico ico-lg"><use href="#i-info"/></svg>
+    </div>
+    <h2 style="font-size: 20px; font-weight: 700; text-align: center; margin: 0 0 8px; color: var(--text);">Справка</h2>
+    <p style="font-size: 14px; line-height: 1.6; color: var(--muted); text-align: center; margin: 0;">${esc(text)}</p>
+    <button class="btn secondary" style="display: block; width: 100%; margin-top: 24px; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: 600;" onclick="closeModal()">Закрыть</button>
+  `;
+  modalBg.classList.add('active');
+}
+
 window.openScholarInfo = function(scholarId) {
   if (!scholarId) {
-    alert("Информация недоступна.");
+    _scholarNotice("Справка по этому источнику пока недоступна.");
     return;
   }
 
@@ -28,7 +52,7 @@ window.openScholarInfo = function(scholarId) {
 
   if (!person) {
     console.error("Не найден: " + scholarId);
-    alert("Информация об этом человеке пока недоступна в базе.");
+    _scholarNotice("Информация об этом человеке пока недоступна в базе.");
     return;
   }
 

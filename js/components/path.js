@@ -1,6 +1,6 @@
 "use strict";
 
-/* PATH.JS — Путь (поиск по темам) · Проект «Икра» · v433
+/* PATH.JS — Путь (поиск по темам) · Проект «Икра» · v434
    Темы читаются из themes.json (поле title), основание связи — из идентификатора связи в edges.json. */
 
 var debouncedRenderPath = debounce(renderPath, 250);
