@@ -63,7 +63,6 @@ let _pendingConfirmResolve = null;
 let _reminderTimer = null;
 let _progFilter = '';
 
-/* ---------- AUDIO ---------- */
 /* ---------- WAKELOCK ---------- */
 async function requestWakeLock() { try { if ('wakeLock' in navigator) { wakeLock=await navigator.wakeLock.request('screen'); wakeLock.addEventListener('release',()=>{wakeLock=null;}); } } catch(e){} }
 function releaseWakeLock() { try { if (wakeLock) { wakeLock.release(); wakeLock=null; } } catch(e){} }
@@ -98,7 +97,6 @@ function showMarkToast(text) {
   if (_toastTimer) clearTimeout(_toastTimer);
   _toastTimer = setTimeout(function(){ el.classList.remove('show'); }, 1800);
 }
-
 /* ---------- MODAL / CONFIRM ---------- */
 function closeModal() { 
   document.getElementById('modal-bg').classList.remove('active'); 
@@ -253,7 +251,6 @@ function restoreNav() {
 }
 
 function goHome() { if (activeId) saveNow(); activeId=null; releaseWakeLock(); renderDashboard(); showScreen('screen-dashboard'); }
-
 /* ---------- DEBUG ---------- */
 function initDebugMode() {
   try {
@@ -491,9 +488,37 @@ async function _boot() {
       splash.classList.add('hidden'); 
       setTimeout(function(){ splash.remove(); }, 400); 
     }
+    showBootFailure();
   }
 }
 
+/* ПРАВКА C-1: безопасное сообщение об ошибке загрузки данных.
+   Текст создаётся через createElement и textContent (никакого innerHTML),
+   поэтому вредоносное содержимое из ошибки не может выполниться. */
+function showBootFailure() {
+  if (document.getElementById('boot-failure')) return;
+  var wrap = document.createElement('div');
+  wrap.id = 'boot-failure';
+  wrap.setAttribute('role', 'alert');
+  wrap.style.cssText = 'position:fixed;inset:0;z-index:999998;display:flex;align-items:center;justify-content:center;padding:24px;background:var(--bg,#F5F5F5);color:var(--text,#000);font-family:sans-serif;';
+  var box = document.createElement('div');
+  box.style.cssText = 'max-width:360px;text-align:center;';
+  var title = document.createElement('div');
+  title.style.cssText = 'font-size:18px;font-weight:700;margin-bottom:10px;color:var(--gold-standard,#B8860B);';
+  title.textContent = 'Не удалось загрузить данные';
+  var hint = document.createElement('div');
+  hint.style.cssText = 'font-size:14px;line-height:1.5;margin-bottom:20px;opacity:.85;';
+  hint.textContent = 'Проверьте соединение и обновите приложение.';
+  var btn = document.createElement('button');
+  btn.className = 'btn';
+  btn.textContent = 'Обновить';
+  btn.onclick = function(){ location.reload(); };
+  box.appendChild(title);
+  box.appendChild(hint);
+  box.appendChild(btn);
+  wrap.appendChild(box);
+  document.body.appendChild(wrap);
+}
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', _boot);
 } else {
@@ -556,10 +581,19 @@ if ('serviceWorker' in navigator) {
   var _swRefreshing = false;
   var _swReg = null;
 
+  /* ПРАВКА C-2: при обновлении SW показываем мягкий тост (5 сек),
+     без авто-перезагрузки, чтобы не прервать чтение пользователя. */
   function swReload() {
     if (_swRefreshing) return;
     _swRefreshing = true;
-    console.log('SW: доступно обновление. Перезагрузите приложение вручную.');
+    console.log('SW: доступно обновление.');
+    var el = document.getElementById('toast');
+    if (el) {
+      el.textContent = 'Доступно обновление. Перезагрузите приложение.';
+      el.classList.add('show');
+      if (_toastTimer) clearTimeout(_toastTimer);
+      _toastTimer = setTimeout(function(){ el.classList.remove('show'); }, 5000);
+    }
     setTimeout(function(){ _swRefreshing = false; }, 30000);
   }
 
@@ -616,7 +650,7 @@ if ('serviceWorker' in navigator) {
 
   navigator.serviceWorker.addEventListener('message', function(e) {
     if (e.data && e.data.type === 'SW_UPDATED') {
-      swReload(); /* Вызов без проверки версии */
+      swReload();
     }
   });
 }
