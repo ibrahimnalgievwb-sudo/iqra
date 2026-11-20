@@ -194,7 +194,9 @@
     "type": "tafsir_author",
     "evidence_source": "tafsir:ibn_kathir_2_255",
     "weight": 1.0
-  },
+  }
+]
+,
   {
     "from": "tafsir:ibn_kathir_67_1",
     "to": "ayah:q67#1",
@@ -434,13 +436,6 @@
     "weight": 1.0
   },
   {
-    "from": "ayah:q93#11",
-    "to": "theme:shukr",
-    "type": "ayah_theme",
-    "evidence_source": "quran:93_11",
-    "weight": 0.9
-  },
-  {
     "from": "ayah:q108#1",
     "to": "theme:shukr",
     "type": "ayah_theme",
@@ -453,7 +448,9 @@
     "type": "ayah_theme",
     "evidence_source": "quran:108_2",
     "weight": 0.9
-  },
+  }
+]
+,
   {
     "from": "ayah:q1#5",
     "to": "theme:tawakkul",
@@ -511,20 +508,6 @@
     "weight": 1.0
   },
   {
-    "from": "ayah:q99#1",
-    "to": "theme:akhira",
-    "type": "ayah_theme",
-    "evidence_source": "quran:99_1",
-    "weight": 0.9
-  },
-  {
-    "from": "ayah:q101#1",
-    "to": "theme:akhira",
-    "type": "ayah_theme",
-    "evidence_source": "quran:101_1",
-    "weight": 0.9
-  },
-  {
     "from": "ayah:q1#6",
     "to": "theme:tawbah",
     "type": "ayah_theme",
@@ -544,5 +527,47 @@
     "type": "ayah_theme",
     "evidence_source": "quran:110_3",
     "weight": 0.95
+  },
+  {
+    "from": "dua:dua_anxiety",
+    "to": "theme:tawakkul",
+    "type": "dua_theme",
+    "evidence_source": "dua_collection_verified",
+    "weight": 0.9
+  },
+  {
+    "from": "dua:dua_sayyidul_istighfar",
+    "to": "theme:tawbah",
+    "type": "dua_theme",
+    "evidence_source": "dua_collection_verified",
+    "weight": 0.9
+  },
+  {
+    "from": "dua:ruqyah_guide",
+    "to": "theme:hifz",
+    "type": "dua_theme",
+    "evidence_source": "dua_collection_verified",
+    "weight": 0.9
+  },
+  {
+    "from": "dua:ruqyah_jibril",
+    "to": "theme:sabr",
+    "type": "dua_theme",
+    "evidence_source": "dua_collection_verified",
+    "weight": 0.9
+  },
+  {
+    "from": "dua:ruqyah_shifa",
+    "to": "theme:sabr",
+    "type": "dua_theme",
+    "evidence_source": "dua_collection_verified",
+    "weight": 0.9
+  },
+  {
+    "from": "dua:ruqyah_hifz",
+    "to": "theme:hifz",
+    "type": "dua_theme",
+    "evidence_source": "dua_collection_verified",
+    "weight": 0.9
   }
 ]
