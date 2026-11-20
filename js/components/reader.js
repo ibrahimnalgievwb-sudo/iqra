@@ -34,7 +34,8 @@ function tajweedDescription(rule) {
   return '';
 }
 
-function openTajweedInfo(ayahBlock) {
+function openTajweedInfo(targetEl) {
+  var ayahBlock = targetEl && targetEl.closest ? targetEl.closest('.read-ayah') : targetEl;
   if (!ayahBlock) return;
   var rulesEl = ayahBlock.querySelector('.ayah-tajweed-rules');
   if (!rulesEl) return;
@@ -74,7 +75,7 @@ function openTajweedInfo(ayahBlock) {
   modal.innerHTML =
     '<div class="tm-head">' +
       '<h2 class="tm-title"><svg class="ico ico-sm"><use href="#i-book"/></svg>Таджвид · аят ' + esc(ayahNum) + '</h2>' +
-      '<button class="tm-close" aria-label="Закрыть" onclick="closeModal()"><svg class="ico ico-sm"><use href="#i-x"/></svg></button>' +
+      '<button class="tm-close" aria-label="Закрыть" data-click=\'[["closeModal"]]\'><svg class="ico ico-sm"><use href="#i-x"/></svg></button>' +
     '</div>' +
     '<div class="tm-body">' +
       '<div class="tm-ayah-label">Правила в этом аяте</div>' +
@@ -117,10 +118,11 @@ function formatTafsirText(text) {
   ];
 
   scholars.forEach(scholar => {
+    const dataClick = escAttr(JSON.stringify(['@prevent', ['openScholarInfo', scholar.id]]));
     scholar.names.forEach(name => {
       const safeName = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       const regex = new RegExp(`(^|\\s|[.,!?()«»"'])(${safeName})(?=\\s|[.,!?()«»"']|$)`, 'g');
-      html = html.replace(regex, `$1<a href="#" class="scholar-link" style="color:var(--text); font-weight:600; text-decoration:underline; text-decoration-color:var(--gold-accent); text-underline-offset:3px; text-decoration-thickness:1.5px; cursor:pointer;" onclick="event.preventDefault(); openScholarInfo('${scholar.id}')">$2</a>`);
+      html = html.replace(regex, `$1<a href="#" class="scholar-link" style="color:var(--text); font-weight:600; text-decoration:underline; text-decoration-color:var(--gold-accent); text-underline-offset:3px; text-decoration-thickness:1.5px; cursor:pointer;" data-click="${dataClick}">$2</a>`);
     });
   });
   return html;
@@ -189,8 +191,9 @@ function getSmartTafsirHtml(item, ayahNum) {
         const hSource = h.source || '';
         const hStatus = h.status || '';
         const statusColor = hStatus === 'sahih' ? 'var(--gold-accent)' : (hStatus === 'hasan' ? 'var(--accent2)' : 'var(--muted)');
+        const transmitterDataClick = hTransmitterId ? escAttr(JSON.stringify(['@prevent', ['openScholarInfo', hTransmitterId]])) : '';
         const transmitterClickable = hTransmitterId
-          ? `<a href="#" class="scholar-link" style="color:var(--text); font-weight:600; text-decoration:underline; text-decoration-color:var(--gold-accent); text-underline-offset:3px; text-decoration-thickness:1.5px; cursor:pointer;" onclick="event.preventDefault(); openScholarInfo('${escAttr(hTransmitterId)}')">${esc(hTransmitter)}</a>`
+          ? `<a href="#" class="scholar-link" style="color:var(--text); font-weight:600; text-decoration:underline; text-decoration-color:var(--gold-accent); text-underline-offset:3px; text-decoration-thickness:1.5px; cursor:pointer;" data-click="${transmitterDataClick}">${esc(hTransmitter)}</a>`
           : esc(hTransmitter);
         return '<div style="background:rgba(0,0,0,0.15);border-radius:8px;padding:10px;margin-bottom:8px;font-size:13px;line-height:1.5;">' +
           '<div style="color:var(--text);margin-bottom:6px;">«' + esc(h.text) + '»</div>' +
@@ -207,6 +210,8 @@ function getSmartTafsirHtml(item, ayahNum) {
       '</div>';
   }
 
+  const scholarBtnDataClick = escAttr(JSON.stringify(['@prevent', ['openScholarInfo', scholarId]]));
+
   return '<details class="tafsir-card" style="margin-top:16px;background:rgba(0,0,0,0.15);border-radius:12px;padding:0;border-left:3px solid var(--gold-accent);text-align:left;direction:ltr;overflow:hidden;">' +
     '<summary style="font-weight:700;color:var(--gold-accent);font-size:14px;outline:none;display:flex;align-items:center;gap:8px;cursor:pointer;list-style:none;padding:14px;position:sticky;top:0;background:inherit;backdrop-filter:blur(5px);z-index:10;border-bottom:1px solid var(--border);">' +
       '<span class="arrow-icon" style="font-size:10px;color:var(--muted);transition:transform 0.2s;">▶</span>' +
@@ -219,7 +224,7 @@ function getSmartTafsirHtml(item, ayahNum) {
       israiliyatHtml +
       '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-top:14px;border-top:1px dashed var(--border);padding-top:12px;">' +
         '<div style="font-size:12px;color:var(--muted);font-style:italic;">' + esc(sourceLine) + '</div>' +
-        '<button onclick="event.preventDefault(); openScholarInfo(\'' + escAttr(scholarId) + '\')" class="btn secondary" style="width:auto;margin:0;padding:6px 12px;font-size:12px;font-weight:600;min-height:30px;border-radius:8px;display:flex;align-items:center;gap:6px;">' +
+        '<button data-click="' + scholarBtnDataClick + '" class="btn secondary" style="width:auto;margin:0;padding:6px 12px;font-size:12px;font-weight:600;min-height:30px;border-radius:8px;display:flex;align-items:center;gap:6px;">' +
           '<svg class="ico ico-sm"><use href="#i-info"/></svg> Справка' +
         '</button>' +
       '</div>' +
@@ -240,6 +245,7 @@ async function openRead(id, targetAyahIdx, dir) {
     bismillahHtml = `<div class="bismillah-card"><div class="b-ar ar-font">${esc(item.bismillah.arabic)}</div><div class="b-tr">${esc(item.bismillah.transcription)}</div><div class="b-trn">${esc(item.bismillah.translation)}</div></div>`;
   }
   const legendHtml = tajweedLegendHtml();
+  const tajweedDataClick = escAttr(JSON.stringify([['openTajweedInfo', { $: 'el' }]]));
 
   container.innerHTML = `
     <div class="detail-hero" style="background: transparent; border: none; box-shadow: none; padding: 0; margin-bottom: 10px;">
@@ -253,6 +259,7 @@ async function openRead(id, targetAyahIdx, dir) {
       let verseKey = '';
       if (item.type === 'surah') { verseKey = `${item.number}:${idx + 1}`; }
       else if (item.number && !String(item.number).includes('-')) { verseKey = String(item.number); }
+      const shareAyahDataClick = escAttr(JSON.stringify([['shareAyah', item.id, idx]]));
       return `
        <div class="read-ayah ${item.type==='ayat'||item.type==='ruqyah'?'ayat-mode':''}" id="ayah-${idx}" data-verse-key="${escAttr(verseKey)}">
         <div class="read-ayah-num">${a.num}</div>
@@ -260,10 +267,10 @@ async function openRead(id, targetAyahIdx, dir) {
         ${a.tr ? `<div class="read-ayah-tr">${esc(a.tr)}</div>` : ''}
         <div class="read-ayah-trn">${esc(a.trn)}</div>
         ${getSmartTafsirHtml(item, idx + 1)}
-        <button class="ayah-tajweed-btn" type="button" onclick="openTajweedInfo(this.closest('.read-ayah'))" aria-label="Справка по таджвиду">
+        <button class="ayah-tajweed-btn" type="button" data-click="${tajweedDataClick}" aria-label="Справка по таджвиду">
           <svg class="ico ico-sm"><use href="#i-info"/></svg>Таджвид
         </button>
-        <button class="ayah-share-btn" onclick="shareAyah('${escAttr(item.id)}',${idx})"><svg class="ico ico-sm"><use href="#i-upload"/></svg>Поделиться аятом</button>
+        <button class="ayah-share-btn" data-click="${shareAyahDataClick}"><svg class="ico ico-sm"><use href="#i-upload"/></svg>Поделиться аятом</button>
       </div>
     `}).join('')}
     ${item.source ? `<div class="dh-section" style="margin-top:20px;"><div class="dh-label">Источник</div><div class="dh-text muted" style="font-size:13px;">${esc(item.source)}</div></div>` : ''}
