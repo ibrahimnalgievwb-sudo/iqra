@@ -2,430 +2,341 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://api.quran.com https://api.alquran.cloud https://quranenc.com https://cdn.islamic.network; media-src 'self' https://cdn.islamic.network blob:; object-src 'none'; base-uri 'self'; form-action 'self';">
-  <meta name="theme-color" content="#0a1612">
+  <meta name="theme-color" content="#0d0f12" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f7f4ee" media="(prefers-color-scheme: light)">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Икра">
-  <meta name="description" content="Икра — Священный Коран с таджвидом и тафсиром, достоверные дуа, 40 хадисов ан-Навави и счётчик тасбиха">
-  <title>Икра — Коран, Тасбих, Дуа и Хадисы</title>
-  <link rel="manifest" href="manifest.json">
-  <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/icon-32.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/apple-touch-icon.png">
-  <link rel="stylesheet" href="css/variables.css">
-  <link rel="stylesheet" href="css/fonts.css">
-  <link rel="stylesheet" href="css/base.css">
-  <link rel="stylesheet" href="css/layout.css">
-  <link rel="stylesheet" href="css/components.css">
-  <link rel="stylesheet" href="css/tajweed.css">
+  <title>Икра — Коран, Зикр, Дуа и Хадисы</title>
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" type="image/png" sizes="192x192" href="./assets/icons/icon-192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="./assets/icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="./css/fonts.css">
+  <link rel="stylesheet" href="./css/variables.css">
+  <link rel="stylesheet" href="./css/base.css">
+  <link rel="stylesheet" href="./css/layout.css">
+  <link rel="stylesheet" href="./css/components.css">
+  <link rel="stylesheet" href="./css/tajweed.css">
 </head>
 <body>
-  <svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
-    <symbol id="i-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></symbol>
-    <symbol id="i-tasbih" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="3" r="1.5" fill="currentColor"/><circle cx="18.36" cy="5.64" r="1.5" fill="currentColor"/><circle cx="21" cy="12" r="1.5" fill="currentColor"/><circle cx="18.36" cy="18.36" r="1.5" fill="currentColor"/><circle cx="12" cy="21" r="1.5" fill="currentColor"/><circle cx="5.64" cy="18.36" r="1.5" fill="currentColor"/><circle cx="3" cy="12" r="1.5" fill="currentColor"/><circle cx="5.64" cy="5.64" r="1.5" fill="currentColor"/></symbol>
-    <symbol id="i-book" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></symbol>
-    <symbol id="i-library" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></symbol>
-    <symbol id="i-path" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></symbol>
-    <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></symbol>
-    <symbol id="i-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></symbol>
-    <symbol id="i-star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></symbol>
-    <symbol id="i-star-filled" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></symbol>
-    <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
-    <symbol id="i-back" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></symbol>
-    <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
-    <symbol id="i-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></symbol>
-    <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
-    <symbol id="i-reset" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></symbol>
-    <symbol id="i-upload" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></symbol>
-    <symbol id="i-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></symbol>
-    <symbol id="i-lightbulb" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></symbol>
-    <symbol id="i-bookmark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></symbol>
-    <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></symbol>
-    <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></symbol>
-    <symbol id="i-play" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></symbol>
-    <symbol id="i-pause" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></symbol>
-    <symbol id="i-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></symbol>
-    <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
-    <symbol id="i-arrow-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></symbol>
-  </svg>
 
-  <div id="app">
-    <header class="app-header">
-      <div class="header-brand" data-click='[["goTab","home"]]'>
-        <img src="assets/icons/logo-mini.svg" alt="Икра" width="28" height="28">
-        <div>
-          <div class="header-title">Икра</div>
-          <div class="header-sub" id="hijri-date">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
-        </div>
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+  <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></symbol>
+  <symbol id="i-beads" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="3" r="1.5" fill="currentColor"/><circle cx="19.8" cy="7.5" r="1.2" fill="currentColor"/><circle cx="19.8" cy="16.5" r="1.2" fill="currentColor"/><circle cx="12" cy="21" r="1.2" fill="currentColor"/><circle cx="4.2" cy="16.5" r="1.2" fill="currentColor"/><circle cx="4.2" cy="7.5" r="1.2" fill="currentColor"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></symbol>
+  <symbol id="i-scroll" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h12a2 2 0 0 0 2-2v-2H10v2a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v3h4"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/></symbol>
+  <symbol id="i-path" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></symbol>
+  <symbol id="i-star-filled" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></symbol>
+  <symbol id="i-lightbulb" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></symbol>
+  <symbol id="i-reset" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
+  <symbol id="i-bookmark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></symbol>
+  <symbol id="i-chevron-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></symbol>
+  <symbol id="i-volume" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></symbol>
+</svg>
+
+<div id="app" class="app-shell">
+  <header class="app-header">
+    <div class="brand-wrap">
+      <div class="brand-title">Икра</div>
+      <div class="brand-bismillah ar-font">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" aria-label="Поиск" data-click='[["openSearch"]]'><svg class="ico"><use href="#i-search"/></svg></button>
+      <button class="icon-btn" aria-label="Ночное чтение" data-click='[["openNight"]]'><svg class="ico"><use href="#i-moon"/></svg></button>
+      <button class="icon-btn" aria-label="Настройки" data-click='[["goTab","settings"]]'><svg class="ico"><use href="#i-gear"/></svg></button>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <!-- Главная -->
+    <section id="screen-home" class="screen active">
+      <div class="greeting-card">
+        <div id="home-greeting" class="greeting-title">Ассаляму алейкум ва рахматуллахи ва баракатух</div>
+        <div id="home-goal-text" class="greeting-sub">Цель дня: 0 / 100</div>
+        <div class="goal-bar"><div id="home-goal-fill" class="goal-bar-fill"></div></div>
       </div>
-      <div class="header-actions">
-        <button class="icon-btn" aria-label="Поиск" data-click='[["openSearch"]]'><svg class="ico"><use href="#i-search"/></svg></button>
-        <button class="icon-btn" aria-label="Ночной режим" data-click='[["openNightMode"]]'><svg class="ico"><use href="#i-moon"/></svg></button>
-        <button class="icon-btn" aria-label="Настройки" data-click='[["openSettings"]]'><svg class="ico"><use href="#i-settings"/></svg></button>
-      </div>
-    </header>
 
-    <main class="main-content" id="main-content">
-      <!-- Главная -->
-      <section class="screen active" id="screen-home">
-        <div class="greeting-card">
-          <div class="g-top">
-            <span class="g-salam">Ассаляму алейкум ва рахматуллахи ва баракатух</span>
-            <span class="g-streak" id="home-streak">0 дн.</span>
-          </div>
-          <div class="g-goal-row">
-            <span class="g-goal-label">Цель дня: <strong id="home-today-count">0</strong> / <span id="home-daily-goal">100</span></span>
-            <span class="g-goal-pct" id="home-goal-pct">0%</span>
-          </div>
-          <div class="progress-track"><div class="progress-fill" id="home-goal-bar"></div></div>
-        </div>
+      <div id="home-continue" style="display:none"></div>
 
-        <div id="home-continue"></div>
-        <div id="home-dua-day"></div>
-
+      <div class="section-block">
         <div class="section-head">
           <h2 class="section-title">Состояние души</h2>
           <span class="section-sub">Аяты и дуа по Сунне</span>
         </div>
-        <div class="emotion-grid" id="home-emotions"></div>
+        <div id="home-emotions" class="emotion-grid"></div>
+      </div>
 
+      <div class="section-block">
         <div class="section-head">
           <h2 class="section-title">Быстрый доступ</h2>
         </div>
         <div class="quick-grid">
-          <button class="quick-card" data-click='[["goTab","tasbih"]]'>
-            <svg class="ico"><use href="#i-tasbih"/></svg>
-            <span>Тасбих</span>
-          </button>
-          <button class="quick-card" data-click='[["goTab","quran"],["setQuranFilter","surah"]]'>
-            <svg class="ico"><use href="#i-book"/></svg>
-            <span>Коран</span>
-          </button>
-          <button class="quick-card" data-click='[["goTab","quran"],["setQuranFilter","ruqyah"]]'>
-            <svg class="ico"><use href="#i-lightbulb"/></svg>
-            <span>Рукья</span>
-          </button>
-          <button class="quick-card" data-click='[["goTab","library"]]'>
-            <svg class="ico"><use href="#i-library"/></svg>
-            <span>Дуа и Хадисы</span>
-          </button>
+          <button class="quick-card" data-click='[["goTab","tasbih"]]'><svg class="ico"><use href="#i-beads"/></svg><span>Тасбих</span></button>
+          <button class="quick-card" data-click='[["goTab","quran"]]'><svg class="ico"><use href="#i-book"/></svg><span>Коран</span></button>
+          <button class="quick-card" data-click='[["goTab","quran"],["setQuranFilter","ruqyah"]]'><svg class="ico"><use href="#i-lightbulb"/></svg><span>Рукья</span></button>
+          <button class="quick-card" data-click='[["goTab","library"]]'><svg class="ico"><use href="#i-scroll"/></svg><span>Дуа и Хадисы</span></button>
         </div>
-      </section>
+      </div>
 
-      <!-- Тасбих -->
-      <section class="screen" id="screen-tasbih">
-        <div class="screen-toolbar">
-          <input type="search" id="tasbih-search" class="search-input" placeholder="Поиск зикра..." data-input='[["renderTasbih"]]'>
-          <button class="btn primary small" data-click='[["openForm"]]'><svg class="ico ico-sm"><use href="#i-plus"/></svg>Добавить</button>
-        </div>
-        <div class="sort-bar" id="tasbih-sort">
-          <button class="chip active" data-sort="order" data-click='[["setTasbihSort","order"]]'>Порядок</button>
-          <button class="chip" data-sort="alpha" data-click='[["setTasbihSort","alpha"]]'>А–Я</button>
-          <button class="chip" data-sort="freq" data-click='[["setTasbihSort","freq"]]'>Частые</button>
-        </div>
-        <div id="tasbih-list" class="card-list"></div>
-      </section>
+      <div id="home-daily-dua" class="section-block"></div>
+    </section>
 
-      <!-- Коран -->
-      <section class="screen" id="screen-quran">
-        <div class="screen-toolbar">
-          <input type="search" id="quran-search" class="search-input" placeholder="Сура, номер (2:255) или слово..." data-input='[["debouncedRenderQuranList"]]'>
-        </div>
-        <div class="filter-chips">
-          <button class="chip active" data-q-filter="all" data-click='[["setQuranFilter","all"]]'>Все</button>
-          <button class="chip" data-q-filter="surah" data-click='[["setQuranFilter","surah"]]'>Суры</button>
-          <button class="chip" data-q-filter="ruqyah" data-click='[["setQuranFilter","ruqyah"]]'>Рукья</button>
-        </div>
-        <div id="quran-list" class="card-list"></div>
-      </section>
+    <!-- Тасбих -->
+    <section id="screen-tasbih" class="screen">
+      <div class="toolbar">
+        <input id="tasbih-search" class="search-input" type="search" placeholder="Поиск тасбиха..." data-input='[["debouncedRenderTasbih"]]'>
+        <button class="icon-btn" aria-label="Добавить тасбих" data-click='[["openForm",null]]'><svg class="ico"><use href="#i-plus"/></svg></button>
+      </div>
+      <div class="chip-row">
+        <button class="chip active" data-sort="order" data-click='[["setSort","order"]]'>Порядок</button>
+        <button class="chip" data-sort="alpha" data-click='[["setSort","alpha"]]'>А–Я</button>
+        <button class="chip" data-sort="freq" data-click='[["setSort","freq"]]'>Частота</button>
+      </div>
+      <div id="tasbih-list" class="card-list"></div>
+    </section>
 
-      <!-- Детальная карточка суры/аята -->
-      <section class="screen" id="screen-quran-detail">
-        <div class="detail-top">
-          <button class="icon-btn" aria-label="Назад" data-click='[["goQuranList"]]'><svg class="ico"><use href="#i-back"/></svg></button>
-          <h2 class="detail-head-title" id="quran-detail-title">Сура</h2>
-          <button class="icon-btn" id="quran-detail-star" aria-label="В избранное" data-click='[["toggleActiveQuranFav"]]'><svg class="ico"><use href="#i-star"/></svg></button>
+    <!-- Счётчик тасбиха -->
+    <section id="screen-counter" class="screen">
+      <div class="sub-header">
+        <button class="icon-btn" aria-label="Назад" data-click='[["goList"]]'><svg class="ico"><use href="#i-x"/></svg></button>
+        <div id="cnt-header-title" class="sub-title">Тасбих</div>
+        <div class="sub-actions">
+          <button class="icon-btn" aria-label="Редактировать" data-click='[["openEditCurrent"]]'><svg class="ico"><use href="#i-edit"/></svg></button>
+          <button class="icon-btn" aria-label="Сбросить" data-click='[["resetCurrent"]]'><svg class="ico"><use href="#i-reset"/></svg></button>
         </div>
-        <div id="quran-detail-content"></div>
-      </section>
-
-      <!-- Библиотека (Дуа и Хадисы) -->
-      <section class="screen" id="screen-library">
-        <div class="segmented-control">
-          <button class="seg-btn active" data-lib-tab="duas" data-click='[["switchLibTab","duas"]]'>Дуа</button>
-          <button class="seg-btn" data-lib-tab="hadiths" data-click='[["switchLibTab","hadiths"]]'>40 хадисов</button>
-        </div>
-        <div id="lib-duas-pane">
-          <div class="screen-toolbar">
-            <input type="search" id="dua-search" class="search-input" placeholder="Поиск дуа..." data-input='[["renderDuaList"]]'>
+      </div>
+      <div id="tap-zone" class="tap-zone" data-click='[["tap",{"$":"event"}]]'>
+        <div id="cnt-title" class="cnt-title"></div>
+        <div id="cnt-arabic" class="cnt-arabic ar-font"></div>
+        <div id="cnt-transcription" class="cnt-tr"></div>
+        <div id="cnt-translation" class="cnt-trn"></div>
+        <div class="cnt-ring-wrap">
+          <svg class="cnt-ring" viewBox="0 0 160 160">
+            <circle class="cnt-ring-bg" cx="80" cy="80" r="70"/>
+            <circle id="ring-fg" class="cnt-ring-fg" cx="80" cy="80" r="70"/>
+          </svg>
+          <div class="cnt-num-box">
+            <div id="cnt-num" class="cnt-num">0</div>
+            <div id="cnt-target" class="cnt-target">из 33 · цикл 1</div>
           </div>
-          <div class="filter-chips" id="dua-categories"></div>
-          <div id="dua-list" class="card-list"></div>
         </div>
-        <div id="lib-hadiths-pane" style="display:none">
-          <div class="screen-toolbar">
-            <input type="search" id="hadith-search" class="search-input" placeholder="Поиск хадиса или передатчика..." data-input='[["renderHadithList"]]'>
-          </div>
-          <div id="hadith-list" class="card-list"></div>
+        <div class="cnt-hint">Нажмите в любое место для счёта</div>
+      </div>
+      <div id="next-toast" class="next-toast">
+        <span id="next-toast-text">Цикл завершён</span>
+        <button class="btn primary sm" data-click='[["goNext"]]'>Далее →</button>
+      </div>
+    </section>
+
+    <!-- Форма тасбиха -->
+    <section id="screen-form" class="screen">
+      <div class="sub-header">
+        <button class="icon-btn" aria-label="Закрыть" data-click='[["closeForm"]]'><svg class="ico"><use href="#i-x"/></svg></button>
+        <div id="form-title" class="sub-title">Новый тасбих</div>
+        <div style="width:40px"></div>
+      </div>
+      <div class="form-body">
+        <div class="form-label">Быстрый пресет</div>
+        <div id="presets-grid" class="presets-grid"></div>
+        <label class="form-label" for="f-title">Название</label>
+        <input id="f-title" class="form-input" type="text" placeholder="Например: Субханаллах" data-input='[["onFormInput"]]'>
+        <label class="form-label" for="f-arabic">Арабский текст (необязательно)</label>
+        <input id="f-arabic" class="form-input ar-font" type="text" dir="rtl" placeholder="سُبْحَانَ اللَّهِ" data-input='[["onFormInput"]]'>
+        <label class="form-label" for="f-tr">Транскрипция</label>
+        <input id="f-tr" class="form-input" type="text" placeholder="Субханаллах" data-input='[["onFormInput"]]'>
+        <label class="form-label" for="f-trn">Перевод / смысл</label>
+        <input id="f-trn" class="form-input" type="text" placeholder="Пречист Аллах" data-input='[["onFormInput"]]'>
+        <label class="form-label" for="f-target">Цель повторений</label>
+        <input id="f-target" class="form-input" type="number" min="1" max="10000" value="33" data-input='[["onFormInput"]]'>
+        <div id="form-preview" class="form-preview"></div>
+        <button class="btn primary" data-click='[["saveForm"]]'>Сохранить</button>
+        <button id="f-delete" class="btn danger" style="display:none;margin-top:10px" data-click='[["deleteCurrent"]]'>Удалить тасбих</button>
+      </div>
+    </section>
+
+    <!-- Коран -->
+    <section id="screen-quran" class="screen">
+      <div class="toolbar">
+        <input id="quran-search" class="search-input" type="search" placeholder="Сура, номер или аят..." data-input='[["debouncedRenderQuranList"]]'>
+      </div>
+      <div class="chip-row">
+        <button class="chip active" data-q-filter="all" data-click='[["setQuranFilter","all"]]'>Все</button>
+        <button class="chip" data-q-filter="surah" data-click='[["setQuranFilter","surah"]]'>Суры</button>
+        <button class="chip" data-q-filter="ruqyah" data-click='[["setQuranFilter","ruqyah"]]'>Рукья</button>
+      </div>
+      <div id="quran-list" class="card-list"></div>
+    </section>
+
+    <!-- Детали суры / аята -->
+    <section id="screen-quran-detail" class="screen">
+      <div class="sub-header">
+        <button class="icon-btn" aria-label="Назад" data-click='[["goQuranList"]]'><svg class="ico"><use href="#i-chevron-left"/></svg></button>
+        <div id="quran-detail-title" class="sub-title">Сура</div>
+        <button id="quran-detail-star" class="icon-btn" aria-label="В избранное" data-click='[["toggleCurrentQuranFav"]]'><svg class="ico"><use href="#i-star"/></svg></button>
+      </div>
+      <div id="quran-detail-content" class="detail-body"></div>
+    </section>
+
+    <!-- Библиотека: Дуа и Хадисы -->
+    <section id="screen-library" class="screen">
+      <div class="chip-row">
+        <button class="chip active" data-lib-tab="duas" data-click='[["setLibTab","duas"]]'>Дуа</button>
+        <button class="chip" data-lib-tab="hadiths" data-click='[["setLibTab","hadiths"]]'>Хадисы</button>
+      </div>
+      <div id="lib-duas-pane">
+        <div class="toolbar">
+          <input id="dua-search" class="search-input" type="search" placeholder="Поиск дуа..." data-input='[["debouncedRenderDuas"]]'>
         </div>
-      </section>
-
-      <!-- Детальная карточка Дуа / Хадиса -->
-      <section class="screen" id="screen-lib-detail">
-        <div class="detail-top">
-          <button class="icon-btn" aria-label="Назад" data-click='[["goLibList"]]'><svg class="ico"><use href="#i-back"/></svg></button>
-          <h2 class="detail-head-title" id="lib-detail-title">Детали</h2>
-          <button class="icon-btn" id="lib-detail-star" aria-label="В избранное" data-click='[["toggleActiveLibFav"]]'><svg class="ico"><use href="#i-star"/></svg></button>
+        <div id="dua-cats" class="chip-row"></div>
+        <div id="dua-list" class="card-list"></div>
+      </div>
+      <div id="lib-hadiths-pane" style="display:none">
+        <div class="toolbar">
+          <input id="hadith-search" class="search-input" type="search" placeholder="Поиск хадисов..." data-input='[["debouncedRenderHadiths"]]'>
         </div>
-        <div id="lib-detail-content"></div>
-      </section>
+        <div id="hadith-list" class="card-list"></div>
+      </div>
+    </section>
 
-      <!-- Путь и Прогресс -->
-      <section class="screen" id="screen-path">
-        <div class="segmented-control">
-          <button class="seg-btn active" data-prog-tab="overview" data-click='[["setProgTab","overview"]]'>Обзор</button>
-          <button class="seg-btn" data-prog-tab="calendar" data-click='[["setProgTab","calendar"]]'>Календарь</button>
-          <button class="seg-btn" data-prog-tab="learned" data-click='[["setProgTab","learned"]]'>Заучено</button>
-          <button class="seg-btn" data-prog-tab="favorites" data-click='[["setProgTab","favorites"]]'>Метки</button>
-        </div>
-        <div id="progress-content"></div>
-      </section>
-    </main>
+    <!-- Детали Дуа -->
+    <section id="screen-dua-detail" class="screen">
+      <div class="sub-header">
+        <button class="icon-btn" aria-label="Назад" data-click='[["goDuaList"]]'><svg class="ico"><use href="#i-chevron-left"/></svg></button>
+        <div id="dua-detail-title" class="sub-title">Дуа</div>
+        <button id="dua-detail-star" class="icon-btn" aria-label="В избранное" data-click='[["toggleCurrentDuaFav"]]'><svg class="ico"><use href="#i-star"/></svg></button>
+      </div>
+      <div id="dua-detail-content" class="detail-body"></div>
+    </section>
 
-    <!-- Нижняя навигация -->
-    <nav class="bottom-nav" aria-label="Основная навигация">
-      <button class="nav-btn active" data-tab="home" data-click='[["goTab","home"]]'>
-        <svg class="ico"><use href="#i-home"/></svg>
-        <span>Главная</span>
-      </button>
-      <button class="nav-btn" data-tab="tasbih" data-click='[["goTab","tasbih"]]'>
-        <svg class="ico"><use href="#i-tasbih"/></svg>
-        <span>Тасбих</span>
-      </button>
-      <button class="nav-btn" data-tab="quran" data-click='[["goTab","quran"]]'>
-        <svg class="ico"><use href="#i-book"/></svg>
-        <span>Коран</span>
-      </button>
-      <button class="nav-btn" data-tab="library" data-click='[["goTab","library"]]'>
-        <svg class="ico"><use href="#i-library"/></svg>
-        <span>Библиотека</span>
-      </button>
-      <button class="nav-btn" data-tab="path" data-click='[["goTab","path"]]'>
-        <svg class="ico"><use href="#i-path"/></svg>
-        <span>Путь</span>
-      </button>
-    </nav>
+    <!-- Детали Хадиса -->
+    <section id="screen-hadith-detail" class="screen">
+      <div class="sub-header">
+        <button class="icon-btn" aria-label="Назад" data-click='[["goHadithList"]]'><svg class="ico"><use href="#i-chevron-left"/></svg></button>
+        <div id="hadith-detail-title" class="sub-title">Хадис</div>
+        <button id="hadith-detail-star" class="icon-btn" aria-label="В избранное" data-click='[["toggleCurrentHadithFav"]]'><svg class="ico"><use href="#i-star"/></svg></button>
+      </div>
+      <div id="hadith-detail-content" class="detail-body"></div>
+    </section>
+
+    <!-- Путь / Прогресс -->
+    <section id="screen-path" class="screen">
+      <div class="chip-row">
+        <button class="chip active" data-prog-tab="overview" data-click='[["setProgTab","overview"]]'>Обзор</button>
+        <button class="chip" data-prog-tab="calendar" data-click='[["setProgTab","calendar"]]'>Календарь</button>
+        <button class="chip" data-prog-tab="learned" data-click='[["setProgTab","learned"]]'>Заучено</button>
+        <button class="chip" data-prog-tab="favorites" data-click='[["setProgTab","favorites"]]'>Избранное</button>
+      </div>
+      <div id="progress-content" class="detail-body"></div>
+    </section>
+
+    <!-- Настройки -->
+    <section id="screen-settings" class="screen">
+      <div class="sub-header">
+        <button class="icon-btn" aria-label="Назад" data-click='[["goTab","home"]]'><svg class="ico"><use href="#i-chevron-left"/></svg></button>
+        <div class="sub-title">Настройки</div>
+        <div style="width:40px"></div>
+      </div>
+      <div id="settings-content" class="detail-body"></div>
+      <div id="api-debug-section" class="detail-body" style="display:none"></div>
+    </section>
+  </main>
+
+  <!-- Нижняя навигация -->
+  <nav class="bottom-nav" aria-label="Основная навигация">
+    <button class="nav-btn active" data-tab="home" data-click='[["goTab","home"]]'><svg class="ico"><use href="#i-home"/></svg><span>Главная</span></button>
+    <button class="nav-btn" data-tab="tasbih" data-click='[["goTab","tasbih"]]'><svg class="ico"><use href="#i-beads"/></svg><span>Тасбих</span></button>
+    <button class="nav-btn" data-tab="quran" data-click='[["goTab","quran"]]'><svg class="ico"><use href="#i-book"/></svg><span>Коран</span></button>
+    <button class="nav-btn" data-tab="library" data-click='[["goTab","library"]]'><svg class="ico"><use href="#i-scroll"/></svg><span>Библиотека</span></button>
+    <button class="nav-btn" data-tab="path" data-click='[["goTab","path"]]'><svg class="ico"><use href="#i-path"/></svg><span>Путь</span></button>
+  </nav>
+</div>
+
+<!-- Полноэкранный режим чтения -->
+<div id="read-mode" class="overlay-screen">
+  <div class="sub-header">
+    <button class="icon-btn" aria-label="Закрыть чтение" data-click='[["closeRead"]]'><svg class="ico"><use href="#i-x"/></svg></button>
+    <div id="read-title" class="sub-title">Чтение</div>
+    <button class="icon-btn" aria-label="Поставить метку" data-click='[["addBookmarkFromRead"]]'><svg class="ico"><use href="#i-bookmark"/></svg></button>
   </div>
-
-  <!-- Полноэкранный счётчик Тасбиха -->
-  <div class="fullscreen-modal" id="counter-modal">
-    <div class="fm-top">
-      <button class="icon-btn" aria-label="Закрыть" data-click='[["closeCounter"]]'><svg class="ico"><use href="#i-x"/></svg></button>
-      <div class="fm-title" id="counter-title">Тасбих</div>
-      <div class="fm-actions">
-        <button class="icon-btn" aria-label="Редактировать" data-click='[["editCurrentTasbih"]]'><svg class="ico"><use href="#i-edit"/></svg></button>
-        <button class="icon-btn" aria-label="Сбросить" data-click='[["resetCurrent"]]'><svg class="ico"><use href="#i-reset"/></svg></button>
-      </div>
-    </div>
-    <div class="counter-body" data-click='[["tap",{"$":"event"}]]'>
-      <div class="counter-ar ar-font" id="counter-ar"></div>
-      <div class="counter-tr" id="counter-tr"></div>
-      <div class="counter-trn" id="counter-trn"></div>
-      <div class="counter-ring-wrap">
-        <div class="counter-num" id="counter-num">0</div>
-        <div class="counter-target" id="counter-target">из 33 · цикл 1</div>
-      </div>
-      <div class="counter-hint">Нажмите в любое место для счёта</div>
-    </div>
+  <div id="read-body" class="read-body"></div>
+  <div class="read-footer">
+    <button id="btn-prev-surah" class="btn secondary sm" data-click='[["readPrevSurah"]]'>← Пред.</button>
+    <button id="btn-next-surah" class="btn secondary sm" data-click='[["readNextSurah"]]'>След. →</button>
   </div>
+  <button id="btn-scroll-top" class="scroll-top-btn" aria-label="Наверх" data-click='[["scrollToTopRead"]]'>↑</button>
+</div>
 
-  <!-- Форма создания/редактирования Тасбиха -->
-  <div class="fullscreen-modal" id="form-modal">
-    <div class="fm-top">
-      <button class="icon-btn" aria-label="Закрыть" data-click='[["closeForm"]]'><svg class="ico"><use href="#i-x"/></svg></button>
-      <div class="fm-title" id="form-title">Новый тасбих</div>
-      <button class="icon-btn" id="form-delete-btn" aria-label="Удалить" style="display:none;color:var(--danger)" data-click='[["deleteCurrent"]]'><svg class="ico"><use href="#i-trash"/></svg></button>
-    </div>
-    <div class="fm-scroll">
-      <div class="form-group">
-        <label>Быстрый пресет</label>
-        <div id="form-presets" class="filter-chips"></div>
-      </div>
-      <div class="form-group">
-        <label for="f-title">Название</label>
-        <input type="text" id="f-title" class="form-input" placeholder="Например: Субханаллах" data-input='[["onFormInput"]]'>
-      </div>
-      <div class="form-group">
-        <label for="f-arabic">Арабский текст (необязательно)</label>
-        <input type="text" id="f-arabic" class="form-input ar-font" dir="rtl" placeholder="سُبْحَانَ اللَّهِ" data-input='[["onFormInput"]]'>
-      </div>
-      <div class="form-group">
-        <label for="f-trans">Транскрипция</label>
-        <input type="text" id="f-trans" class="form-input" placeholder="Субханаллах" data-input='[["onFormInput"]]'>
-      </div>
-      <div class="form-group">
-        <label for="f-transl">Перевод / смысл</label>
-        <input type="text" id="f-transl" class="form-input" placeholder="Пречист Аллах" data-input='[["onFormInput"]]'>
-      </div>
-      <div class="form-group">
-        <label for="f-target">Цель повторений</label>
-        <input type="number" id="f-target" class="form-input" value="33" min="1" max="10000" data-input='[["onFormInput"]]'>
-      </div>
-      <button class="btn primary" data-click='[["saveForm"]]'>Сохранить</button>
-    </div>
+<!-- Режим заучивания -->
+<div id="memorize-mode" class="overlay-screen">
+  <div class="sub-header">
+    <button class="icon-btn" aria-label="Закрыть заучивание" data-click='[["closeMemorize"]]'><svg class="ico"><use href="#i-x"/></svg></button>
+    <div id="mem-title" class="sub-title">Заучивание</div>
+    <div id="mem-step" class="sub-badge">1 / 1</div>
   </div>
-
-  <!-- Полноэкранный режим чтения Корана -->
-  <div class="fullscreen-modal" id="read-mode">
-    <div class="fm-top">
-      <button class="icon-btn" aria-label="Закрыть" data-click='[["closeRead"]]'><svg class="ico"><use href="#i-x"/></svg></button>
-      <div class="fm-title" id="read-title">Чтение</div>
-      <button class="icon-btn" aria-label="Поставить метку" data-click='[["addBookmarkFromRead"]]'><svg class="ico"><use href="#i-bookmark"/></svg></button>
-    </div>
-    <div class="read-scroll" id="read-body"></div>
-    <div class="read-bottom-bar">
-      <button class="btn secondary small" id="btn-prev-surah" data-click='[["readPrevSurah"]]'>← Пред.</button>
-      <button class="btn secondary small" id="btn-next-surah" data-click='[["readNextSurah"]]'>След. →</button>
-    </div>
-    <button class="scroll-top-btn" id="btn-scroll-top" aria-label="Наверх" data-click='[["scrollToTopRead"]]'><svg class="ico"><use href="#i-arrow-up"/></svg></button>
+  <div class="mem-progress-track"><div id="mem-progress-bar" class="mem-progress-fill"></div></div>
+  <div id="mem-body" class="detail-body"></div>
+  <div class="read-footer">
+    <button id="mem-prev" class="btn secondary sm" data-click='[["memPrev"]]'>← Назад</button>
+    <button id="mem-next" class="btn primary sm" data-click='[["memNext"]]'>Дальше →</button>
   </div>
+</div>
 
-  <!-- Режим заучивания -->
-  <div class="fullscreen-modal" id="memorize-mode">
-    <div class="fm-top">
-      <button class="icon-btn" aria-label="Закрыть" data-click='[["closeMemorize"]]'><svg class="ico"><use href="#i-x"/></svg></button>
-      <div class="fm-title" id="mem-title">Заучивание</div>
-      <div style="width:36px"></div>
-    </div>
-    <div class="progress-track" style="margin:0 16px"><div class="progress-fill" id="mem-progress-bar"></div></div>
-    <div id="mem-body" class="fm-scroll"></div>
+<!-- Ночное чтение -->
+<div id="night-mode" class="overlay-screen night-overlay">
+  <div class="sub-header">
+    <button class="icon-btn" aria-label="Закрыть ночное чтение" data-click='[["closeNight"]]'><svg class="ico"><use href="#i-x"/></svg></button>
+    <div class="sub-title">Ночное чтение</div>
+    <div style="width:40px"></div>
   </div>
+  <div id="night-body" class="detail-body"></div>
+</div>
 
-  <!-- Ночной режим -->
-  <div class="fullscreen-modal" id="night-mode">
-    <div class="fm-top">
-      <button class="icon-btn" aria-label="Закрыть" data-click='[["closeNightMode"]]'><svg class="ico"><use href="#i-x"/></svg></button>
-      <div class="fm-title">Перед сном</div>
-      <div style="width:36px"></div>
-    </div>
-    <div id="night-body" class="fm-scroll"></div>
+<!-- Глобальный поиск -->
+<div id="search-modal" class="overlay-screen">
+  <div class="sub-header">
+    <button class="icon-btn" aria-label="Закрыть поиск" data-click='[["closeSearch"]]'><svg class="ico"><use href="#i-x"/></svg></button>
+    <input id="global-search-input" class="search-input" type="search" placeholder="Поиск по всему приложению..." data-input='[["onSearchInput"]]'>
   </div>
+  <div id="search-results" class="detail-body"></div>
+</div>
 
-  <!-- Глобальный поиск -->
-  <div class="fullscreen-modal" id="search-modal">
-    <div class="fm-top">
-      <button class="icon-btn" aria-label="Закрыть" data-click='[["closeSearch"]]'><svg class="ico"><use href="#i-x"/></svg></button>
-      <input type="search" id="global-search-input" class="search-input" placeholder="Поиск по всему приложению..." data-input='[["onSearchInput"]]'>
-    </div>
-    <div id="search-results" class="fm-scroll"></div>
-  </div>
+<!-- Универсальное модальное окно -->
+<div id="modal-bg" class="modal-bg" data-click='["@self",["closeModal"]]'>
+  <div id="modal-content" class="modal"></div>
+</div>
 
-  <!-- Настройки -->
-  <div class="fullscreen-modal" id="settings-modal">
-    <div class="fm-top">
-      <button class="icon-btn" aria-label="Закрыть" data-click='[["closeSettings"]]'><svg class="ico"><use href="#i-x"/></svg></button>
-      <div class="fm-title">Настройки</div>
-      <div style="width:36px"></div>
-    </div>
-    <div class="fm-scroll">
-      <div class="settings-card">
-        <div class="settings-label">Тема оформления</div>
-        <div class="segmented-control">
-          <button class="seg-btn" data-theme-opt="auto" data-click='[["setTheme","auto"]]'>Авто</button>
-          <button class="seg-btn" data-theme-opt="light" data-click='[["setTheme","light"]]'>Светлая</button>
-          <button class="seg-btn" data-theme-opt="dark" data-click='[["setTheme","dark"]]'>Тёмная</button>
-          <button class="seg-btn" data-theme-opt="mono" data-click='[["setTheme","mono"]]'>Моно</button>
-        </div>
-      </div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
 
-      <div class="settings-card">
-        <div class="settings-label">Размер арабского текста</div>
-        <div class="segmented-control">
-          <button class="seg-btn" data-size-opt="s" data-click='[["setArabicSize","s"]]'>S</button>
-          <button class="seg-btn" data-size-opt="m" data-click='[["setArabicSize","m"]]'>M</button>
-          <button class="seg-btn" data-size-opt="l" data-click='[["setArabicSize","l"]]'>L</button>
-          <button class="seg-btn" data-size-opt="xl" data-click='[["setArabicSize","xl"]]'>XL</button>
-        </div>
-      </div>
-
-      <div class="settings-card">
-        <label class="toggle-row">
-          <span>Подсветка правил таджвида</span>
-          <input type="checkbox" id="set-tajweed" data-change='[["toggleTajweed",{"$":"checked"}]]'>
-        </label>
-        <label class="toggle-row">
-          <span>Автопереход в тасбихе</span>
-          <input type="checkbox" id="set-autonext" data-change='[["toggleAutoNext",{"$":"checked"}]]'>
-        </label>
-        <label class="toggle-row">
-          <span>Не гасить экран при чтении</span>
-          <input type="checkbox" id="set-wakelock" data-change='[["toggleWakeLock",{"$":"checked"}]]'>
-        </label>
-        <label class="toggle-row">
-          <span>Виброотклик</span>
-          <input type="checkbox" id="set-vibrate" data-change='[["toggleVibration",{"$":"checked"}]]'>
-        </label>
-      </div>
-
-      <div class="settings-card">
-        <div class="settings-label">Дневная цель зикров</div>
-        <input type="number" id="set-daily-goal" class="form-input" value="100" min="1" max="100000" data-change='[["setDailyGoal",{"$":"value"}]]'>
-      </div>
-
-      <div class="settings-card">
-        <div class="settings-label">Данные и резервная копия</div>
-        <div class="detail-actions">
-          <button class="btn secondary" data-click='[["exportData"]]'>Экспорт JSON</button>
-          <button class="btn secondary" data-click='[["@click","import-file-input"]]'>Импорт JSON</button>
-          <input type="file" id="import-file-input" accept=".json,application/json" style="display:none" data-change='[["importData",{"$":"el"}]]'>
-        </div>
-        <button class="btn secondary" style="margin-top:8px" data-click='[["exportCsv"]]'>Экспорт истории в CSV</button>
-        <button class="btn secondary" style="margin-top:8px;color:var(--danger)" data-click='[["confirmResetAll"]]'>Сбросить все данные</button>
-      </div>
-
-      <!-- Секция диагностики скрыта по умолчанию; активируется параметром ?debug=1 -->
-      <div class="settings-card" id="api-debug-section" style="display:none">
-        <div class="settings-label">Диагностика API (режим разработчика)</div>
-        <div class="detail-actions">
-          <button class="btn secondary small" data-click='[["runApiDebugTest"]]'>Тест API</button>
-          <button class="btn secondary small" data-click='[["openRead","q112"]]'>Тест openRead (112)</button>
-          <button class="btn secondary small" data-click='[["openQuran","q112"]]'>Тест openQuran (112)</button>
-        </div>
-        <pre id="api-debug-output" class="debug-box"></pre>
-      </div>
-    </div>
-  </div>
-
-  <!-- Универсальное модальное окно (Таджвид / Справка об учёных / Шаринг) -->
-  <div class="modal-bg" id="modal-bg" data-click='["@self",["closeModal"]]'>
-    <div class="modal" id="modal-content"></div>
-  </div>
-
-  <!-- Онбординг первого запуска -->
-  <div class="onboarding-overlay" id="onboarding-overlay" style="display:none"></div>
-
-  <!-- Тост-уведомления -->
-  <div class="toast" id="toast"></div>
-
-  <script src="js/storage.js"></script>
-  <script src="js/api.js"></script>
-  <script src="js/actions.js"></script>
-  <script src="js/tasbih.js"></script>
-  <script src="js/quran.js"></script>
-  <script src="js/reader.js"></script>
-  <script src="js/dua.js"></script>
-  <script src="js/hadith.js"></script>
-  <script src="js/memorize.js"></script>
-  <script src="js/night.js"></script>
-  <script src="js/path.js"></script>
-  <script src="js/progress.js"></script>
-  <script src="js/dashboard.js"></script>
-  <script src="js/scholar-modal.js"></script>
-  <script src="js/search.js"></script>
-  <script src="js/share.js"></script>
-  <script src="js/settings.js"></script>
-  <script src="js/onboarding.js"></script>
-  <script src="js/app.js"></script>
+<script src="./js/storage.js"></script>
+<script src="./js/api.js"></script>
+<script src="./js/tasbih.js"></script>
+<script src="./js/quran.js"></script>
+<script src="./js/reader.js"></script>
+<script src="./js/dua.js"></script>
+<script src="./js/hadith.js"></script>
+<script src="./js/memorize.js"></script>
+<script src="./js/night.js"></script>
+<script src="./js/path.js"></script>
+<script src="./js/progress.js"></script>
+<script src="./js/dashboard.js"></script>
+<script src="./js/scholar-modal.js"></script>
+<script src="./js/search.js"></script>
+<script src="./js/share.js"></script>
+<script src="./js/settings.js"></script>
+<script src="./js/onboarding.js"></script>
+<script src="./js/actions.js"></script>
+<script src="./js/app.js"></script>
 </body>
 </html>
