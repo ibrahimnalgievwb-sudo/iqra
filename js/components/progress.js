@@ -27,7 +27,7 @@ function _progMatch(title) {
   return String(title || '').toLowerCase().indexOf(_progFilter) >= 0;
 }
 function _progSearchHtml() {
-  return '<div style="padding:0 0 12px;"><div class="search-wrap"><input type="text" id="prog-search-input" placeholder="Поиск по списку..." value="' + escAttr(_progFilter) + '" data-input=\'[["setProgFilter",{"$":"value"}]]\'></div></div>';
+  return '<div style="padding:0 0 12px;"><div class="search-wrap"><input type="text" id="prog-search-input" placeholder="Поиск по списку..." value="' + escAttr(_progFilter) + '" oninput="setProgFilter(this.value)"></div></div>';
 }
 
 function renderProgressFavorites() {
@@ -40,15 +40,13 @@ function renderProgressFavorites() {
   if (bms.length) {
     html += '<div class="settings-group"><div class="progress-section-title">Закладки</div>';
     bms.forEach(b => {
-      const openBmClick = escAttr(JSON.stringify([['openBookmark', b.id]]));
-      const delBmClick = escAttr(JSON.stringify([['removeBookmark', b.id]]));
-      html += '<div class="learned-item mark-item"><div data-click="' + openBmClick + '" style="cursor:pointer;flex:1;min-width:0"><div class="li-title">' + esc(b.label) + '</div><div class="li-sub">' + new Date(b.ts).toLocaleDateString('ru-RU') + '</div></div><button class="mi-del" data-click="' + delBmClick + '" aria-label="Удалить">×</button></div>';
+      html += '<div class="learned-item mark-item"><div onclick="openBookmark(\'' + esc(b.id) + '\')" style="cursor:pointer;flex:1;min-width:0"><div class="li-title">' + esc(b.label) + '</div><div class="li-sub">' + new Date(b.ts).toLocaleDateString('ru-RU') + '</div></div><button class="mi-del" onclick="removeBookmark(\'' + esc(b.id) + '\')" aria-label="Удалить">×</button></div>';
     });
     html += '</div>';
   }
-  if (favQ.length) { html += `<div class="settings-group"><div class="progress-section-title">Суры и аяты</div>`; favQ.forEach(q => { const click = escAttr(JSON.stringify([['openQuran', q.id]])); html += `<div class="learned-item" data-click="${click}" style="cursor:pointer"><div><div class="li-title">${esc(q.title)}</div><div class="li-sub">${esc(q.subtitle||'')}</div></div><div class="li-check">★</div></div>`; }); html += `</div>`; }
-  if (favD.length) { html += `<div class="settings-group"><div class="progress-section-title">Дуа</div>`; favD.forEach(d => { const click = escAttr(JSON.stringify([['openDua', d.id]])); html += `<div class="learned-item" data-click="${click}" style="cursor:pointer"><div><div class="li-title">${esc(d.title)}</div><div class="li-sub">${esc(d.subtitle||'')}</div></div><div class="li-check">★</div></div>`; }); html += `</div>`; }
-  if (favH.length) { html += `<div class="settings-group"><div class="progress-section-title">Хадисы</div>`; favH.forEach(h => { const click = escAttr(JSON.stringify([['openHadith', h.id]])); html += `<div class="learned-item" data-click="${click}" style="cursor:pointer"><div><div class="li-title">${esc(h.title)}</div><div class="li-sub">${esc(h.subtitle||'')}</div></div><div class="li-check">★</div></div>`; }); html += `</div>`; }
+  if (favQ.length) { html += `<div class="settings-group"><div class="progress-section-title">Суры и аяты</div>`; favQ.forEach(q => { html += `<div class="learned-item" onclick="openQuran('${esc(q.id)}')" style="cursor:pointer"><div><div class="li-title">${esc(q.title)}</div><div class="li-sub">${esc(q.subtitle||'')}</div></div><div class="li-check">★</div></div>`; }); html += `</div>`; }
+  if (favD.length) { html += `<div class="settings-group"><div class="progress-section-title">Дуа</div>`; favD.forEach(d => { html += `<div class="learned-item" onclick="openDua('${esc(d.id)}')" style="cursor:pointer"><div><div class="li-title">${esc(d.title)}</div><div class="li-sub">${esc(d.subtitle||'')}</div></div><div class="li-check">★</div></div>`; }); html += `</div>`; }
+  if (favH.length) { html += `<div class="settings-group"><div class="progress-section-title">Хадисы</div>`; favH.forEach(h => { html += `<div class="learned-item" onclick="openHadith('${esc(h.id)}')" style="cursor:pointer"><div><div class="li-title">${esc(h.title)}</div><div class="li-sub">${esc(h.subtitle||'')}</div></div><div class="li-check">★</div></div>`; }); html += `</div>`; }
   if (!bms.length && !favQ.length && !favD.length && !favH.length) {
     html += '<div class="empty">Пока пусто.<br>Нажимайте ★ на карточках и добавляйте закладки в режиме чтения.</div>';
   }
@@ -110,8 +108,7 @@ function renderProgressCalendar() {
     const isFuture = new Date(y,m,d) > new Date();
     let cls='cal-day'; if (count>0) cls+=' has-count'; if (isToday) cls+=' today'; if (isFuture) cls+=' future';
     const cnt = count>0 ? `<div class="cnt">${count>999?'999+':count}</div>` : '';
-    const dayClick = escAttr(JSON.stringify([['openDay', key]]));
-    html += `<div class="${cls}" data-click="${dayClick}"><div>${d}</div>${cnt}</div>`;
+    html += `<div class="${cls}" onclick="openDay('${key}')"><div>${d}</div>${cnt}</div>`;
   }
   const maxV = Math.max(1, ...daily);
   const today = new Date();
@@ -120,7 +117,7 @@ function renderProgressCalendar() {
   let labels = '';
   for (let d=1; d<=daily.length; d++) { if (d===1 || d%5===0 || d===daily.length) labels += `<span>${d}</span>`; else labels += `<span></span>`; }
   body.innerHTML = `
-    <div class="cal-header"><div><div class="month">${MONTHS[m]} ${y}</div><div style="font-size:12px;color:var(--muted);margin-top:2px">${formatHijri(new Date(y, m, 15))}</div></div><div class="cal-nav"><button data-click='[["shiftMonth",-1]]'>‹</button><button data-click='[["shiftMonth",1]]'>›</button></div></div>
+    <div class="cal-header"><div><div class="month">${MONTHS[m]} ${y}</div><div style="font-size:12px;color:var(--muted);margin-top:2px">${formatHijri(new Date(y, m, 15))}</div></div><div class="cal-nav"><button onclick="shiftMonth(-1)">‹</button><button onclick="shiftMonth(1)">›</button></div></div>
     <div class="cal-grid">${html}</div>
      <div class="cal-summary">
       <div class="stat"><div class="label">Всего за месяц</div><div class="value">${monthTotal}</div></div>

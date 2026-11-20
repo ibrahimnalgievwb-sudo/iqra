@@ -55,11 +55,9 @@ function renderPathChips() {
   var container = document.getElementById('path-chips-container');
   if (!container) return;
   var tags = getMergedPathTags();
-  var allClick = escAttr(JSON.stringify([['setPathTag', null]]));
-  var html = '<button class="path-chip ' + (!activePathTag ? 'active' : '') + '" data-click="' + allClick + '">Все темы</button>';
+  var html = '\x3cbutton class="path-chip ' + (!activePathTag ? 'active' : '') + '" onclick="setPathTag(null)">Все темы\x3c/button>';
   html += tags.map(function (tag) {
-    var tagClick = escAttr(JSON.stringify([['setPathTag', tag]]));
-    return '<button class="path-chip ' + (activePathTag === tag ? 'active' : '') + '" data-click="' + tagClick + '">' + esc(tag) + '</button>';
+    return '\x3cbutton class="path-chip ' + (activePathTag === tag ? 'active' : '') + '" onclick="setPathTag(\'' + escAttr(tag) + '\')">' + esc(tag) + '\x3c/button>';
   }).join('');
   container.innerHTML = html;
 }
@@ -199,18 +197,17 @@ function renderPath() {
   if (!resultsEl) return;
 
   if (!q && !activePathTag) {
-    var emptyTags = ['Терпение', 'Тревога', 'Защита Аллаха', 'Единобожие', 'Упование'];
-    var emptyChipsHtml = emptyTags.map(function (t) {
-      var c = escAttr(JSON.stringify([['setPathTag', t]]));
-      return '<button class="path-chip" data-click="' + c + '">' + esc(t) + '</button>';
-    }).join('');
     resultsEl.innerHTML =
-      '<div class="path-empty">' +
+      '\x3cdiv class="path-empty">' +
         'Введите запрос или выберите тему ниже, чтобы найти ответ в Коране и Сунне.' +
-        '<div class="path-fallback">' +
-          emptyChipsHtml +
-        '</div>' +
-      '</div>';
+        '\x3cdiv class="path-fallback">' +
+          '\x3cbutton class="path-chip" onclick="setPathTag(\'Терпение\')">Терпение\x3c/button>' +
+          '\x3cbutton class="path-chip" onclick="setPathTag(\'Тревога\')">Тревога\x3c/button>' +
+          '\x3cbutton class="path-chip" onclick="setPathTag(\'Защита Аллаха\')">Защита Аллаха\x3c/button>' +
+          '\x3cbutton class="path-chip" onclick="setPathTag(\'Единобожие\')">Единобожие\x3c/button>' +
+          '\x3cbutton class="path-chip" onclick="setPathTag(\'Упование\')">Упование\x3c/button>' +
+        '\x3c/div>' +
+      '\x3c/div>';
     return;
   }
 
@@ -319,20 +316,17 @@ function renderPath() {
   });
 
   if (!finalItems.length) {
-    var fallbackTags = ['Гнев', 'Тревога', 'Страх', 'Печаль'];
-    var fallbackHtml = fallbackTags.map(function (t) {
-      var c = escAttr(JSON.stringify([['setPathTag', t]]));
-      return '<button class="path-chip" data-click="' + c + '">' + esc(t) + '</button>';
-    }).join('');
-    var quranClick = escAttr(JSON.stringify([['switchTab', 'quran']]));
     resultsEl.innerHTML =
-      '<div class="path-empty">' +
-        'По вашему запросу ничего не найдено.<br>Попробуйте смежные темы или откройте базовую суру.' +
-        '<div class="path-fallback">' +
-          fallbackHtml +
-          '<button class="path-chip" data-click="' + quranClick + '">Открыть Коран</button>' +
-        '</div>' +
-      '</div>';
+      '\x3cdiv class="path-empty">' +
+        'По вашему запросу ничего не найдено.\x3cbr>Попробуйте смежные темы или откройте базовую суру.' +
+        '\x3cdiv class="path-fallback">' +
+          '\x3cbutton class="path-chip" onclick="setPathTag(\'Гнев\')">Гнев\x3c/button>' +
+          '\x3cbutton class="path-chip" onclick="setPathTag(\'Тревога\')">Тревога\x3c/button>' +
+          '\x3cbutton class="path-chip" onclick="setPathTag(\'Страх\')">Страх\x3c/button>' +
+          '\x3cbutton class="path-chip" onclick="setPathTag(\'Печаль\')">Печаль\x3c/button>' +
+          '\x3cbutton class="path-chip" onclick="switchTab(\'quran\')">Открыть Коран\x3c/button>' +
+        '\x3c/div>' +
+      '\x3c/div>';
     return;
   }
 
@@ -347,13 +341,12 @@ function renderPath() {
     else if (item._type === 'dua') { icon = '#i-dua'; typeLabel = 'Дуа'; }
     else if (isAyah && item._surahTitle) { typeLabel = 'Коран · ' + item._surahTitle; }
 
-    var openClick = isAyah
-      ? escAttr(JSON.stringify([['openQuran', item._surahId]]))
-      : escAttr(JSON.stringify([['openPathItem', item._type, item._id]]));
+    var openAction = isAyah
+      ? 'openQuran(\'' + escAttr(item._surahId) + '\')'
+      : 'openPathItem(\'' + item._type + '\', \'' + escAttr(item._id) + '\')';
 
-    var openReadClick = escAttr(JSON.stringify(['@stop', ['openRead', item._surahId]]));
     var openBtn = (isAyah && item._isSurahAyah)
-      ? '<button class="btn secondary btn-inline" data-click="' + openReadClick + '"><svg class="ico ico-sm"><use href="#i-book"/></svg> Читать суру полностью</button>'
+      ? '\x3cbutton class="btn secondary btn-inline" onclick="event.stopPropagation();openRead(\'' + escAttr(item._surahId) + '\')">\x3csvg class="ico ico-sm">\x3cuse href="#i-book"/>\x3c/svg> Читать суру полностью\x3c/button>'
       : '';
 
     var semanticBlock = '';
@@ -369,7 +362,6 @@ function renderPath() {
 
       var tafsirHtml = '';
       if (item._hasTafsir) {
-        var scholarClick = escAttr(JSON.stringify(['@stop', ['openScholarInfo', item._scholarId]]));
         tafsirHtml =
           '<details class="tafsir-card" style="margin-top: 10px; background: var(--card2); border-radius: 10px; padding: 10px 12px;">' +
             '<summary style="font-weight: 700; color: var(--gold-accent); font-size: 13.5px; outline: none; display: flex; align-items: center; gap: 8px; cursor: pointer; list-style: none;">' +
@@ -381,7 +373,7 @@ function renderPath() {
           '</details>' +
           '<div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 12px;">' +
             '<div style="font-size: 12px; color: var(--muted); font-style: italic;">' + esc(item._tafsirSource) + '</div>' +
-            '<button data-click="' + scholarClick + '" class="btn secondary" style="width: auto; margin: 0; padding: 6px 12px; font-size: 12px; font-weight: 600; min-height: 30px; border-radius: 8px; display: flex; align-items: center; gap: 6px;">' +
+            '<button onclick="event.stopPropagation(); openScholarInfo(\'' + escAttr(item._scholarId) + '\')" class="btn secondary" style="width: auto; margin: 0; padding: 6px 12px; font-size: 12px; font-weight: 600; min-height: 30px; border-radius: 8px; display: flex; align-items: center; gap: 6px;">' +
               '<svg class="ico ico-sm"><use href="#i-info"/></svg> Справка' +
             '</button>' +
           '</div>';
@@ -389,8 +381,7 @@ function renderPath() {
 
       var hadithsHtml = hasHadiths
         ? item._relatedHadiths.map(function (h) {
-            var hadithClick = escAttr(JSON.stringify(['@stop', ['openHadith', h.id]]));
-            return '<div data-click="' + hadithClick + '" style="margin-top: 10px; padding: 10px 12px; background: rgba(212, 175, 55, 0.08); border: 1px solid rgba(212, 175, 55, 0.22); border-radius: 10px; cursor: pointer;">' +
+            return '<div onclick="event.stopPropagation(); openHadith(\'' + escAttr(h.id) + '\')" style="margin-top: 10px; padding: 10px 12px; background: rgba(212, 175, 55, 0.08); border: 1px solid rgba(212, 175, 55, 0.22); border-radius: 10px; cursor: pointer;">' +
               '<div style="font-size: 11.5px; color: var(--gold-accent); font-weight: 700; margin-bottom: 4px;">' + esc(h.title || 'Хадис') + (h.subtitle ? ' · ' + esc(h.subtitle) : '') + '</div>' +
               '<div style="font-size: 13px; color: var(--text); line-height: 1.5;">' + esc(h.translation || '') + '</div>' +
               (h.source ? '<div style="font-size: 12px; color: var(--muted); font-style: italic; margin-top: 4px;">' + esc(h.source) + '</div>' : '') +
@@ -398,9 +389,8 @@ function renderPath() {
           }).join('')
         : '';
 
-      var stopClick = escAttr(JSON.stringify(['@stop']));
       semanticBlock =
-        '<div data-click="' + stopClick + '" style="margin-top: 16px; padding: 14px; background: rgba(var(--accent-rgb), 0.05); border-left: 3px solid var(--gold-accent); border-radius: 8px; text-align: left;">' +
+        '<div onclick="event.stopPropagation()" style="margin-top: 16px; padding: 14px; background: rgba(var(--accent-rgb), 0.05); border-left: 3px solid var(--gold-accent); border-radius: 8px; text-align: left;">' +
           '<div style="font-size: 11px; color: var(--gold-accent); font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 9px;">Смысловая связь</div>' +
           rowsHtml +
           tafsirHtml +
@@ -408,29 +398,26 @@ function renderPath() {
         '</div>';
     }
 
-    return '<div class="content-card" data-click="' + openClick + '">' +
-      '<div class="c-sub" style="display:flex; align-items:center; gap:6px; margin-bottom:8px;">' +
-        '<svg class="ico ico-sm" style="color:var(--gold-accent)"><use href="' + icon + '"/></svg>' +
-        '<span style="text-transform:uppercase; font-weight:700; letter-spacing:.5px;">' + esc(typeLabel) + '</span>' +
-      '</div>' +
-      '<div class="c-title">' + esc(item._title) + '</div>' +
-      (item._sub ? '<div class="c-sub">' + esc(item._sub) + '</div>' : '') +
-      (item._ar ? '<div class="c-ar">' + esc(item._ar) + '</div>' : '') +
-      '<div class="c-tr">' + esc(item._trn || item._tr || '') + '</div>' +
-      semanticBlock +
-      openBtn +
-    '</div>';
-  }).join('');
-
-  if (hasMore) {
-    var showAllClick = escAttr(JSON.stringify([['togglePathShowAll']]));
-    html += '<button class="show-all-btn" data-click="' + showAllClick + '">Показать все результаты (' + finalItems.length + ')</button>';
-  }
-  resultsEl.innerHTML = html;
+    return '\x3cdiv class="content-card" onclick="' + openAction + '">' +
+      '\x3cdiv class="c-sub" style="display:flex; align-items:center; gap:6px; margin-bottom:8px;">' +
+        '\x3csvg class="ico ico-sm" style="color:var(--gold-accent)">\x3cuse href="' + icon + '"/>\x3c/svg>' +
+      '\x3cspan style="text-transform:uppercase; font-weight:700; letter-spacing:.5px;">' + esc(typeLabel) + '\x3c/span>' +
+'\x3c/div>' +
+'\x3cdiv class="c-title">' + esc(item._title) + '\x3c/div>' +
+(item._sub ? '\x3cdiv class="c-sub">' + esc(item._sub) + '\x3c/div>' : '') +
+(item._ar ? '\x3cdiv class="c-ar">' + esc(item._ar) + '\x3c/div>' : '') +
+'\x3cdiv class="c-tr">' + esc(item._trn || item._tr || '') + '\x3c/div>' +
+semanticBlock +
+openBtn +
+'\x3c/div>';
+}).join('');
+if (hasMore) {
+html += '\x3cbutton class="show-all-btn" onclick="togglePathShowAll()">Показать все результаты (' + finalItems.length + ')\x3c/button>';
 }
-
+resultsEl.innerHTML = html;
+}
 function openPathItem(type, id) {
-  if (type === 'quran') openQuran(id);
-  else if (type === 'hadith') openHadith(id);
-  else if (type === 'dua') openDua(id);
+if (type === 'quran') openQuran(id);
+else if (type === 'hadith') openHadith(id);
+else if (type === 'dua') openDua(id);
 }

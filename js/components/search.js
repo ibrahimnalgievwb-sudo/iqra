@@ -81,8 +81,7 @@ function renderGlobalSearch() {
       const sub = it.subtitle ? '<div class="c-sub">' + esc(it.subtitle) + '</div>' : '';
       const ar = it.arabic ? '<div class="c-ar ar-font">' + esc(it.arabic) + '</div>' : '';
       const tr = it.translation ? '<div class="c-tr">' + esc(it.translation) + '</div>' : '';
-      const dataClick = escAttr(JSON.stringify([['searchOpen', type, it.id]]));
-      return '<div class="content-card" data-click="' + dataClick + '"><div class="c-title">' + esc(t) + '</div>' + sub + ar + tr + '</div>';
+      return '<div class="content-card" onclick="searchOpen(\'' + type + '\',\'' + escAttr(it.id) + '\')"><div class="c-title">' + esc(t) + '</div>' + sub + ar + tr + '</div>';
     }).join('');
   };
 
@@ -93,7 +92,7 @@ function renderGlobalSearch() {
   if (showType('hadith')) html += grp('Хадисы', filtered(state.hadiths, 'hadith'), 'hadith');
 
   if (!_searchShowAll && html) {
-    html += `<button class="show-all-btn" data-click='[["showAllSearchResults"]]'>Показать все результаты</button>`;
+    html += `<button class="show-all-btn" onclick="showAllSearchResults()">Показать все результаты</button>`;
   }
   el.innerHTML = html || '<div class="empty">Ничего не найдено</div>'; 
 }

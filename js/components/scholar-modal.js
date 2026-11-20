@@ -2,7 +2,7 @@
 
 window.openScholarInfo = function(scholarId) {
   if (!scholarId) {
-    if (typeof showToast === 'function') showToast("Информация недоступна.");
+    alert("Информация недоступна.");
     return;
   }
 
@@ -28,7 +28,7 @@ window.openScholarInfo = function(scholarId) {
 
   if (!person) {
     console.error("Не найден: " + scholarId);
-    if (typeof showToast === 'function') showToast("Информация об этом человеке пока недоступна в базе.");
+    alert("Информация об этом человеке пока недоступна в базе.");
     return;
   }
 
@@ -87,7 +87,7 @@ window.openScholarInfo = function(scholarId) {
     
     ${statusLabel ? '<div style="font-size:11px;color:var(--muted);text-align:center;margin-top:12px;font-style:italic;">Статус проверки: ' + esc(statusLabel) + '</div>' : ''}
     
-    <button class="btn secondary" style="display: block; width: 100%; margin-top: 24px; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: 600;" data-click='[["closeModal"]]'>Закрыть</button>
+    <button class="btn secondary" style="display: block; width: 100%; margin-top: 24px; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: 600;" onclick="closeModal()">Закрыть</button>
   `;
 
   modalBg.classList.add('active');
