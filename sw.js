@@ -1,4 +1,4 @@
-const SW_VERSION   = 'iqra-v438'; /* МЕНЯЙ ВЕРСИЮ ТОЛЬКО ЗДЕСЬ */
+const SW_VERSION   = 'iqra-v439'; /* МЕНЯЙ ВЕРСИЮ ТОЛЬКО ЗДЕСЬ */
 const SW_VER_SHORT = SW_VERSION.replace(/^iqra-/, '');
 const CACHE_STATIC = 'iqra-static-' + SW_VER_SHORT;
 const CACHE_DATA   = 'iqra-data-'   + SW_VER_SHORT;
