@@ -1,7 +1,8 @@
 "use strict";
 
-/* PATH.JS — Путь (поиск по темам) · Проект «Икра» · v434
-   Темы читаются из themes.json (поле title), основание связи — из идентификатора связи в edges.json. */
+/* PATH.JS — Путь (поиск по темам) · Проект «Икра» · v435
+   Темы читаются из themes.json (поле title). Основание связи — из идентификатора связи в edges.json.
+   v435: добавлен рендер связей dua_theme (дуа → тема) и удалены связи на отсутствующие суры 93/99/101. */
 
 var debouncedRenderPath = debounce(renderPath, 250);
 
@@ -75,7 +76,6 @@ function togglePathShowAll() {
   pathShowAll = true;
   renderPath();
 }
-
 function normalizeSurahAyah(surahNum, ayahNum) {
   var s = Number(surahNum);
   var a = Number(ayahNum);
@@ -109,7 +109,7 @@ function scholarIdFromName(sourceText) {
 }
 
 function describePathEvidence(ev, surahNum, ayahNum) {
-  /* ev — строка вида tafsir:ibn_kathir_1_5 | hadith:h_ikhlas | quran:93_11 (либо старый объект с locator) */
+  /* ev — строка вида tafsir:ibn_kathir_1_5 | hadith:h_ikhlas | quran:93_11 | dua_collection_verified */
   if (!ev) return '';
   if (typeof ev === 'object') return ev.locator ? String(ev.locator).split(';').at(0) : '';
   var s = String(ev);
@@ -130,6 +130,9 @@ function describePathEvidence(ev, surahNum, ayahNum) {
   if (kind === 'quran') {
     var q = rest.match(/^(\d+)_(\d+)$/);
     return q ? 'Коран, аят ' + q[1] + ':' + q[2] : '';
+  }
+  if (s === 'dua_collection_verified') {
+    return 'дуа проверена положительно';
   }
   return '';
 }
@@ -188,7 +191,6 @@ function flattenQuranToAyahs() {
   });
   return result;
 }
-
 function renderPath() {
   renderPathChips();
   var qInput = document.getElementById('path-search');
@@ -217,6 +219,8 @@ function renderPath() {
   if (activePathTag && Array.isArray(window.GRAPH_EDGES) && Array.isArray(window.GRAPH_THEMES)) {
     var themeObj = window.GRAPH_THEMES.find(function (t) { return (t.title_ru || t.title) === activePathTag; });
     var themeId = themeObj ? themeObj.id : activePathTag.toLowerCase();
+
+    /* v435: связи аят → тема */
     var semanticEdges = window.GRAPH_EDGES.filter(function (e) {
       return e.type === 'ayah_theme' && e.to === ('theme:' + themeId);
     });
@@ -256,6 +260,30 @@ function renderPath() {
           _scholarId: scholarId,
           _relatedHadiths: relatedHadiths
         }));
+      }
+    });
+
+    /* v435: связи дуа → тема (новое) */
+    var duaEdges = window.GRAPH_EDGES.filter(function (e) {
+      return e.type === 'dua_theme' && e.to === ('theme:' + themeId);
+    });
+    duaEdges.forEach(function (edge) {
+      var duaId = edge.from.replace('dua:', '');
+      var dObj = (state.duas || new Array()).find(function (d) { return d.id === duaId; });
+      if (dObj) {
+        finalItems.push({
+          _type: 'dua',
+          _id: dObj.id,
+          _title: dObj.title,
+          _sub: dObj.subtitle || '',
+          _ar: dObj.arabic,
+          _tr: dObj.transcription,
+          _trn: dObj.translation,
+          _tags: Array.isArray(dObj.tags) ? dObj.tags : new Array(),
+          _isSurahAyah: false,
+          _semanticJustification: describePathEvidence(edge.evidence_source),
+          _themeTitle: themeObj ? (themeObj.title_ru || themeObj.title) : activePathTag
+        });
       }
     });
   }
