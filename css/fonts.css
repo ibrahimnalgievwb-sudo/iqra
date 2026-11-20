@@ -1,0 +1,71 @@
+/* ==========================================================================
+   IQRA — Локальные шрифты (Amiri + Inter) для полностью автономной работы
+   ========================================================================== */
+
+/* Арабский шрифт Amiri (Regular 400 & Bold 700) */
+@font-face {
+  font-family: 'Amiri';
+  src: url('../assets/fonts/amiri-v30-arabic_latin-regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Amiri';
+  src: url('../assets/fonts/amiri-v30-arabic_latin-700.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Интерфейсный шрифт Inter (Cyrillic + Latin, 300–800) */
+@font-face {
+  font-family: 'Inter';
+  src: url('../assets/fonts/inter-v20-cyrillic_cyrillic-ext_latin_latin-ext-300.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('../assets/fonts/inter-v20-cyrillic_cyrillic-ext_latin_latin-ext-regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('../assets/fonts/inter-v20-cyrillic_cyrillic-ext_latin_latin-ext-500.woff2') format('woff2'),
+       url('../assets/fonts/inter-v20-latin_latin-ext-500.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('../assets/fonts/inter-v20-cyrillic_cyrillic-ext_latin_latin-ext-600.woff2') format('woff2'),
+       url('../assets/fonts/inter-v20-latin_latin-ext-600.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('../assets/fonts/inter-v20-cyrillic_cyrillic-ext_latin_latin-ext-700.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('../assets/fonts/inter-v20-cyrillic_cyrillic-ext_latin_latin-ext-800.woff2') format('woff2');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
