@@ -72,7 +72,7 @@ function renderProgressOverview() {
     </div>
       <div class="stat-grid">
       <div class="stat-card"><div class="sc-label">Всего зикра</div><div class="sc-value">${totalAll}</div><div class="sc-sub">за всё время</div></div>
-      <div class="stat-card"><div class="sc-label">Серия</div><div class="sc-value">${calculateStreak()} 🔥</div><div class="sc-sub">дней подряд</div></div>
+      <div class="stat-card"><div class="sc-label">Серия</div><div class="sc-value">${calculateStreak()} <svg class="ico ico-sm" style="color:var(--gold-accent);vertical-align:-2px"><use href="#i-flame"/></svg></div><div class="sc-sub">дней подряд</div></div>
       <div class="stat-card"><div class="sc-label">Среднее в день</div><div class="sc-value">${avg}</div><div class="sc-sub">за активный день</div></div>
       <div class="stat-card"><div class="sc-label">Лучший день</div><div class="sc-value">${bestDay}</div><div class="sc-sub">${bestDayKey ? formatDateShort(bestDayKey) : '—'}</div></div>
       <div class="stat-card"><div class="sc-label">Тасбихов создано</div><div class="sc-value">${state.tasbihs.length}</div><div class="sc-sub">в списке</div></div>

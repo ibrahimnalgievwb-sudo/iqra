@@ -21,7 +21,7 @@ function setDailyGoal(v) { state.settings.dailyGoal = Math.max(0, Math.min(10000
 
 /* ---------- REMINDERS ---------- */
 function renderReminders() { const el=document.getElementById('reminders-list'); if (!state.reminders.length) { el.innerHTML=`<div style="padding:14px 16px;color:var(--muted);font-size:13px">Пока нет напоминаний</div>`; return; } el.innerHTML = state.reminders.map((r,i)=>`<div class="reminder-row"><div class="rr-top"><input type="time" value="${esc(r.time)}" onchange="updateReminderField(${i},'time',this.value)"><label class="toggle"><input type="checkbox" ${r.on?'checked':''} onchange="toggleReminder(${i}, this.checked)"><span class="slider"></span></label><button class="del" onclick="deleteReminder(${i})">×</button></div><input type="text" value="${esc(r.message||'')}" placeholder="Сообщение (необязательно)" maxlength="200" onchange="updateReminderField(${i},'message',this.value)"></div>`).join(''); }
-function addReminder() { if (state.reminders.length >= LIMITS.reminders) { alert('Максимум '+LIMITS.reminders+' напоминаний'); return; } const t=document.getElementById('new-reminder-time').value; const mi=document.getElementById('new-reminder-msg'); const msg=(mi?mi.value:'').trim().slice(0,200); if (!t || !/^\d{2}:\d{2}$/.test(t)) return; state.reminders.push({time:t,on:true,lastFired:'',message:msg}); if (mi) mi.value=''; save(); renderReminders(); if ('Notification' in window && Notification.permission === 'default') { try { const p = Notification.requestPermission(); if (p && typeof p.catch === 'function') p.catch(function(){}); } catch(e) {} } }
+function addReminder() { if (state.reminders.length >= LIMITS.reminders) { showMarkToast('Максимум '+LIMITS.reminders+' напоминаний', 3000); return; } const t=document.getElementById('new-reminder-time').value; const mi=document.getElementById('new-reminder-msg'); const msg=(mi?mi.value:'').trim().slice(0,200); if (!t || !/^\d{2}:\d{2}$/.test(t)) return; state.reminders.push({time:t,on:true,lastFired:'',message:msg}); if (mi) mi.value=''; save(); renderReminders(); if ('Notification' in window && Notification.permission === 'default') { try { const p = Notification.requestPermission(); if (p && typeof p.catch === 'function') p.catch(function(){}); } catch(e) {} } }
 function updateReminderField(i, field, v) { if (field==='time') { if (!/^\d{2}:\d{2}$/.test(v)) return; state.reminders[i].time=v; } else if (field==='message') { state.reminders[i].message=String(v||'').trim().slice(0,200); } save(); }
 function toggleReminder(i,v) { state.reminders[i].on = v; save(); }
 function deleteReminder(i) { state.reminders.splice(i,1); save(); renderReminders(); }
@@ -95,7 +95,7 @@ function applyTheme() {
     document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
     setMetaTheme(isDark ? '#050505' : '#F7F5EF');
   }
-  document.querySelectorAll('#theme-seg button').forEach(b=>b.classList.toggle('active', b.dataset.theme===t));
+  document.querySelectorAll('#theme-seg button').forEach(b=>b.classList.toggle('active', b.dataset.themeOpt===t));
 }
 function setTheme(t){ state.settings.theme=t; save(); applyTheme(); }
 function setArSize(s) { state.settings.arSize=parseFloat(s); save(); document.documentElement.style.setProperty('--ar-scale',s); document.querySelectorAll('#size-seg button').forEach(b=>b.classList.toggle('active',parseFloat(b.dataset.size)===parseFloat(s))); }
@@ -256,13 +256,13 @@ function validateImport(d) {
 
 function importData(e) {
   const f = e.target.files[0]; if (!f) return;
-  if (f.size > 5 * 1024 * 1024) { alert('Файл слишком большой'); e.target.value = ''; return; }
+  if (f.size > 5 * 1024 * 1024) { showMarkToast('Файл слишком большой (максимум 5 МБ)', 3500); e.target.value = ''; return; }
   const r = new FileReader();
     r.onload = async () => {
     let parsed;
-    try { parsed = JSON.parse(r.result); } catch(err) { alert('Файл повреждён'); e.target.value = ''; return; }
+    try { parsed = JSON.parse(r.result); } catch(err) { showMarkToast('Файл повреждён и не читается', 3500); e.target.value = ''; return; }
     const validated = validateImport(parsed);
-    if (!validated) { alert('Файл не похож на резервную копию'); e.target.value = ''; return; }
+    if (!validated) { showMarkToast('Файл не похож на резервную копию Iqra', 3500); e.target.value = ''; return; }
     if (!await confirmAsync('Импорт данных?', 'Текущие данные будут полностью заменены.', 'Импортировать', 'Отмена')) { e.target.value = ''; return; }
     const quranLearned = validated.quranLearned || {};
     delete validated.quranLearned;
