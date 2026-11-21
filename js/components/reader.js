@@ -260,6 +260,7 @@ async function openRead(id, targetAyahIdx, dir) {
         ${a.tr ? `<div class="read-ayah-tr">${esc(a.tr)}</div>` : ''}
         <div class="read-ayah-trn">${esc(a.trn)}</div>
         ${getSmartTafsirHtml(item, idx + 1)}
+        ${typeof renderAyahEcosystemDetails === 'function' ? renderAyahEcosystemDetails('ayah:' + item.id + '#' + (idx + 1)) : ''}
         <button class="ayah-tajweed-btn" type="button" onclick="openTajweedInfo(this.closest('.read-ayah'))" aria-label="Справка по таджвиду">
           <svg class="ico ico-sm"><use href="#i-info"/></svg>Таджвид
         </button>
@@ -267,6 +268,7 @@ async function openRead(id, targetAyahIdx, dir) {
       </div>
     `}).join('')}
     ${item.source ? `<div class="dh-section" style="margin-top:20px;"><div class="dh-label">Источник</div><div class="dh-text muted" style="font-size:13px;">${esc(item.source)}</div></div>` : ''}
+    ${typeof renderEcosystemSection === 'function' ? renderEcosystemSection('quran:' + item.id, { title: 'Связи в Умной книге' }) : ''}
     ${transcriptionNote()}
   `;
   const readMode = document.getElementById('read-mode');

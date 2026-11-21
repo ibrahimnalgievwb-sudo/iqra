@@ -152,6 +152,23 @@ function openDay(key) {
 
 /* ---------- NAVIGATION ---------- */
 function showScreen(id) {
+  var readModeEl = document.getElementById('read-mode');
+  if (readModeEl && readModeEl.classList.contains('active') && typeof closeRead === 'function') {
+    closeRead();
+  }
+  var memModeEl = document.getElementById('memorize-mode');
+  if (memModeEl && memModeEl.classList.contains('active')) {
+    memModeEl.classList.remove('active');
+    memorizeItem = null;
+  }
+  var searchOvEl = document.getElementById('search-overlay');
+  if (searchOvEl && searchOvEl.classList.contains('active')) {
+    searchOvEl.classList.remove('active');
+  }
+  var modalBgEl = document.getElementById('modal-bg');
+  if (modalBgEl && modalBgEl.classList.contains('active') && !_pendingConfirmResolve) {
+    closeModal();
+  }
   if (_lastScreenName && _lastScreenTs) {
     const dur = Math.round((Date.now() - _lastScreenTs) / 1000);
     if (dur >= 2) trackEvent('duration/' + _lastScreenName, 'Экран ' + _lastScreenName + ': ' + dur + ' сек');

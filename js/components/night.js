@@ -45,6 +45,7 @@ function openNight(idx) {
     `).join('')}
     ${item.note ? `<div class="note-box"><svg class="ico ico-sm" style="flex-shrink:0;color:var(--accent2)"><use href="#i-lightbulb"/></svg><div>${escNl(item.note)}</div></div>` : ''}
     ${item.source ? `<div class="dh-section" style="margin-top:20px;"><div class="dh-label">Источник</div><div class="dh-text muted" style="font-size:13px;">${esc(item.source)}</div></div>` : ''}
+    ${typeof renderEcosystemSection === 'function' ? renderEcosystemSection(n.quranId ? ('quran:' + n.quranId) : (n.duaId ? ('dua:' + n.duaId) : (n.hadithId ? ('hadith:' + n.hadithId) : '')), { title: 'Связи в Умной книге' }) : ''}
     ${transcriptionNote()}
     <div class="detail-actions" style="margin-top:20px">
       ${n.quranId ? `<button class="btn secondary" onclick="openRead('${item.id}')"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-book"/></svg>Читать</button>` : ''}

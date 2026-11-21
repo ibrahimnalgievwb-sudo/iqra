@@ -637,6 +637,48 @@
             }
           }
         }
+      } else if (sid.indexOf('scholar:') === 0) {
+        var targetScId = sid.slice(8);
+        var scObj = index.scholarById.get(targetScId);
+        var scName = scObj ? (scObj.name_ru || scObj.name || '') : '';
+        var scNorm = scName ? normalizeSearchText(scName.replace(/[‘’']/g, '')) : '';
+        var scStem = scNorm ? scNorm.replace(/а$/, '') : '';
+
+        index.tafsirs.forEach(function (tf) {
+          if (!tf || tf.status === 'placeholder' || !tf.tafsir_text) return;
+          var authorId = scholarIdFromSource(tf.source, index.scholars);
+          var hasTransmitter = Array.isArray(tf.hadiths) && tf.hadiths.some(function (th) {
+            return th && th.transmitter_id === targetScId;
+          });
+          if (authorId !== targetScId && !hasTransmitter) return;
+
+          var matchedAyah = index.ayahs.find(function (a) {
+            return a._surahNum === tf.surah && a._ayahNum === tf.ayah;
+          });
+          if (matchedAyah) {
+            pushAyah(matchedAyah._nodeId, {
+              type: 'tafsir_comments_ayah',
+              evidence_source: 'tafsir:' + authorId + '_' + tf.surah + '_' + tf.ayah,
+              evidence_note: authorId === targetScId ? 'Автор тафсира к этому аяту' : 'Передатчик хадиса в тафсире к этому аяту',
+              weight: authorId === targetScId ? 0.92 : 0.88
+            }, false);
+          }
+        });
+
+        if (scStem && scStem.length >= 4) {
+          index.hadiths.forEach(function (h) {
+            if (!h) return;
+            var srcNorm = normalizeSearchText(((h.source || '') + ' ' + (h.note || '')).replace(/[‘’']/g, ''));
+            if (srcNorm.indexOf(scStem) !== -1) {
+              pushHadith('hadith:' + h.id, {
+                type: 'hadith_explains_ayah',
+                evidence_source: 'hadith:' + h.id,
+                evidence_note: 'Упоминается в источнике или примечании хадиса',
+                weight: 0.85
+              }, false);
+            }
+          });
+        }
       }
     });
 

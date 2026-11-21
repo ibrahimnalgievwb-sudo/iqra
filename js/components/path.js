@@ -192,8 +192,11 @@ function renderIdlePathOverview(ctx, mode) {
     return (
       '<div class="path-catalog-section">' +
         '<div class="pcs-head">' +
-          '<div class="pcs-title">Состояние души</div>' +
-          '<div class="pcs-sub">Выберите переживание — приложение подберёт аяты, достоверные хадисы, дуа и зикры</div>' +
+          '<div class="pcs-title path-heart-title">' +
+            '<span class="path-bismillah-kicker">С именем Аллаха</span>' +
+            '<span class="path-heart-heading">Что тревожит твоё сердце — и о чём просит душа?</span>' +
+          '</div>' +
+          '<div class="pcs-sub">Выберите состояние — приложение подберёт аяты, достоверные хадисы, дуа и зикры</div>' +
         '</div>' +
         '<div class="path-catalog-grid">' +
           moods.map(function (m) {
@@ -237,7 +240,10 @@ function renderIdlePathOverview(ctx, mode) {
   return (
     '<div class="path-overview">' +
       '<div class="path-empty path-empty-smart">' +
-        '<div class="pes-title">Умная книга · Экосистема-справочник</div>' +
+        '<div class="pes-title path-heart-title">' +
+          '<span class="path-bismillah-kicker">С именем Аллаха</span>' +
+          '<span class="path-heart-heading">Что тревожит твоё сердце — и о чём просит душа?</span>' +
+        '</div>' +
         '<div class="pes-sub">Ищите по русским словам и арабскому тексту, переходите к темам Корана и Сунны или подбирайте тексты под состояние души.</div>' +
         '<div class="pes-group-label">Популярные темы</div>' +
         '<div class="path-fallback">' +
@@ -434,6 +440,32 @@ function renderEcosystemSection(nodeId, options) {
   var ctx = getPathGraphContext();
   var rels = IqraGraph.getSmartBookRelations(nodeId, ctx);
   return buildEcosystemHtml(rels, Object.assign({ compact: false, title: 'Связи в Умной книге' }, options || {}));
+}
+
+function renderAyahEcosystemDetails(ayahNodeId, options) {
+  if (!ayahNodeId || typeof IqraGraph === 'undefined') return '';
+  var ctx = getPathGraphContext();
+  var rels = IqraGraph.getSmartBookRelations(ayahNodeId, ctx);
+  if (!rels) return '';
+  var count =
+    (rels.ayahs ? rels.ayahs.length : 0) +
+    (rels.hadiths ? rels.hadiths.length : 0) +
+    (rels.duas ? rels.duas.length : 0) +
+    (rels.tasbihs ? rels.tasbihs.length : 0) +
+    (rels.themes ? rels.themes.length : 0) +
+    (rels.moods ? rels.moods.length : 0);
+  if (!count) return '';
+  var inner = buildEcosystemHtml(rels, Object.assign({ compact: true, title: 'Связи в Умной книге' }, options || {}));
+  if (!inner) return '';
+  return (
+    '<details class="ayah-eco-details" onclick="event.stopPropagation()">' +
+      '<summary class="aed-summary">' +
+        '<svg class="ico ico-sm"><use href="#i-compass"/></svg>' +
+        '<span>Связи этого аята (' + count + ')</span>' +
+      '</summary>' +
+      inner +
+    '</details>'
+  );
 }
 
 function renderPathResultCard(item) {

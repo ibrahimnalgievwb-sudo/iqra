@@ -31,26 +31,70 @@ function searchOpen(type, id){
 
 function setSearchFilter(key, value){ searchFilters[key] = value; document.querySelectorAll('#search-filters .filter-group[data-filter="' + key + '"] .filter-chip').forEach(function(b){ b.classList.toggle('active', b.dataset.value === value); }); renderGlobalSearch(); }
 
+function openPathFromGlobalSearch(mode, tag) {
+  closeSearch();
+  if (typeof openPathFilter === 'function') {
+    openPathFilter(mode, tag);
+  }
+}
+
 function renderGlobalSearch() {
-  const q = (document.getElementById('global-search-input').value || '').toLowerCase().trim();
+  const rawQ = (document.getElementById('global-search-input').value || '').trim();
+  const q = rawQ.toLowerCase();
   const el = document.getElementById('search-results');
-  if (!q) { el.innerHTML = '<div class="empty">Введите запрос — поиск по тасбихам, Корану, дуа и хадисам.</div>'; return; }
-  
+  const hasGraph = typeof IqraGraph !== 'undefined';
+  const ctx = (hasGraph && typeof getPathGraphContext === 'function') ? getPathGraphContext() : null;
+
+  if (!q) {
+    let quickHtml = '';
+    if (hasGraph && ctx) {
+      const themes = IqraGraph.getThemeCatalog(ctx).slice(0, 4);
+      const moods = IqraGraph.getMoodCatalog(ctx).slice(0, 4);
+      quickHtml =
+        '<div class="search-smart-box">' +
+          '<div class="ssb-label">Быстрый переход в Умную книгу</div>' +
+          '<div class="ecosystem-pills">' +
+            themes.map(th => '<button type="button" class="ecosystem-pill ecosystem-pill-theme" onclick="openPathFromGlobalSearch(\'theme\',\'' + escAttr(th.title) + '\')"><svg class="ico ico-sm"><use href="#i-bookmark"/></svg><span>' + esc(th.title) + '</span></button>').join('') +
+            moods.map(m => '<button type="button" class="ecosystem-pill ecosystem-pill-mood" onclick="openPathFromGlobalSearch(\'mood\',\'' + escAttr(m.title) + '\')"><svg class="ico ico-sm"><use href="#i-compass"/></svg><span>' + esc(m.title) + '</span></button>').join('') +
+          '</div>' +
+        '</div>';
+    }
+    el.innerHTML = '<div class="empty" style="padding-bottom:18px;">Введите запрос — поиск по тасбихам, Корану, дуа и хадисам, включая арабский текст без огласовок.</div>' + quickHtml;
+    return;
+  }
+
+  const qRu = hasGraph ? IqraGraph.normalizeSearchText(rawQ) : q;
+  const qAr = hasGraph ? IqraGraph.normalizeArabicText(rawQ) : '';
+  const qArTokens = qAr ? qAr.split(' ').filter(Boolean) : [];
+
+  const textMatches = (rawText) => {
+    const src = String(rawText || '');
+    if (!src) return false;
+    const ruSrc = hasGraph ? IqraGraph.normalizeSearchText(src) : src.toLowerCase();
+    if (qRu && ruSrc.indexOf(qRu) !== -1) return true;
+    if (qAr) {
+      const arSrc = IqraGraph.normalizeArabicText(src);
+      if (arSrc.indexOf(qAr) !== -1) return true;
+      if (qArTokens.length && qArTokens.every(tk => {
+        if (arSrc.indexOf(tk) !== -1) return true;
+        if (/^ال[\u0621-\u064A]{3,}$/.test(tk) && arSrc.indexOf(tk.slice(2)) !== -1) return true;
+        return false;
+      })) return true;
+    }
+    return false;
+  };
+
   const score = (it) => {
-    const t = (it.title || '').toLowerCase();
-    const s = (it.subtitle || '').toLowerCase();
-    const tr = (it.transcription || '').toLowerCase();
+    const t = hasGraph ? IqraGraph.normalizeSearchText(it.title || '') : (it.title || '').toLowerCase();
     const num = String(it.number || '').toLowerCase();
-    const ar = (it.arabic || '').toLowerCase();
-    const trn = (it.translation || '').toLowerCase();
     let w = 0;
-    if (t.startsWith(q)) w += 10;
-    else if (t.includes(q)) w += 6;
+    if (qRu && t.startsWith(qRu)) w += 10;
+    else if (qRu && t.includes(qRu)) w += 6;
     if (num && num.includes(q)) w += 5;
-    if (s.includes(q)) w += 3;
-    if (tr.includes(q)) w += 3;
-    if (ar.includes(q)) w += 1;
-    if (trn.includes(q)) w += 1;
+    if (textMatches(it.subtitle)) w += 3;
+    if (textMatches(it.transcription)) w += 3;
+    if (textMatches(it.arabic)) w += 2;
+    if (textMatches(it.translation)) w += 2;
     return w;
   };
   
@@ -86,6 +130,18 @@ function renderGlobalSearch() {
   };
 
   let html = '';
+  if (hasGraph && ctx) {
+    const pathRes = IqraGraph.queryPathItems({ query: rawQ, mode: 'all', itemTypeFilter: 'all' }, ctx);
+    const hasTopics = pathRes.matchedTopics && pathRes.matchedTopics.length;
+    const hasMoods = pathRes.matchedMoods && pathRes.matchedMoods.length;
+    if (hasTopics || hasMoods) {
+      html += '<div class="search-smart-box"><div class="ssb-label">Разделы Умной книги</div><div class="ecosystem-pills">' +
+        (pathRes.matchedTopics || []).slice(0, 4).map(th => '<button type="button" class="ecosystem-pill ecosystem-pill-theme" onclick="openPathFromGlobalSearch(\'theme\',\'' + escAttr(th.title) + '\')"><svg class="ico ico-sm"><use href="#i-bookmark"/></svg><span>Тема: ' + esc(th.title) + '</span></button>').join('') +
+        (pathRes.matchedMoods || []).slice(0, 4).map(m => '<button type="button" class="ecosystem-pill ecosystem-pill-mood" onclick="openPathFromGlobalSearch(\'mood\',\'' + escAttr(m.title) + '\')"><svg class="ico ico-sm"><use href="#i-compass"/></svg><span>Настроение: ' + esc(m.title) + '</span></button>').join('') +
+        '</div></div>';
+    }
+  }
+
   if (showType('tasbih')) html += grp('Тасбихи', filtered(state.tasbihs, 'tasbih'), 'tasbih');
   if (showType('quran')) html += grp('Коран', filtered(state.quran, 'quran'), 'quran');
   if (showType('dua')) html += grp('Дуа', filtered(state.duas, 'dua'), 'dua');

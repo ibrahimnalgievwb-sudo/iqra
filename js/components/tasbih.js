@@ -233,7 +233,26 @@ function cardPointerUp(e) {
   setTimeout(() => { suppressNextClick = false; }, 400);
 }
 
-function openCounter(id) { activeId=id; const t=getById(id); if (!t) return; try { localStorage.setItem('iqra_last_tasbih', id); } catch(e) {} trackEvent('tasbih/' + id, 'Тасбих: ' + id); document.getElementById('c-ar').textContent=t.arabic; document.getElementById('c-tr').textContent=t.transcription; document.getElementById('c-trn').textContent=t.translation; document.getElementById('c-target').textContent='из '+t.target; updateCounterUI(); showScreen('screen-counter'); if (state.settings.wakeLock) requestWakeLock(); }
+function openCounter(id) {
+  activeId = id;
+  const t = getById(id);
+  if (!t) return;
+  try { localStorage.setItem('iqra_last_tasbih', id); } catch(e) {}
+  trackEvent('tasbih/' + id, 'Тасбих: ' + id);
+  document.getElementById('c-ar').textContent = t.arabic;
+  document.getElementById('c-tr').textContent = t.transcription;
+  document.getElementById('c-trn').textContent = t.translation;
+  document.getElementById('c-target').textContent = 'из ' + t.target;
+  const ecoEl = document.getElementById('counter-ecosystem');
+  if (ecoEl) {
+    ecoEl.innerHTML = (typeof renderEcosystemSection === 'function')
+      ? renderEcosystemSection('tasbih:' + id, { compact: true, title: 'Связи в Умной книге' })
+      : '';
+  }
+  updateCounterUI();
+  showScreen('screen-counter');
+  if (state.settings.wakeLock) requestWakeLock();
+}
 
 function updateCounterUI() {
   const t=getById(activeId); if (!t) return;

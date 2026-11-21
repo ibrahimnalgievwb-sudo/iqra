@@ -91,6 +91,10 @@ window.openScholarInfo = function(scholarId) {
       '</div>';
   }
 
+  const ecoHtml = (typeof renderEcosystemSection === 'function')
+    ? renderEcosystemSection('scholar:' + person.id, { compact: true, title: 'Связи в Умной книге' })
+    : '';
+
   modalContent.innerHTML = `
     <div style="width: 40px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 20px;"></div>
     
@@ -108,6 +112,7 @@ window.openScholarInfo = function(scholarId) {
     </div>
     
     ${sourcesHtml}
+    ${ecoHtml ? '<div class="scholar-eco-wrap">' + ecoHtml + '</div>' : ''}
     
     ${statusLabel ? '<div style="font-size:11px;color:var(--muted);text-align:center;margin-top:12px;font-style:italic;">Статус проверки: ' + esc(statusLabel) + '</div>' : ''}
     
