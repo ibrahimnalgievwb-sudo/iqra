@@ -259,6 +259,7 @@ function openQuran(id) {
       `;
     }).join('')}
     ${item.source ? `<div class="dh-section" style="margin-top:20px;"><div class="dh-label">Источник</div><div class="dh-text muted" style="font-size:13px;">${esc(item.source)}</div></div>` : ''}
+    ${typeof renderEcosystemSection === 'function' ? renderEcosystemSection('quran:' + item.id, { title: 'Связи в Умной книге' }) : ''}
     ${transcriptionNote()}
   `;
   showScreen('screen-quran-detail');

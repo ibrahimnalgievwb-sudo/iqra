@@ -291,7 +291,12 @@ async function openRead(id, targetAyahIdx, dir) {
       else btn.classList.remove('visible');
     });
   } catch(e) {}
-  if (state.settings.readScrolls && state.settings.readScrolls[id]) {
+  if (typeof targetAyahIdx === 'number' && targetAyahIdx >= 0) {
+    requestAnimationFrame(() => {
+      const targetEl = document.getElementById('ayah-' + targetAyahIdx);
+      if (targetEl) targetEl.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    });
+  } else if (state.settings.readScrolls && state.settings.readScrolls[id]) {
     const targetScroll = state.settings.readScrolls[id];
     requestAnimationFrame(() => { container.scrollTop = targetScroll; });
   }

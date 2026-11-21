@@ -56,6 +56,8 @@ let progTab = 'overview';
 let wakeLock = null, nextToastTimer = null;
 let dragEl = null, dragId = null, dragHoldTimer = null, suppressNextClick = false;
 let activePathTag = null;
+let pathMode = 'all';
+let pathTypeFilter = 'all';
 let pathShowAll = false;
 let _dashQuote = null;
 var _toastTimer = null;
@@ -207,6 +209,8 @@ async function switchTab(tab) {
   }
    else if (tab === 'path') {
     activePathTag = null;
+    pathMode = 'all';
+    pathTypeFilter = 'all';
     pathShowAll = false;
     const inp = document.getElementById('path-search');
     if (inp) inp.value = '';
@@ -472,10 +476,14 @@ async function _boot() {
     await loadAllData();
     state = load();
     try {
-      if (new URLSearchParams(location.search).get('reset') === '1') {
+      const qs = new URLSearchParams(location.search);
+      if (qs.get('reset') === '1') {
         state.migrations.onboarded = false;
         saveNow();
         history.replaceState(null, '', location.pathname);
+      }
+      if (qs.get('autostart') === '1') {
+        state.migrations.onboarded = true;
       }
     } catch (e) {}
     initDebugMode();
@@ -852,7 +860,7 @@ window.addEventListener('appinstalled', () => {
 
 /* ---------- STRUCTURE / INLINE CHECKS ---------- */
 (function checkStructure(){
-  var expected = ['screen-dashboard','screen-tasbih','screen-quran','screen-night','screen-dua','screen-hadith','screen-cal','screen-quran-detail','screen-night-detail','screen-dua-detail','screen-hadith-detail','screen-form','screen-counter','screen-settings','read-mode','memorize-mode','search-overlay','nav','modal-bg','onboarding','save-indicator'];
+  var expected = ['screen-dashboard','screen-tasbih','screen-quran','screen-night','screen-dua','screen-hadith','screen-cal','screen-path','screen-quran-detail','screen-night-detail','screen-dua-detail','screen-hadith-detail','screen-form','screen-counter','screen-settings','read-mode','memorize-mode','search-overlay','nav','modal-bg','onboarding','save-indicator'];
   var missing = [];
   expected.forEach(function(id){ if (!document.getElementById(id)) missing.push(id); });
   if (missing.length) console.error('⚠️ Структура — отсутствуют: ' + missing.join(', '));
@@ -914,8 +922,12 @@ document.addEventListener('click', function(e) {
       e.stopPropagation();
       if (typeof closeSearch === 'function') closeSearch();
       if (typeof closeRead === 'function') closeRead();
-      switchTab('path');
-      setTimeout(() => setPathTag(tag), 50);
+      if (typeof openPathFilter === 'function') {
+        openPathFilter(null, tag);
+      } else {
+        switchTab('path');
+        setTimeout(() => setPathTag(tag), 50);
+      }
     }
   }
 });
@@ -953,8 +965,14 @@ document.addEventListener('click', function(e) {
 })();
 
 /* v418: защита от встраивания приложения в чужой iframe (clickjacking).
-   Директива frame-ancestors в meta-CSP не работает, поэтому защита на стороне скрипта. */
+   Директива frame-ancestors в meta-CSP не работает, поэтому защита на стороне скрипта.
+   Разрешаем доверенные preview-хосты (localhost / *.run.app) для AI Studio preview. */
 (function () {
+  var host = '';
+  try { host = window.location.hostname || ''; } catch (e) {}
+  var isTrustedPreview = /(^|\.)run\.app$|^(localhost|127\.0\.0\.1)$/i.test(host);
+  if (isTrustedPreview) return;
   try { if (window.top !== window.self) { document.documentElement.style.display = 'none'; window.top.location = window.self.location; } }
   catch (e) { document.documentElement.style.display = 'none'; }
 })();
+

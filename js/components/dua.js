@@ -39,6 +39,7 @@ function openDua(id) {
       <div class="lt-body"><div class="lt-title">${d.learned?'Выучено':'Отметить как выучено'}</div><div class="lt-sub">${d.learned?'Нажми, чтобы снять отметку':'Изучи дуа и отметь'}</div></div>
     </div>
     ${d.source ? `<div class="dh-section" style="margin-top:20px;"><div class="dh-label">Источник</div><div class="dh-text muted" style="font-size:13px;">${esc(d.source)}</div></div>` : ''}
+    ${typeof renderEcosystemSection === 'function' ? renderEcosystemSection('dua:' + d.id, { title: 'Связи в Умной книге' }) : ''}
     ${transcriptionNote()}
   `;
   showScreen('screen-dua-detail');

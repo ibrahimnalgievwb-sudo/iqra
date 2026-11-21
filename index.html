@@ -346,17 +346,34 @@
 <div class="screen" id="screen-path">
   <div class="header">
     <button class="icon-btn ghost" data-click='[["switchTab","dashboard"]]' aria-label="Назад"><svg class="ico"><use href="#i-arrow-left"/></svg></button>
-    <h1>Путь</h1>
+    <div style="text-align:center;">
+      <h1 style="margin:0;">Путь</h1>
+      <div class="path-header-sub">Умная книга · Коран и Сунна</div>
+    </div>
     <div style="width:42px"></div>
   </div>
-  <div style="padding: 0 16px 12px;">
-    <div class="search-wrap">
-      <input id="path-search" placeholder="Что тревожит вашу душу?" data-input='[["debouncedRenderPath"]]'>
+  <div class="path-controls">
+    <div class="seg path-mode-seg" role="tablist" aria-label="Режим поиска в Пути">
+      <button type="button" role="tab" data-path-mode="all" class="active" data-click='[["setPathMode","all"]]'>По словам</button>
+      <button type="button" role="tab" data-path-mode="theme" data-click='[["setPathMode","theme"]]'>По темам</button>
+      <button type="button" role="tab" data-path-mode="mood" data-click='[["setPathMode","mood"]]'>Настроение</button>
+    </div>
+    <div class="search-wrap path-search-wrap">
+      <input id="path-search" placeholder="Поиск по словам, арабскому тексту, теме…" data-input='[["debouncedRenderPath"]]' autocomplete="off">
+      <button type="button" class="path-clear-btn" id="path-clear-btn" aria-label="Очистить поиск" data-click='[["clearPathSearch"]]' style="display:none;"><svg class="ico ico-sm"><use href="#i-x"/></svg></button>
+    </div>
+    <div class="path-type-filters" role="group" aria-label="Фильтр по типу источника">
+      <button type="button" class="filter-chip active" data-path-type="all" data-click='[["setPathTypeFilter","all"]]'>Всё</button>
+      <button type="button" class="filter-chip" data-path-type="ayah" data-click='[["setPathTypeFilter","ayah"]]'>Коран</button>
+      <button type="button" class="filter-chip" data-path-type="hadith" data-click='[["setPathTypeFilter","hadith"]]'>Хадисы</button>
+      <button type="button" class="filter-chip" data-path-type="dua" data-click='[["setPathTypeFilter","dua"]]'>Дуа</button>
+      <button type="button" class="filter-chip" data-path-type="tasbih" data-click='[["setPathTypeFilter","tasbih"]]'>Тасбих</button>
     </div>
   </div>
-  <div class="path-chips-wrapper">
+  <div class="path-chips-wrapper" id="path-chips-wrapper">
     <div class="search-filters" id="path-chips-container"></div>
   </div>
+  <div id="path-context-banner"></div>
   <div class="content-list" id="path-results" style="padding-top: 0;"></div>
 </div>
 
@@ -610,6 +627,7 @@
 <script src="./js/components/memorize.js"></script>
 <script src="./js/components/progress.js"></script>
 <script src="./js/components/settings.js"></script>
+<script src="./js/graph-engine.js"></script>
 <script src="./js/components/path.js"></script>
 <script src="./js/components/search.js"></script>
 <script src="./js/components/scholar-modal.js"></script> <!-- НОВЫЙ ФАЙЛ -->

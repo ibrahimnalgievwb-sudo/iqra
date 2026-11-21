@@ -19,6 +19,7 @@ const PRECACHE_STATIC = [
   './js/app.js',
   './js/actions.js',
   './js/deprecated.js',
+  './js/graph-engine.js',
   './js/components/quran.js',
   './js/components/reader.js',
   './js/components/tasbih.js',

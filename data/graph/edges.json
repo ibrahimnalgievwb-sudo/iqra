@@ -4,6 +4,7 @@
     "to": "ayah:q1#1",
     "type": "tafsir_comments_ayah",
     "evidence_source": "tafsir:ibn_kathir_1_1",
+    "evidence_note": "Тафсир Ибн Касира, т. 1, сура «Аль-Фатиха», аят 1",
     "weight": 1.0
   },
   {
@@ -11,6 +12,7 @@
     "to": "scholar:ibn_kathir",
     "type": "tafsir_author",
     "evidence_source": "tafsir:ibn_kathir_1_1",
+    "evidence_note": "Автор тафсира — имам Ибн Касир",
     "weight": 1.0
   },
   {
@@ -18,6 +20,7 @@
     "to": "ayah:q1#2",
     "type": "tafsir_comments_ayah",
     "evidence_source": "tafsir:ibn_kathir_1_2",
+    "evidence_note": "Тафсир Ибн Касира, т. 1, сура «Аль-Фатиха», аят 2",
     "weight": 1.0
   },
   {
@@ -25,6 +28,7 @@
     "to": "scholar:ibn_kathir",
     "type": "tafsir_author",
     "evidence_source": "tafsir:ibn_kathir_1_2",
+    "evidence_note": "Автор тафсира — имам Ибн Касир",
     "weight": 1.0
   },
   {
@@ -32,6 +36,7 @@
     "to": "ayah:q1#3",
     "type": "tafsir_comments_ayah",
     "evidence_source": "tafsir:ibn_kathir_1_3",
+    "evidence_note": "Тафсир Ибн Касира, т. 1, сура «Аль-Фатиха», аят 3",
     "weight": 1.0
   },
   {
@@ -39,6 +44,7 @@
     "to": "scholar:ibn_kathir",
     "type": "tafsir_author",
     "evidence_source": "tafsir:ibn_kathir_1_3",
+    "evidence_note": "Автор тафсира — имам Ибн Касир",
     "weight": 1.0
   },
   {
@@ -46,6 +52,7 @@
     "to": "ayah:q1#4",
     "type": "tafsir_comments_ayah",
     "evidence_source": "tafsir:ibn_kathir_1_4",
+    "evidence_note": "Тафсир Ибн Касира, т. 1, сура «Аль-Фатиха», аят 4",
     "weight": 1.0
   },
   {
@@ -53,6 +60,7 @@
     "to": "scholar:ibn_kathir",
     "type": "tafsir_author",
     "evidence_source": "tafsir:ibn_kathir_1_4",
+    "evidence_note": "Автор тафсира — имам Ибн Касир",
     "weight": 1.0
   },
   {
@@ -60,6 +68,7 @@
     "to": "ayah:q1#5",
     "type": "tafsir_comments_ayah",
     "evidence_source": "tafsir:ibn_kathir_1_5",
+    "evidence_note": "Тафсир Ибн Касира, т. 1, сура «Аль-Фатиха», аят 5",
     "weight": 1.0
   },
   {
@@ -67,6 +76,7 @@
     "to": "scholar:ibn_kathir",
     "type": "tafsir_author",
     "evidence_source": "tafsir:ibn_kathir_1_5",
+    "evidence_note": "Автор тафсира — имам Ибн Касир",
     "weight": 1.0
   },
   {
@@ -74,6 +84,7 @@
     "to": "ayah:q1#6",
     "type": "tafsir_comments_ayah",
     "evidence_source": "tafsir:ibn_kathir_1_6",
+    "evidence_note": "Тафсир Ибн Касира, т. 1, сура «Аль-Фатиха», аят 6",
     "weight": 1.0
   },
   {
@@ -81,6 +92,7 @@
     "to": "scholar:ibn_kathir",
     "type": "tafsir_author",
     "evidence_source": "tafsir:ibn_kathir_1_6",
+    "evidence_note": "Автор тафсира — имам Ибн Касир",
     "weight": 1.0
   },
   {
@@ -88,6 +100,7 @@
     "to": "ayah:q1#7",
     "type": "tafsir_comments_ayah",
     "evidence_source": "tafsir:ibn_kathir_1_7",
+    "evidence_note": "Тафсир Ибн Касира, т. 1, сура «Аль-Фатиха», аят 7",
     "weight": 1.0
   },
   {
@@ -95,280 +108,89 @@
     "to": "scholar:ibn_kathir",
     "type": "tafsir_author",
     "evidence_source": "tafsir:ibn_kathir_1_7",
+    "evidence_note": "Автор тафсира — имам Ибн Касир",
     "weight": 1.0
   },
-  {
-    "from": "tafsir:ibn_kathir_112_1",
-    "to": "ayah:q112#1",
-    "type": "tafsir_comments_ayah",
-    "evidence_source": "tafsir:ibn_kathir_112_1",
-    "weight": 1.0
-  },
-  {
-    "from": "tafsir:ibn_kathir_112_1",
-    "to": "scholar:ibn_kathir",
-    "type": "tafsir_author",
-    "evidence_source": "tafsir:ibn_kathir_112_1",
-    "weight": 1.0
-  },
-  {
-    "from": "tafsir:ibn_kathir_112_2",
-    "to": "ayah:q112#2",
-    "type": "tafsir_comments_ayah",
-    "evidence_source": "tafsir:ibn_kathir_112_2",
-    "weight": 1.0
-  },
-  {
-    "from": "tafsir:ibn_kathir_112_2",
-    "to": "scholar:ibn_kathir",
-    "type": "tafsir_author",
-    "evidence_source": "tafsir:ibn_kathir_112_2",
-    "weight": 1.0
-  },
-  {
-    "from": "tafsir:ibn_kathir_112_3",
-    "to": "ayah:q112#3",
-    "type": "tafsir_comments_ayah",
-    "evidence_source": "tafsir:ibn_kathir_112_3",
-    "weight": 1.0
-  },
-  {
-    "from": "tafsir:ibn_kathir_112_3",
-    "to": "scholar:ibn_kathir",
-    "type": "tafsir_author",
-    "evidence_source": "tafsir:ibn_kathir_112_3",
-    "weight": 1.0
-  },
-  {
-    "from": "tafsir:ibn_kathir_112_4",
-    "to": "ayah:q112#4",
-    "type": "tafsir_comments_ayah",
-    "evidence_source": "tafsir:ibn_kathir_112_4",
-    "weight": 1.0
-  },
-  {
-    "from": "tafsir:ibn_kathir_112_4",
-    "to": "scholar:ibn_kathir",
-    "type": "tafsir_author",
-    "evidence_source": "tafsir:ibn_kathir_112_4",
-    "weight": 1.0
-  },
-  {
-    "from": "tafsir:ibn_kathir_113_1",
-    "to": "ayah:q113#1",
-    "type": "tafsir_comments_ayah",
-    "evidence_source": "tafsir:ibn_kathir_113_1",
-    "weight": 1.0
-  },
-  {
-    "from": "tafsir:ibn_kathir_113_1",
-    "to": "scholar:ibn_kathir",
-    "type": "tafsir_author",
-    "evidence_source": "tafsir:ibn_kathir_113_1",
-    "weight": 1.0
-  },
-  {
-    "from": "tafsir:ibn_kathir_114_1",
-    "to": "ayah:q114#1",
-    "type": "tafsir_comments_ayah",
-    "evidence_source": "tafsir:ibn_kathir_114_1",
-    "weight": 1.0
-  },
-  {
-    "from": "tafsir:ibn_kathir_114_1",
-    "to": "scholar:ibn_kathir",
-    "type": "tafsir_author",
-    "evidence_source": "tafsir:ibn_kathir_114_1",
-    "weight": 1.0
-  },
-  {
-    "from": "tafsir:ibn_kathir_2_255",
-    "to": "ayah:q_ayat_kursi#1",
-    "type": "tafsir_comments_ayah",
-    "evidence_source": "tafsir:ibn_kathir_2_255",
-    "weight": 1.0
-  },
-  {
-    "from": "tafsir:ibn_kathir_2_255",
-    "to": "scholar:ibn_kathir",
-    "type": "tafsir_author",
-    "evidence_source": "tafsir:ibn_kathir_2_255",
-    "weight": 1.0
-  }
-,
-  {
-    "from": "tafsir:ibn_kathir_67_1",
-    "to": "ayah:q67#1",
-    "type": "tafsir_comments_ayah",
-    "evidence_source": "tafsir:ibn_kathir_67_1",
-    "weight": 1.0
-  },
-  {
-    "from": "tafsir:ibn_kathir_67_1",
-    "to": "scholar:ibn_kathir",
-    "type": "tafsir_author",
-    "evidence_source": "tafsir:ibn_kathir_67_1",
-    "weight": 1.0
-  },
-  {
-    "from": "tafsir:ibn_kathir_67_2",
-    "to": "ayah:q67#2",
-    "type": "tafsir_comments_ayah",
-    "evidence_source": "tafsir:ibn_kathir_67_2",
-    "weight": 1.0
-  },
-  {
-    "from": "tafsir:ibn_kathir_67_2",
-    "to": "scholar:ibn_kathir",
-    "type": "tafsir_author",
-    "evidence_source": "tafsir:ibn_kathir_67_2",
-    "weight": 1.0
-  },
-  {
-    "from": "tafsir:ibn_kathir_103_1",
-    "to": "ayah:q103#1",
-    "type": "tafsir_comments_ayah",
-    "evidence_source": "tafsir:ibn_kathir_103_1",
-    "weight": 1.0
-  },
-  {
-    "from": "tafsir:ibn_kathir_103_1",
-    "to": "scholar:ibn_kathir",
-    "type": "tafsir_author",
-    "evidence_source": "tafsir:ibn_kathir_103_1",
-    "weight": 1.0
-  },
-  {
-    "from": "tafsir:ibn_kathir_103_2",
-    "to": "ayah:q103#2",
-    "type": "tafsir_comments_ayah",
-    "evidence_source": "tafsir:ibn_kathir_103_2",
-    "weight": 1.0
-  },
-  {
-    "from": "tafsir:ibn_kathir_103_2",
-    "to": "scholar:ibn_kathir",
-    "type": "tafsir_author",
-    "evidence_source": "tafsir:ibn_kathir_103_2",
-    "weight": 1.0
-  },
-  {
-    "from": "tafsir:ibn_kathir_103_3",
-    "to": "ayah:q103#3",
-    "type": "tafsir_comments_ayah",
-    "evidence_source": "tafsir:ibn_kathir_103_3",
-    "weight": 1.0
-  },
-  {
-    "from": "tafsir:ibn_kathir_103_3",
-    "to": "scholar:ibn_kathir",
-    "type": "tafsir_author",
-    "evidence_source": "tafsir:ibn_kathir_103_3",
-    "weight": 1.0
-  },
-  {
-    "from": "ayah:q103#3",
-    "to": "theme:sabr",
-    "type": "ayah_theme",
-    "evidence_source": "tafsir:ibn_kathir_103_3",
-    "weight": 0.9
-  },
-  {
-    "from": "ayah:q1#5",
-    "to": "ayah:q112#1",
-    "type": "ayah_related_ayah",
-    "evidence_source": "tafsir:ibn_kathir_1_5",
-    "weight": 0.85
-  },
-  {
-    "from": "hadith:h_ikhlas",
-    "to": "ayah:q112#1",
-    "type": "hadith_explains_ayah",
-    "evidence_source": "hadith:h_ikhlas",
-    "weight": 1.0
-  },
-  {
-    "from": "hadith:h_muawwizat",
-    "to": "ayah:q113#1",
-    "type": "hadith_explains_ayah",
-    "evidence_source": "hadith:h_muawwizat",
-    "weight": 1.0
-  },
-  {
-    "from": "hadith:h_muawwizat",
-    "to": "ayah:q114#1",
-    "type": "hadith_explains_ayah",
-    "evidence_source": "hadith:h_muawwizat",
-    "weight": 1.0
-  },
-  {
-    "from": "hadith:h_kursi_greatest",
-    "to": "ayah:q_ayat_kursi#1",
-    "type": "hadith_explains_ayah",
-    "evidence_source": "hadith:h_kursi_greatest",
-    "weight": 1.0
-  },
-  {
-    "from": "ayah:q_ayat_kursi#1",
-    "to": "ayah:q112#1",
-    "type": "ayah_related_ayah",
-    "evidence_source": "tafsir:ibn_kathir_2_255",
-    "weight": 0.9
-  },
-  {
-    "from": "ayah:q113#1",
-    "to": "ayah:q114#1",
-    "type": "ayah_related_ayah",
-    "evidence_source": "hadith:h_muawwizat",
-    "weight": 0.95
-  },
+
   {
     "from": "ayah:q1#1",
     "to": "theme:tawhid",
     "type": "ayah_theme",
     "evidence_source": "tafsir:ibn_kathir_1_1",
+    "evidence_note": "Тафсир Ибн Касира (1:1): начало дела с имени Единого Аллаха и Его величайших имён",
     "weight": 0.95
+  },
+  {
+    "from": "ayah:q1#2",
+    "to": "theme:shukr",
+    "type": "ayah_theme",
+    "evidence_source": "tafsir:ibn_kathir_1_2",
+    "evidence_note": "Тафсир Ибн Касира (1:2): «Альхамдулиллях» объединяет хвалу Аллаху за Его качества и благодарность за блага",
+    "weight": 1.0
+  },
+  {
+    "from": "ayah:q1#3",
+    "to": "theme:iman",
+    "type": "ayah_theme",
+    "evidence_source": "tafsir:ibn_kathir_1_3",
+    "evidence_note": "Тафсир Ибн Касира (1:3): напоминание о всеобъемлющей милости Аллаха уравновешивает страх и надежду",
+    "weight": 0.9
+  },
+  {
+    "from": "ayah:q1#4",
+    "to": "theme:akhira",
+    "type": "ayah_theme",
+    "evidence_source": "tafsir:ibn_kathir_1_4",
+    "evidence_note": "Тафсир Ибн Касира (1:4): абсолютная власть в День воздаяния принадлежит одному Аллаху",
+    "weight": 1.0
   },
   {
     "from": "ayah:q1#5",
     "to": "theme:tawhid",
     "type": "ayah_theme",
     "evidence_source": "tafsir:ibn_kathir_1_5",
+    "evidence_note": "Тафсир Ибн Касира (1:5): поклонение посвящается исключительно Аллаху, без многобожия и показухи",
+    "weight": 1.0
+  },
+  {
+    "from": "ayah:q1#5",
+    "to": "theme:tawakkul",
+    "type": "ayah_theme",
+    "evidence_source": "tafsir:ibn_kathir_1_5",
+    "evidence_note": "Тафсир Ибн Касира (1:5): мольба о помощи обращается только к Аллаху, в чём сущность упования",
+    "weight": 1.0
+  },
+  {
+    "from": "ayah:q1#5",
+    "to": "theme:ikhlas",
+    "type": "ayah_theme",
+    "evidence_source": "tafsir:ibn_kathir_1_5",
+    "evidence_note": "Тафсир Ибн Касира (1:5): «Тебе одному мы поклоняемся» — исцеление от показухи (рия)",
     "weight": 0.95
   },
+  {
+    "from": "ayah:q1#6",
+    "to": "theme:tawbah",
+    "type": "ayah_theme",
+    "evidence_source": "tafsir:ibn_kathir_1_6",
+    "evidence_note": "Тафсир Ибн Касира (1:6): постоянная мольба о наставлении и укреплении на прямом пути",
+    "weight": 0.95
+  },
+  {
+    "from": "ayah:q1#7",
+    "to": "theme:iman",
+    "type": "ayah_theme",
+    "evidence_source": "tafsir:ibn_kathir_1_7",
+    "evidence_note": "Тафсир Ибн Касира (1:7): путь пророков и праведников, соединяющий знание с деяниями",
+    "weight": 0.95
+  },
+
   {
     "from": "ayah:q_ayat_kursi#1",
     "to": "theme:tawhid",
     "type": "ayah_theme",
     "evidence_source": "hadith:h_kursi_greatest",
-    "weight": 1.0
-  },
-  {
-    "from": "ayah:q112#1",
-    "to": "theme:tawhid",
-    "type": "ayah_theme",
-    "evidence_source": "hadith:h_ikhlas",
-    "weight": 1.0
-  },
-  {
-    "from": "ayah:q112#2",
-    "to": "theme:tawhid",
-    "type": "ayah_theme",
-    "evidence_source": "hadith:h_ikhlas",
-    "weight": 1.0
-  },
-  {
-    "from": "ayah:q112#3",
-    "to": "theme:tawhid",
-    "type": "ayah_theme",
-    "evidence_source": "hadith:h_ikhlas",
-    "weight": 1.0
-  },
-  {
-    "from": "ayah:q112#4",
-    "to": "theme:tawhid",
-    "type": "ayah_theme",
-    "evidence_source": "hadith:h_ikhlas",
+    "evidence_note": "Сахих Муслим № 810: величайший аят Корана о единственности и совершенных качествах Аллаха",
     "weight": 1.0
   },
   {
@@ -376,13 +198,31 @@
     "to": "theme:hifz",
     "type": "ayah_theme",
     "evidence_source": "hadith:h_ayat_kursi",
+    "evidence_note": "Сахих аль-Бухари № 2311: чтение перед сном хранит человека от шайтана до рассвета",
     "weight": 1.0
   },
   {
-    "from": "hadith:h_ayat_kursi",
-    "to": "ayah:q_ayat_kursi#1",
-    "type": "hadith_explains_ayah",
+    "from": "ayah:ruqyah_ayat_kursi#1",
+    "to": "theme:ruqyah",
+    "type": "ayah_theme",
     "evidence_source": "hadith:h_ayat_kursi",
+    "evidence_note": "Сахих аль-Бухари № 2311 и Сунна: один из главных аятов шариатской рукьи",
+    "weight": 1.0
+  },
+  {
+    "from": "ayah:ruqyah_ayat_kursi#1",
+    "to": "theme:hifz",
+    "type": "ayah_theme",
+    "evidence_source": "hadith:h_ayat_kursi",
+    "evidence_note": "Сахих аль-Бухари № 2311: хранитель от Аллаха при чтении Аята аль-Курси",
+    "weight": 1.0
+  },
+  {
+    "from": "ayah:q_baqarah_2#1",
+    "to": "theme:iman",
+    "type": "ayah_theme",
+    "evidence_source": "quran:2_285",
+    "evidence_note": "Сура «Аль-Бакара», аят 285: столпы веры — вера в Аллаха, ангелов, Писания и посланников",
     "weight": 1.0
   },
   {
@@ -390,6 +230,7 @@
     "to": "theme:hifz",
     "type": "ayah_theme",
     "evidence_source": "hadith:h_baqarah",
+    "evidence_note": "Сахих аль-Бухари № 5009, Муслим № 807: два последних аята «Аль-Бакара» достаточны для защиты ночью",
     "weight": 1.0
   },
   {
@@ -397,63 +238,163 @@
     "to": "theme:hifz",
     "type": "ayah_theme",
     "evidence_source": "hadith:h_baqarah",
+    "evidence_note": "Сахих аль-Бухари № 5009, Муслим № 807: защита ночью и облегчение тяготы",
     "weight": 1.0
   },
   {
-    "from": "hadith:h_baqarah",
-    "to": "ayah:q_baqarah_2#1",
-    "type": "hadith_explains_ayah",
-    "evidence_source": "hadith:h_baqarah",
-    "weight": 1.0
-  },
-  {
-    "from": "hadith:h_baqarah",
-    "to": "ayah:q_baqarah_2#2",
-    "type": "hadith_explains_ayah",
-    "evidence_source": "hadith:h_baqarah",
-    "weight": 1.0
-  },
-  {
-    "from": "ayah:q113#1",
-    "to": "theme:hifz",
+    "from": "ayah:q_baqarah_2#2",
+    "to": "theme:tawbah",
     "type": "ayah_theme",
-    "evidence_source": "hadith:h_muawwizat",
+    "evidence_source": "quran:2_286",
+    "evidence_note": "Сура «Аль-Бакара», аят 286: «Будь снисходителен к нам! Прости нас и помилуй!»",
+    "weight": 0.95
+  },
+  {
+    "from": "ayah:q_baqarah_2#2",
+    "to": "theme:sabr",
+    "type": "ayah_theme",
+    "evidence_source": "quran:2_286",
+    "evidence_note": "Сура «Аль-Бакара», аят 286: «Аллах не возлагает на человека сверх его возможностей»",
+    "weight": 0.95
+  },
+
+  {
+    "from": "ayah:q67#1",
+    "to": "theme:akhira",
+    "type": "ayah_theme",
+    "evidence_source": "hadith:h_mulk",
+    "evidence_note": "Ат-Тирмизи № 2891, Абу Дауд № 1400: сура «Аль-Мульк» заступится за читающего её в Судный день",
     "weight": 1.0
   },
   {
-    "from": "ayah:q114#1",
-    "to": "theme:hifz",
+    "from": "ayah:q67#2",
+    "to": "theme:akhira",
     "type": "ayah_theme",
-    "evidence_source": "hadith:h_muawwizat",
-    "weight": 1.0
+    "evidence_source": "quran:67_2",
+    "evidence_note": "Сура «Аль-Мульк», аят 2: жизнь и смерть созданы для испытания лучшими делами",
+    "weight": 0.95
   },
   {
-    "from": "ayah:q1#2",
-    "to": "theme:shukr",
+    "from": "ayah:q67#12",
+    "to": "theme:tawbah",
     "type": "ayah_theme",
-    "evidence_source": "tafsir:ibn_kathir_1_2",
-    "weight": 1.0
+    "evidence_source": "quran:67_12",
+    "evidence_note": "Сура «Аль-Мульк», аят 12: боящимся Господа втайне уготованы прощение и великая награда",
+    "weight": 0.95
   },
   {
-    "from": "ayah:q108#1",
-    "to": "theme:shukr",
-    "type": "ayah_theme",
-    "evidence_source": "quran:108_2",
-    "weight": 0.9
-  },
-  {
-    "from": "ayah:q108#2",
-    "to": "theme:shukr",
-    "type": "ayah_theme",
-    "evidence_source": "quran:108_2",
-    "weight": 0.9
-  }
-,
-  {
-    "from": "ayah:q1#5",
+    "from": "ayah:q67#15",
     "to": "theme:tawakkul",
     "type": "ayah_theme",
-    "evidence_source": "tafsir:ibn_kathir_1_5",
+    "evidence_source": "quran:67_15",
+    "evidence_note": "Сура «Аль-Мульк», аят 15: стремление к уделу с пониманием, что пропитание — от Аллаха",
+    "weight": 0.9
+  },
+  {
+    "from": "ayah:q67#23",
+    "to": "theme:shukr",
+    "type": "ayah_theme",
+    "evidence_source": "quran:67_23",
+    "evidence_note": "Сура «Аль-Мульк», аят 23: напоминание о дарах слуха, зрения и сердца и призыв благодарить",
+    "weight": 0.95
+  },
+  {
+    "from": "ayah:q67#29",
+    "to": "theme:tawakkul",
+    "type": "ayah_theme",
+    "evidence_source": "quran:67_29",
+    "evidence_note": "Сура «Аль-Мульк», аят 29: «Он — Милостивый! Мы уверовали в Него и уповаем только на Него»",
+    "weight": 1.0
+  },
+
+  {
+    "from": "ayah:q87#1",
+    "to": "theme:dhikr",
+    "type": "ayah_theme",
+    "evidence_source": "quran:87_1",
+    "evidence_note": "Сура «Аль-Аля», аят 1: повеление возносить хвалу и очищать от недостатков имя Всевышнего",
+    "weight": 0.95
+  },
+  {
+    "from": "ayah:q87#14",
+    "to": "theme:ikhlas",
+    "type": "ayah_theme",
+    "evidence_source": "quran:87_14",
+    "evidence_note": "Сура «Аль-Аля», аяты 14–15: успех того, кто очистил сердце, поминал Аллаха и совершал намаз",
+    "weight": 0.95
+  },
+  {
+    "from": "ayah:q87#15",
+    "to": "theme:dhikr",
+    "type": "ayah_theme",
+    "evidence_source": "quran:87_15",
+    "evidence_note": "Сура «Аль-Аля», аят 15: сочетание поминания имени Господа и молитвы",
+    "weight": 0.95
+  },
+  {
+    "from": "ayah:q87#17",
+    "to": "theme:akhira",
+    "type": "ayah_theme",
+    "evidence_source": "quran:87_17",
+    "evidence_note": "Сура «Аль-Аля», аят 17: «Хотя Последняя жизнь — лучше и дольше»",
+    "weight": 0.95
+  },
+
+  {
+    "from": "ayah:q89#15",
+    "to": "theme:shukr",
+    "type": "ayah_theme",
+    "evidence_source": "quran:89_15",
+    "evidence_note": "Сура «Аль-Фаджр», аяты 15–16: испытание как достатком, так и стеснением удела",
+    "weight": 0.9
+  },
+  {
+    "from": "ayah:q89#16",
+    "to": "theme:sabr",
+    "type": "ayah_theme",
+    "evidence_source": "quran:89_16",
+    "evidence_note": "Сура «Аль-Фаджр», аят 16: испытание ограничением удела не является унижением от Аллаха",
+    "weight": 0.9
+  },
+  {
+    "from": "ayah:q89#17",
+    "to": "theme:rahmah",
+    "type": "ayah_theme",
+    "evidence_source": "quran:89_17",
+    "evidence_note": "Сура «Аль-Фаджр», аяты 17–18: почитание сироты и забота о пропитании бедняка",
+    "weight": 0.95
+  },
+  {
+    "from": "ayah:q89#27",
+    "to": "theme:akhira",
+    "type": "ayah_theme",
+    "evidence_source": "quran:89_27",
+    "evidence_note": "Сура «Аль-Фаджр», аяты 27–30: обращение к обретшей покой душе (ан-нафс аль-мутмаинна) в Раю",
+    "weight": 1.0
+  },
+
+  {
+    "from": "ayah:q94#1",
+    "to": "theme:shukr",
+    "type": "ayah_theme",
+    "evidence_source": "quran:94_1",
+    "evidence_note": "Сура «Аш-Шарх», аяты 1–4: напоминание о милости раскрытия груди и снятия тяжести",
+    "weight": 0.9
+  },
+  {
+    "from": "ayah:q94#5",
+    "to": "theme:sabr",
+    "type": "ayah_theme",
+    "evidence_source": "quran:94_5",
+    "evidence_note": "Сура «Аш-Шарх», аят 5: «Воистину, за каждой тягостью наступает облегчение»",
+    "weight": 1.0
+  },
+  {
+    "from": "ayah:q94#6",
+    "to": "theme:sabr",
+    "type": "ayah_theme",
+    "evidence_source": "quran:94_6",
+    "evidence_note": "Сура «Аш-Шарх», аят 6: двукратное подтверждение того, что трудность сменяется облегчением",
     "weight": 1.0
   },
   {
@@ -461,111 +402,1491 @@
     "to": "theme:tawakkul",
     "type": "ayah_theme",
     "evidence_source": "quran:94_8",
-    "weight": 0.85
+    "evidence_note": "Сура «Аш-Шарх», аяты 7–8: «И устремись к своему Господу» в поклонении и надежде",
+    "weight": 0.95
   },
+
   {
-    "from": "ayah:q94#5",
-    "to": "theme:sabr",
+    "from": "ayah:q96#1",
+    "to": "theme:iman",
     "type": "ayah_theme",
-    "evidence_source": "quran:94_5",
-    "weight": 0.85
-  },
-  {
-    "from": "ayah:q94#6",
-    "to": "theme:sabr",
-    "type": "ayah_theme",
-    "evidence_source": "quran:94_6",
-    "weight": 0.85
-  },
-  {
-    "from": "ayah:q1#4",
-    "to": "theme:akhira",
-    "type": "ayah_theme",
-    "evidence_source": "tafsir:ibn_kathir_1_4",
+    "evidence_source": "quran:96_1",
+    "evidence_note": "Сура «Аль-Аляк», аяты 1–5: первые слова Откровения — чтение во имя Господа и знание",
     "weight": 1.0
   },
   {
-    "from": "ayah:q67#1",
+    "from": "ayah:q96#19",
+    "to": "theme:ikhlas",
+    "type": "ayah_theme",
+    "evidence_source": "quran:96_19",
+    "evidence_note": "Сура «Аль-Аляк», аят 19: не подчиняйся притеснителю, пади ниц и приближайся к Аллаху",
+    "weight": 0.95
+  },
+
+  {
+    "from": "ayah:q97#3",
     "to": "theme:akhira",
     "type": "ayah_theme",
-    "evidence_source": "hadith:h_mulk",
+    "evidence_source": "quran:97_3",
+    "evidence_note": "Сура «Аль-Кадр», аяты 1–5: ниспослание Корана и Ночь предопределения, лучшая тысячи месяцев",
+    "weight": 0.95
+  },
+
+  {
+    "from": "ayah:q103#3",
+    "to": "theme:sabr",
+    "type": "ayah_theme",
+    "evidence_source": "quran:103_3",
+    "evidence_note": "Сура «Аль-Аср», аят 3: спасение от убытка — вера, благие дела, заповедание истины и терпения",
+    "weight": 1.0
+  },
+  {
+    "from": "ayah:q103#3",
+    "to": "theme:iman",
+    "type": "ayah_theme",
+    "evidence_source": "quran:103_3",
+    "evidence_note": "Сура «Аль-Аср», аят 3: истинная вера неразрывна с праведными делами и стойкостью",
+    "weight": 0.95
+  },
+
+  {
+    "from": "ayah:q104#1",
+    "to": "theme:rahmah",
+    "type": "ayah_theme",
+    "evidence_source": "quran:104_1",
+    "evidence_note": "Сура «Аль-Хумаза», аят 1: строгое предостережение от хулы, злословия и унижения людей",
+    "weight": 0.9
+  },
+  {
+    "from": "ayah:q104#2",
+    "to": "theme:akhira",
+    "type": "ayah_theme",
+    "evidence_source": "quran:104_2",
+    "evidence_note": "Сура «Аль-Хумаза», аяты 2–4: тщетность упования на накопленное богатство перед Вечной жизнью",
+    "weight": 0.9
+  },
+
+  {
+    "from": "ayah:q105#1",
+    "to": "theme:hifz",
+    "type": "ayah_theme",
+    "evidence_source": "quran:105_1",
+    "evidence_note": "Сура «Аль-Филь», аяты 1–5: Аллах защитил Свой Дом и обратил козни врагов в прах",
+    "weight": 0.9
+  },
+
+  {
+    "from": "ayah:q106#3",
+    "to": "theme:tawhid",
+    "type": "ayah_theme",
+    "evidence_source": "quran:106_3",
+    "evidence_note": "Сура «Курайш», аяты 3–4: поклоняться следует только Господу Каабы",
     "weight": 0.95
   },
   {
-    "from": "ayah:q67#2",
+    "from": "ayah:q106#4",
+    "to": "theme:shukr",
+    "type": "ayah_theme",
+    "evidence_source": "quran:106_4",
+    "evidence_note": "Сура «Курайш», аят 4: благодарность Аллаху за два великих блага — пропитание и безопасность",
+    "weight": 0.95
+  },
+
+  {
+    "from": "ayah:q107#2",
+    "to": "theme:rahmah",
+    "type": "ayah_theme",
+    "evidence_source": "quran:107_2",
+    "evidence_note": "Сура «Аль-Маун», аяты 2–3: порицание тех, кто отталкивает сироту и не помогает бедняку",
+    "weight": 0.95
+  },
+  {
+    "from": "ayah:q107#6",
+    "to": "theme:ikhlas",
+    "type": "ayah_theme",
+    "evidence_source": "quran:107_6",
+    "evidence_note": "Сура «Аль-Маун», аяты 4–6: предостережение от небрежности к намазу и показухи",
+    "weight": 0.95
+  },
+
+  {
+    "from": "ayah:q108#1",
+    "to": "theme:shukr",
+    "type": "ayah_theme",
+    "evidence_source": "quran:108_1",
+    "evidence_note": "Сура «Аль-Каусар», аят 1: дар обильного блага Пророку ﷺ",
+    "weight": 0.95
+  },
+  {
+    "from": "ayah:q108#2",
+    "to": "theme:shukr",
+    "type": "ayah_theme",
+    "evidence_source": "quran:108_2",
+    "evidence_note": "Сура «Аль-Каусар», аят 2: благодарность проявляется в намазе и жертвоприношении ради Аллаха",
+    "weight": 0.95
+  },
+
+  {
+    "from": "ayah:q109#1",
+    "to": "theme:tawhid",
+    "type": "ayah_theme",
+    "evidence_source": "quran:109_1",
+    "evidence_note": "Сура «Аль-Кафирун»: полное отречение от многобожия и чистое поклонение одному Аллаху",
+    "weight": 1.0
+  },
+  {
+    "from": "ayah:q109#6",
+    "to": "theme:ikhlas",
+    "type": "ayah_theme",
+    "evidence_source": "quran:109_6",
+    "evidence_note": "Сура «Аль-Кафирун», аят 6: твёрдость в искреннем единобожии без компромиссов в вере",
+    "weight": 0.95
+  },
+
+  {
+    "from": "ayah:q110#3",
+    "to": "theme:tawbah",
+    "type": "ayah_theme",
+    "evidence_source": "quran:110_3",
+    "evidence_note": "Сура «Ан-Наср», аят 3: восхваляй Господа и проси у Него прощения — Он Принимающий покаяния",
+    "weight": 1.0
+  },
+  {
+    "from": "ayah:q110#3",
+    "to": "theme:dhikr",
+    "type": "ayah_theme",
+    "evidence_source": "quran:110_3",
+    "evidence_note": "Сура «Ан-Наср», аят 3: соединение тасбиха, хвалы и истигфара",
+    "weight": 0.95
+  },
+
+  {
+    "from": "ayah:q111#2",
     "to": "theme:akhira",
-    "evidence_source": "hadith:h_mulk",
-    "weight": 0.95,
-    "type": "ayah_theme"
+    "type": "ayah_theme",
+    "evidence_source": "quran:111_2",
+    "evidence_note": "Сура «Аль-Масад», аят 2: ни имущество, ни мирское положение не спасут от ответа перед Аллахом",
+    "weight": 0.9
+  },
+
+  {
+    "from": "ayah:q112#1",
+    "to": "theme:tawhid",
+    "type": "ayah_theme",
+    "evidence_source": "hadith:h_ikhlas",
+    "evidence_note": "Сахих аль-Бухари № 5013: сура «Аль-Ихлас» содержит описание Аллаха и равна трети Корана",
+    "weight": 1.0
+  },
+  {
+    "from": "ayah:q112#2",
+    "to": "theme:tawhid",
+    "type": "ayah_theme",
+    "evidence_source": "hadith:h_ikhlas",
+    "evidence_note": "Аллах — Самодостаточный (ас-Самад), к Которому обращаются все творения в нуждах",
+    "weight": 1.0
+  },
+  {
+    "from": "ayah:q112#3",
+    "to": "theme:tawhid",
+    "type": "ayah_theme",
+    "evidence_source": "hadith:h_ikhlas",
+    "evidence_note": "Отрицание подобия, детей и родителей у Всевышнего Аллаха",
+    "weight": 1.0
+  },
+  {
+    "from": "ayah:q112#4",
+    "to": "theme:tawhid",
+    "type": "ayah_theme",
+    "evidence_source": "hadith:h_ikhlas",
+    "evidence_note": "Нет никого равного и подобного Аллаху",
+    "weight": 1.0
+  },
+  {
+    "from": "ayah:q112#1",
+    "to": "theme:ruqyah",
+    "type": "ayah_theme",
+    "evidence_source": "hadith:h_muawwizat",
+    "evidence_note": "Сунна: чтение сур 112, 113 и 114 по 3 раза утром, вечером и перед сном для защиты",
+    "weight": 0.95
+  },
+
+  {
+    "from": "ayah:q113#1",
+    "to": "theme:hifz",
+    "type": "ayah_theme",
+    "evidence_source": "hadith:h_muawwizat",
+    "evidence_note": "Сахих Муслим № 814, Абу Дауд № 5082: прибегание к защите Господа рассвета от всякого зла",
+    "weight": 1.0
+  },
+  {
+    "from": "ayah:q113#1",
+    "to": "theme:ruqyah",
+    "type": "ayah_theme",
+    "evidence_source": "hadith:h_muawwizat",
+    "evidence_note": "Одна из двух защитных сур (аль-Муаввизатайн) в шариатской рукье",
+    "weight": 1.0
+  },
+  {
+    "from": "ayah:q114#1",
+    "to": "theme:hifz",
+    "type": "ayah_theme",
+    "evidence_source": "hadith:h_muawwizat",
+    "evidence_note": "Сахих Муслим № 814, Абу Дауд № 5082: защита у Господа людей от наущений",
+    "weight": 1.0
+  },
+  {
+    "from": "ayah:q114#1",
+    "to": "theme:ruqyah",
+    "type": "ayah_theme",
+    "evidence_source": "hadith:h_muawwizat",
+    "evidence_note": "Вторая из защитных сур (аль-Муаввизатайн) в шариатской рукье",
+    "weight": 1.0
+  },
+
+  {
+    "from": "ayah:ruqyah_araf#1",
+    "to": "theme:ruqyah",
+    "type": "ayah_theme",
+    "evidence_source": "dua:ruqyah_guide",
+    "evidence_note": "Сура «Аль-А'раф», 7:117–119: аяты об уничтожении колдовства, приводимые учёными для рукьи",
+    "weight": 1.0
+  },
+  {
+    "from": "ayah:ruqyah_yunus#1",
+    "to": "theme:ruqyah",
+    "type": "ayah_theme",
+    "evidence_source": "dua:ruqyah_guide",
+    "evidence_note": "Сура «Юнус», 10:79–82: Аллах делает колдовство тщетным и утверждает истину",
+    "weight": 1.0
+  },
+  {
+    "from": "ayah:ruqyah_taha#1",
+    "to": "theme:ruqyah",
+    "type": "ayah_theme",
+    "evidence_source": "dua:ruqyah_guide",
+    "evidence_note": "Сура «Та Ха», 20:65–69: «Не бойся… колдун не преуспеет» — читается в рукье",
+    "weight": 1.0
+  },
+  {
+    "from": "ayah:ruqyah_taha#1",
+    "to": "theme:tawakkul",
+    "type": "ayah_theme",
+    "evidence_source": "quran:20_68",
+    "evidence_note": "Сура «Та Ха», аят 68: поддержка Аллахом пророка Мусы при встрече со страхом",
+    "weight": 0.9
+  },
+
+  {
+    "from": "hadith:h_ikhlas",
+    "to": "ayah:q112#1",
+    "type": "hadith_explains_ayah",
+    "evidence_source": "hadith:h_ikhlas",
+    "evidence_note": "Сахих аль-Бухари № 5013: «она равна трети Корана»",
+    "weight": 1.0
+  },
+  {
+    "from": "hadith:h_muawwizat",
+    "to": "ayah:q113#1",
+    "type": "hadith_explains_ayah",
+    "evidence_source": "hadith:h_muawwizat",
+    "evidence_note": "Сахих Муслим № 814; Абу Дауд № 5082, ат-Тирмизи № 3575",
+    "weight": 1.0
+  },
+  {
+    "from": "hadith:h_muawwizat",
+    "to": "ayah:q114#1",
+    "type": "hadith_explains_ayah",
+    "evidence_source": "hadith:h_muawwizat",
+    "evidence_note": "Сахих Муслим № 814; Абу Дауд № 5082, ат-Тирмизи № 3575",
+    "weight": 1.0
+  },
+  {
+    "from": "hadith:h_muawwizat",
+    "to": "ayah:q112#1",
+    "type": "hadith_explains_ayah",
+    "evidence_source": "hadith:h_muawwizat",
+    "evidence_note": "В Сунне (Абу Дауд № 5082, ат-Тирмизи № 3575) «Аль-Ихлас» читается перед «Аль-Фаляк» и «Ан-Нас» по 3 раза",
+    "weight": 0.95
+  },
+  {
+    "from": "hadith:h_kursi_greatest",
+    "to": "ayah:q_ayat_kursi#1",
+    "type": "hadith_explains_ayah",
+    "evidence_source": "hadith:h_kursi_greatest",
+    "evidence_note": "Сахих Муслим № 810: Аят аль-Курси — величайший аят Книги Аллаха",
+    "weight": 1.0
+  },
+  {
+    "from": "hadith:h_ayat_kursi",
+    "to": "ayah:q_ayat_kursi#1",
+    "type": "hadith_explains_ayah",
+    "evidence_source": "hadith:h_ayat_kursi",
+    "evidence_note": "Сахих аль-Бухари № 2311: чтение перед сном дарует хранителя от Аллаха до утра",
+    "weight": 1.0
+  },
+  {
+    "from": "hadith:h_ayat_kursi",
+    "to": "ayah:ruqyah_ayat_kursi#1",
+    "type": "hadith_explains_ayah",
+    "evidence_source": "hadith:h_ayat_kursi",
+    "evidence_note": "Сахих аль-Бухари № 2311: шайтан не приблизится до рассвета",
+    "weight": 1.0
+  },
+  {
+    "from": "hadith:h_baqarah",
+    "to": "ayah:q_baqarah_2#1",
+    "type": "hadith_explains_ayah",
+    "evidence_source": "hadith:h_baqarah",
+    "evidence_note": "Сахих аль-Бухари № 5009, Муслим № 807: два последних аята «Аль-Бакара» (2:285–286) достаточны ночью",
+    "weight": 1.0
+  },
+  {
+    "from": "hadith:h_baqarah",
+    "to": "ayah:q_baqarah_2#2",
+    "type": "hadith_explains_ayah",
+    "evidence_source": "hadith:h_baqarah",
+    "evidence_note": "Сахих аль-Бухари № 5009, Муслим № 807: два последних аята «Аль-Бакара» (2:285–286) достаточны ночью",
+    "weight": 1.0
   },
   {
     "from": "hadith:h_mulk",
     "to": "ayah:q67#1",
     "type": "hadith_explains_ayah",
     "evidence_source": "hadith:h_mulk",
+    "evidence_note": "Ат-Тирмизи № 2891, Абу Дауд № 1400: сура «Аль-Мульк» (30 аятов) заступится до прощения",
     "weight": 1.0
   },
   {
-    "from": "ayah:q1#6",
-    "to": "theme:tawbah",
-    "type": "ayah_theme",
-    "evidence_source": "tafsir:ibn_kathir_1_6",
+    "from": "hadith:h_after_salah",
+    "to": "ayah:q110#3",
+    "type": "hadith_explains_ayah",
+    "evidence_source": "hadith:h_after_salah",
+    "evidence_note": "Сахих Муслим № 597: практика тасбиха (СубханаЛлах, Альхамдулиллях, Аллаху Акбар) как исполнение веления восхвалять Аллаха",
+    "weight": 0.85
+  },
+
+  {
+    "from": "ayah:q1#5",
+    "to": "ayah:q112#1",
+    "type": "ayah_related_ayah",
+    "evidence_source": "tafsir:ibn_kathir_1_5",
+    "evidence_note": "Тафсир Ибн Касира (1:5): основа религии — поклонение одному Аллаху, что раскрывается в суре «Аль-Ихлас»",
     "weight": 0.9
   },
   {
-    "from": "ayah:q1#7",
-    "to": "theme:tawbah",
-    "type": "ayah_theme",
-    "evidence_source": "tafsir:ibn_kathir_1_7",
-    "weight": 0.9
+    "from": "ayah:q1#5",
+    "to": "ayah:q109#1",
+    "type": "ayah_related_ayah",
+    "evidence_source": "tafsir:ibn_kathir_1_5",
+    "evidence_note": "Тафсир Ибн Касира: отречение от поклонения кому-либо кроме Аллаха",
+    "weight": 0.85
   },
   {
-    "from": "ayah:q110#3",
-    "to": "theme:tawbah",
-    "type": "ayah_theme",
-    "evidence_source": "quran:110_3",
+    "from": "ayah:q_ayat_kursi#1",
+    "to": "ayah:q112#1",
+    "type": "ayah_related_ayah",
+    "evidence_source": "hadith:h_kursi_greatest",
+    "evidence_note": "Оба текста описывают совершенные имена и единственность Аллаха (Сахих Муслим № 810, аль-Бухари № 5013)",
     "weight": 0.95
   },
+  {
+    "from": "ayah:q109#1",
+    "to": "ayah:q112#1",
+    "type": "ayah_related_ayah",
+    "evidence_source": "quran:109_1",
+    "evidence_note": "Две суры очищения веры: отвержение ширка («Аль-Кафирун») и утверждение единобожия («Аль-Ихлас»)",
+    "weight": 0.95
+  },
+  {
+    "from": "ayah:q113#1",
+    "to": "ayah:q114#1",
+    "type": "ayah_related_ayah",
+    "evidence_source": "hadith:h_muawwizat",
+    "evidence_note": "Сахих Муслим № 814: две парные защитные суры (аль-Муаввизатайн)",
+    "weight": 1.0
+  },
+  {
+    "from": "ayah:q94#5",
+    "to": "ayah:q103#3",
+    "type": "ayah_related_ayah",
+    "evidence_source": "quran:94_5",
+    "evidence_note": "Обещание облегчения после тяготы («Аш-Шарх») и стойкость на истине и терпении («Аль-Аср»)",
+    "weight": 0.9
+  },
+  {
+    "from": "ayah:q94#5",
+    "to": "ayah:q_baqarah_2#2",
+    "type": "ayah_related_ayah",
+    "evidence_source": "quran:2_286",
+    "evidence_note": "«Аллах не возлагает сверх возможностей» (2:286) и «За каждой тягостью наступает облегчение» (94:5)",
+    "weight": 0.9
+  },
+  {
+    "from": "ayah:q105#1",
+    "to": "ayah:q106#3",
+    "type": "ayah_related_ayah",
+    "evidence_source": "quran:106_3",
+    "evidence_note": "Тафсир Ибн Касира: сура «Курайш» напоминает о милости защиты Каабы, описанной в суре «Аль-Филь»",
+    "weight": 0.95
+  },
+  {
+    "from": "ayah:q89#17",
+    "to": "ayah:q107#2",
+    "type": "ayah_related_ayah",
+    "evidence_source": "quran:89_17",
+    "evidence_note": "Суры «Аль-Фаджр» (89:17–18) и «Аль-Маун» (107:2–3) одинаково порицают пренебрежение сиротой и бедняком",
+    "weight": 0.95
+  },
+  {
+    "from": "ayah:q87#1",
+    "to": "ayah:q110#3",
+    "type": "ayah_related_ayah",
+    "evidence_source": "quran:110_3",
+    "evidence_note": "Призыв к восхвалению (тасбиху) Господа в начале «Аль-Аля» и в конце «Ан-Наср»",
+    "weight": 0.9
+  },
+
   {
     "from": "dua:dua_anxiety",
     "to": "theme:tawakkul",
     "type": "dua_theme",
-    "evidence_source": "dua_collection_verified",
-    "weight": 0.9
+    "evidence_source": "dua:dua_anxiety",
+    "evidence_note": "Ахмад № 3712 (сахих, аль-Альбани № 199): обращение к Аллаху всеми Его именами в момент грусти и тревоги",
+    "weight": 1.0
+  },
+  {
+    "from": "dua:dua_anxiety",
+    "to": "theme:sabr",
+    "type": "dua_theme",
+    "evidence_source": "dua:dua_anxiety",
+    "evidence_note": "Ахмад № 3712: принятие решения и предопределения Аллаха, просьба сделать Коран светом сердца",
+    "weight": 0.95
   },
   {
     "from": "dua:dua_sayyidul_istighfar",
     "to": "theme:tawbah",
     "type": "dua_theme",
-    "evidence_source": "dua_collection_verified",
+    "evidence_source": "dua:dua_sayyidul_istighfar",
+    "evidence_note": "Сахих аль-Бухари № 6306: господин мольб о прощении и покаянии",
+    "weight": 1.0
+  },
+  {
+    "from": "dua:dua_sayyidul_istighfar",
+    "to": "theme:shukr",
+    "type": "dua_theme",
+    "evidence_source": "dua:dua_sayyidul_istighfar",
+    "evidence_note": "Сахих аль-Бухари № 6306: «признаю милость, оказанную Тобой мне»",
     "weight": 0.9
+  },
+  {
+    "from": "dua:ruqyah_guide",
+    "to": "theme:ruqyah",
+    "type": "dua_theme",
+    "evidence_source": "dua:ruqyah_guide",
+    "evidence_note": "Свод правил шариатской рукьи с опорой на Коран, Сунну и фетвы шейха Ибн База",
+    "weight": 1.0
   },
   {
     "from": "dua:ruqyah_guide",
     "to": "theme:hifz",
     "type": "dua_theme",
-    "evidence_source": "dua_collection_verified",
-    "weight": 0.9
+    "evidence_source": "dua:ruqyah_guide",
+    "evidence_note": "Защита утренними/вечерними азкарами, Аятом аль-Курси и защитными сурами",
+    "weight": 0.95
   },
   {
     "from": "dua:ruqyah_jibril",
-    "to": "theme:sabr",
+    "to": "theme:ruqyah",
     "type": "dua_theme",
-    "evidence_source": "dua_collection_verified",
-    "weight": 0.9
+    "evidence_source": "dua:ruqyah_jibril",
+    "evidence_note": "Сахих Муслим № 2186: дуа исцеления, которое читал Джибриль Пророку ﷺ",
+    "weight": 1.0
+  },
+  {
+    "from": "dua:ruqyah_jibril",
+    "to": "theme:hifz",
+    "type": "dua_theme",
+    "evidence_source": "dua:ruqyah_jibril",
+    "evidence_note": "Сахих Муслим № 2186: защита от всякого вреда и завистливого взгляда",
+    "weight": 0.95
   },
   {
     "from": "dua:ruqyah_shifa",
-    "to": "theme:sabr",
+    "to": "theme:ruqyah",
     "type": "dua_theme",
-    "evidence_source": "dua_collection_verified",
-    "weight": 0.9
+    "evidence_source": "dua:ruqyah_shifa",
+    "evidence_note": "Сахих аль-Бухари № 5675, Муслим № 2191: «исцели, Ты — Исцеляющий»",
+    "weight": 1.0
+  },
+  {
+    "from": "dua:ruqyah_shifa",
+    "to": "theme:tawakkul",
+    "type": "dua_theme",
+    "evidence_source": "dua:ruqyah_shifa",
+    "evidence_note": "Сахих аль-Бухари № 5675: «нет исцеления, кроме Твоего исцеления»",
+    "weight": 0.95
   },
   {
     "from": "dua:ruqyah_hifz",
     "to": "theme:hifz",
     "type": "dua_theme",
-    "evidence_source": "dua_collection_verified",
+    "evidence_source": "dua:ruqyah_hifz",
+    "evidence_note": "Сахих Муслим № 2708–2709, аль-Бухари № 3371: прибегание к совершенным словам Аллаха",
+    "weight": 1.0
+  },
+  {
+    "from": "dua:ruqyah_hifz",
+    "to": "theme:ruqyah",
+    "type": "dua_theme",
+    "evidence_source": "dua:ruqyah_hifz",
+    "evidence_note": "Сахих Муслим № 2708, аль-Бухари № 3371: краткие пророческие дуа защиты",
+    "weight": 0.95
+  },
+
+  {
+    "from": "hadith:h_ikhlas",
+    "to": "theme:tawhid",
+    "type": "hadith_theme",
+    "evidence_source": "hadith:h_ikhlas",
+    "evidence_note": "Сахих аль-Бухари № 5013: сура «Аль-Ихлас» равна трети Корана",
+    "weight": 1.0
+  },
+  {
+    "from": "hadith:h_muawwizat",
+    "to": "theme:hifz",
+    "type": "hadith_theme",
+    "evidence_source": "hadith:h_muawwizat",
+    "evidence_note": "Сахих Муслим № 814: непревзойдённые суры для прошения защиты",
+    "weight": 1.0
+  },
+  {
+    "from": "hadith:h_muawwizat",
+    "to": "theme:ruqyah",
+    "type": "hadith_theme",
+    "evidence_source": "hadith:h_muawwizat",
+    "evidence_note": "Абу Дауд № 5082, ат-Тирмизи № 3575: чтение по три раза утром и вечером",
+    "weight": 0.95
+  },
+  {
+    "from": "hadith:h_ayat_kursi",
+    "to": "theme:hifz",
+    "type": "hadith_theme",
+    "evidence_source": "hadith:h_ayat_kursi",
+    "evidence_note": "Сахих аль-Бухари № 2311: хранитель от Аллаха до утра",
+    "weight": 1.0
+  },
+  {
+    "from": "hadith:h_kursi_greatest",
+    "to": "theme:tawhid",
+    "type": "hadith_theme",
+    "evidence_source": "hadith:h_kursi_greatest",
+    "evidence_note": "Сахих Муслим № 810: величайший аят Корана",
+    "weight": 1.0
+  },
+  {
+    "from": "hadith:h_baqarah",
+    "to": "theme:hifz",
+    "type": "hadith_theme",
+    "evidence_source": "hadith:h_baqarah",
+    "evidence_note": "Сахих аль-Бухари № 5009, Муслим № 807: защита и достаточность ночью",
+    "weight": 1.0
+  },
+  {
+    "from": "hadith:h_mulk",
+    "to": "theme:akhira",
+    "type": "hadith_theme",
+    "evidence_source": "hadith:h_mulk",
+    "evidence_note": "Ат-Тирмизи № 2891, Абу Дауд № 1400: заступничество суры в День суда",
+    "weight": 1.0
+  },
+  {
+    "from": "hadith:h_sayyid",
+    "to": "theme:tawbah",
+    "type": "hadith_theme",
+    "evidence_source": "hadith:h_sayyid",
+    "evidence_note": "Сахих аль-Бухари № 6306: достоинство Саййидуль-истигфара",
+    "weight": 1.0
+  },
+  {
+    "from": "hadith:h_tawhid",
+    "to": "theme:tawhid",
+    "type": "hadith_theme",
+    "evidence_source": "hadith:h_tawhid",
+    "evidence_note": "Сахих аль-Бухари № 3293, Муслим № 2691: слова единобожия 100 раз в день",
+    "weight": 1.0
+  },
+  {
+    "from": "hadith:h_tawhid",
+    "to": "theme:dhikr",
+    "type": "hadith_theme",
+    "evidence_source": "hadith:h_tawhid",
+    "evidence_note": "Сахих аль-Бухари № 3293: великая награда за ежедневное поминание",
+    "weight": 0.95
+  },
+  {
+    "from": "hadith:h_after_salah",
+    "to": "theme:dhikr",
+    "type": "hadith_theme",
+    "evidence_source": "hadith:h_after_salah",
+    "evidence_note": "Сахих Муслим № 597: тасбих 33 + 33 + 33 после каждого обязательного намаза",
+    "weight": 1.0
+  },
+  {
+    "from": "hadith:h_after_salah",
+    "to": "theme:tawbah",
+    "type": "hadith_theme",
+    "evidence_source": "hadith:h_after_salah",
+    "evidence_note": "Сахих Муслим № 597: прощение грехов после регулярного тасбиха по окончании молитвы",
+    "weight": 0.95
+  },
+  {
+    "from": "hadith:h_sleep_dua",
+    "to": "theme:tawakkul",
+    "type": "hadith_theme",
+    "evidence_source": "hadith:h_sleep_dua",
+    "evidence_note": "Сахих аль-Бухари № 6320, Муслим № 2714: вверение души Аллаху перед сном",
+    "weight": 0.95
+  },
+  {
+    "from": "hadith:h_people_of_book",
+    "to": "theme:iman",
+    "type": "hadith_theme",
+    "evidence_source": "hadith:h_people_of_book",
+    "evidence_note": "Сахих аль-Бухари № 7361: правило Сунны относительно сообщений людей Писания (исраилят)",
+    "weight": 0.95
+  },
+
+  {
+    "from": "tasbih:tawhid",
+    "to": "theme:tawhid",
+    "type": "tasbih_theme",
+    "evidence_source": "hadith:h_tawhid",
+    "evidence_note": "Сахих аль-Бухари № 3293, Муслим № 2691: формула чистого единобожия и защиты от шайтана",
+    "weight": 1.0
+  },
+  {
+    "from": "tasbih:tawhid",
+    "to": "theme:dhikr",
+    "type": "tasbih_theme",
+    "evidence_source": "hadith:h_after_salah",
+    "evidence_note": "Сахих Муслим № 597: завершение сотого поминания после намаза",
+    "weight": 1.0
+  },
+  {
+    "from": "tasbih:istighfar",
+    "to": "theme:tawbah",
+    "type": "tasbih_theme",
+    "evidence_source": "quran:110_3",
+    "evidence_note": "Коран 110:3 и Сунна: постоянное обращение к Аллаху за прощением",
+    "weight": 1.0
+  },
+  {
+    "from": "tasbih:istighfar",
+    "to": "theme:dhikr",
+    "type": "tasbih_theme",
+    "evidence_source": "quran:110_3",
+    "evidence_note": "Ежедневный истигфар как основа очищения сердца",
+    "weight": 0.95
+  },
+  {
+    "from": "tasbih:u1",
+    "to": "theme:dhikr",
+    "type": "tasbih_theme",
+    "evidence_source": "hadith:h_after_salah",
+    "evidence_note": "Сахих Муслим № 597: «СубханаЛлах» 33 раза после молитвы",
+    "weight": 1.0
+  },
+  {
+    "from": "tasbih:u2",
+    "to": "theme:shukr",
+    "type": "tasbih_theme",
+    "evidence_source": "hadith:h_after_salah",
+    "evidence_note": "Сахих Муслим № 597 и Коран 1:2: «Альхамдулиллях» — основа благодарности Аллаху",
+    "weight": 1.0
+  },
+  {
+    "from": "tasbih:u2",
+    "to": "theme:dhikr",
+    "type": "tasbih_theme",
+    "evidence_source": "hadith:h_after_salah",
+    "evidence_note": "Сахих Муслим № 597: «Альхамдулиллях» 33 раза после молитвы",
+    "weight": 1.0
+  },
+  {
+    "from": "tasbih:u3",
+    "to": "theme:dhikr",
+    "type": "tasbih_theme",
+    "evidence_source": "hadith:h_after_salah",
+    "evidence_note": "Сахих Муслим № 597: «Аллаху Акбар» 33 раза после молитвы",
+    "weight": 1.0
+  },
+
+  {
+    "from": "dua:dua_sayyidul_istighfar",
+    "to": "hadith:h_sayyid",
+    "type": "dua_hadith",
+    "evidence_source": "hadith:h_sayyid",
+    "evidence_note": "Сахих аль-Бухари № 6306: хадис от Шаддада ибн Ауса о достоинстве Саййидуль-истигфара",
+    "weight": 1.0
+  },
+  {
+    "from": "dua:dua_sayyidul_istighfar",
+    "to": "tasbih:istighfar",
+    "type": "dua_tasbih",
+    "evidence_source": "hadith:h_sayyid",
+    "evidence_note": "Повседневное повторение мольбы о прощении дополняется кратким истигфаром",
     "weight": 0.9
+  },
+  {
+    "from": "dua:ruqyah_guide",
+    "to": "hadith:h_people_of_book",
+    "type": "dua_hadith",
+    "evidence_source": "hadith:h_people_of_book",
+    "evidence_note": "Сахих аль-Бухари № 7361: методология отношения к исраилят в вопросах дозволенных средств",
+    "weight": 0.95
+  },
+  {
+    "from": "dua:ruqyah_guide",
+    "to": "hadith:h_muawwizat",
+    "type": "dua_hadith",
+    "evidence_source": "hadith:h_muawwizat",
+    "evidence_note": "Сахих Муслим № 814: чтение защитных сур 112, 113 и 114 в рукье",
+    "weight": 0.95
+  },
+  {
+    "from": "dua:ruqyah_guide",
+    "to": "ayah:ruqyah_araf#1",
+    "type": "dua_ayah",
+    "evidence_source": "dua:ruqyah_guide",
+    "evidence_note": "Аяты о колдовстве (7:117–119), приведённые в разделе рукьи",
+    "weight": 1.0
+  },
+  {
+    "from": "dua:ruqyah_guide",
+    "to": "ayah:ruqyah_yunus#1",
+    "type": "dua_ayah",
+    "evidence_source": "dua:ruqyah_guide",
+    "evidence_note": "Аяты о колдовстве (10:79–82), приведённые в разделе рукьи",
+    "weight": 1.0
+  },
+  {
+    "from": "dua:ruqyah_guide",
+    "to": "ayah:ruqyah_taha#1",
+    "type": "dua_ayah",
+    "evidence_source": "dua:ruqyah_guide",
+    "evidence_note": "Аяты о колдовстве (20:65–69), приведённые в разделе рукьи",
+    "weight": 1.0
+  },
+  {
+    "from": "dua:ruqyah_guide",
+    "to": "ayah:ruqyah_ayat_kursi#1",
+    "type": "dua_ayah",
+    "evidence_source": "hadith:h_ayat_kursi",
+    "evidence_note": "Аят аль-Курси (2:255) — защита и чтение в рукье",
+    "weight": 1.0
+  },
+  {
+    "from": "dua:ruqyah_guide",
+    "to": "ayah:q109#1",
+    "type": "dua_ayah",
+    "evidence_source": "dua:ruqyah_guide",
+    "evidence_note": "Сура «Аль-Кафирун» — защита от многобожия",
+    "weight": 0.9
+  },
+  {
+    "from": "hadith:h_tawhid",
+    "to": "tasbih:tawhid",
+    "type": "hadith_tasbih",
+    "evidence_source": "hadith:h_tawhid",
+    "evidence_note": "Сахих аль-Бухари № 3293, Муслим № 2691: прямая связь с тасбихом единобожия",
+    "weight": 1.0
+  },
+  {
+    "from": "hadith:h_after_salah",
+    "to": "tasbih:u1",
+    "type": "hadith_tasbih",
+    "evidence_source": "hadith:h_after_salah",
+    "evidence_note": "Сахих Муслим № 597: СубханаЛлах (33 раза)",
+    "weight": 1.0
+  },
+  {
+    "from": "hadith:h_after_salah",
+    "to": "tasbih:u2",
+    "type": "hadith_tasbih",
+    "evidence_source": "hadith:h_after_salah",
+    "evidence_note": "Сахих Муслим № 597: Альхамдулиллях (33 раза)",
+    "weight": 1.0
+  },
+  {
+    "from": "hadith:h_after_salah",
+    "to": "tasbih:u3",
+    "type": "hadith_tasbih",
+    "evidence_source": "hadith:h_after_salah",
+    "evidence_note": "Сахих Муслим № 597: Аллаху Акбар (33 раза)",
+    "weight": 1.0
+  },
+  {
+    "from": "hadith:h_after_salah",
+    "to": "tasbih:tawhid",
+    "type": "hadith_tasbih",
+    "evidence_source": "hadith:h_after_salah",
+    "evidence_note": "Сахих Муслим № 597: завершение сотни словами «Ля иляха илляллаху вахдаху…»",
+    "weight": 1.0
+  },
+  {
+    "from": "hadith:h_sayyid",
+    "to": "tasbih:istighfar",
+    "type": "hadith_tasbih",
+    "evidence_source": "hadith:h_sayyid",
+    "evidence_note": "Сахих аль-Бухари № 6306: Саййидуль-истигфар и ежедневный тасбих истигфара",
+    "weight": 0.9
+  },
+
+  {
+    "from": "dua:dua_anxiety",
+    "to": "mood:Тревога",
+    "type": "dua_mood",
+    "evidence_source": "dua:dua_anxiety",
+    "evidence_note": "Муснад Ахмада № 3712 (сахих): прямая мольба при тревоге (хамм) и грусти (хузн)",
+    "weight": 1.0
+  },
+  {
+    "from": "ayah:q94#5",
+    "to": "mood:Тревога",
+    "type": "ayah_mood",
+    "evidence_source": "quran:94_5",
+    "evidence_note": "Сура «Аш-Шарх», 94:5–6: обещание облегчения вместе с каждой трудностью",
+    "weight": 1.0
+  },
+  {
+    "from": "ayah:q_baqarah_2#2",
+    "to": "mood:Тревога",
+    "type": "ayah_mood",
+    "evidence_source": "quran:2_286",
+    "evidence_note": "Сура «Аль-Бакара», 2:286: Аллах не возлагает сверх сил и прощает ошибки",
+    "weight": 0.95
+  },
+  {
+    "from": "ayah:q114#1",
+    "to": "mood:Тревога",
+    "type": "ayah_mood",
+    "evidence_source": "hadith:h_muawwizat",
+    "evidence_note": "Сура «Ан-Нас»: защита сердца от тревожных наущений (васвас)",
+    "weight": 0.95
+  },
+  {
+    "from": "tasbih:u1",
+    "to": "mood:Тревога",
+    "type": "tasbih_mood",
+    "evidence_source": "quran:13_28",
+    "evidence_note": "Поминанием Аллаха успокаиваются сердца («СубханаЛлах»)",
+    "weight": 0.9
+  },
+
+  {
+    "from": "dua:dua_anxiety",
+    "to": "mood:Печаль",
+    "type": "dua_mood",
+    "evidence_source": "dua:dua_anxiety",
+    "evidence_note": "Муснад Ахмада № 3712: прошение о замене печали радостью через Коран",
+    "weight": 1.0
+  },
+  {
+    "from": "ayah:q94#1",
+    "to": "mood:Печаль",
+    "type": "ayah_mood",
+    "evidence_source": "quran:94_1",
+    "evidence_note": "Сура «Аш-Шарх», 94:1–6: раскрытие груди и снятие душевного бремени",
+    "weight": 1.0
+  },
+  {
+    "from": "ayah:q89#27",
+    "to": "mood:Печаль",
+    "type": "ayah_mood",
+    "evidence_source": "quran:89_27",
+    "evidence_note": "Сура «Аль-Фаджр», 89:27–30: утешение вестью о возвращении умиротворённой души к Господу",
+    "weight": 0.9
+  },
+  {
+    "from": "tasbih:istighfar",
+    "to": "mood:Печаль",
+    "type": "tasbih_mood",
+    "evidence_source": "quran:110_3",
+    "evidence_note": "Прошение прощения снимает тяжесть с души и открывает путь к облегчению",
+    "weight": 0.9
+  },
+
+  {
+    "from": "ayah:q_ayat_kursi#1",
+    "to": "mood:Страх",
+    "type": "ayah_mood",
+    "evidence_source": "hadith:h_ayat_kursi",
+    "evidence_note": "Сахих аль-Бухари № 2311: хранитель от Аллаха при чтении Аята аль-Курси",
+    "weight": 1.0
+  },
+  {
+    "from": "hadith:h_ayat_kursi",
+    "to": "mood:Страх",
+    "type": "hadith_mood",
+    "evidence_source": "hadith:h_ayat_kursi",
+    "evidence_note": "Сахих аль-Бухари № 2311: защита от страха и ночного вреда",
+    "weight": 1.0
+  },
+  {
+    "from": "ayah:q106#4",
+    "to": "mood:Страх",
+    "type": "ayah_mood",
+    "evidence_source": "quran:106_4",
+    "evidence_note": "Сура «Курайш», 106:4: Аллах — Тот, Кто избавляет от страха и дарует безопасность",
+    "weight": 0.95
+  },
+  {
+    "from": "ayah:ruqyah_taha#1",
+    "to": "mood:Страх",
+    "type": "ayah_mood",
+    "evidence_source": "quran:20_68",
+    "evidence_note": "Сура «Та Ха», 20:67–68: «Не бойся, поистине, ты — выше всех!»",
+    "weight": 0.95
+  },
+  {
+    "from": "ayah:q113#1",
+    "to": "mood:Страх",
+    "type": "ayah_mood",
+    "evidence_source": "hadith:h_muawwizat",
+    "evidence_note": "Сахих Муслим № 814: обращение к Господу рассвета за защитой",
+    "weight": 0.95
+  },
+  {
+    "from": "dua:ruqyah_hifz",
+    "to": "mood:Страх",
+    "type": "dua_mood",
+    "evidence_source": "dua:ruqyah_hifz",
+    "evidence_note": "Сахих Муслим № 2708–2709: прибегание к совершенным словам Аллаха",
+    "weight": 0.95
+  },
+  {
+    "from": "tasbih:u3",
+    "to": "mood:Страх",
+    "type": "tasbih_mood",
+    "evidence_source": "hadith:h_after_salah",
+    "evidence_note": "Возвеличивание Аллаха («Аллаху Акбар»): осознание, что Аллах больше любых опасений",
+    "weight": 0.9
+  },
+
+  {
+    "from": "ayah:q103#3",
+    "to": "mood:Гнев",
+    "type": "ayah_mood",
+    "evidence_source": "quran:103_3",
+    "evidence_note": "Сура «Аль-Аср», 103:3: заповедание истины и терпения (сабр) вместо вспыльчивости",
+    "weight": 0.95
+  },
+  {
+    "from": "ayah:q114#1",
+    "to": "mood:Гнев",
+    "type": "ayah_mood",
+    "evidence_source": "hadith:h_muawwizat",
+    "evidence_note": "Сура «Ан-Нас»: защита у Аллаха от наущений шайтана, разжигающего гнев",
+    "weight": 0.95
+  },
+  {
+    "from": "ayah:q104#1",
+    "to": "mood:Гнев",
+    "type": "ayah_mood",
+    "evidence_source": "quran:104_1",
+    "evidence_note": "Сура «Аль-Хумаза», 104:1: предостережение от оскорблений и злословия в гневе",
+    "weight": 0.9
+  },
+  {
+    "from": "tasbih:istighfar",
+    "to": "mood:Гнев",
+    "type": "tasbih_mood",
+    "evidence_source": "quran:110_3",
+    "evidence_note": "Остужение гнева поминанием Аллаха и просьбой о прощении",
+    "weight": 0.9
+  },
+  {
+    "from": "tasbih:u1",
+    "to": "mood:Гнев",
+    "type": "tasbih_mood",
+    "evidence_source": "hadith:h_after_salah",
+    "evidence_note": "Сдержанность и возвращение к спокойствию через «СубханаЛлах»",
+    "weight": 0.85
+  },
+
+  {
+    "from": "ayah:q1#5",
+    "to": "mood:Одиночество",
+    "type": "ayah_mood",
+    "evidence_source": "tafsir:ibn_kathir_1_5",
+    "evidence_note": "Тафсир Ибн Касира (1:5): прямая беседа сердца с Аллахом — «Тебе одному мы поклоняемся»",
+    "weight": 1.0
+  },
+  {
+    "from": "ayah:q96#19",
+    "to": "mood:Одиночество",
+    "type": "ayah_mood",
+    "evidence_source": "quran:96_19",
+    "evidence_note": "Сура «Аль-Аляк», 96:19: «пади ниц и приближайся к Аллаху»",
+    "weight": 0.95
+  },
+  {
+    "from": "ayah:q94#8",
+    "to": "mood:Одиночество",
+    "type": "ayah_mood",
+    "evidence_source": "quran:94_8",
+    "evidence_note": "Сура «Аш-Шарх», 94:8: «и устремись к своему Господу»",
+    "weight": 0.95
+  },
+  {
+    "from": "ayah:q67#29",
+    "to": "mood:Одиночество",
+    "type": "ayah_mood",
+    "evidence_source": "quran:67_29",
+    "evidence_note": "Сура «Аль-Мульк», 67:29: близость к Милостивому через упование на Него",
+    "weight": 0.9
+  },
+  {
+    "from": "hadith:h_sleep_dua",
+    "to": "mood:Одиночество",
+    "type": "hadith_mood",
+    "evidence_source": "hadith:h_sleep_dua",
+    "evidence_note": "Сахих аль-Бухари № 6320: вверение своей души Милостивому перед сном",
+    "weight": 0.9
+  },
+
+  {
+    "from": "dua:dua_sayyidul_istighfar",
+    "to": "mood:Вина",
+    "type": "dua_mood",
+    "evidence_source": "dua:dua_sayyidul_istighfar",
+    "evidence_note": "Сахих аль-Бухари № 6306: искреннее признание греха и обращение к Единственному Прощающему",
+    "weight": 1.0
+  },
+  {
+    "from": "hadith:h_sayyid",
+    "to": "mood:Вина",
+    "type": "hadith_mood",
+    "evidence_source": "hadith:h_sayyid",
+    "evidence_note": "Сахих аль-Бухари № 6306: надежда на прощение и Рай при убеждённом истигфаре",
+    "weight": 1.0
+  },
+  {
+    "from": "ayah:q110#3",
+    "to": "mood:Вина",
+    "type": "ayah_mood",
+    "evidence_source": "quran:110_3",
+    "evidence_note": "Сура «Ан-Наср», 110:3: «Воистину, Он — Принимающий покаяния»",
+    "weight": 1.0
+  },
+  {
+    "from": "ayah:q_baqarah_2#2",
+    "to": "mood:Вина",
+    "type": "ayah_mood",
+    "evidence_source": "quran:2_286",
+    "evidence_note": "Сура «Аль-Бакара», 2:286: мольба о прощении забытого и ошибок",
+    "weight": 0.95
+  },
+  {
+    "from": "ayah:q67#12",
+    "to": "mood:Вина",
+    "type": "ayah_mood",
+    "evidence_source": "quran:67_12",
+    "evidence_note": "Сура «Аль-Мульк», 67:12: прощение тем, кто боится Господа наедине",
+    "weight": 0.95
+  },
+  {
+    "from": "tasbih:istighfar",
+    "to": "mood:Вина",
+    "type": "tasbih_mood",
+    "evidence_source": "quran:110_3",
+    "evidence_note": "Постоянный тасбих «АстагфируЛлах» возвращает спокойствие совести и надежду на милость",
+    "weight": 1.0
+  },
+  {
+    "from": "hadith:h_after_salah",
+    "to": "mood:Вина",
+    "type": "hadith_mood",
+    "evidence_source": "hadith:h_after_salah",
+    "evidence_note": "Сахих Муслим № 597: прощение проступков после тасбиха по окончании намаза",
+    "weight": 0.95
+  },
+
+  {
+    "from": "ayah:q_baqarah_2#2",
+    "to": "mood:Усталость",
+    "type": "ayah_mood",
+    "evidence_source": "quran:2_286",
+    "evidence_note": "Сура «Аль-Бакара», 2:286: «Не возлагай на нас то, что нам не под силу»",
+    "weight": 1.0
+  },
+  {
+    "from": "ayah:q94#5",
+    "to": "mood:Усталость",
+    "type": "ayah_mood",
+    "evidence_source": "quran:94_5",
+    "evidence_note": "Сура «Аш-Шарх», 94:5–6: облегчение приходит вместе с испытанием",
+    "weight": 1.0
+  },
+  {
+    "from": "ayah:q103#3",
+    "to": "mood:Усталость",
+    "type": "ayah_mood",
+    "evidence_source": "quran:103_3",
+    "evidence_note": "Сура «Аль-Аср», 103:3: поддержка и терпение на жизненном пути",
+    "weight": 0.9
+  },
+  {
+    "from": "hadith:h_baqarah",
+    "to": "mood:Усталость",
+    "type": "hadith_mood",
+    "evidence_source": "hadith:h_baqarah",
+    "evidence_note": "Сахих аль-Бухари № 5009: достаточность двух аятов для уставшего человека перед сном",
+    "weight": 0.95
+  },
+  {
+    "from": "tasbih:u1",
+    "to": "mood:Усталость",
+    "type": "tasbih_mood",
+    "evidence_source": "hadith:h_after_salah",
+    "evidence_note": "Тасбих восстанавливает силы души и связь с Аллахом",
+    "weight": 0.9
+  },
+
+  {
+    "from": "ayah:q1#3",
+    "to": "mood:Надежда",
+    "type": "ayah_mood",
+    "evidence_source": "tafsir:ibn_kathir_1_3",
+    "evidence_note": "Тафсир Ибн Касира (1:3): напоминание о Милостивом и Милосердном вселяет в сердце надежду",
+    "weight": 1.0
+  },
+  {
+    "from": "ayah:q94#6",
+    "to": "mood:Надежда",
+    "type": "ayah_mood",
+    "evidence_source": "quran:94_6",
+    "evidence_note": "Сура «Аш-Шарх», 94:6: за тягостью неизбежно следует облегчение от Аллаха",
+    "weight": 1.0
+  },
+  {
+    "from": "ayah:q97#5",
+    "to": "mood:Надежда",
+    "type": "ayah_mood",
+    "evidence_source": "quran:97_5",
+    "evidence_note": "Сура «Аль-Кадр», 97:3–5: Ночь величия и мира до самой зари",
+    "weight": 0.95
+  },
+  {
+    "from": "dua:dua_anxiety",
+    "to": "mood:Надежда",
+    "type": "dua_mood",
+    "evidence_source": "dua:dua_anxiety",
+    "evidence_note": "Муснад Ахмада № 3712: обетование Аллаха заменить скорбь радостью",
+    "weight": 0.95
+  },
+  {
+    "from": "hadith:h_mulk",
+    "to": "mood:Надежда",
+    "type": "hadith_mood",
+    "evidence_source": "hadith:h_mulk",
+    "evidence_note": "Ат-Тирмизи № 2891: сура «Аль-Мульк» станет заступником вплоть до прощения",
+    "weight": 0.95
+  },
+
+  {
+    "from": "ayah:q108#1",
+    "to": "mood:Радость",
+    "type": "ayah_mood",
+    "evidence_source": "quran:108_1",
+    "evidence_note": "Сура «Аль-Каусар», 108:1–2: радость о дарованном Аллахом благе, обращённая в благодарный намаз",
+    "weight": 0.95
+  },
+  {
+    "from": "ayah:q110#1",
+    "to": "mood:Радость",
+    "type": "ayah_mood",
+    "evidence_source": "quran:110_1",
+    "evidence_note": "Сура «Ан-Наср», 110:1–3: при победе и радости верующий прославляет Аллаха и кается",
+    "weight": 0.95
+  },
+  {
+    "from": "tasbih:u2",
+    "to": "mood:Радость",
+    "type": "tasbih_mood",
+    "evidence_source": "hadith:h_after_salah",
+    "evidence_note": "«Альхамдулиллях» закрепляет радость благодарностью Дарующему блага",
+    "weight": 0.95
+  },
+
+  {
+    "from": "ayah:q1#2",
+    "to": "mood:Благодарность",
+    "type": "ayah_mood",
+    "evidence_source": "tafsir:ibn_kathir_1_2",
+    "evidence_note": "Тафсир Ибн Касира (1:2): «Хвала Аллаху, Господу миров»",
+    "weight": 1.0
+  },
+  {
+    "from": "ayah:q67#23",
+    "to": "mood:Благодарность",
+    "type": "ayah_mood",
+    "evidence_source": "quran:67_23",
+    "evidence_note": "Сура «Аль-Мульк», 67:23: благодарность за зрение, слух и сердце",
+    "weight": 0.95
+  },
+  {
+    "from": "ayah:q106#4",
+    "to": "mood:Благодарность",
+    "type": "ayah_mood",
+    "evidence_source": "quran:106_4",
+    "evidence_note": "Сура «Курайш», 106:3–4: благодарность за мир и пропитание",
+    "weight": 0.95
+  },
+  {
+    "from": "ayah:q108#2",
+    "to": "mood:Благодарность",
+    "type": "ayah_mood",
+    "evidence_source": "quran:108_2",
+    "evidence_note": "Сура «Аль-Каусар», 108:2: молитва и жертва в знак благодарности Господу",
+    "weight": 0.95
+  },
+  {
+    "from": "tasbih:u2",
+    "to": "mood:Благодарность",
+    "type": "tasbih_mood",
+    "evidence_source": "hadith:h_after_salah",
+    "evidence_note": "«Альхамдулиллях» — главная формула благодарности Аллаху",
+    "weight": 1.0
+  },
+
+  {
+    "from": "dua:ruqyah_shifa",
+    "to": "mood:Болезнь",
+    "type": "dua_mood",
+    "evidence_source": "dua:ruqyah_shifa",
+    "evidence_note": "Сахих аль-Бухари № 5675, Муслим № 2191: пророческая мольба при болезни",
+    "weight": 1.0
+  },
+  {
+    "from": "dua:ruqyah_jibril",
+    "to": "mood:Болезнь",
+    "type": "dua_mood",
+    "evidence_source": "dua:ruqyah_jibril",
+    "evidence_note": "Сахих Муслим № 2186: мольба об исцелении, произнесённая ангелом Джибрилем",
+    "weight": 1.0
+  },
+  {
+    "from": "dua:ruqyah_guide",
+    "to": "mood:Болезнь",
+    "type": "dua_mood",
+    "evidence_source": "dua:ruqyah_guide",
+    "evidence_note": "Шариатские способы обращения к Аллаху за исцелением с предостережением от ширка",
+    "weight": 0.95
+  },
+  {
+    "from": "ayah:q113#1",
+    "to": "mood:Болезнь",
+    "type": "ayah_mood",
+    "evidence_source": "hadith:h_muawwizat",
+    "evidence_note": "Сунна чтения защитных сур при недугах и для исцеления",
+    "weight": 0.95
+  },
+  {
+    "from": "ayah:ruqyah_yunus#1",
+    "to": "mood:Болезнь",
+    "type": "ayah_mood",
+    "evidence_source": "dua:ruqyah_guide",
+    "evidence_note": "Сура «Юнус», 10:79–82: аяты рукьи, разрушающие вред с дозволения Аллаха",
+    "weight": 0.9
+  },
+
+  {
+    "from": "ayah:q89#27",
+    "to": "mood:Потеря",
+    "type": "ayah_mood",
+    "evidence_source": "quran:89_27",
+    "evidence_note": "Сура «Аль-Фаджр», 89:27–30: возвращение праведной души к довольству Господа и Раю",
+    "weight": 1.0
+  },
+  {
+    "from": "ayah:q87#17",
+    "to": "mood:Потеря",
+    "type": "ayah_mood",
+    "evidence_source": "quran:87_17",
+    "evidence_note": "Сура «Аль-Аля», 87:17: напоминание, что Вечная жизнь — лучше и долговечнее",
+    "weight": 0.95
+  },
+  {
+    "from": "ayah:q103#3",
+    "to": "mood:Потеря",
+    "type": "ayah_mood",
+    "evidence_source": "quran:103_3",
+    "evidence_note": "Сура «Аль-Аср», 103:3: терпение и взаимная поддержка верующих при испытаниях",
+    "weight": 0.95
+  },
+  {
+    "from": "ayah:q_baqarah_2#2",
+    "to": "mood:Потеря",
+    "type": "ayah_mood",
+    "evidence_source": "quran:2_286",
+    "evidence_note": "Сура «Аль-Бакара», 2:286: «Помилуй нас, Ты — наш Покровитель!»",
+    "weight": 0.9
+  },
+
+  {
+    "from": "ayah:q1#4",
+    "to": "mood:Несправедливость",
+    "type": "ayah_mood",
+    "evidence_source": "tafsir:ibn_kathir_1_4",
+    "evidence_note": "Тафсир Ибн Касира (1:4): абсолютный и справедливый Суд принадлежит одному Аллаху",
+    "weight": 1.0
+  },
+  {
+    "from": "ayah:q96#19",
+    "to": "mood:Несправедливость",
+    "type": "ayah_mood",
+    "evidence_source": "quran:96_19",
+    "evidence_note": "Сура «Аль-Аляк», 96:14–19: Аллах видит притеснителя и защищает поклоняющегося раба",
+    "weight": 0.95
+  },
+  {
+    "from": "ayah:q104#1",
+    "to": "mood:Несправедливость",
+    "type": "ayah_mood",
+    "evidence_source": "quran:104_1",
+    "evidence_note": "Сура «Аль-Хумаза», 104:1: осуждение обидчиков и клеветников",
+    "weight": 0.9
+  },
+  {
+    "from": "ayah:q105#1",
+    "to": "mood:Несправедливость",
+    "type": "ayah_mood",
+    "evidence_source": "quran:105_1",
+    "evidence_note": "Сура «Аль-Филь», 105:1–5: козни гордецов и притеснителей рассыпаются перед силой Аллаха",
+    "weight": 0.9
+  },
+  {
+    "from": "tasbih:u3",
+    "to": "mood:Несправедливость",
+    "type": "tasbih_mood",
+    "evidence_source": "hadith:h_after_salah",
+    "evidence_note": "«Аллаху Акбар» — напоминание сердцу, что Аллах превыше любого притеснителя",
+    "weight": 0.9
+  },
+
+  {
+    "from": "ayah:q67#15",
+    "to": "mood:Бедность",
+    "type": "ayah_mood",
+    "evidence_source": "quran:67_15",
+    "evidence_note": "Сура «Аль-Мульк», 67:15: трудитесь на земле и вкушайте из удела Аллаха",
+    "weight": 0.95
+  },
+  {
+    "from": "ayah:q89#16",
+    "to": "mood:Бедность",
+    "type": "ayah_mood",
+    "evidence_source": "quran:89_16",
+    "evidence_note": "Сура «Аль-Фаджр», 89:15–16: мерило достоинства человека — не богатство, а благодарность и богобоязненность",
+    "weight": 0.95
+  },
+  {
+    "from": "ayah:q106#4",
+    "to": "mood:Бедность",
+    "type": "ayah_mood",
+    "evidence_source": "quran:106_4",
+    "evidence_note": "Сура «Курайш», 106:4: Аллах — Тот, Кто накормил после голода и даёт удел",
+    "weight": 0.95
+  },
+  {
+    "from": "ayah:q104#2",
+    "to": "mood:Бедность",
+    "type": "ayah_mood",
+    "evidence_source": "quran:104_2",
+    "evidence_note": "Сура «Аль-Хумаза», 104:2–3: накопленное богатство само по себе не спасает и не продлевает жизнь",
+    "weight": 0.85
+  },
+  {
+    "from": "tasbih:istighfar",
+    "to": "mood:Бедность",
+    "type": "tasbih_mood",
+    "evidence_source": "quran:110_3",
+    "evidence_note": "Покаяние и прошение о прощении с упованием на Аллаха как Дарующего удел",
+    "weight": 0.9
+  },
+
+  {
+    "from": "ayah:q1#6",
+    "to": "mood:Сомнение",
+    "type": "ayah_mood",
+    "evidence_source": "tafsir:ibn_kathir_1_6",
+    "evidence_note": "Тафсир Ибн Касира (1:6): искреннее прошение прямого пути и ясности истины",
+    "weight": 1.0
+  },
+  {
+    "from": "ayah:q96#4",
+    "to": "mood:Сомнение",
+    "type": "ayah_mood",
+    "evidence_source": "quran:96_4",
+    "evidence_note": "Сура «Аль-Аляк», 96:1–5: Господь научил человека письму и знанию, которого он не знал",
+    "weight": 0.95
+  },
+  {
+    "from": "ayah:q112#1",
+    "to": "mood:Сомнение",
+    "type": "ayah_mood",
+    "evidence_source": "hadith:h_ikhlas",
+    "evidence_note": "Сура «Аль-Ихлас» даёт ясную и твёрдую основу веры в Единственного Аллаха",
+    "weight": 0.95
+  },
+  {
+    "from": "ayah:q109#1",
+    "to": "mood:Сомнение",
+    "type": "ayah_mood",
+    "evidence_source": "quran:109_1",
+    "evidence_note": "Сура «Аль-Кафирун» чётко разграничивает истину единобожия и заблуждение",
+    "weight": 0.9
+  },
+  {
+    "from": "hadith:h_people_of_book",
+    "to": "mood:Сомнение",
+    "type": "hadith_mood",
+    "evidence_source": "hadith:h_people_of_book",
+    "evidence_note": "Сахих аль-Бухари № 7361: взвешенное отношение к неясным сообщениям и опора на Откровение",
+    "weight": 0.95
+  },
+
+  {
+    "from": "dua:ruqyah_hifz",
+    "to": "mood:Семья",
+    "type": "dua_mood",
+    "evidence_source": "dua:ruqyah_hifz",
+    "evidence_note": "Сахих аль-Бухари № 3371: Пророк ﷺ просил этим дуа защиту для своих внуков Хасана и Хусейна",
+    "weight": 1.0
+  },
+  {
+    "from": "ayah:q89#17",
+    "to": "mood:Семья",
+    "type": "ayah_mood",
+    "evidence_source": "quran:89_17",
+    "evidence_note": "Сура «Аль-Фаджр», 89:17–19: справедливость в наследстве и забота о сиротах и близких",
+    "weight": 0.95
+  },
+  {
+    "from": "ayah:q107#2",
+    "to": "mood:Семья",
+    "type": "ayah_mood",
+    "evidence_source": "quran:107_2",
+    "evidence_note": "Сура «Аль-Маун», 107:2–3: бережное отношение к сиротам и нуждающимся",
+    "weight": 0.9
+  },
+  {
+    "from": "dua:ruqyah_shifa",
+    "to": "mood:Семья",
+    "type": "dua_mood",
+    "evidence_source": "dua:ruqyah_shifa",
+    "evidence_note": "Сахих аль-Бухари № 5675: чтение этой мольбы над больным членом семьи",
+    "weight": 0.95
   }
 ]

@@ -39,6 +39,7 @@ function openHadith(id) {
       <div class="lt-body"><div class="lt-title">${h.learned?'Изучено':'Отметить как изученный'}</div><div class="lt-sub">${h.learned?'Нажми, чтобы снять отметку':'Изучи хадис и отметь'}</div></div>
     </div>
     ${h.source ? `<div class="dh-section" style="margin-top:20px;"><div class="dh-label">Источник</div><div class="dh-text muted" style="font-size:13px;">${esc(h.source)}</div></div>` : ''}
+    ${typeof renderEcosystemSection === 'function' ? renderEcosystemSection('hadith:' + h.id, { title: 'Связи в Умной книге' }) : ''}
     ${transcriptionNote()}
   `;
   showScreen('screen-hadith-detail');
