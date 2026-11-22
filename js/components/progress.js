@@ -40,15 +40,15 @@ function renderProgressFavorites() {
   if (bms.length) {
     html += '<div class="settings-group"><div class="progress-section-title">Закладки</div>';
     bms.forEach(b => {
-      html += '<div class="learned-item mark-item"><div onclick="openBookmark(\'' + esc(b.id) + '\')" style="cursor:pointer;flex:1;min-width:0"><div class="li-title">' + esc(b.label) + '</div><div class="li-sub">' + new Date(b.ts).toLocaleDateString('ru-RU') + '</div></div><button class="mi-del" onclick="removeBookmark(\'' + esc(b.id) + '\')" aria-label="Удалить">×</button></div>';
+      html += '<div class="learned-item mark-item"><div onclick="openBookmark(\'' + esc(b.id) + '\')" style="cursor:pointer;flex:1;min-width:0"><div class="li-title">' + esc(b.label) + '</div><div class="li-sub">' + new Date(b.ts).toLocaleDateString('ru-RU') + '</div></div><button class="mi-del" onclick="removeBookmark(\'' + esc(b.id) + '\')" aria-label="Удалить"><svg class="ico ico-sm"><use href="#i-x"/></svg></button></div>';
     });
     html += '</div>';
   }
-  if (favQ.length) { html += `<div class="settings-group"><div class="progress-section-title">Суры и аяты</div>`; favQ.forEach(q => { html += `<div class="learned-item" onclick="openQuran('${esc(q.id)}')" style="cursor:pointer"><div><div class="li-title">${esc(q.title)}</div><div class="li-sub">${esc(q.subtitle||'')}</div></div><div class="li-check">★</div></div>`; }); html += `</div>`; }
-  if (favD.length) { html += `<div class="settings-group"><div class="progress-section-title">Дуа</div>`; favD.forEach(d => { html += `<div class="learned-item" onclick="openDua('${esc(d.id)}')" style="cursor:pointer"><div><div class="li-title">${esc(d.title)}</div><div class="li-sub">${esc(d.subtitle||'')}</div></div><div class="li-check">★</div></div>`; }); html += `</div>`; }
-  if (favH.length) { html += `<div class="settings-group"><div class="progress-section-title">Хадисы</div>`; favH.forEach(h => { html += `<div class="learned-item" onclick="openHadith('${esc(h.id)}')" style="cursor:pointer"><div><div class="li-title">${esc(h.title)}</div><div class="li-sub">${esc(h.subtitle||'')}</div></div><div class="li-check">★</div></div>`; }); html += `</div>`; }
+  if (favQ.length) { html += `<div class="settings-group"><div class="progress-section-title">Суры и аяты</div>`; favQ.forEach(q => { html += `<div class="learned-item" onclick="openQuran('${esc(q.id)}')" style="cursor:pointer"><div><div class="li-title">${esc(q.title)}</div><div class="li-sub">${esc(q.subtitle||'')}</div></div><div class="li-check"><svg class="ico ico-sm"><use href="#i-star-filled"/></svg></div></div>`; }); html += `</div>`; }
+  if (favD.length) { html += `<div class="settings-group"><div class="progress-section-title">Дуа</div>`; favD.forEach(d => { html += `<div class="learned-item" onclick="openDua('${esc(d.id)}')" style="cursor:pointer"><div><div class="li-title">${esc(d.title)}</div><div class="li-sub">${esc(d.subtitle||'')}</div></div><div class="li-check"><svg class="ico ico-sm"><use href="#i-star-filled"/></svg></div></div>`; }); html += `</div>`; }
+  if (favH.length) { html += `<div class="settings-group"><div class="progress-section-title">Хадисы</div>`; favH.forEach(h => { html += `<div class="learned-item" onclick="openHadith('${esc(h.id)}')" style="cursor:pointer"><div><div class="li-title">${esc(h.title)}</div><div class="li-sub">${esc(h.subtitle||'')}</div></div><div class="li-check"><svg class="ico ico-sm"><use href="#i-star-filled"/></svg></div></div>`; }); html += `</div>`; }
   if (!bms.length && !favQ.length && !favD.length && !favH.length) {
-    html += '<div class="empty">Пока пусто.<br>Нажимайте ★ на карточках и добавляйте закладки в режиме чтения.</div>';
+    html += '<div class="empty">Пока пусто.<br>Нажимайте на звезду на карточках и добавляйте закладки в режиме чтения.</div>';
   }
   body.innerHTML = html;
 }
@@ -117,7 +117,7 @@ function renderProgressCalendar() {
   let labels = '';
   for (let d=1; d<=daily.length; d++) { if (d===1 || d%5===0 || d===daily.length) labels += `<span>${d}</span>`; else labels += `<span></span>`; }
   body.innerHTML = `
-    <div class="cal-header"><div><div class="month">${MONTHS[m]} ${y}</div><div style="font-size:12px;color:var(--muted);margin-top:2px">${formatHijri(new Date(y, m, 15))}</div></div><div class="cal-nav"><button onclick="shiftMonth(-1)">‹</button><button onclick="shiftMonth(1)">›</button></div></div>
+    <div class="cal-header"><div><div class="month">${MONTHS[m]} ${y}</div><div style="font-size:12px;color:var(--muted);margin-top:2px">${formatHijri(new Date(y, m, 15))}</div></div><div class="cal-nav"><button onclick="shiftMonth(-1)" aria-label="Предыдущий месяц"><svg class="ico"><use href="#i-chevron-left"/></svg></button><button onclick="shiftMonth(1)" aria-label="Следующий месяц"><svg class="ico"><use href="#i-chevron-right"/></svg></button></div></div>
     <div class="cal-grid">${html}</div>
      <div class="cal-summary">
       <div class="stat"><div class="label">Всего за месяц</div><div class="value">${monthTotal}</div></div>
@@ -135,9 +135,9 @@ function renderProgressLearned() {
   const learnedDuas = state.duas.filter(d => d.learned && _progMatch(d.title));
   const learnedHadiths = state.hadiths.filter(h => h.learned && _progMatch(h.title));
   let html = _progSearchHtml();
-  if (learnedQuran.length) { html += `<div class="settings-group"><div class="progress-section-title">Выученные суры и аяты</div>`; learnedQuran.forEach(q => { html += `<div class="learned-item"><div><div class="li-title">${esc(q.title)}</div><div class="li-sub">${q.learnedAt ? formatDateShort(q.learnedAt) : ''}</div></div><div class="li-check">✓</div></div>`; }); html += `</div>`; }
-  if (learnedDuas.length) { html += `<div class="settings-group"><div class="progress-section-title">Выученные дуа</div>`; learnedDuas.forEach(d => { html += `<div class="learned-item"><div><div class="li-title">${esc(d.title)}</div></div><div class="li-check">✓</div></div>`; }); html += `</div>`; }
-  if (learnedHadiths.length) { html += `<div class="settings-group"><div class="progress-section-title">Изученные хадисы</div>`; learnedHadiths.forEach(h => { html += `<div class="learned-item"><div><div class="li-title">${esc(h.title)}</div></div><div class="li-check">✓</div></div>`; }); html += `</div>`; }
+  if (learnedQuran.length) { html += `<div class="settings-group"><div class="progress-section-title">Выученные суры и аяты</div>`; learnedQuran.forEach(q => { html += `<div class="learned-item"><div><div class="li-title">${esc(q.title)}</div><div class="li-sub">${q.learnedAt ? formatDateShort(q.learnedAt) : ''}</div></div><div class="li-check"><svg class="ico ico-sm"><use href="#i-check"/></svg></div></div>`; }); html += `</div>`; }
+  if (learnedDuas.length) { html += `<div class="settings-group"><div class="progress-section-title">Выученные дуа</div>`; learnedDuas.forEach(d => { html += `<div class="learned-item"><div><div class="li-title">${esc(d.title)}</div></div><div class="li-check"><svg class="ico ico-sm"><use href="#i-check"/></svg></div></div>`; }); html += `</div>`; }
+  if (learnedHadiths.length) { html += `<div class="settings-group"><div class="progress-section-title">Изученные хадисы</div>`; learnedHadiths.forEach(h => { html += `<div class="learned-item"><div><div class="li-title">${esc(h.title)}</div></div><div class="li-check"><svg class="ico ico-sm"><use href="#i-check"/></svg></div></div>`; }); html += `</div>`; }
   if (!learnedQuran.length && !learnedDuas.length && !learnedHadiths.length) {
     html += '<div class="empty">Пока ничего не выучено.<br>Начните с раздела «Коран» или «Дуа».</div>';
   }

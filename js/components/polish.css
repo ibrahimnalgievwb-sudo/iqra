@@ -1,0 +1,398 @@
+/* ============================================================
+   POLISH.CSS — финальный слой вёрстки · Проект «Икра» · v443
+   Подключается ПОСЛЕДНИМ (после tajweed.css). Не меняет структуру
+   и логику: только ритм отступов, размеры иконок, ширину контента
+   на больших экранах и читаемость в светлой / тёмной / моно темах.
+   Все цвета — из проектных токенов. Эмодзи и новых цветов нет.
+   ============================================================ */
+
+/* ---------- 0. ТОКЕНЫ РИТМА ---------- */
+:root {
+  --content-max: 760px;          /* ширина колонки контента на планшете и ПК */
+  --card-pad-y: 16px;            /* вертикальный внутренний отступ карточки */
+  --card-pad-x: 18px;            /* горизонтальный внутренний отступ карточки */
+  --card-gap: 10px;              /* расстояние между карточками */
+  --fs-xs: clamp(11px, 2.8vw, 12.5px);   /* минимальный читаемый размер */
+}
+
+/* ---------- 1. ИКОНКИ: классы -sm / -lg / -xl были без стилей ---------- */
+.ico-sm { width: 18px; height: 18px; }
+.ico-lg { width: 32px; height: 32px; }
+.ico-xl { width: 56px; height: 56px; }
+
+/* Иконка рядом с текстом: ровный зазор вместо inline-костылей */
+.btn, .btn-inline, .show-all-btn, .ayah-share-btn, .ayah-tajweed-btn, .mem-reveal-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  line-height: 1.25;
+}
+.btn { display: flex; }
+.btn.btn-inline, .btn-inline { display: inline-flex; }
+.btn > svg.ico, .btn-inline > svg.ico, .show-all-btn > svg.ico,
+.mem-reveal-btn > svg.ico, .ayah-share-btn > svg.ico {
+  margin: 0 !important;
+  vertical-align: baseline !important;
+  flex-shrink: 0;
+}
+.mem-reveal-btn { display: flex; width: 100%; }
+
+/* ---------- 2. ПРОКРУТКА: лишнее место внизу экранов ----------
+   Нижняя панель стоит в потоке страницы, а не поверх неё,
+   поэтому прибавлять к отступу ещё высоту панели не нужно. */
+.list, .form, .cal, .settings, .content-list, .detail-body {
+  padding-bottom: calc(var(--space-4) + 4px);
+}
+.fullscreen .fs-body { padding-bottom: calc(var(--space-4) + 8px); }
+.counter { padding-bottom: calc(var(--space-4) + 4px); }
+.fs-scroll-top { bottom: calc(84px + var(--safe-bottom)); }
+
+/* ---------- 3. ШИРИНА КОНТЕНТА НА ПЛАНШЕТЕ И ПК ----------
+   На телефоне эффекта нет. На широком экране текст не растягивается
+   на всю ширину, а лежит в читаемой колонке по центру. */
+.screen > .list, .screen > .content-list, .screen > .form,
+.screen > .cal, .screen > .settings {
+  padding-left:  max(var(--space-3), calc((100% - var(--content-max)) / 2));
+  padding-right: max(var(--space-3), calc((100% - var(--content-max)) / 2));
+}
+.screen > .detail-body {
+  padding-left:  max(var(--space-4), calc((100% - var(--content-max)) / 2));
+  padding-right: max(var(--space-4), calc((100% - var(--content-max)) / 2));
+}
+.screen > .header {
+  padding-left:  max(clamp(16px, 4vw, 22px), calc((100% - var(--content-max)) / 2));
+  padding-right: max(clamp(16px, 4vw, 22px), calc((100% - var(--content-max)) / 2));
+}
+.screen > :not(.header):not(.list):not(.content-list):not(.detail-body):not(.cal):not(.settings):not(.form):not(.counter):not(.fab):not(.top-progress) {
+  width: 100%;
+  max-width: var(--content-max);
+  margin-left: auto;
+  margin-right: auto;
+}
+.counter > * { max-width: min(100%, 520px); }
+
+.fullscreen > .fs-body {
+  padding-left:  max(var(--space-4), calc((100% - var(--content-max)) / 2));
+  padding-right: max(var(--space-4), calc((100% - var(--content-max)) / 2));
+}
+.fullscreen > .fs-header, .fullscreen > .fs-nav, .fullscreen > .fs-bottom-nav {
+  padding-left:  max(var(--space-3), calc((100% - var(--content-max)) / 2 + 8px));
+  padding-right: max(var(--space-3), calc((100% - var(--content-max)) / 2 + 8px));
+}
+.fullscreen > .search-filters, #memorize-mode > div:not(.fs-header):not(.fs-body):not(.fs-nav) {
+  width: 100%; max-width: var(--content-max); margin-left: auto; margin-right: auto;
+}
+
+/* ---------- 4. КАРТОЧКИ: единый компактный ритм ----------
+   Раньше у всех карточек было 24px 20px, а вложенные карточки
+   (аят внутри блока хадиса) складывали отступы и давали пустоты. */
+.content-card, .tasbih-card, .detail-hero, .bismillah-card, .dash-quote,
+.dash-progress, .dash-greeting, .dash-stats, .dash-quick, .continue-card,
+.daily-goal, .bar-chart, .stat, .stat-card, .spiritual-card, .mem-block {
+  padding: var(--card-pad-y) var(--card-pad-x);
+}
+.read-ayah { padding: var(--card-pad-y) var(--card-pad-x); margin-bottom: var(--card-gap); }
+.modal { padding: 20px var(--card-pad-x); }
+.content-card { margin-bottom: var(--card-gap); }
+.stat-card { padding: 14px 16px; }
+.mem-block { margin-bottom: var(--space-2); }
+
+/* Вложенный аят внутри карточки хадиса / дуа: без второй рамки и второго отступа */
+.detail-hero .read-ayah {
+  padding: 0; margin: 14px 0 0;
+  background: none; border: 0; box-shadow: none; border-radius: 0;
+}
+
+/* Карточка суры / дуа / хадиса в списке */
+.content-card .c-title { padding-right: 44px; line-height: 1.3; margin-bottom: 2px; }
+.content-card.has-num .c-title { margin-left: 46px; min-height: 34px; display: flex; align-items: center; padding-right: 44px; }
+.content-card.has-num .c-sub { margin-left: 46px; margin-top: -4px; }
+.content-card .c-sub { margin-bottom: 8px; line-height: 1.4; }
+.content-card .c-ar { margin: 4px 0 6px; }
+.content-card .c-tr { line-height: 1.5; }
+/* Плашка «С аята 7» больше не налезает на заголовок */
+.content-card .c-badge {
+  position: static; display: inline-flex; align-items: center;
+  margin: 0 0 6px; font-size: 11px; padding: 3px 9px; line-height: 1.2;
+}
+.content-card.has-num .c-badge { margin-left: 46px; }
+.path-card-head .c-badge { margin: 0; }
+.content-card .star-btn { top: 10px; right: 10px; }
+
+/* Блок сведений о материале */
+.detail-hero .dh-sub { margin-bottom: 0; line-height: 1.4; }
+.detail-hero .dh-title { margin-bottom: 4px; }
+.detail-hero .dh-section { margin-bottom: var(--space-2); }
+
+/* ---------- 5. АЯТ: компактная арабская строка ---------- */
+.read-ayah-num { margin-bottom: 6px; }
+.read-ayah-ar { padding-top: 2px; padding-bottom: 4px; margin-bottom: 8px; }
+.read-ayah-tr { margin-bottom: 6px; line-height: 1.55; }
+.read-ayah-trn { line-height: 1.65; margin-bottom: 0; }
+.ayah-share-btn, .ayah-tajweed-btn { margin-top: 12px; min-height: 40px; }
+.bismillah-card { margin-bottom: var(--space-2); }
+.bismillah-card + div[style*="height:16px"] { height: 4px !important; }
+.bismillah-card .b-ar { margin-bottom: 4px; }
+
+/* ---------- 6. КНОПКИ ДЕЙСТВИЙ И ПЕРЕКЛЮЧАТЕЛИ ---------- */
+.detail-actions { gap: 8px; margin: var(--space-2) 0; }
+.detail-actions .btn {
+  padding: 12px 6px; min-height: 46px; font-size: 13.5px; margin-bottom: 0; gap: 6px;
+}
+.learned-toggle { margin: 10px 0 var(--space-2); padding: 12px 14px; }
+.note-box { margin: 0 0 var(--space-2); }
+.btn-inline, .btn.btn-inline { margin: 14px auto 0; padding: 10px 16px; min-height: 42px; border-radius: 12px; }
+.path-card-actions .btn-inline, .path-empty-smart .pes-mode-actions .btn-inline { margin: 0; }
+
+/* ---------- 7. ГЛАВНЫЙ ЭКРАН ---------- */
+.spiritual-card { margin-bottom: var(--space-2); }
+.spiritual-card .sc-trn-bismillah { margin-bottom: 14px; }
+.spiritual-card .sc-divider { margin: 0 auto 14px; }
+.spiritual-card .sc-trn-alyaq { margin-bottom: 4px; }
+.dash-greeting-block { margin: 4px 0 14px; }
+.dash-quote, .dash-call-card, .continue-card, .dash-quick { margin-bottom: var(--space-2); }
+.dash-quote .dq-title { margin-bottom: 6px; }
+.dash-quote .dq-ar { margin-bottom: 6px; }
+.dash-grid-2x2 { margin-bottom: var(--space-2); }
+
+/* «Продолжить чтение»: вместо серого градиента — спокойная золотая подложка */
+.continue-card {
+  min-height: 0;
+  background: linear-gradient(var(--nav-active-surface), var(--nav-active-surface)), var(--card);
+  border: 1px solid var(--nav-active-border);
+}
+.continue-card .cc-label { color: var(--gold-text-light); }
+[data-theme="dark"] .continue-card .cc-label,
+[data-theme="mono"] .continue-card .cc-label { color: var(--gold-text-dark); }
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme]) .continue-card .cc-label { color: var(--gold-text-dark); }
+}
+
+/* ---------- 8. ЭКРАН «ПУТЬ»: два ряда фишек выглядят одинаково ---------- */
+.path-controls { gap: 8px; padding-bottom: 6px; }
+.path-type-filters .filter-chip, .path-chip {
+  min-height: 34px; padding: 6px 13px; font-size: 13px;
+}
+#path-chips-container { padding-top: 2px; padding-bottom: 8px; }
+.path-catalog-section { padding: 2px 0 12px; }
+.path-catalog-section .pcs-head { padding: 2px 2px 10px; }
+.path-catalog-card { padding: 12px 14px; gap: 4px; }
+.path-empty-smart, .path-matched-bar, .path-focus-banner { margin-bottom: var(--space-2); }
+.path-empty-smart { padding: 16px 16px; }
+
+/* Связи Умной книги: аккуратные отступы и ровные фишки */
+.ecosystem-box { margin-top: 12px; padding: 12px 14px; }
+.ecosystem-box.ecosystem-detail { margin-top: 14px; padding: 14px; }
+.ecosystem-pill { min-height: 32px; padding: 5px 11px; }
+.ecosystem-pill svg.ico { width: 16px; height: 16px; }
+.ecosystem-group-label { margin-bottom: 5px; }
+.path-semantic-box { margin-top: 12px; padding: 12px 14px; }
+.path-card-actions { margin-top: 12px; }
+
+/* ---------- 9. ШАПКИ И ПОЛНОЭКРАННЫЕ РЕЖИМЫ ---------- */
+/* Заголовок читалки был в весе 300 — тонкий и слабый на золоте */
+.fullscreen .fs-header h2 {
+  flex: 1; min-width: 0; text-align: center;
+  font-size: var(--fs-md); font-weight: 600; color: var(--text);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.fullscreen .fs-header input { margin: 0 var(--space-2); min-height: 40px; }
+.header h1 { overflow-wrap: anywhere; }
+
+/* Настройки: переключатель темы не должен ломать строку */
+.setting-row:has(> .seg) { flex-direction: column; align-items: stretch; gap: 10px; }
+.setting-row > .seg { width: 100%; min-width: 0; }
+.seg button { padding: 8px 6px; font-size: 13px; white-space: nowrap; hyphens: none; word-break: keep-all; }
+.setting-row { padding: 12px var(--space-3); }
+
+/* ---------- 11. ПРОЧЕЕ ---------- */
+.empty { padding: 40px var(--space-4); }
+.stat-grid { gap: var(--space-2); margin-bottom: var(--space-2); }
+.settings-group { margin-bottom: var(--space-2); }
+.progress-section-title { padding: var(--space-2) var(--space-3) 6px; }
+.learned-item { padding: 10px var(--space-3); }
+.transcription-note { margin: var(--space-2) 0; padding: 12px 14px; }
+.toast { max-width: min(90vw, 480px); }
+
+/* Узкие телефоны: чуть плотнее */
+@media (max-width: 380px) {
+  :root { --card-pad-x: 14px; --card-pad-y: 14px; }
+  .detail-actions .btn { font-size: 12.5px; gap: 4px; }
+}
+
+/* ---------- 12. КОНТРАСТ ЗОЛОТОГО ТЕКСТА В СВЕТЛОЙ ТЕМЕ ----------
+   --gold-accent (#C6A24B) на светлом фоне даёт контраст около 2.4:1.
+   Для ТЕКСТА берём сплошной тёмно-золотой токен темы (как у вкладок и фишек);
+   акцентный цвет остаётся только для линий и иконок. */
+.ayah-share-btn, .ayah-tajweed-btn, .ayah-share-btn svg, .ayah-tajweed-btn svg {
+  color: var(--gold-text-light);
+}
+.ayah-share-btn { border-color: var(--nav-active-border); background: var(--nav-active-surface); }
+.ayah-tajweed-btn { border-color: var(--nav-active-border); }
+.tajweed-legend .tl-title, .modal.tajweed-modal .tm-title { color: var(--gold-text-light); }
+[data-theme="dark"] .ayah-share-btn, [data-theme="mono"] .ayah-share-btn,
+[data-theme="dark"] .ayah-tajweed-btn, [data-theme="mono"] .ayah-tajweed-btn,
+[data-theme="dark"] .ayah-share-btn svg, [data-theme="mono"] .ayah-share-btn svg,
+[data-theme="dark"] .ayah-tajweed-btn svg, [data-theme="mono"] .ayah-tajweed-btn svg,
+[data-theme="dark"] .tajweed-legend .tl-title, [data-theme="mono"] .tajweed-legend .tl-title,
+[data-theme="dark"] .modal.tajweed-modal .tm-title, [data-theme="mono"] .modal.tajweed-modal .tm-title {
+  color: var(--gold-text-dark);
+}
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme]) .ayah-share-btn, html:not([data-theme]) .ayah-tajweed-btn,
+  html:not([data-theme]) .ayah-share-btn svg, html:not([data-theme]) .ayah-tajweed-btn svg { color: var(--gold-text-dark); }
+}
+
+/* ---------- 13. ИНДИКАТОРЫ ПРОГРЕССА И ЗНАЧКИ: золото вместо чёрного ----------
+   --accent в светлой теме почти чёрный, в тёмной белый: для заполнения
+   полос, колец и значков берём золото из палитры проекта. */
+.dg-bar > div, .mem-progress > div, .top-progress > div { background: var(--gold-gradient); }
+.mini-ring .ring-fg, .counter .ring-fg { stroke: var(--gold-standard); }
+.counter .num.done { color: var(--gold-text-light); }
+[data-theme="dark"] .counter .num.done, [data-theme="mono"] .counter .num.done { color: var(--gold-text-dark); }
+.tasbih-card .today-badge {
+  background: var(--nav-active-surface); color: var(--gold-text-light);
+  border: 1px solid var(--nav-active-border); font-size: 11px; padding: 2px 8px; top: 10px; left: 10px;
+}
+[data-theme="dark"] .tasbih-card .today-badge, [data-theme="mono"] .tasbih-card .today-badge { color: var(--gold-text-dark); }
+
+/* Плавающая кнопка «+» не закрывает последнюю карточку тасбиха */
+#home-list { padding-bottom: 96px; }
+
+/* ---------- 14. МЕЛОЧИ ПОСЛЕ ПРОВЕРКИ ЭКРАНОВ ---------- */
+/* Полоса «Сегодня» на экране прогресса задана inline — перекрашиваем в золото */
+#prog-body .stat-card div[style*="scaleX"] { background: var(--gold-gradient) !important; }
+#prog-body > .stat-card { margin-bottom: var(--space-2); }
+/* Кнопки «Таджвид» и «Поделиться аятом» рядом: ровный зазор */
+.ayah-tajweed-btn { margin-left: 0; margin-right: 8px; }
+/* На широком экране кнопка «+» держится у края колонки, а не у края окна */
+.fab { right: max(24px, calc((100vw - var(--content-max)) / 2 + 16px)); }
+
+/* Уведомления вместо alert(): длинный текст переносится, а не обрезается */
+.toast {
+  white-space: normal; text-align: center; line-height: 1.35;
+  border-radius: 20px; padding: 10px var(--space-4);
+  width: max-content; max-width: min(90vw, 440px);
+  overflow: visible; text-overflow: clip;
+}
+
+/* Уведомление: длинный текст переносится, а не обрезается многоточием */
+.toast { white-space: normal; text-align: center; width: max-content; line-height: 1.35; padding: 10px 18px; }
+
+/* ---------- 15. SVG-ИКОНКИ ВМЕСТО ТЕКСТОВЫХ СИМВОЛОВ (→ ← ✓ ★ × ‹ ›) ---------- */
+.filter-chip { display: inline-flex; align-items: center; gap: 6px; }
+.fs-nav .btn, #onboarding .ob-nav .btn { display: flex; align-items: center; justify-content: center; gap: 8px; }
+.next-toast .nt-btn .ico { width: 18px; height: 18px; }
+.cal-nav button .ico { width: 18px; height: 18px; }
+.learned-item .li-check { display: flex; align-items: center; color: var(--gold-text-light); }
+[data-theme="dark"] .learned-item .li-check, [data-theme="mono"] .learned-item .li-check { color: var(--gold-text-dark); }
+.learned-item .li-check .ico { width: 20px; height: 20px; }
+.learned-toggle .lt-icon .ico { width: 18px; height: 18px; }
+.dash-quote .dq-arrow { display: inline-flex; align-items: center; }
+.dash-quote .dq-arrow .ico { width: 18px; height: 18px; }
+.mark-item .mi-del { display: flex; align-items: center; justify-content: center; }
+.mark-item .mi-del .ico, .reminder-del .ico, .reminder-item button .ico { width: 16px; height: 16px; }
+
+/* ---------- 16. ШАПКА ПОЛНОЭКРАННЫХ РЕЖИМОВ В СВЕТЛОЙ ТЕМЕ ----------
+   layout.css красит шапку через rgba(var(--bg-rgb), .85), но --bg-rgb
+   нигде не был объявлен: шапка была чёрной во всех темах, а в светлой
+   на ней терялся тёмный текст. Объявляем значение под каждую тему. */
+:root, [data-theme="light"] { --bg-rgb: 247, 245, 239; }
+[data-theme="dark"] { --bg-rgb: 5, 5, 5; }
+[data-theme="mono"] { --bg-rgb: 11, 11, 11; }
+@media (prefers-color-scheme: dark) { html:not([data-theme]) { --bg-rgb: 5, 5, 5; } }
+
+/* ---------- 17. ТАФСИР: классы вместо inline-стилей (js/components/tafsir.js) ---------- */
+.tafsir-full {
+  --tg: var(--gold-text-light);                 /* золото для ТЕКСТА: достаточный контраст */
+  margin-top: 16px;
+  background: var(--card2);
+  border: 1px solid var(--card-outline);
+  border-left: 3px solid var(--gold-accent);
+  border-radius: 12px;
+  text-align: left; direction: ltr;
+  overflow: hidden;
+}
+[data-theme="dark"] .tafsir-full, [data-theme="mono"] .tafsir-full { --tg: var(--gold-text-dark); }
+@media (prefers-color-scheme: dark) { html:not([data-theme]) .tafsir-full { --tg: var(--gold-text-dark); } }
+.tafsir-full.is-placeholder { padding: 14px; }
+
+.tafsir-summary {
+  display: flex; align-items: center; gap: 8px;
+  padding: 14px; cursor: pointer; list-style: none; outline: none;
+  font-size: 14px; font-weight: 700; color: var(--tg);
+}
+.tafsir-summary::-webkit-details-marker { display: none; }
+.tafsir-full:not(.is-placeholder) > .tafsir-summary {
+  position: sticky; top: 0; z-index: 10;
+  background: var(--card2); border-bottom: 1px solid var(--border);
+}
+.tafsir-full.is-placeholder > .tafsir-summary { padding: 0; }
+.tafsir-summary:focus-visible { outline: 2px solid var(--gold-accent); outline-offset: -2px; }
+
+/* Стрелка раскрытия — CSS-шеврон (символ ▶ на iOS мог становиться цветным эмодзи) */
+.tafsir-arrow {
+  flex: none; width: 7px; height: 7px;
+  border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted);
+  transform: rotate(-45deg);
+  transition: transform var(--dur-base) var(--ease-out);
+}
+details[open] > .tafsir-summary .tafsir-arrow { transform: rotate(45deg); }
+
+.tafsir-body {
+  padding: 14px; font-size: 15px; line-height: 1.7; color: var(--text);
+  max-height: 60vh; overflow-y: auto;
+}
+.tafsir-placeholder-note {
+  margin-top: 12px; padding-top: 12px;
+  border-top: 1px dashed var(--border);
+  font-size: 14px; line-height: 1.6; color: var(--muted);
+  text-align: center; font-style: italic;
+}
+
+.tafsir-term { color: var(--muted); font-style: italic; font-size: 0.9em; }
+.scholar-link {
+  color: var(--text); font-weight: 600; cursor: pointer;
+  text-decoration: underline; text-decoration-color: var(--gold-accent);
+  text-decoration-thickness: 1.5px; text-underline-offset: 3px;
+}
+
+.tafsir-themes { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.tafsir-theme {
+  padding: 3px 8px; border-radius: 6px;
+  background: var(--gold-standard); color: #1A1405;
+  font-size: 11px; font-weight: 600; line-height: 1.3;
+}
+
+.tafsir-hadiths { margin-top: 14px; padding-top: 10px; border-top: 1px dashed var(--border); }
+.tafsir-hadiths-title { margin-bottom: 8px; font-size: 12px; font-weight: 700; color: var(--tg); }
+.tafsir-hadith {
+  margin-bottom: 8px; padding: 10px;
+  background: var(--card); border-radius: 8px;
+  font-size: 13px; line-height: 1.5;
+}
+.tafsir-hadith:last-child { margin-bottom: 0; }
+.tafsir-hadith-text { margin-bottom: 6px; color: var(--text); }
+.tafsir-hadith-meta { font-size: 12px; line-height: 1.5; color: var(--muted); }
+.tafsir-status { font-weight: 600; }
+.tafsir-status.is-sahih { color: var(--tg); }
+.tafsir-status.is-hasan { color: var(--text); }
+.tafsir-status.is-other { color: var(--muted); }
+
+.tafsir-israiliyat {
+  margin-top: 14px; padding: 12px;
+  background: var(--nav-active-surface); border-left: 3px solid var(--gold-accent); border-radius: 8px;
+  font-size: 12px; line-height: 1.6; color: var(--muted);
+}
+.tafsir-israiliyat b { color: var(--tg); }
+
+.tafsir-foot {
+  display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
+  margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--border);
+}
+.tafsir-source { font-size: 12px; line-height: 1.4; color: var(--muted); font-style: italic; }
+.tafsir-info-btn {
+  width: auto; margin: 0; padding: 6px 12px; min-height: 32px;
+  border-radius: 8px; font-size: 12px; font-weight: 600; gap: 6px;
+}

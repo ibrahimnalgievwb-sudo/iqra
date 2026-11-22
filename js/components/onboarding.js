@@ -29,8 +29,8 @@ function renderOnboarding() {
   });
   const prev = document.getElementById('ob-prev');
   const next = document.getElementById('ob-next');
-  if (prev) prev.style.display = obStep === 0 ? 'none' : 'block';
-  if (next) next.textContent = obStep === OB_TOTAL - 1 ? 'Начать ✓' : 'Далее →';
+  if (prev) prev.style.display = obStep === 0 ? 'none' : 'flex';
+  if (next) next.innerHTML = obStep === OB_TOTAL - 1 ? 'Начать<svg class="ico ico-sm"><use href="#i-check"/></svg>' : 'Далее<svg class="ico ico-sm"><use href="#i-arrow-right"/></svg>';
 }
 function nextOnboarding() {
   if (obStep < OB_TOTAL - 1) { obStep++; renderOnboarding(); }

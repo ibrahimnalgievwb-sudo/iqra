@@ -86,7 +86,7 @@ function renderDashboard() {
   const qEl = document.getElementById('dash-quote');
   if (qEl && _dashQuote) {
     qEl.innerHTML =
-      '<div class="dq-head"><span class="dq-badge">' + esc(_dashQuote.badge) + '</span><div style="display:flex;gap:8px;align-items:center;"><button class="icon-btn ghost" style="width:24px;height:24px;padding:0;" onclick="event.stopPropagation();refreshQuote()" aria-label="Другая цитата"><svg class="ico ico-sm"><use href="#i-rotate-ccw"/></svg></button><span class="dq-arrow">→</span></div></div>' +
+      '<div class="dq-head"><span class="dq-badge">' + esc(_dashQuote.badge) + '</span><div style="display:flex;gap:8px;align-items:center;"><button class="icon-btn ghost" style="width:24px;height:24px;padding:0;" onclick="event.stopPropagation();refreshQuote()" aria-label="Другая цитата"><svg class="ico ico-sm"><use href="#i-rotate-ccw"/></svg></button><span class="dq-arrow"><svg class="ico ico-sm"><use href="#i-arrow-right"/></svg></span></div></div>' +
       '<div class="dq-title">' + esc(_dashQuote.title) + '</div>' +
       (_dashQuote.ar ? '<div class="dq-ar ar-font">' + esc(_dashQuote.ar) + '</div>' : '') +
       (_dashQuote.tr ? '<div class="dq-tr">' + esc(_dashQuote.tr) + '</div>' : '');

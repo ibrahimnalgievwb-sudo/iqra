@@ -91,13 +91,13 @@ function scheduleReminders() {
 }
 
 /* ---------- TOAST ---------- */
-function showMarkToast(text) {
+function showMarkToast(text, ms) {
   var el = document.getElementById('toast');
   if (!el) return;
   el.textContent = text;
   el.classList.add('show');
   if (_toastTimer) clearTimeout(_toastTimer);
-  _toastTimer = setTimeout(function(){ el.classList.remove('show'); }, 1800);
+  _toastTimer = setTimeout(function(){ el.classList.remove('show'); }, ms || 1800);
 }
 /* ---------- MODAL / CONFIRM ---------- */
 function closeModal() { 

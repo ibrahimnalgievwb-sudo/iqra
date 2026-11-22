@@ -1,4 +1,4 @@
-const SW_VERSION   = 'iqra-v443'; /* МЕНЯЙ ВЕРСИЮ ТОЛЬКО ЗДЕСЬ */
+const SW_VERSION   = 'iqra-v445'; /* МЕНЯЙ ВЕРСИЮ ТОЛЬКО ЗДЕСЬ */
 const SW_VER_SHORT = SW_VERSION.replace(/^iqra-/, '');
 const CACHE_STATIC = 'iqra-static-' + SW_VER_SHORT;
 const CACHE_DATA   = 'iqra-data-'   + SW_VER_SHORT;
@@ -21,6 +21,7 @@ const PRECACHE_STATIC = [
   './js/actions.js',
   './js/deprecated.js',
   './js/graph-engine.js',
+  './js/components/tafsir.js',
   './js/components/quran.js',
   './js/components/reader.js',
   './js/components/tasbih.js',

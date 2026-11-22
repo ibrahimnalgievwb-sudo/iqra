@@ -35,7 +35,7 @@ function openHadith(id) {
     ${h.note ? `<div class="note-box"><svg class="ico ico-sm" style="flex-shrink:0;color:var(--accent2)"><use href="#i-lightbulb"/></svg><div>${escNl(h.note)}</div></div>` : ''}
     <div class="detail-actions"><button class="btn" onclick="openMemorizeFor(getHadithById('${escAttr(h.id)}'))"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-lightbulb"/></svg>Заучить</button><button class="btn secondary" onclick="shareItem('hadith','${escAttr(h.id)}')"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-upload"/></svg>Поделиться</button></div>
     <div class="learned-toggle ${h.learned?'done':''}" onclick="toggleHadithLearned('${escAttr(h.id)}')">
-      <div class="lt-icon">${h.learned?'✓':'<svg class="ico ico-sm"><use href="#i-book"/></svg>'}</div>
+      <div class="lt-icon">${h.learned?'<svg class="ico ico-sm"><use href="#i-check"/></svg>':'<svg class="ico ico-sm"><use href="#i-book"/></svg>'}</div>
       <div class="lt-body"><div class="lt-title">${h.learned?'Изучено':'Отметить как изученный'}</div><div class="lt-sub">${h.learned?'Нажми, чтобы снять отметку':'Изучи хадис и отметь'}</div></div>
     </div>
     ${h.source ? `<div class="dh-section" style="margin-top:20px;"><div class="dh-label">Источник</div><div class="dh-text muted" style="font-size:13px;">${esc(h.source)}</div></div>` : ''}

@@ -9,7 +9,7 @@
 function openMemorizeFor(item) {
   memorizeItem = item;
   memorizeAyahs = parseAyahs(item);
-  if (!memorizeAyahs.length) { alert('Нет текста для заучивания'); return; }
+  if (!memorizeAyahs.length) { showMarkToast('Нет текста для заучивания', 3200); return; }
   memorizeStep = 0; memorizePhase = 'learn'; memorizeRevealed = false;
   renderMemorize();
   document.getElementById('memorize-mode').classList.add('active');
@@ -35,9 +35,9 @@ function renderMemorize() {
   document.getElementById('mem-body').innerHTML = body;
   const nextBtn = document.getElementById('mem-next');
   const prevBtn = document.getElementById('mem-prev');
-  if (memorizePhase === 'learn') nextBtn.textContent = memorizeStep === total-1 ? 'К проверке →' : 'Далее →';
-  else nextBtn.textContent = memorizeStep === total-1 ? 'Готово ✓' : 'Далее →';
-  prevBtn.textContent = memorizeStep === 0 && memorizePhase === 'learn' ? 'Закрыть' : '← Назад';
+  if (memorizePhase === 'learn') nextBtn.innerHTML = (memorizeStep === total-1 ? 'К проверке' : 'Далее') + '<svg class="ico ico-sm"><use href="#i-arrow-right"/></svg>';
+  else nextBtn.innerHTML = memorizeStep === total-1 ? 'Готово<svg class="ico ico-sm"><use href="#i-check"/></svg>' : 'Далее<svg class="ico ico-sm"><use href="#i-arrow-right"/></svg>';
+  prevBtn.innerHTML = memorizeStep === 0 && memorizePhase === 'learn' ? 'Закрыть' : '<svg class="ico ico-sm"><use href="#i-arrow-left"/></svg>Назад';
 }
 function revealMemorize() { memorizeRevealed = true; renderMemorize(); }
 function memPrev() {
