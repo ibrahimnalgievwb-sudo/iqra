@@ -243,6 +243,16 @@ function openCounter(id) {
   document.getElementById('c-tr').textContent = t.transcription;
   document.getElementById('c-trn').textContent = t.translation;
   document.getElementById('c-target').textContent = 'из ' + t.target;
+  const dalilEl = document.getElementById('c-dalil');
+  if (dalilEl) {
+    if (t.dalil) {
+      dalilEl.style.display = 'flex';
+      dalilEl.innerHTML = '<svg class="ico ico-sm" style="flex-shrink:0;color:var(--accent2)"><use href="#i-lightbulb"/></svg><div><b>Далиль (доказательство из Сунны):</b><br>' + esc(t.dalil) + '</div>';
+    } else {
+      dalilEl.style.display = 'none';
+      dalilEl.innerHTML = '';
+    }
+  }
   const ecoEl = document.getElementById('counter-ecosystem');
   if (ecoEl) {
     ecoEl.innerHTML = (typeof renderEcosystemSection === 'function')

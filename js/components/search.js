@@ -45,7 +45,7 @@ function renderGlobalSearch() {
   const hasGraph = typeof IqraGraph !== 'undefined';
   const indexOrCtx = hasGraph ? (typeof getPathGraphIndex === 'function' ? getPathGraphIndex() : (typeof getPathGraphContext === 'function' ? getPathGraphContext() : null)) : null;
 
-  if (!q) {
+  if (!q && searchFilters.type === 'all') {
     let quickHtml = '';
     if (hasGraph && indexOrCtx) {
       const themes = IqraGraph.getThemeCatalog(indexOrCtx).slice(0, 4);
@@ -59,7 +59,7 @@ function renderGlobalSearch() {
           '</div>' +
         '</div>';
     }
-    el.innerHTML = '<div class="empty" style="padding-bottom:18px;">Введите запрос — поиск по тасбихам, Корану (включая «2:255»), дуа и хадисам, включая арабский текст без огласовок.</div>' + quickHtml;
+    el.innerHTML = '<div class="empty" style="padding-bottom:18px;">Введите запрос или выберите категорию выше — поиск по тасбихам, Корану (включая «2:255»), дуа и хадисам.</div>' + quickHtml;
     return;
   }
 
@@ -86,6 +86,7 @@ function renderGlobalSearch() {
   };
 
   const score = (it) => {
+    if (!q) return 1;
     const t = hasGraph ? IqraGraph.normalizeSearchText(it.title || '') : (it.title || '').toLowerCase();
     const num = String(it.number || '').toLowerCase();
     let w = 0;
