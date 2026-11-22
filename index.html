@@ -14,6 +14,10 @@
 <meta name="robots" content="noindex, nofollow">
 <meta name="google" content="notranslate">
 <title>Iqra | Читай</title>
+<meta name="description" content="Коран (114 сур, Мединский мусхаф), офлайн-таджвид, Умная книга по Корану и Сунне, тафсиры, хадисы, дуа и тасбих.">
+<meta property="og:title" content="Iqra | Читай">
+<meta property="og:description" content="Коран (114 сур, Мединский мусхаф), офлайн-таджвид, Умная книга по Корану и Сунне, тафсиры, хадисы, дуа и тасбих.">
+<meta property="og:type" content="website">
 <link rel="icon" type="image/png" href="./assets/icons/favicon.png">
 <link rel="apple-touch-icon" href="./assets/icons/apple-touch-icon.png">
 <link rel="manifest" href="./manifest.json">
@@ -151,37 +155,39 @@
 <div class="screen active" id="screen-dashboard">
   <div class="header dash-header" style="justify-content: flex-end;">
     <div class="dash-header-actions">
-      <button class="icon-btn ghost" data-click='[["switchTab","cal"]]' aria-label="Статистика"><svg class="ico"><use href="#i-chart"/></svg></button>
-      <button class="icon-btn" data-click='[["openSettings"]]' aria-label="Настройки"><svg class="ico"><use href="#i-settings"/></svg></button>
+      <button type="button" class="icon-btn ghost" data-click='[["toggleScreenGuide","dashboard"]]' aria-label="Справка по главной панели"><span class="guide-help-glyph">?</span></button>
+      <button type="button" class="icon-btn ghost" data-click='[["switchTab","cal"]]' aria-label="Статистика"><svg class="ico"><use href="#i-chart"/></svg></button>
+      <button type="button" class="icon-btn" data-click='[["openSettings"]]' aria-label="Настройки"><svg class="ico"><use href="#i-settings"/></svg></button>
     </div>
   </div>
   
   <div class="list" id="dashboard-list">
+    <div id="guide-slot-dashboard"></div>
     <div id="dash-spiritual"></div> 
     <div class="dash-greeting-block">
       <div class="dash-salam-subtle">Ассаляму алейкум</div>
       <div class="dash-hijri-gold text-gold-metallic" id="dash-hijri-header"></div>
     </div>
     <div id="dash-continue-block"></div>
-    <div class="dash-call-card" data-click='[["switchTab","path"]]'>
+    <div class="dash-call-card" role="button" tabindex="0" data-click='[["switchTab","path"]]'>
       <div class="dcc-title">Что тревожит вашу душу?</div>
       <div class="dcc-sub">Найдите ответ в Коране и Сунне</div>
     </div>
-    <div class="dash-quote" id="dash-quote" data-click='[["dashQuoteTap"]]'></div>
+    <div class="dash-quote" id="dash-quote" role="button" tabindex="0" data-click='[["dashQuoteTap"]]'></div>
     <div class="dash-grid-2x2">
-      <div class="dash-grid-item" data-click='[["openNight",0]]'>
+      <div class="dash-grid-item" role="button" tabindex="0" data-click='[["openNight",0]]'>
         <svg class="ico dgi-icon"><use href="#i-moon"/></svg>
         <div class="dgi-title">Ночное чтение</div>
       </div>
-      <div class="dash-grid-item" data-click='[["switchTab","quran"],["setQuranFilter","ruqyah"]]'>
+      <div class="dash-grid-item" role="button" tabindex="0" data-click='[["switchTab","quran"],["setQuranFilter","ruqyah"]]'>
         <svg class="ico dgi-icon"><use href="#i-shield"/></svg>
         <div class="dgi-title">Шариатская рукья</div>
       </div>
-      <div class="dash-grid-item" data-click='[["openFavorites"]]'>
+      <div class="dash-grid-item" role="button" tabindex="0" data-click='[["openFavorites"]]'>
         <svg class="ico dgi-icon"><use href="#i-star"/></svg>
         <div class="dgi-title">Метки</div>
       </div>
-      <div class="dash-grid-item" data-click='[["openDua","dua_anxiety"]]'>
+      <div class="dash-grid-item" role="button" tabindex="0" data-click='[["openDua","dua_anxiety"]]'>
         <svg class="ico dgi-icon"><use href="#i-dua"/></svg>
         <div class="dgi-title">Дуа дня</div>
       </div>
@@ -190,8 +196,9 @@
 </div>
 
 <div class="screen" id="screen-tasbih">
-  <div class="header"><h1>Тасбих</h1><div style="display:flex;gap:6px"><button class="icon-btn ghost" data-click='[["openSearch"]]' aria-label="Поиск"><svg class="ico"><use href="#i-search"/></svg></button><button class="icon-btn" data-click='[["openSettings"]]' aria-label="Настройки"><svg class="ico"><use href="#i-settings"/></svg></button></div></div>
+  <div class="header"><h1>Тасбих</h1><div class="header-actions"><button type="button" class="icon-btn ghost" data-click='[["toggleScreenGuide","tasbih"]]' aria-label="Справка по тасбиху"><span class="guide-help-glyph">?</span></button><button type="button" class="icon-btn ghost" data-click='[["openSearch"]]' aria-label="Поиск"><svg class="ico"><use href="#i-search"/></svg></button><button type="button" class="icon-btn" data-click='[["openSettings"]]' aria-label="Настройки"><svg class="ico"><use href="#i-settings"/></svg></button></div></div>
   <div class="list" id="home-list">
+    <div id="guide-slot-tasbih"></div>
     <div class="home-controls">
       <div class="search-wrap"><input id="search" placeholder="Поиск…" data-input='[["debouncedRenderTasbih"]]'></div>
       <select class="sort-select" id="sort" data-change='[["renderTasbih"]]'>
@@ -274,13 +281,17 @@
 </div>
 
 <div class="screen" id="screen-quran">
-  <div class="header"><h1>Коран</h1><button class="icon-btn ghost" data-click='[["openSearch"]]' aria-label="Поиск"><svg class="ico"><use href="#i-search"/></svg></button></div>
+  <div class="header"><h1>Коран</h1><div class="header-actions"><button type="button" class="icon-btn ghost" data-click='[["toggleScreenGuide","quran"]]' aria-label="Справка по разделу Коран"><span class="guide-help-glyph">?</span></button><button type="button" class="icon-btn ghost" data-click='[["openSearch"]]' aria-label="Поиск"><svg class="ico"><use href="#i-search"/></svg></button></div></div>
+  <div style="padding:0 16px;">
+    <div id="guide-slot-quran"></div>
+  </div>
   <div style="padding:0 16px 12px;">
-    <div class="search-wrap"><input id="quran-search" placeholder="Поиск по Корану…" data-input='[["debouncedRenderQuranList"]]'></div>
+    <div class="search-wrap"><input id="quran-search" placeholder="Поиск по названию или аяту (напр. 2:255)…" data-input='[["debouncedRenderQuranList"]]'></div>
   </div>
   <div class="search-filters" style="padding: 0 16px 12px; border: none; flex-direction: row; overflow-x: auto; scrollbar-width: none;">
     <button class="filter-chip active" data-q-filter="all" data-click='[["setQuranFilter","all"]]'>Все</button>
     <button class="filter-chip" data-q-filter="surah" data-click='[["setQuranFilter","surah"]]'>Суры</button>
+    <button class="filter-chip" data-q-filter="juz30" data-click='[["setQuranFilter","juz30"]]'>Джуз Амма (78–114)</button>
     <button class="filter-chip" data-q-filter="ruqyah" data-click='[["setQuranFilter","ruqyah"]]'>Шариатская рукья</button>
   </div>
   <div class="content-list" id="quran-list"></div>
@@ -338,8 +349,9 @@
 </div>
 
 <div class="screen" id="screen-cal">
-  <div class="header"><h1>Прогресс</h1><div style="width:42px"></div></div>
+  <div class="header"><h1>Прогресс</h1><button type="button" class="icon-btn ghost" data-click='[["toggleScreenGuide","cal"]]' aria-label="Справка по разделу Прогресс"><span class="guide-help-glyph">?</span></button></div>
   <div class="cal">
+    <div id="guide-slot-cal"></div>
     <div class="prog-tabs">
       <button data-pt="overview" class="active" data-click='[["setProgTab","overview"]]'>Обзор</button>
       <button data-pt="calendar" data-click='[["setProgTab","calendar"]]'>Календарь</button>
@@ -356,8 +368,9 @@
       <h1 style="margin:0;">Путь</h1>
       <div class="path-header-sub">Умная книга · Коран и Сунна</div>
     </div>
-    <div style="width:42px"></div>
+    <button type="button" class="icon-btn ghost" data-click='[["toggleScreenGuide","path"]]' aria-label="Справка по Умной книге"><span class="guide-help-glyph">?</span></button>
   </div>
+  <div style="padding: 0 16px;"><div id="guide-slot-path"></div></div>
   <div class="path-controls">
     <div class="seg path-mode-seg" role="tablist" aria-label="Режим поиска в Пути">
       <button type="button" role="tab" data-path-mode="all" class="active" data-click='[["setPathMode","all"]]'>По словам</button>
@@ -387,8 +400,9 @@
   <div class="header">
     <button class="icon-btn ghost" data-click='[["switchTab","dashboard"]]' aria-label="Назад"><svg class="ico"><use href="#i-arrow-left"/></svg></button>
     <h1>Библиотека</h1>
-    <button class="icon-btn ghost" data-click='[["openSearch"]]' aria-label="Поиск"><svg class="ico"><use href="#i-search"/></svg></button>
+    <div class="header-actions"><button type="button" class="icon-btn ghost" data-click='[["toggleScreenGuide","library"]]' aria-label="Справка по библиотеке"><span class="guide-help-glyph">?</span></button><button type="button" class="icon-btn ghost" data-click='[["openSearch"]]' aria-label="Поиск"><svg class="ico"><use href="#i-search"/></svg></button></div>
   </div>
+  <div style="padding: 0 16px;"><div id="guide-slot-library"></div></div>
   <div style="padding: 0 16px 12px;">
     <div class="seg" style="width:100%;">
       <button class="active" id="lib-tab-dua" data-click='[["setLibraryTab","dua"]]'>Дуа</button>
@@ -403,9 +417,10 @@
   <div class="header">
     <button class="icon-btn ghost" data-click='[["goHome"]]' aria-label="Назад"><svg class="ico"><use href="#i-arrow-left"/></svg></button>
     <h1 style="font-size:18px">Настройки</h1>
-    <div style="width:42px"></div>
+    <button type="button" class="icon-btn ghost" data-click='[["toggleScreenGuide","settings"]]' aria-label="Справка по настройкам"><span class="guide-help-glyph">?</span></button>
   </div>
   <div class="settings">
+    <div id="guide-slot-settings"></div>
     <div class="settings-group">
       <div class="sg-title">Внешний вид</div>
       <div class="setting-row">
@@ -456,6 +471,29 @@
       <div class="setting-row"><div class="sub" style="line-height:1.5">Уведомления срабатывают, когда приложение открыто (ограничение iOS).</div></div>
     </div>
     <div class="settings-group">
+      <div class="sg-title">Расчёт намаза (архитектура)</div>
+      <div class="setting-row setting-col">
+        <label class="lbl" for="prayer-method-select">Метод расчёта времени молитвы</label>
+        <select id="prayer-method-select" class="prayer-select" data-change='[["setPrayerPref","method",{"$":"value"}]]'></select>
+      </div>
+      <div class="setting-row setting-col">
+        <label class="lbl" for="prayer-madhhab-select">Мазхаб для времени Аср</label>
+        <select id="prayer-madhhab-select" class="prayer-select" data-change='[["setPrayerPref","asrMadhhab",{"$":"value"}]]'></select>
+      </div>
+      <div class="setting-row"><div class="sub" style="line-height:1.5">Параметры сохраняются заранее для офлайн-расчёта времени намаза по координатам устройства.</div></div>
+    </div>
+    <div class="settings-group">
+      <div class="sg-title">Обучение и подсказки</div>
+      <div class="setting-row">
+        <div><div class="lbl">Подсказки по разделам</div><div class="sub">Показываются один раз при первом открытии вкладки</div></div>
+        <button type="button" class="btn secondary btn-inline" style="margin:0;width:auto;" data-click='[["resetAllScreenGuides"]]'>Показать снова</button>
+      </div>
+    </div>
+    <div class="settings-group">
+      <div class="sg-title">Планы и развитие проекта</div>
+      <div id="plans-overview-slot" class="plans-overview"></div>
+    </div>
+    <div class="settings-group">
       <div class="sg-title">Данные</div>
       <div style="padding: 12px 16px;">
         <button class="btn secondary" data-click='[["exportData"]]'><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:8px"><use href="#i-download"/></svg>Сохранить в файл</button>
@@ -472,7 +510,10 @@
   <div class="fs-header">
     <button class="icon-btn ghost" data-click='[["closeRead"]]' aria-label="Закрыть"><svg class="ico"><use href="#i-x"/></svg></button>
     <h2 id="read-title"></h2>
-    <button class="icon-btn ghost" data-click='[["addBookmarkFromRead"]]' aria-label="Добавить метку"><svg class="ico"><use href="#i-bookmark"/></svg></button>
+    <div class="header-actions">
+      <button type="button" class="icon-btn ghost" data-click='[["toggleScreenGuide","read-mode"]]' aria-label="Справка по режиму чтения"><span class="guide-help-glyph">?</span></button>
+      <button class="icon-btn ghost" data-click='[["addBookmarkFromRead"]]' aria-label="Добавить метку"><svg class="ico"><use href="#i-bookmark"/></svg></button>
+    </div>
   </div>
   <div class="fs-body" id="read-body"></div>
   <button class="fs-scroll-top" id="btn-scroll-top" data-click='[["scrollToTopRead"]]' aria-label="Наверх"><svg class="ico"><use href="#i-scroll-to-top"/></svg></button>
@@ -621,8 +662,10 @@
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+<script src="./js/architecture.js"></script>
 <script src="./js/api.js"></script>
 <script src="./js/storage.js"></script>
+<script src="./js/components/guide.js"></script>
 <script src="./js/components/tafsir.js"></script>
 <script src="./js/components/quran.js"></script>
 <script src="./js/components/reader.js"></script>

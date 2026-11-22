@@ -57,6 +57,15 @@
   listen('click', 'data-click');
   listen('input', 'data-input');
   listen('change', 'data-change');
+  document.addEventListener('keydown', function (ev) {
+    if (ev.key !== 'Enter' && ev.key !== ' ') return;
+    var el = ev.target;
+    if (!el || el.nodeType !== 1 || !el.hasAttribute('data-click')) return;
+    var tag = el.tagName;
+    if (tag === 'BUTTON' || tag === 'A' || tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+    ev.preventDefault();
+    run(el.getAttribute('data-click'), el, ev);
+  });
   /* прокрутка не всплывает, поэтому слушаем напрямую (раньше был inline onscroll) */
   var rb = document.getElementById('read-body');
   if (rb) rb.addEventListener('scroll', function () { if (typeof window.toggleScrollTop === 'function') window.toggleScrollTop(); }, { passive: true });

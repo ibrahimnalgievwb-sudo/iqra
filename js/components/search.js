@@ -43,13 +43,13 @@ function renderGlobalSearch() {
   const q = rawQ.toLowerCase();
   const el = document.getElementById('search-results');
   const hasGraph = typeof IqraGraph !== 'undefined';
-  const ctx = (hasGraph && typeof getPathGraphContext === 'function') ? getPathGraphContext() : null;
+  const indexOrCtx = hasGraph ? (typeof getPathGraphIndex === 'function' ? getPathGraphIndex() : (typeof getPathGraphContext === 'function' ? getPathGraphContext() : null)) : null;
 
   if (!q) {
     let quickHtml = '';
-    if (hasGraph && ctx) {
-      const themes = IqraGraph.getThemeCatalog(ctx).slice(0, 4);
-      const moods = IqraGraph.getMoodCatalog(ctx).slice(0, 4);
+    if (hasGraph && indexOrCtx) {
+      const themes = IqraGraph.getThemeCatalog(indexOrCtx).slice(0, 4);
+      const moods = IqraGraph.getMoodCatalog(indexOrCtx).slice(0, 4);
       quickHtml =
         '<div class="search-smart-box">' +
           '<div class="ssb-label">Быстрый переход в Умную книгу</div>' +
@@ -59,10 +59,11 @@ function renderGlobalSearch() {
           '</div>' +
         '</div>';
     }
-    el.innerHTML = '<div class="empty" style="padding-bottom:18px;">Введите запрос — поиск по тасбихам, Корану, дуа и хадисам, включая арабский текст без огласовок.</div>' + quickHtml;
+    el.innerHTML = '<div class="empty" style="padding-bottom:18px;">Введите запрос — поиск по тасбихам, Корану (включая «2:255»), дуа и хадисам, включая арабский текст без огласовок.</div>' + quickHtml;
     return;
   }
 
+  const verseRef = (typeof parseDirectVerseQuery === 'function') ? parseDirectVerseQuery(rawQ) : null;
   const qRu = hasGraph ? IqraGraph.normalizeSearchText(rawQ) : q;
   const qAr = hasGraph ? IqraGraph.normalizeArabicText(rawQ) : '';
   const qArTokens = qAr ? qAr.split(' ').filter(Boolean) : [];
@@ -88,6 +89,7 @@ function renderGlobalSearch() {
     const t = hasGraph ? IqraGraph.normalizeSearchText(it.title || '') : (it.title || '').toLowerCase();
     const num = String(it.number || '').toLowerCase();
     let w = 0;
+    if (verseRef && it.type === 'surah' && Number(it.number) === verseRef.surah) w += 20;
     if (qRu && t.startsWith(qRu)) w += 10;
     else if (qRu && t.includes(qRu)) w += 6;
     if (num && num.includes(q)) w += 5;
@@ -118,20 +120,31 @@ function renderGlobalSearch() {
     return _searchShowAll ? res : res.slice(0, 30);
   };
 
+  const shortText = (txt, lines) => (typeof excerpt === 'function' ? excerpt(txt, lines) : String(txt || '').split('\n').slice(0, lines).join('\n'));
+
   const grp = (title, items, type) => {
     if (!items.length) return '';
     return '<div class="progress-section-title">' + title + '</div>' + items.map(it => {
       const t = it.title || it.transcription || it.arabic || '—';
       const sub = it.subtitle ? '<div class="c-sub">' + esc(it.subtitle) + '</div>' : '';
-      const ar = it.arabic ? '<div class="c-ar ar-font">' + esc(it.arabic) + '</div>' : '';
-      const tr = it.translation ? '<div class="c-tr">' + esc(it.translation) + '</div>' : '';
-      return '<div class="content-card" onclick="searchOpen(\'' + type + '\',\'' + escAttr(it.id) + '\')"><div class="c-title">' + esc(t) + '</div>' + sub + ar + tr + '</div>';
+      const arSrc = type === 'quran' ? shortText(it.arabic, 2) : it.arabic;
+      const trSrc = type === 'quran' ? shortText(it.translation, 2) : it.translation;
+      const ar = arSrc ? '<div class="c-ar ar-font">' + esc(arSrc) + '</div>' : '';
+      const tr = trSrc ? '<div class="c-tr">' + esc(trSrc) + '</div>' : '';
+      return '<div class="content-card" role="button" tabindex="0" onclick="searchOpen(\'' + type + '\',\'' + escAttr(it.id) + '\')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();searchOpen(\'' + type + '\',\'' + escAttr(it.id) + '\')}"><div class="c-title">' + esc(t) + '</div>' + sub + ar + tr + '</div>';
     }).join('');
   };
 
   let html = '';
-  if (hasGraph && ctx) {
-    const pathRes = IqraGraph.queryPathItems({ query: rawQ, mode: 'all', itemTypeFilter: 'all' }, ctx);
+  if (verseRef && showType('quran')) {
+    const vs = getQuranById('q' + verseRef.surah);
+    if (vs) {
+      html += '<button type="button" class="content-card content-card--feature content-card-btn" onclick="closeSearch();openRead(\'' + escAttr(vs.id) + '\',' + Math.max(0, verseRef.ayah - 1) + ')"><div class="c-badge">Прямой переход</div><div class="c-title">Открыть аят ' + verseRef.surah + ':' + verseRef.ayah + ' (' + esc(vs.title) + ')</div><div class="c-sub">Перейти в режим чтения к аяту ' + verseRef.ayah + '</div></button>';
+    }
+  }
+
+  if (hasGraph && indexOrCtx) {
+    const pathRes = IqraGraph.queryPathItems({ query: rawQ, mode: 'all', itemTypeFilter: 'all' }, indexOrCtx);
     const hasTopics = pathRes.matchedTopics && pathRes.matchedTopics.length;
     const hasMoods = pathRes.matchedMoods && pathRes.matchedMoods.length;
     if (hasTopics || hasMoods) {

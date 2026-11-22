@@ -7,6 +7,9 @@
 
 var debouncedRenderPath = debounce(renderPath, 220);
 
+var _cachedPathIndex = null;
+var _cachedPathSig = '';
+
 function getPathGraphContext() {
   return {
     quran: (typeof state !== 'undefined' && state && Array.isArray(state.quran)) ? state.quran : (window.DEFAULT_QURAN || []),
@@ -20,6 +23,25 @@ function getPathGraphContext() {
     edges: Array.isArray(window.GRAPH_EDGES) ? window.GRAPH_EDGES : [],
     parseAyahs: typeof parseAyahs === 'function' ? parseAyahs : undefined
   };
+}
+
+function getPathGraphIndex() {
+  if (typeof IqraGraph === 'undefined') return null;
+  var ctx = getPathGraphContext();
+  var sig = [
+    ctx.quran.length,
+    ctx.duas.length,
+    ctx.hadiths.length,
+    ctx.tasbihs.length,
+    ctx.tafsirs.length,
+    ctx.edges.length,
+    ctx.themes.length
+  ].join(':');
+  if (!_cachedPathIndex || _cachedPathSig !== sig) {
+    _cachedPathIndex = IqraGraph.createContextIndex(ctx);
+    _cachedPathSig = sig;
+  }
+  return _cachedPathIndex;
 }
 
 function syncPathControls() {
@@ -98,13 +120,13 @@ function togglePathShowAll() {
 }
 
 function openPathFilter(mode, tag) {
-  var ctx = getPathGraphContext();
+  var index = getPathGraphIndex() || getPathGraphContext();
   var resolvedMode = mode;
   if (resolvedMode !== 'all' && resolvedMode !== 'theme' && resolvedMode !== 'mood') {
     if (tag && typeof IqraGraph !== 'undefined') {
-      var moods = IqraGraph.getMoodCatalog(ctx);
+      var moods = IqraGraph.getMoodCatalog(index);
       var isMood = moods.some(function (m) { return m.title === tag || m.id === tag; });
-      var themes = IqraGraph.getThemeCatalog(ctx);
+      var themes = IqraGraph.getThemeCatalog(index);
       var isTheme = themes.some(function (t) { return t.title === tag || t.id === tag; });
       if (isMood && !isTheme) resolvedMode = 'mood';
       else if (isTheme) resolvedMode = 'theme';
@@ -130,7 +152,7 @@ window.openPathMode = openPathFilter;
 
 function openPathItem(type, id, ayahIdx) {
   if (type === 'quran' || type === 'ayah') {
-    if (typeof openQuran === 'function') openQuran(id);
+    if (typeof openQuran === 'function') openQuran(id, ayahIdx);
   } else if (type === 'hadith') {
     if (typeof openHadith === 'function') openHadith(id);
   } else if (type === 'dua') {
@@ -140,7 +162,7 @@ function openPathItem(type, id, ayahIdx) {
   }
 }
 
-function renderPathChips(ctx) {
+function renderPathChips(ctxOrIndex) {
   var wrapper = document.getElementById('path-chips-wrapper');
   var container = document.getElementById('path-chips-container');
   if (!container || typeof IqraGraph === 'undefined') return;
@@ -154,7 +176,7 @@ function renderPathChips(ctx) {
   if (wrapper) wrapper.style.display = '';
 
   var isMoodMode = mode === 'mood';
-  var items = isMoodMode ? IqraGraph.getMoodCatalog(ctx) : IqraGraph.getThemeCatalog(ctx);
+  var items = isMoodMode ? IqraGraph.getMoodCatalog(ctxOrIndex) : IqraGraph.getThemeCatalog(ctxOrIndex);
   var allLabel = isMoodMode ? 'Все состояния' : 'Все темы';
 
   var html = '<button type="button" class="path-chip ' + (!activePathTag ? 'active' : '') + '" onclick="setPathTag(null)">' + allLabel + '</button>';
@@ -184,9 +206,9 @@ function buildPathContextBannerHtml(queryRes) {
   );
 }
 
-function renderIdlePathOverview(ctx, mode) {
-  var themes = IqraGraph.getThemeCatalog(ctx);
-  var moods = IqraGraph.getMoodCatalog(ctx);
+function renderIdlePathOverview(ctxOrIndex, mode) {
+  var themes = IqraGraph.getThemeCatalog(ctxOrIndex);
+  var moods = IqraGraph.getMoodCatalog(ctxOrIndex);
 
   if (mode === 'mood') {
     return (
@@ -318,7 +340,7 @@ function buildEcosystemHtml(rels, opts) {
         '<div class="ecosystem-pills">' +
           ayahs.slice(0, compact ? 4 : 8).map(function (a) {
             var label = (a.refLabel ? (a.refLabel + ' · ') : '') + a.title.replace(/\s*·\s*аят\s*\d+$/i, '');
-            return '<button type="button" class="ecosystem-pill" onclick="event.stopPropagation();openQuran(\'' + escAttr(a.surahId) + '\')" title="' + escAttr(a.evidence || a.title) + '">' +
+            return '<button type="button" class="ecosystem-pill" onclick="event.stopPropagation();openQuran(\'' + escAttr(a.surahId) + '\',' + Number(a.ayahIdx || 0) + ')" title="' + escAttr(a.evidence || a.title) + '">' +
               '<svg class="ico ico-sm"><use href="#i-book"/></svg>' +
               '<span>' + esc(label) + '</span>' +
             '</button>';
@@ -437,15 +459,18 @@ function buildEcosystemHtml(rels, opts) {
 
 function renderEcosystemSection(nodeId, options) {
   if (!nodeId || typeof IqraGraph === 'undefined') return '';
-  var ctx = getPathGraphContext();
-  var rels = IqraGraph.getSmartBookRelations(nodeId, ctx);
+  var index = getPathGraphIndex();
+  if (!index) return '';
+  var rels = IqraGraph.getSmartBookRelations(nodeId, index);
   return buildEcosystemHtml(rels, Object.assign({ compact: false, title: 'Связи в Умной книге' }, options || {}));
 }
 
 function renderAyahEcosystemDetails(ayahNodeId, options) {
   if (!ayahNodeId || typeof IqraGraph === 'undefined') return '';
-  var ctx = getPathGraphContext();
-  var rels = IqraGraph.getSmartBookRelations(ayahNodeId, ctx);
+  var index = getPathGraphIndex();
+  if (!index) return '';
+  if (index.edgesByNode && !index.edgesByNode.has(ayahNodeId)) return '';
+  var rels = IqraGraph.getSmartBookRelations(ayahNodeId, index);
   if (!rels) return '';
   var count =
     (rels.ayahs ? rels.ayahs.length : 0) +
@@ -487,7 +512,7 @@ function renderPathResultCard(item) {
         '<button type="button" class="btn secondary btn-inline" onclick="event.stopPropagation();openRead(\'' + escAttr(item._surahId) + '\',' + Number(item._ayahIdx || 0) + ')">' +
           '<svg class="ico ico-sm"><use href="#i-book"/></svg> Читать аят ' + esc(item._verseLabel || '') +
         '</button>' +
-        '<button type="button" class="btn secondary btn-inline" onclick="event.stopPropagation();openQuran(\'' + escAttr(item._surahId) + '\')">' +
+        '<button type="button" class="btn secondary btn-inline" onclick="event.stopPropagation();openQuran(\'' + escAttr(item._surahId) + '\',' + Number(item._ayahIdx || 0) + ')">' +
           'Открыть суру' +
         '</button>' +
       '</div>';
@@ -551,7 +576,7 @@ function renderPathResultCard(item) {
   var refBadge = (isAyah && item._verseLabel) ? '<span class="c-badge path-ref-badge">' + esc(item._verseLabel) + '</span>' : '';
 
   return (
-    '<div class="content-card path-result-card" onclick="' + openAction + '">' +
+    '<div class="content-card path-result-card" role="button" tabindex="0" onclick="' + openAction + '" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();' + openAction + '}">' +
       '<div class="path-card-head">' +
         '<div class="path-card-type">' +
           '<svg class="ico ico-sm"><use href="' + icon + '"/></svg>' +
@@ -571,12 +596,15 @@ function renderPathResultCard(item) {
   );
 }
 
-function getAllItemsByType(ctx, itemTypeFilter) {
-  if (typeof IqraGraph === 'undefined') return [];
-  var index = IqraGraph.createContextIndex(ctx);
+function getAllItemsByType(index, itemTypeFilter, limit) {
+  if (typeof IqraGraph === 'undefined' || !index) return { total: 0, items: [] };
+  var maxN = typeof limit === 'number' ? limit : 8;
   var out = [];
+  var total = 0;
+
   if (itemTypeFilter === 'ayah') {
-    index.ayahs.forEach(function (a) {
+    total = index.ayahs.length;
+    index.ayahs.slice(0, maxN).forEach(function (a) {
       var rels = IqraGraph.getSmartBookRelations(a._nodeId, index);
       var card = Object.assign({}, a, { _relations: rels });
       if (rels.tafsirs.length) {
@@ -588,7 +616,8 @@ function getAllItemsByType(ctx, itemTypeFilter) {
       out.push(card);
     });
   } else if (itemTypeFilter === 'hadith') {
-    index.hadiths.forEach(function (h) {
+    total = index.hadiths.length;
+    index.hadiths.slice(0, maxN).forEach(function (h) {
       var rels = IqraGraph.getSmartBookRelations('hadith:' + h.id, index);
       out.push({
         _type: 'hadith', _nodeId: 'hadith:' + h.id, _id: h.id,
@@ -597,7 +626,8 @@ function getAllItemsByType(ctx, itemTypeFilter) {
       });
     });
   } else if (itemTypeFilter === 'dua') {
-    index.duas.forEach(function (d) {
+    total = index.duas.length;
+    index.duas.slice(0, maxN).forEach(function (d) {
       var rels = IqraGraph.getSmartBookRelations('dua:' + d.id, index);
       out.push({
         _type: 'dua', _nodeId: 'dua:' + d.id, _id: d.id,
@@ -606,7 +636,8 @@ function getAllItemsByType(ctx, itemTypeFilter) {
       });
     });
   } else if (itemTypeFilter === 'tasbih') {
-    index.tasbihs.forEach(function (t) {
+    total = index.tasbihs.length;
+    index.tasbihs.slice(0, maxN).forEach(function (t) {
       var rels = IqraGraph.getSmartBookRelations('tasbih:' + t.id, index);
       out.push({
         _type: 'tasbih', _nodeId: 'tasbih:' + t.id, _id: t.id,
@@ -616,19 +647,19 @@ function getAllItemsByType(ctx, itemTypeFilter) {
       });
     });
   }
-  return out;
+  return { total: total, items: out };
 }
 
 function renderPath() {
   var resultsEl = document.getElementById('path-results');
   if (!resultsEl) return;
 
-  var ctx = getPathGraphContext();
+  var index = getPathGraphIndex() || getPathGraphContext();
   var mode = (typeof pathMode === 'string' && pathMode) ? pathMode : 'all';
   var typeFilter = (typeof pathTypeFilter === 'string' && pathTypeFilter) ? pathTypeFilter : 'all';
 
   syncPathControls();
-  renderPathChips(ctx);
+  renderPathChips(index);
 
   var qInput = document.getElementById('path-search');
   var q = qInput ? qInput.value.trim() : '';
@@ -636,24 +667,24 @@ function renderPath() {
   if (!q && !activePathTag && (mode !== 'all' || typeFilter === 'all')) {
     var ctxBanner = document.getElementById('path-context-banner');
     if (ctxBanner) ctxBanner.innerHTML = '';
-    resultsEl.innerHTML = renderIdlePathOverview(ctx, mode);
+    resultsEl.innerHTML = renderIdlePathOverview(index, mode);
     return;
   }
 
   if (!q && !activePathTag && mode === 'all' && typeFilter !== 'all') {
     var ctxBanner2 = document.getElementById('path-context-banner');
     if (ctxBanner2) ctxBanner2.innerHTML = '';
-    var typedItems = getAllItemsByType(ctx, typeFilter);
-    var limit = pathShowAll ? typedItems.length : 8;
-    var disp = typedItems.slice(0, limit);
+    var limit = pathShowAll ? 40 : 8;
+    var typedRes = getAllItemsByType(index, typeFilter, limit);
+    var disp = typedRes.items;
     var summaryHtml =
       '<div class="path-results-summary">' +
-        '<span>Материалы раздела: ' + typedItems.length + '</span>' +
+        '<span>Материалы раздела: ' + typedRes.total + '</span>' +
         '<button type="button" class="prs-reset" onclick="setPathTypeFilter(\'all\')">Сбросить фильтр</button>' +
       '</div>';
     var listHtml = disp.map(renderPathResultCard).join('');
-    if (typedItems.length > 8 && !pathShowAll) {
-      listHtml += '<button type="button" class="show-all-btn" onclick="togglePathShowAll()">Показать все результаты (' + typedItems.length + ')</button>';
+    if (typedRes.total > limit && !pathShowAll) {
+      listHtml += '<button type="button" class="show-all-btn" onclick="togglePathShowAll()">Показать ещё (' + disp.length + ' из ' + typedRes.total + ')</button>';
     }
     resultsEl.innerHTML = summaryHtml + listHtml;
     return;
@@ -664,7 +695,7 @@ function renderPath() {
     mode: mode,
     tag: activePathTag,
     itemTypeFilter: typeFilter
-  }, ctx);
+  }, index);
 
   var ctxBannerEl = document.getElementById('path-context-banner');
   if (ctxBannerEl) ctxBannerEl.innerHTML = '';

@@ -1,127 +1,235 @@
 "use strict";
 
-var debouncedRenderQuranList = debounce(renderQuranList, 250);
-function excerpt(text, lines) { return String(text || '').split('\n').slice(0, lines).join('\n'); }
+/* ============================================================
+   QURAN.JS — Список 114 сур, быстрый переход по номеру/аяту, разбор суры
+   Проект «Икра» · v450
+   ============================================================ */
+
+var debouncedRenderQuranList = debounce(renderQuranList, 200);
+var QURAN_DETAIL_BATCH = 40;
+var _quranDetailLimit = QURAN_DETAIL_BATCH;
+
+function excerpt(text, lines) {
+  return String(text || '').split('\n').slice(0, lines).join('\n');
+}
+
+function parseDirectVerseQuery(raw) {
+  var m = String(raw || '').trim().match(/^(\d{1,3})\s*[:\-]\s*(\d{1,3})$/);
+  if (!m) return null;
+  var sNum = parseInt(m[1], 10);
+  var aNum = parseInt(m[2], 10);
+  if (sNum < 1 || sNum > 114 || aNum < 1) return null;
+  return { surah: sNum, ayah: aNum };
+}
 
 function renderQuranList() {
-  const el = document.getElementById('quran-list');
-  const qEl = document.getElementById('quran-search');
+  var el = document.getElementById('quran-list');
+  var qEl = document.getElementById('quran-search');
   if (!el) return;
-  
-  let q = qEl ? (qEl.value || '').toLowerCase().trim() : '';
-  const ayahM = q.match(/^(\d+)\s*[:\-]\s*\d+$/); if (ayahM) q = ayahM[1];
-  const qAr = normalizeArabic(q);
-  
-  let items = state.quran;
-  if (quranFilter === 'surah') items = items.filter(i => i.type === 'surah');
-  else if (quranFilter === 'ruqyah') items = items.filter(i => i.type === 'ruqyah' || ['q109','q112','q113','q114'].includes(i.id));
-  
+
+  var rawQ = qEl ? (qEl.value || '').trim() : '';
+  var verseRef = parseDirectVerseQuery(rawQ);
+  var q = verseRef ? String(verseRef.surah) : rawQ.toLowerCase();
+  var qAr = normalizeArabic(q);
+
+  var items = state.quran;
+  if (quranFilter === 'surah') items = items.filter(function (i) { return i.type === 'surah'; });
+  else if (quranFilter === 'juz30') items = items.filter(function (i) { return i.type === 'surah' && i.number >= 78 && i.number <= 114; });
+  else if (quranFilter === 'ruqyah') items = items.filter(function (i) { return i.type === 'ruqyah' || ['q109', 'q112', 'q113', 'q114'].indexOf(i.id) !== -1; });
+
   if (q) {
-    items = items.filter(item => {
-      const hay = [item.title, item.subtitle, item.arabic, item.transcription, item.translation, String(item.number || '')].filter(Boolean).join(' ').toLowerCase();
-      if (hay.includes(q)) return true;
-      if (qAr && normalizeArabic([item.title, item.arabic, item.transcription].filter(Boolean).join(' ')).includes(qAr)) return true;
+    items = items.filter(function (item) {
+      if (String(item.number || '') === q) return true;
+      var numStr = String(item.number || '');
+      if (/^\d+$/.test(q) && item.type === 'surah') {
+        return numStr === q || numStr.indexOf(q) === 0;
+      }
+      var hay = [item.title, item.subtitle, item.transcription, item.translation, numStr].filter(Boolean).join(' ').toLowerCase();
+      if (hay.indexOf(q) !== -1) return true;
+      if (item.arabic && item.arabic.toLowerCase().indexOf(q) !== -1) return true;
+      if (qAr && normalizeArabic([item.title, item.arabic, item.transcription].filter(Boolean).join(' ')).indexOf(qAr) !== -1) return true;
       return false;
     });
   }
-  
-  if (!items.length && quranFilter !== 'ruqyah') { 
-    el.innerHTML = state.quran.length ? '<div class="empty">Ничего не найдено</div>' : '<div class="empty">Пока нет текстов</div>'; 
-    return; 
+
+  if (!items.length && quranFilter !== 'ruqyah' && !verseRef) {
+    el.innerHTML = state.quran.length ? '<div class="empty">Ничего не найдено</div>' : '<div class="empty">Пока нет текстов</div>';
+    return;
   }
-  
-  let html = '';
-  if (quranFilter === 'ruqyah') {
-    html += `<div class="content-card content-card--feature" onclick="openDua('ruqyah_guide')"><div class="c-title"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px;color:var(--gold-accent)"><use href="#i-book"/></svg>Руководство по Рукье</div><div class="c-sub">Статус сидра · Аяты о колдовстве · Профилактика</div><div class="c-tr">Нажмите, чтобы прочитать важные наставления учёных и фетвы Ибн База</div></div>`;
-    html += `<div class="content-card content-card--feature" onclick="openQuran('ruqyah_araf')"><div class="c-badge">Рукья</div><div class="c-title">Аяты о колдовстве</div><div class="c-sub">Начните с аль-А'раф 117–119 · Юнус и Та Ха — ниже в списке</div><div class="c-ar ar-font">وَأَوْحَيْنَا إِلَىٰ مُوسَىٰ أَنْ أَلْقِ عَصَاكَ ۖ فَإِذَا هِيَ تَلْقَفُ مَا يَأْفِكُونَ</div><div class="c-tr">Читаются в составе шариатской рукьи на воду или над больным</div></div>`;
-  }
-  
-  html += items.map(item => {
-    const fav = isFavorite(item.id);
-    const numHtml = item.type === 'surah' ? `<div class="c-num">${item.number}</div>` : '';
-    const hasNum = item.type === 'surah' ? ' has-num' : '';
-    const star = `<button class="star-btn ${fav?'active':''}" aria-label="${fav?'Убрать из избранного':'Добавить в избранное'}: ${escAttr(item.title)}" onclick="starClick(event,'${escAttr(item.id)}','quran')">${fav?'<svg class="ico"><use href="#i-star-filled"/></svg>':'<svg class="ico"><use href="#i-star"/></svg>'}</button>`;
-    let readBadge = '';
-    if (item.type === 'surah' && state.settings.readAyah && typeof state.settings.readAyah[item.id] === 'number' && state.settings.readAyah[item.id] > 0) {
-      const ayahN = state.settings.readAyah[item.id] + 1;
-      readBadge = `<div class="c-badge">С аята ${ayahN}</div>`;
+
+  var html = '';
+  if (verseRef) {
+    var targetSurah = getQuranById('q' + verseRef.surah);
+    if (targetSurah) {
+      var targetIdx = Math.max(0, verseRef.ayah - 1);
+      html += '<button type="button" class="content-card content-card--feature content-card-btn" onclick="openRead(\'' + escAttr(targetSurah.id) + '\',' + targetIdx + ')">' +
+        '<div class="c-badge">Прямой переход</div>' +
+        '<div class="c-title">Открыть аят ' + verseRef.surah + ':' + verseRef.ayah + ' (' + esc(targetSurah.title) + ')</div>' +
+        '<div class="c-sub">Перейти сразу в режим чтения к нужному аяту</div>' +
+      '</button>';
     }
-    return `<div class="content-card${hasNum}" onclick="openQuran('${escAttr(item.id)}')">${numHtml}${star}${readBadge}<div class="c-title">${esc(item.title)}</div><div class="c-sub">${esc(item.subtitle||'')}</div><div class="c-ar ar-font">${esc(excerpt(item.arabic, 3))}</div><div class="c-tr">${esc(excerpt(item.translation, 3))}</div></div>`;
+  }
+
+  if (quranFilter === 'ruqyah' && !rawQ) {
+    html += '<button type="button" class="content-card content-card--feature content-card-btn" onclick="openDua(\'ruqyah_guide\')">' +
+      '<div class="c-title"><svg class="ico ico-sm ico-inline-gold"><use href="#i-book"/></svg>Руководство по Рукье</div>' +
+      '<div class="c-sub">Статус сидра · Аяты о колдовстве · Профилактика</div>' +
+      '<div class="c-tr">Нажмите, чтобы прочитать важные наставления учёных и фетвы Ибн База</div>' +
+    '</button>';
+    html += '<button type="button" class="content-card content-card--feature content-card-btn" onclick="openQuran(\'ruqyah_araf\')">' +
+      '<div class="c-badge">Рукья</div>' +
+      '<div class="c-title">Аяты о колдовстве</div>' +
+      '<div class="c-sub">Начните с аль-А\'раф 117–119 · Юнус и Та Ха — ниже в списке</div>' +
+      '<div class="c-ar ar-font">وَأَوْحَيْنَا إِلَىٰ مُوسَىٰ أَنْ أَلْقِ عَصَاكَ ۖ فَإِذَا هِيَ تَلْقَفُ مَا يَأْفِكُونَ</div>' +
+      '<div class="c-tr">Читаются в составе шариатской рукьи на воду или над больным</div>' +
+    '</button>';
+  }
+
+  html += items.map(function (item) {
+    var fav = isFavorite(item.id);
+    var numHtml = item.type === 'surah' ? '<div class="c-num">' + item.number + '</div>' : '';
+    var hasNum = item.type === 'surah' ? ' has-num' : '';
+    var star = '<button type="button" class="star-btn ' + (fav ? 'active' : '') + '" aria-label="' + (fav ? 'Убрать из избранного' : 'Добавить в избранное') + ': ' + escAttr(item.title) + '" onclick="starClick(event,\'' + escAttr(item.id) + '\',\'quran\')">' + (fav ? '<svg class="ico"><use href="#i-star-filled"/></svg>' : '<svg class="ico"><use href="#i-star"/></svg>') + '</button>';
+    var readBadge = '';
+    if (item.type === 'surah' && state.settings.readAyah && typeof state.settings.readAyah[item.id] === 'number' && state.settings.readAyah[item.id] > 0) {
+      readBadge = '<div class="c-badge">С аята ' + (state.settings.readAyah[item.id] + 1) + '</div>';
+    }
+    return '<div class="content-card' + hasNum + '" role="button" tabindex="0" onclick="openQuran(\'' + escAttr(item.id) + '\')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();openQuran(\'' + escAttr(item.id) + '\')}">' +
+      numHtml + star + readBadge +
+      '<div class="c-title">' + esc(item.title) + '</div>' +
+      '<div class="c-sub">' + esc(item.subtitle || '') + '</div>' +
+      '<div class="c-ar ar-font">' + esc(excerpt(item.arabic, 2)) + '</div>' +
+      '<div class="c-tr">' + esc(excerpt(item.translation, 2)) + '</div>' +
+    '</div>';
   }).join('');
-  
+
   el.innerHTML = html;
 }
 
 function setQuranFilter(f) {
   quranFilter = f;
-  document.querySelectorAll('[data-q-filter]').forEach(b => b.classList.toggle('active', b.dataset.qFilter === f));
+  document.querySelectorAll('[data-q-filter]').forEach(function (b) {
+    b.classList.toggle('active', b.dataset.qFilter === f);
+  });
   if (typeof renderQuranList === 'function') renderQuranList();
 }
 
-/* ---------- Умная книга: Форматирование текста тафсира ---------- */
-function openQuran(id) {
+function _buildQuranDetailAyahHtml(item, a, idx) {
+  var verseKey = '';
+  if (item.type === 'surah') verseKey = item.number + ':' + (idx + 1);
+  else if (item.number && String(item.number).indexOf('-') === -1) verseKey = String(item.number);
+
+  return '<div class="read-ayah ' + (item.type === 'ayat' ? 'ayat-mode' : '') + '" id="q-detail-ayah-' + idx + '" data-verse-key="' + escAttr(verseKey) + '">' +
+    '<div class="read-ayah-num">' + esc(a.num) + '</div>' +
+    '<div class="read-ayah-ar ar-font" data-raw="' + escAttr(a.ar) + '">' + esc(a.ar) + (item.type === 'surah' ? ' <span class="read-ayah-marker">' + ayahMarker(a.num) + '</span>' : '') + '</div>' +
+    (a.tr ? '<div class="read-ayah-tr">' + esc(a.tr) + '</div>' : '') +
+    '<div class="read-ayah-trn">' + esc(a.trn) + '</div>' +
+    getSmartTafsirHtml(item, idx + 1) +
+    (typeof renderAyahEcosystemDetails === 'function' ? renderAyahEcosystemDetails('ayah:' + item.id + '#' + (idx + 1)) : '') +
+    '<button type="button" class="ayah-share-btn" onclick="shareAyah(\'' + escAttr(item.id) + '\',' + idx + ')"><svg class="ico ico-sm"><use href="#i-upload"/></svg>Поделиться аятом</button>' +
+  '</div>';
+}
+
+function showMoreQuranDetailAyahs() {
+  var item = getQuranById(activeQuranId);
+  if (!item) return;
+  _quranDetailLimit += QURAN_DETAIL_BATCH;
+  openQuran(activeQuranId, null, true);
+}
+
+function jumpQuranDetailAyah(ayahNumVal) {
+  var item = getQuranById(activeQuranId);
+  if (!item) return;
+  var ayahs = parseAyahs(item);
+  var num = Math.max(1, Math.min(ayahs.length, parseInt(ayahNumVal, 10) || 1));
+  var targetIdx = num - 1;
+  if (targetIdx >= _quranDetailLimit) {
+    _quranDetailLimit = targetIdx + 20;
+    openQuran(activeQuranId, targetIdx, true);
+    return;
+  }
+  var el = document.getElementById('q-detail-ayah-' + targetIdx);
+  if (el) el.scrollIntoView({ block: 'start', behavior: 'smooth' });
+}
+
+function openQuran(id, targetAyahIdx, keepLimit) {
   activeQuranId = id;
-  const item = getQuranById(id); if (!item) return;
+  var item = getQuranById(id); if (!item) return;
+  if (!keepLimit) {
+    _quranDetailLimit = (typeof targetAyahIdx === 'number' && targetAyahIdx >= QURAN_DETAIL_BATCH)
+      ? (targetAyahIdx + 20)
+      : QURAN_DETAIL_BATCH;
+  }
   trackEvent('quran/' + id, 'Сура/аят: ' + item.title);
   saveLastRead('quran', id);
   document.getElementById('quran-detail-title').textContent = item.title;
-  const ayahs = parseAyahs(item);
-  const st = document.getElementById('quran-detail-star');
-  if (st) { const fav=isFavorite(id); st.innerHTML=fav?'<svg class="ico"><use href="#i-star-filled"/></svg>':'<svg class="ico"><use href="#i-star"/></svg>'; st.classList.toggle('starred', fav); }
-  const el = document.getElementById('quran-detail-content');
-  let bismillahHtml = '';
-  if (item.bismillah) {
-    bismillahHtml = `<div class="bismillah-card"><div class="b-ar ar-font">${esc(item.bismillah.arabic)}</div><div class="b-tr">${esc(item.bismillah.transcription)}</div><div class="b-trn">${esc(item.bismillah.translation)}</div></div>`;
-  }
-  
-  el.innerHTML = `
-    <div class="detail-hero">
-      <div class="dh-title">${esc(item.title)}</div>
-      <div class="dh-sub">${esc(item.subtitle||'')}</div>
-    </div>
-    ${item.note ? `<div class="note-box"><svg class="ico ico-sm" style="flex-shrink:0;color:var(--accent2)"><use href="#i-lightbulb"/></svg><div>${escNl(item.note)}</div></div>` : ''}
-    <div class="detail-actions">
-      <button class="btn secondary" onclick="openRead('${escAttr(item.id)}')"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-book"/></svg>Читать</button>
-      <button class="btn secondary" onclick="openMemorize('${escAttr(item.id)}')"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-lightbulb"/></svg>Заучить</button>
-      <button class="btn secondary" onclick="shareItem('quran','${escAttr(item.id)}')"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-upload"/></svg>Поделиться</button>
-    </div>
-    <div class="learned-toggle ${item.learned?'done':''}" onclick="toggleQuranLearned('${escAttr(item.id)}')">
-      <div class="lt-icon">${item.learned?'<svg class="ico ico-sm"><use href="#i-check"/></svg>':'<svg class="ico ico-sm"><use href="#i-book"/></svg>'}</div>
-      <div class="lt-body">
-        <div class="lt-title">${item.learned?'Выучено':'Отметить как выучено'}</div>
-        <div class="lt-sub">${item.learned ? (item.learnedAt ? 'Выучено ' + item.learnedAt : 'Нажми, чтобы снять отметку') : 'Изучи текст и отметь'}</div>
-      </div>
-    </div>
-    ${bismillahHtml}
-    <div style="height:16px"></div>
-     ${ayahs.map((a, idx) => {
-      let verseKey = '';
-      if (item.type === 'surah') { verseKey = `${item.number}:${idx + 1}`; }
-      else if (item.number && !String(item.number).includes('-')) { verseKey = String(item.number); }
 
-      return `
-       <div class="read-ayah ${item.type==='ayat'?'ayat-mode':''}" data-verse-key="${verseKey}">
-        <div class="read-ayah-num">${a.num}</div>
-        <div class="read-ayah-ar ar-font" data-raw="${escAttr(a.ar)}">${esc(a.ar)}${item.type==='surah' ? ' <span class="read-ayah-marker">' + ayahMarker(a.num) + '</span>' : ''}</div>
-        ${a.tr ? `<div class="read-ayah-tr">${esc(a.tr)}</div>` : ''}
-        <div class="read-ayah-trn">${esc(a.trn)}</div>
-        ${getSmartTafsirHtml(item, idx + 1)}
-        ${typeof renderAyahEcosystemDetails === 'function' ? renderAyahEcosystemDetails('ayah:' + item.id + '#' + (idx + 1)) : ''}
-        <button class="ayah-share-btn" onclick="shareAyah('${escAttr(item.id)}',${idx})"><svg class="ico ico-sm"><use href="#i-upload"/></svg>Поделиться аятом</button>
-      </div>
-      `;
-    }).join('')}
-    ${item.source ? `<div class="dh-section" style="margin-top:20px;"><div class="dh-label">Источник</div><div class="dh-text muted" style="font-size:13px;">${esc(item.source)}</div></div>` : ''}
-    ${typeof renderEcosystemSection === 'function' ? renderEcosystemSection('quran:' + item.id, { title: 'Связи в Умной книге' }) : ''}
-    ${transcriptionNote()}
-  `;
+  var ayahs = parseAyahs(item);
+  var visibleCount = Math.min(ayahs.length, _quranDetailLimit);
+  var visibleAyahs = ayahs.slice(0, visibleCount);
+  var hasMore = ayahs.length > visibleCount;
+
+  var st = document.getElementById('quran-detail-star');
+  if (st) {
+    var fav = isFavorite(id);
+    st.innerHTML = fav ? '<svg class="ico"><use href="#i-star-filled"/></svg>' : '<svg class="ico"><use href="#i-star"/></svg>';
+    st.classList.toggle('starred', fav);
+  }
+  var el = document.getElementById('quran-detail-content');
+  var bismillahHtml = '';
+  if (item.bismillah) {
+    bismillahHtml = '<div class="bismillah-card"><div class="b-ar ar-font">' + esc(item.bismillah.arabic) + '</div><div class="b-tr">' + esc(item.bismillah.transcription) + '</div><div class="b-trn">' + esc(item.bismillah.translation) + '</div></div>';
+  }
+
+  var jumpHtml = '';
+  if (ayahs.length >= 15) {
+    jumpHtml = '<div class="ayah-jumper">' +
+      '<label for="qd-ayah-jump" class="aj-label">Перейти к аяту (1–' + ayahs.length + '):</label>' +
+      '<input id="qd-ayah-jump" class="aj-input" type="number" min="1" max="' + ayahs.length + '" inputmode="numeric" placeholder="№">' +
+      '<button type="button" class="btn secondary btn-inline aj-btn" onclick="jumpQuranDetailAyah(document.getElementById(\'qd-ayah-jump\').value)">Перейти</button>' +
+    '</div>';
+  }
+
+  el.innerHTML =
+    '<div class="detail-hero">' +
+      '<div class="dh-title">' + esc(item.title) + '</div>' +
+      '<div class="dh-sub">' + esc(item.subtitle || '') + '</div>' +
+    '</div>' +
+    (item.note ? '<div class="note-box"><svg class="ico ico-sm note-box-ico"><use href="#i-lightbulb"/></svg><div>' + escNl(item.note) + '</div></div>' : '') +
+    '<div class="detail-actions">' +
+      '<button type="button" class="btn secondary" onclick="openRead(\'' + escAttr(item.id) + '\')"><svg class="ico ico-sm"><use href="#i-book"/></svg>Читать</button>' +
+      '<button type="button" class="btn secondary" onclick="openMemorize(\'' + escAttr(item.id) + '\')"><svg class="ico ico-sm"><use href="#i-lightbulb"/></svg>Заучить</button>' +
+      '<button type="button" class="btn secondary" onclick="shareItem(\'quran\',\'' + escAttr(item.id) + '\')"><svg class="ico ico-sm"><use href="#i-upload"/></svg>Поделиться</button>' +
+    '</div>' +
+    '<button type="button" class="learned-toggle ' + (item.learned ? 'done' : '') + '" onclick="toggleQuranLearned(\'' + escAttr(item.id) + '\')">' +
+      '<div class="lt-icon">' + (item.learned ? '<svg class="ico ico-sm"><use href="#i-check"/></svg>' : '<svg class="ico ico-sm"><use href="#i-book"/></svg>') + '</div>' +
+      '<div class="lt-body">' +
+        '<div class="lt-title">' + (item.learned ? 'Выучено' : 'Отметить как выучено') + '</div>' +
+        '<div class="lt-sub">' + (item.learned ? (item.learnedAt ? 'Выучено ' + item.learnedAt : 'Нажми, чтобы снять отметку') : 'Изучи текст и отметь') + '</div>' +
+      '</div>' +
+    '</button>' +
+    bismillahHtml +
+    jumpHtml +
+    '<div class="spacer-sm"></div>' +
+    visibleAyahs.map(function (a, idx) { return _buildQuranDetailAyahHtml(item, a, idx); }).join('') +
+    (hasMore ? '<button type="button" class="show-all-btn" onclick="showMoreQuranDetailAyahs()">Показать ещё аяты (' + visibleCount + ' из ' + ayahs.length + ')</button>' : '') +
+    (item.source ? '<div class="dh-section detail-source-block"><div class="dh-label">Источник</div><div class="dh-text muted detail-source-text">' + esc(item.source) + '</div></div>' : '') +
+    (typeof renderEcosystemSection === 'function' ? renderEcosystemSection('quran:' + item.id, { title: 'Связи в Умной книге' }) : '') +
+    transcriptionNote();
+
   showScreen('screen-quran-detail');
+  if (typeof targetAyahIdx === 'number' && targetAyahIdx >= 0) {
+    requestAnimationFrame(function () {
+      var targetEl = document.getElementById('q-detail-ayah-' + targetAyahIdx);
+      if (targetEl) targetEl.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    });
+  }
 }
 
 function toggleQuranLearned(id) {
-  const item = getQuranById(id); if (!item) return;
+  var item = getQuranById(id); if (!item) return;
   item.learned = !item.learned; item.learnedAt = item.learned ? todayKey() : '';
-  save(); if (item.learned) { if (navigator.vibrate) navigator.vibrate([20,40,20]); }
-  openQuran(id);
+  save(); if (item.learned) { if (navigator.vibrate) navigator.vibrate([20, 40, 20]); }
+  openQuran(id, null, true);
 }
 function goQuranList() { activeQuranId = null; renderQuranList(); showScreen('screen-quran'); }

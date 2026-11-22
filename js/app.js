@@ -175,8 +175,10 @@ function showScreen(id) {
   }
   _lastScreenName = id; _lastScreenTs = Date.now();
   state.settings.lastScreen = id; save();
+  const targetEl = document.getElementById(id);
+  if (!targetEl) return;
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+  targetEl.classList.add('active');
   const nav = document.getElementById('nav');
   const tabs = ['screen-dashboard','screen-tasbih','screen-quran','screen-night','screen-dua','screen-hadith','screen-cal','screen-path','screen-library'];
   nav.style.display = tabs.includes(id) ? 'flex' : 'none';
@@ -189,6 +191,21 @@ function showScreen(id) {
   if (id==='screen-cal') setNav('cal');
   if (id==='screen-path') setNav('path');
   if (id==='screen-library') setNav('library');
+  var guideMap = {
+    'screen-dashboard': 'dashboard',
+    'screen-quran': 'quran',
+    'screen-path': 'path',
+    'screen-library': 'library',
+    'screen-tasbih': 'tasbih',
+    'screen-cal': 'cal',
+    'screen-settings': 'settings'
+  };
+  if (id === 'screen-settings' && typeof renderSettingsArchitecture === 'function') {
+    renderSettingsArchitecture();
+  }
+  if (guideMap[id] && typeof renderScreenGuideSlot === 'function') {
+    renderScreenGuideSlot(guideMap[id]);
+  }
   window.scrollTo(0,0);
   saveNavContext();
 }
@@ -611,14 +628,7 @@ if ('serviceWorker' in navigator) {
   function swReload() {
     if (_swRefreshing) return;
     _swRefreshing = true;
-    console.log('SW: доступно обновление.');
-    var el = document.getElementById('toast');
-    if (el) {
-      el.textContent = 'Доступно обновление. Перезагрузите приложение.';
-      el.classList.add('show');
-      if (_toastTimer) clearTimeout(_toastTimer);
-      _toastTimer = setTimeout(function(){ el.classList.remove('show'); }, 5000);
-    }
+    showMarkToast('Доступно обновление. Перезагрузите приложение.', 5000);
     setTimeout(function(){ _swRefreshing = false; }, 30000);
   }
 
@@ -877,7 +887,7 @@ window.addEventListener('appinstalled', () => {
 
 /* ---------- STRUCTURE / INLINE CHECKS ---------- */
 (function checkStructure(){
-  var expected = ['screen-dashboard','screen-tasbih','screen-quran','screen-night','screen-dua','screen-hadith','screen-cal','screen-path','screen-quran-detail','screen-night-detail','screen-dua-detail','screen-hadith-detail','screen-form','screen-counter','screen-settings','read-mode','memorize-mode','search-overlay','nav','modal-bg','onboarding','save-indicator'];
+  var expected = ['screen-dashboard','screen-tasbih','screen-quran','screen-night','screen-dua','screen-hadith','screen-cal','screen-path','screen-library','screen-quran-detail','screen-night-detail','screen-dua-detail','screen-hadith-detail','screen-form','screen-counter','screen-settings','read-mode','memorize-mode','search-overlay','nav','modal-bg','onboarding','save-indicator'];
   var missing = [];
   expected.forEach(function(id){ if (!document.getElementById(id)) missing.push(id); });
   if (missing.length) console.error('⚠️ Структура — отсутствуют: ' + missing.join(', '));

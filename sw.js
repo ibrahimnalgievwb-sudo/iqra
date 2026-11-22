@@ -1,4 +1,4 @@
-const SW_VERSION   = 'iqra-v445'; /* МЕНЯЙ ВЕРСИЮ ТОЛЬКО ЗДЕСЬ */
+const SW_VERSION   = 'iqra-v451'; /* МЕНЯЙ ВЕРСИЮ ТОЛЬКО ЗДЕСЬ */
 const SW_VER_SHORT = SW_VERSION.replace(/^iqra-/, '');
 const CACHE_STATIC = 'iqra-static-' + SW_VER_SHORT;
 const CACHE_DATA   = 'iqra-data-'   + SW_VER_SHORT;
@@ -15,12 +15,14 @@ const PRECACHE_STATIC = [
   './css/layout.css',
   './css/tajweed.css',
   './css/polish.css',
+  './js/architecture.js',
   './js/api.js',
   './js/storage.js',
   './js/app.js',
   './js/actions.js',
   './js/deprecated.js',
   './js/graph-engine.js',
+  './js/components/guide.js',
   './js/components/tafsir.js',
   './js/components/quran.js',
   './js/components/reader.js',
@@ -55,7 +57,20 @@ const PRECACHE_DATA = [
   './data/tafsirs_fatiha.json',
   './data/graph/edges.json',
   './data/graph/themes.json',
-  './data/graph/scholars.json'
+  './data/graph/scholars.json',
+  './data/tajweed/manifest.json',
+  './data/tajweed/chunk_01.json',
+  './data/tajweed/chunk_02.json',
+  './data/tajweed/chunk_03.json',
+  './data/tajweed/chunk_04.json',
+  './data/tajweed/chunk_05.json',
+  './data/tajweed/chunk_06.json',
+  './data/tajweed/chunk_07.json',
+  './data/tajweed/chunk_08.json',
+  './data/tajweed/chunk_09.json',
+  './data/tajweed/chunk_10.json',
+  './data/tajweed/chunk_11.json',
+  './data/tajweed/chunk_12.json'
 ];
 
 self.addEventListener('install', (event) => {

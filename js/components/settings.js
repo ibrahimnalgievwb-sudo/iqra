@@ -11,10 +11,66 @@ function openSettings() {
   document.getElementById('daily-goal-input').value = state.settings.dailyGoal;
   document.getElementById('opt-autonext').checked = state.settings.autoNext;
   document.getElementById('opt-wake').checked = state.settings.wakeLock;
-    document.getElementById('opt-vibrate').checked = state.settings.vibrate;
+  document.getElementById('opt-vibrate').checked = state.settings.vibrate;
   document.getElementById('opt-goal-notify').checked = !!state.settings.goalNotify;
   document.querySelectorAll('#size-seg button').forEach(b=>b.classList.toggle('active', parseFloat(b.dataset.size)===state.settings.arSize));
-  renderReminders(); showScreen('screen-settings');
+  renderSettingsArchitecture();
+  renderReminders();
+  showScreen('screen-settings');
+}
+
+function renderSettingsArchitecture() {
+  var methodSel = document.getElementById('prayer-method-select');
+  var madhhabSel = document.getElementById('prayer-madhhab-select');
+  var prefs = (state && state.settings && state.settings.prayerPrefs) || {};
+  if (typeof IqraArchitecture !== 'undefined' && IqraArchitecture.IqraPrayer) {
+    var P = IqraArchitecture.IqraPrayer;
+    if (methodSel) {
+      methodSel.innerHTML = P.METHODS.map(function (m) {
+        return '<option value="' + escAttr(m.id) + '">' + esc(m.title) + '</option>';
+      }).join('');
+      methodSel.value = P.getMethod(prefs.method).id;
+    }
+    if (madhhabSel) {
+      madhhabSel.innerHTML = P.ASR_MADHHABS.map(function (m) {
+        return '<option value="' + escAttr(m.id) + '">' + esc(m.title) + '</option>';
+      }).join('');
+      madhhabSel.value = P.getAsrMadhhab(prefs.asrMadhhab).id;
+    }
+  }
+  var plansSlot = document.getElementById('plans-overview-slot');
+  if (plansSlot && typeof IqraArchitecture !== 'undefined') {
+    var freeCaps = IqraArchitecture.listCapabilities(IqraArchitecture.TIERS.FREE);
+    var plusCaps = IqraArchitecture.listCapabilities(IqraArchitecture.TIERS.IQRA_PLUS);
+    var renderCapList = function (list) {
+      return '<ul class="plan-cap-list">' + list.map(function (c) {
+        return '<li class="plan-cap-item"><div class="pci-title">' + esc(c.title) + '</div><div class="pci-sub">' + esc(c.summary) + '</div></li>';
+      }).join('') + '</ul>';
+    };
+    plansSlot.innerHTML =
+      '<div class="plan-block">' +
+        '<div class="plan-head"><div class="plan-name">Бесплатно навсегда</div><span class="plan-status plan-status--active">Активно</span></div>' +
+        '<div class="plan-desc">Священный Коран, таджвид, тафсиры, хадисы, дуа, тасбих и Умная книга остаются полностью бесплатными и работают офлайн.</div>' +
+        renderCapList(freeCaps) +
+      '</div>' +
+      '<div class="plan-block plan-block--future">' +
+        '<div class="plan-head"><div class="plan-name">Икра+ (готовится)</div><span class="plan-status">В разработке</span></div>' +
+        '<div class="plan-desc">Опциональные личные инструменты для углублённого заучивания и планирования. Все тексты Корана и Сунны никогда не закроются подпиской.</div>' +
+        renderCapList(plusCaps) +
+      '</div>';
+  }
+}
+
+function setPrayerPref(field, val) {
+  if (!state || !state.settings) return;
+  var cur = Object.assign({}, state.settings.prayerPrefs || {});
+  cur[field] = val;
+  if (typeof IqraArchitecture !== 'undefined' && IqraArchitecture.IqraPrayer) {
+    state.settings.prayerPrefs = IqraArchitecture.IqraPrayer.normalizeLocation(cur);
+  } else {
+    state.settings.prayerPrefs = cur;
+  }
+  save();
 }
 
 function setDailyGoal(v) { state.settings.dailyGoal = Math.max(0, Math.min(1000000, parseInt(v)||0)); save(); }
@@ -126,7 +182,8 @@ function exportCSV() {
 }
 
 function exportData() {
-  const payload = Object.assign({}, state, {
+  var base = (typeof serializeCompactState === 'function') ? serializeCompactState(state) : Object.assign({}, state);
+  const payload = Object.assign({}, base, {
     __schema: BACKUP_SCHEMA,
     __exportedAt: new Date().toISOString()
   });
@@ -141,7 +198,7 @@ function exportData() {
   if (state.settings.vibrate && navigator.vibrate) navigator.vibrate(15);
 }
 
-/* ---------- IMPORT: ОЧИСТКА ВХОДНЫХ ДАННЫХ (v417) ----------
+/* ---------- IMPORT: ОЧИСТКА ВХОДНЫХ ДАННЫХ (v450) ----------
    Резервная копия — недоверенный ввод. Всё, что попадёт в state и затем в
    разметку, приводится к ожидаемым типам и диапазонам. */
 function _impSafeId(id) { return (typeof id === 'string' && /^[a-zA-Z0-9_-]{1,100}$/.test(id)) ? id : null; }
@@ -151,6 +208,15 @@ function _impNumMap(raw) {
     Object.keys(raw).forEach(function (k) {
       const v = raw[k];
       if (_impSafeId(k) && typeof v === 'number' && isFinite(v) && v >= 0) out[k] = Math.min(Math.floor(v), 10000000);
+    });
+  }
+  return out;
+}
+function _impBoolMap(raw) {
+  const out = {};
+  if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
+    Object.keys(raw).forEach(function (k) {
+      if (_impSafeId(k) && raw[k] === true) out[k] = true;
     });
   }
   return out;
@@ -172,6 +238,22 @@ function sanitizeSettings(raw) {
   out.lastScreen = (typeof src.lastScreen === 'string' && /^screen-[a-z0-9-]{1,40}$/.test(src.lastScreen)) ? src.lastScreen : null;
   out.readScrolls = _impNumMap(src.readScrolls);
   out.readAyah = _impNumMap(src.readAyah);
+  out.seenGuides = _impBoolMap(src.seenGuides);
+  const rp = (src.readerPrefs && typeof src.readerPrefs === 'object' && !Array.isArray(src.readerPrefs)) ? src.readerPrefs : {};
+  out.readerPrefs = {
+    showTranscription: bool(rp.showTranscription, base.readerPrefs.showTranscription),
+    pageBatch: Math.floor(num(rp.pageBatch, 10, 200, base.readerPrefs.pageBatch))
+  };
+  if (typeof IqraArchitecture !== 'undefined' && IqraArchitecture.IqraPrayer) {
+    out.prayerPrefs = IqraArchitecture.IqraPrayer.normalizeLocation(src.prayerPrefs);
+  } else {
+    out.prayerPrefs = Object.assign({}, base.prayerPrefs);
+  }
+  const sp = (src.syncPrefs && typeof src.syncPrefs === 'object' && !Array.isArray(src.syncPrefs)) ? src.syncPrefs : {};
+  out.syncPrefs = {
+    autoBackupHint: bool(sp.autoBackupHint, false),
+    lastLocalSyncAt: Math.floor(num(sp.lastLocalSyncAt, 0, 9999999999999, 0))
+  };
   return out;
 }
 /* История зикра: { 'ГГГГ-ММ-ДД': { total, byId: { id: число } } }.
@@ -244,6 +326,14 @@ function validateImport(d) {
     return c;
   }) : [];
   safe.quranLearned = {};
+  if (d.quranProgress && typeof d.quranProgress === 'object' && !Array.isArray(d.quranProgress)) {
+    Object.keys(d.quranProgress).forEach(function (id) {
+      var val = d.quranProgress[id];
+      if (safeId(id) && val && typeof val === 'object' && val.learned === true) {
+        safe.quranLearned[id] = /^\d{4}-\d{2}-\d{2}$/.test(String(val.learnedAt || '')) ? val.learnedAt : '';
+      }
+    });
+  }
   if (Array.isArray(d.quran)) {
     d.quran.forEach(function (x) {
       if (x && typeof x === 'object' && safeId(x.id) && x.learned === true) {
@@ -256,9 +346,9 @@ function validateImport(d) {
 
 function importData(e) {
   const f = e.target.files[0]; if (!f) return;
-  if (f.size > 5 * 1024 * 1024) { showMarkToast('Файл слишком большой', 3200); e.target.value = ''; return; }
+  if (f.size > 8 * 1024 * 1024) { showMarkToast('Файл слишком большой', 3200); e.target.value = ''; return; }
   const r = new FileReader();
-    r.onload = async () => {
+  r.onload = async () => {
     let parsed;
     try { parsed = JSON.parse(r.result); } catch(err) { showMarkToast('Файл повреждён', 3200); e.target.value = ''; return; }
     const validated = validateImport(parsed);
@@ -272,14 +362,19 @@ function importData(e) {
     const mergedMigrations = Object.assign({}, currentMigrations, incomingMigrations);
     mergedMigrations.quran_v15 = true;
     mergedMigrations.quran_v16 = true;
+    mergedMigrations.compactQuran_v1 = true;
     mergedMigrations.ruqyahGuideFix_v1 = false;
     mergedMigrations.ruqyahGuideFix_v2 = false;
     mergedMigrations.prophetTitleFix_v1 = false;
     state = Object.assign({}, state, validated);
-    state.quran = JSON.parse(JSON.stringify(DEFAULT_QURAN));
-    state.quran.forEach(function (q) {
-      if (Object.prototype.hasOwnProperty.call(quranLearned, q.id)) { q.learned = true; q.learnedAt = quranLearned[q.id]; }
+    var progressMap = {};
+    Object.keys(quranLearned).forEach(function (id) {
+      progressMap[id] = { learned: true, learnedAt: quranLearned[id] };
     });
+    state.quranProgress = progressMap;
+    state.quran = (typeof hydrateQuranFromProgress === 'function')
+      ? hydrateQuranFromProgress(progressMap)
+      : JSON.parse(JSON.stringify(DEFAULT_QURAN));
     state.migrations = mergedMigrations;
     saveNow();
     state = load();
@@ -306,7 +401,12 @@ async function resetAll() {
     localStorage.removeItem('iqra_last_tasbih');
     localStorage.removeItem('iqra_install_dismissed');
     localStorage.removeItem('iqra_tajweed_cache');
-    var _qk = Object.keys(localStorage).filter(function(k){ return k.indexOf('iqra_quote_') === 0 || k.indexOf('iqra_tajweed_') === 0; });
+    localStorage.removeItem('iqra_sync_remote_stub');
+    var _qk = [];
+    for (var _ri = 0; _ri < localStorage.length; _ri++) {
+      var _rk = localStorage.key(_ri);
+      if (_rk && (_rk.indexOf('iqra_quote_') === 0 || _rk.indexOf('iqra_tajweed') === 0)) _qk.push(_rk);
+    }
     _qk.forEach(function(k){ localStorage.removeItem(k); });
   } catch(e) {}
   location.reload();

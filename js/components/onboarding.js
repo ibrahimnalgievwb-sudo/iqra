@@ -56,4 +56,5 @@ function finishOnboarding() {
   if (ob) ob.classList.remove('active');
   state.migrations.onboarded = true;
   saveNow();
+  if (typeof renderScreenGuideSlot === 'function') renderScreenGuideSlot('dashboard');
 }

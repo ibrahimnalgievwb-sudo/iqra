@@ -40,13 +40,13 @@ function renderProgressFavorites() {
   if (bms.length) {
     html += '<div class="settings-group"><div class="progress-section-title">Закладки</div>';
     bms.forEach(b => {
-      html += '<div class="learned-item mark-item"><div onclick="openBookmark(\'' + esc(b.id) + '\')" style="cursor:pointer;flex:1;min-width:0"><div class="li-title">' + esc(b.label) + '</div><div class="li-sub">' + new Date(b.ts).toLocaleDateString('ru-RU') + '</div></div><button class="mi-del" onclick="removeBookmark(\'' + esc(b.id) + '\')" aria-label="Удалить"><svg class="ico ico-sm"><use href="#i-x"/></svg></button></div>';
+      html += '<div class="learned-item mark-item"><button type="button" class="learned-item-btn" onclick="openBookmark(\'' + escAttr(b.id) + '\')"><div class="li-title">' + esc(b.label) + '</div><div class="li-sub">' + new Date(b.ts).toLocaleDateString('ru-RU') + '</div></button><button type="button" class="mi-del" onclick="removeBookmark(\'' + escAttr(b.id) + '\')" aria-label="Удалить закладку: ' + escAttr(b.label) + '"><svg class="ico ico-sm"><use href="#i-x"/></svg></button></div>';
     });
     html += '</div>';
   }
-  if (favQ.length) { html += `<div class="settings-group"><div class="progress-section-title">Суры и аяты</div>`; favQ.forEach(q => { html += `<div class="learned-item" onclick="openQuran('${esc(q.id)}')" style="cursor:pointer"><div><div class="li-title">${esc(q.title)}</div><div class="li-sub">${esc(q.subtitle||'')}</div></div><div class="li-check"><svg class="ico ico-sm"><use href="#i-star-filled"/></svg></div></div>`; }); html += `</div>`; }
-  if (favD.length) { html += `<div class="settings-group"><div class="progress-section-title">Дуа</div>`; favD.forEach(d => { html += `<div class="learned-item" onclick="openDua('${esc(d.id)}')" style="cursor:pointer"><div><div class="li-title">${esc(d.title)}</div><div class="li-sub">${esc(d.subtitle||'')}</div></div><div class="li-check"><svg class="ico ico-sm"><use href="#i-star-filled"/></svg></div></div>`; }); html += `</div>`; }
-  if (favH.length) { html += `<div class="settings-group"><div class="progress-section-title">Хадисы</div>`; favH.forEach(h => { html += `<div class="learned-item" onclick="openHadith('${esc(h.id)}')" style="cursor:pointer"><div><div class="li-title">${esc(h.title)}</div><div class="li-sub">${esc(h.subtitle||'')}</div></div><div class="li-check"><svg class="ico ico-sm"><use href="#i-star-filled"/></svg></div></div>`; }); html += `</div>`; }
+  if (favQ.length) { html += `<div class="settings-group"><div class="progress-section-title">Суры и аяты</div>`; favQ.forEach(q => { html += `<button type="button" class="learned-item learned-item-fullbtn" onclick="openQuran('${escAttr(q.id)}')"><div><div class="li-title">${esc(q.title)}</div><div class="li-sub">${esc(q.subtitle||'')}</div></div><div class="li-check"><svg class="ico ico-sm"><use href="#i-star-filled"/></svg></div></button>`; }); html += `</div>`; }
+  if (favD.length) { html += `<div class="settings-group"><div class="progress-section-title">Дуа</div>`; favD.forEach(d => { html += `<button type="button" class="learned-item learned-item-fullbtn" onclick="openDua('${escAttr(d.id)}')"><div><div class="li-title">${esc(d.title)}</div><div class="li-sub">${esc(d.subtitle||'')}</div></div><div class="li-check"><svg class="ico ico-sm"><use href="#i-star-filled"/></svg></div></button>`; }); html += `</div>`; }
+  if (favH.length) { html += `<div class="settings-group"><div class="progress-section-title">Хадисы</div>`; favH.forEach(h => { html += `<button type="button" class="learned-item learned-item-fullbtn" onclick="openHadith('${escAttr(h.id)}')"><div><div class="li-title">${esc(h.title)}</div><div class="li-sub">${esc(h.subtitle||'')}</div></div><div class="li-check"><svg class="ico ico-sm"><use href="#i-star-filled"/></svg></div></button>`; }); html += `</div>`; }
   if (!bms.length && !favQ.length && !favD.length && !favH.length) {
     html += '<div class="empty">Пока пусто.<br>Нажимайте на звезду на карточках и добавляйте закладки в режиме чтения.</div>';
   }
@@ -108,7 +108,7 @@ function renderProgressCalendar() {
     const isFuture = new Date(y,m,d) > new Date();
     let cls='cal-day'; if (count>0) cls+=' has-count'; if (isToday) cls+=' today'; if (isFuture) cls+=' future';
     const cnt = count>0 ? `<div class="cnt">${count>999?'999+':count}</div>` : '';
-    html += `<div class="${cls}" onclick="openDay('${key}')"><div>${d}</div>${cnt}</div>`;
+    html += `<button type="button" class="${cls}" onclick="openDay('${key}')"><div>${d}</div>${cnt}</button>`;
   }
   const maxV = Math.max(1, ...daily);
   const today = new Date();

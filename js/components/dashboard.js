@@ -70,23 +70,24 @@ function renderDashboard() {
   const contEl = document.getElementById('dash-continue-block');
   if (contEl) {
     const lr = state.settings.lastRead;
+    var contId = 'q1', contLabel = 'Начать с Аль-Фатихи', contTitle = 'Аль-Фатиха', contSub = 'Открывающая · 7 аятов';
     if (lr && lr.type === 'quran') {
       const q = getQuranById(lr.id);
       if (q) {
-        contEl.innerHTML = `<div class="continue-card" onclick="openRead('${esc(q.id)}')"><div class="cc-label">Продолжить чтение</div><div class="cc-title">${esc(q.title)}</div><div class="cc-sub">${esc(q.subtitle||'')}</div></div>`;
-      } else {
-        contEl.innerHTML = `<div class="continue-card" onclick="openRead('q1')"><div class="cc-label">Начать с Аль-Фатихи</div><div class="cc-title">Аль-Фатиха</div><div class="cc-sub">Открывающая · 7 аятов</div></div>`;
+        contId = q.id;
+        contLabel = 'Продолжить чтение';
+        contTitle = q.title;
+        contSub = q.subtitle || '';
       }
-    } else {
-      contEl.innerHTML = `<div class="continue-card" onclick="openRead('q1')"><div class="cc-label">Начать с Аль-Фатихи</div><div class="cc-title">Аль-Фатиха</div><div class="cc-sub">Открывающая · 7 аятов</div></div>`;
     }
+    contEl.innerHTML = `<button type="button" class="continue-card continue-card-btn" onclick="openRead('${escAttr(contId)}')"><div class="cc-label">${esc(contLabel)}</div><div class="cc-title">${esc(contTitle)}</div><div class="cc-sub">${esc(contSub)}</div></button>`;
   }
 
   _dashQuote = getDailyQuote();
   const qEl = document.getElementById('dash-quote');
   if (qEl && _dashQuote) {
     qEl.innerHTML =
-      '<div class="dq-head"><span class="dq-badge">' + esc(_dashQuote.badge) + '</span><div style="display:flex;gap:8px;align-items:center;"><button class="icon-btn ghost" style="width:24px;height:24px;padding:0;" onclick="event.stopPropagation();refreshQuote()" aria-label="Другая цитата"><svg class="ico ico-sm"><use href="#i-rotate-ccw"/></svg></button><span class="dq-arrow"><svg class="ico ico-sm"><use href="#i-arrow-right"/></svg></span></div></div>' +
+      '<div class="dq-head"><span class="dq-badge">' + esc(_dashQuote.badge) + '</span><div class="dq-actions"><button type="button" class="icon-btn ghost dq-refresh-btn" onclick="event.stopPropagation();refreshQuote()" aria-label="Другая цитата"><svg class="ico ico-sm"><use href="#i-rotate-ccw"/></svg></button><span class="dq-arrow"><svg class="ico ico-sm"><use href="#i-arrow-right"/></svg></span></div></div>' +
       '<div class="dq-title">' + esc(_dashQuote.title) + '</div>' +
       (_dashQuote.ar ? '<div class="dq-ar ar-font">' + esc(_dashQuote.ar) + '</div>' : '') +
       (_dashQuote.tr ? '<div class="dq-tr">' + esc(_dashQuote.tr) + '</div>' : '');

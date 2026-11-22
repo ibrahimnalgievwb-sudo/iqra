@@ -272,13 +272,10 @@
 /* Уведомления вместо alert(): длинный текст переносится, а не обрезается */
 .toast {
   white-space: normal; text-align: center; line-height: 1.35;
-  border-radius: 20px; padding: 10px var(--space-4);
+  border-radius: 20px; padding: 10px 18px;
   width: max-content; max-width: min(90vw, 440px);
   overflow: visible; text-overflow: clip;
 }
-
-/* Уведомление: длинный текст переносится, а не обрезается многоточием */
-.toast { white-space: normal; text-align: center; width: max-content; line-height: 1.35; padding: 10px 18px; }
 
 /* ---------- 15. SVG-ИКОНКИ ВМЕСТО ТЕКСТОВЫХ СИМВОЛОВ (→ ← ✓ ★ × ‹ ›) ---------- */
 .filter-chip { display: inline-flex; align-items: center; gap: 6px; }
@@ -395,4 +392,289 @@ details[open] > .tafsir-summary .tafsir-arrow { transform: rotate(45deg); }
 .tafsir-info-btn {
   width: auto; margin: 0; padding: 6px 12px; min-height: 32px;
   border-radius: 8px; font-size: 12px; font-weight: 600; gap: 6px;
+}
+
+/* ---------- 18. ПОМОЩЬ ПО ЭКРАНАМ И ДОСТУПНОСТЬ (v450) ---------- */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.guide-help-glyph {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.screen-guide-card {
+  margin: 0 0 var(--space-3);
+  padding: 14px 16px;
+  background: var(--card);
+  border: 1px solid var(--card-outline);
+  border-left: 3px solid var(--gold-accent);
+  border-radius: 16px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+  text-align: left;
+}
+[data-theme="dark"] .screen-guide-card,
+[data-theme="mono"] .screen-guide-card {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.24);
+}
+.sgc-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.sgc-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--gold-text-light);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+[data-theme="dark"] .sgc-title-wrap,
+[data-theme="mono"] .sgc-title-wrap {
+  color: var(--gold-text-dark);
+}
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme]) .sgc-title-wrap { color: var(--gold-text-dark); }
+}
+.sgc-ico { width: 15px; height: 15px; flex-shrink: 0; }
+.sgc-close {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+.sgc-close:hover { background: var(--card2); color: var(--text); }
+.sgc-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 6px;
+  line-height: 1.35;
+}
+.sgc-list {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--muted);
+}
+.sgc-list li + li { margin-top: 4px; }
+.sgc-foot {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+.sgc-ok {
+  margin: 0 !important;
+  min-height: 34px !important;
+  padding: 6px 14px !important;
+  font-size: 13px !important;
+  width: auto !important;
+}
+
+/* Быстрый переход по аятам (длинные суры) */
+.ayah-jumper {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0 4px;
+  padding: 10px 12px;
+  background: var(--card);
+  border: 1px solid var(--card-outline);
+  border-radius: 14px;
+}
+.aj-label {
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 600;
+  flex: 1 1 140px;
+}
+.aj-input {
+  width: 78px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--card2);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  outline: none;
+}
+.aj-input:focus { border-color: var(--gold-accent); }
+.aj-btn {
+  margin: 0 !important;
+  width: auto !important;
+  min-height: 36px !important;
+  padding: 6px 14px !important;
+  font-size: 13px !important;
+}
+
+/* Кнопки-карточки (семантический button вместо clickable div) */
+.content-card-btn,
+.continue-card-btn,
+.learned-item-btn,
+.learned-item-fullbtn {
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+.content-card--feature {
+  border-color: var(--gold-accent);
+}
+.learned-item-btn {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+.learned-item-fullbtn {
+  background: transparent;
+  border: none;
+  border-top: 1px solid var(--border);
+}
+.learned-item-fullbtn:first-of-type { border-top: none; }
+
+.dq-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.dq-refresh-btn {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+}
+
+.spacer-sm { height: 6px; }
+.ico-inline-gold { color: var(--gold-accent); vertical-align: -2px; margin-right: 6px; }
+.note-box-ico { flex-shrink: 0; color: var(--gold-accent); margin-top: 2px; }
+.read-hero-title { padding: 12px 16px; margin-bottom: 12px; text-align: center; }
+.read-hero-heading { margin-bottom: 0; }
+.detail-source-block { margin-top: 18px; }
+.detail-source-text { font-size: 13px; }
+.tajweed-retry-link {
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: var(--gold-text-light);
+  font-weight: 700;
+  font-size: 12px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+[data-theme="dark"] .tajweed-retry-link,
+[data-theme="mono"] .tajweed-retry-link {
+  color: var(--gold-text-dark);
+}
+
+/* Селектор молитвы и секция планов */
+.prayer-select {
+  width: 100%;
+  background: var(--card2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  outline: none;
+}
+.prayer-select:focus { border-color: var(--gold-accent); }
+.setting-col {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.plans-overview {
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.plan-block {
+  padding: 14px;
+  border-radius: 14px;
+  background: var(--card2);
+  border: 1px solid var(--card-outline);
+  border-left: 3px solid var(--gold-accent);
+}
+.plan-block--future {
+  border-left-color: var(--border);
+}
+.plan-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.plan-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+}
+.plan-status {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.plan-status--active {
+  color: var(--gold-text-light);
+}
+[data-theme="dark"] .plan-status--active,
+[data-theme="mono"] .plan-status--active {
+  color: var(--gold-text-dark);
+}
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme]) .plan-status--active { color: var(--gold-text-dark); }
+}
+.plan-desc {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.plan-cap-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.plan-cap-item {
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+.pci-title {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+.pci-sub {
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--muted);
 }

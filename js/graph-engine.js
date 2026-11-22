@@ -405,6 +405,22 @@
       }
     });
 
+    var edgesByNode = new Map();
+    function addNodeEdge(key, edge) {
+      if (!key) return;
+      var list = edgesByNode.get(key);
+      if (!list) {
+        list = [];
+        edgesByNode.set(key, list);
+      }
+      list.push(edge);
+    }
+    edges.forEach(function (edge) {
+      if (!edge || !edge.from || !edge.to) return;
+      addNodeEdge(edge.from, edge);
+      if (edge.to !== edge.from) addNodeEdge(edge.to, edge);
+    });
+
     return {
       quran: quran,
       ayahs: ayahs,
@@ -416,6 +432,7 @@
       scholars: scholars,
       biographies: biographies,
       edges: edges,
+      edgesByNode: edgesByNode,
       ayahByNode: ayahByNode,
       quranById: quranById,
       duaById: duaById,
@@ -606,7 +623,23 @@
       });
     }
 
+    var candidateEdges = [];
+    var seenEdgeIdx = new Set();
+
     seedIds.forEach(function (sid) {
+      if (index.edgesByNode) {
+        var bucket = index.edgesByNode.get(sid);
+        if (bucket && bucket.length) {
+          for (var bi = 0; bi < bucket.length; bi++) {
+            var eObj = bucket[bi];
+            if (!seenEdgeIdx.has(eObj)) {
+              seenEdgeIdx.add(eObj);
+              candidateEdges.push(eObj);
+            }
+          }
+        }
+      }
+
       if (sid.indexOf('ayah:') === 0) {
         var ayahObj = index.ayahByNode.get(sid);
         if (ayahObj) {
@@ -682,7 +715,7 @@
       }
     });
 
-    index.edges.forEach(function (edge) {
+    candidateEdges.forEach(function (edge) {
       if (!edge || !edge.from || !edge.to) return;
       var fromIn = seedSet.has(edge.from);
       var toIn = seedSet.has(edge.to);
@@ -710,12 +743,10 @@
     return out;
   }
 
-  function makeCardItem(kind, raw, index, extra) {
-    var base = null;
-    if (kind === 'ayah') {
-      base = Object.assign({}, raw);
-    } else if (kind === 'hadith') {
-      base = {
+  function buildLightItem(kind, raw) {
+    if (kind === 'ayah') return raw;
+    if (kind === 'hadith') {
+      return {
         _type: 'hadith',
         _nodeId: 'hadith:' + raw.id,
         _id: raw.id,
@@ -729,8 +760,9 @@
         _tags: Array.isArray(raw.tags) ? raw.tags : [],
         _isSurahAyah: false
       };
-    } else if (kind === 'dua') {
-      base = {
+    }
+    if (kind === 'dua') {
+      return {
         _type: 'dua',
         _nodeId: 'dua:' + raw.id,
         _id: raw.id,
@@ -744,8 +776,9 @@
         _tags: Array.isArray(raw.tags) ? raw.tags : [],
         _isSurahAyah: false
       };
-    } else if (kind === 'tasbih') {
-      base = {
+    }
+    if (kind === 'tasbih') {
+      return {
         _type: 'tasbih',
         _nodeId: 'tasbih:' + raw.id,
         _id: raw.id,
@@ -761,7 +794,13 @@
         _isSurahAyah: false
       };
     }
+    return null;
+  }
+
+  function makeCardItem(kind, raw, index, extra) {
+    var base = buildLightItem(kind, raw);
     if (!base) return null;
+    if (kind === 'ayah') base = Object.assign({}, raw);
     if (extra) Object.assign(base, extra);
 
     var rels = getSmartBookRelations(base._nodeId, index);
@@ -806,7 +845,8 @@
     return index.themes.map(function (th) {
       var target = 'theme:' + th.id;
       var nodes = new Set();
-      index.edges.forEach(function (e) {
+      var bucket = index.edgesByNode ? index.edgesByNode.get(target) : index.edges;
+      (bucket || []).forEach(function (e) {
         if (e && e.to === target && e.from) nodes.add(e.from);
       });
       return Object.assign({}, th, { count: nodes.size });
@@ -818,7 +858,8 @@
     return PATH_MOOD_ORDER.map(function (m) {
       var target = 'mood:' + m.id;
       var nodes = new Set();
-      index.edges.forEach(function (e) {
+      var bucket = index.edgesByNode ? index.edgesByNode.get(target) : index.edges;
+      (bucket || []).forEach(function (e) {
         if (e && e.to === target && e.from) nodes.add(e.from);
       });
       return Object.assign({}, m, { count: nodes.size });
@@ -879,9 +920,9 @@
     return 0;
   }
 
-  function queryPathItems(params, ctx) {
+  function queryPathItems(params, ctxOrIndex) {
     var p = params || {};
-    var index = createContextIndex(ctx);
+    var index = (ctxOrIndex && ctxOrIndex.ayahByNode) ? ctxOrIndex : createContextIndex(ctxOrIndex);
     var mode = p.mode || 'all';
     var rawTag = p.tag ? String(p.tag).trim() : '';
     var itemTypeFilter = p.itemTypeFilter || 'all';
@@ -893,7 +934,6 @@
     var activeTheme = resolveThemeByKey(rawTag, index);
     var activeMood = resolveMoodByKey(rawTag, index);
 
-    // Auto-detect semantic kind when mode is 'all' or 'word'
     var targetKind = null;
     if (mode === 'theme') targetKind = 'theme';
     else if (mode === 'mood') targetKind = 'mood';
@@ -936,11 +976,25 @@
       }
     }
 
+    function pushAllNodes(target) {
+      if (!itemTypeFilter || itemTypeFilter === 'all' || itemTypeFilter === 'ayah') {
+        index.ayahs.forEach(function (a) { target.push({ kind: 'ayah', raw: a }); });
+      }
+      if (!itemTypeFilter || itemTypeFilter === 'all' || itemTypeFilter === 'hadith') {
+        index.hadiths.forEach(function (h) { target.push({ kind: 'hadith', raw: h }); });
+      }
+      if (!itemTypeFilter || itemTypeFilter === 'all' || itemTypeFilter === 'dua') {
+        index.duas.forEach(function (d) { target.push({ kind: 'dua', raw: d }); });
+      }
+      if (!itemTypeFilter || itemTypeFilter === 'all' || itemTypeFilter === 'tasbih') {
+        index.tasbihs.forEach(function (t) { target.push({ kind: 'tasbih', raw: t }); });
+      }
+    }
+
     if (rawTag && ((targetKind === 'theme' && activeTheme) || (targetKind === 'mood' && activeMood))) {
       var edgeTarget = targetKind === 'theme' ? ('theme:' + activeTheme.id) : ('mood:' + activeMood.id);
-      var matchingEdges = index.edges.filter(function (e) {
-        return e && e.to === edgeTarget;
-      });
+      var edgeBucket = index.edgesByNode ? (index.edgesByNode.get(edgeTarget) || []) : index.edges;
+      var matchingEdges = edgeBucket.filter(function (e) { return e && e.to === edgeTarget; });
       matchingEdges.forEach(function (edge) {
         var resolved = resolveRawByNodeId(edge.from, index);
         if (!resolved) return;
@@ -955,61 +1009,58 @@
         addCandidate(card, 1000 + Math.round((edge.weight || 0.8) * 100) + typeRank(card._type));
       });
 
-      // Fallback stem/tag matching only if graph edges didn't already cover items (kept strict)
       var tagTitle = targetKind === 'theme' ? activeTheme.title : activeMood.title;
       var stems = PATH_FALLBACK_STEMS[tagTitle] || [tagTitle.toLowerCase()];
       var allNodes = [];
-      index.ayahs.forEach(function (a) { allNodes.push({ kind: 'ayah', raw: a }); });
-      index.hadiths.forEach(function (h) { allNodes.push({ kind: 'hadith', raw: h }); });
-      index.duas.forEach(function (d) { allNodes.push({ kind: 'dua', raw: d }); });
-      index.tasbihs.forEach(function (t) { allNodes.push({ kind: 'tasbih', raw: t }); });
+      pushAllNodes(allNodes);
 
       allNodes.forEach(function (entry) {
-        var nodeId = entry.kind === 'ayah' ? entry.raw._nodeId : (entry.kind + ':' + entry.raw.id);
-        if (candidates.has(nodeId)) return;
-        var card = makeCardItem(entry.kind, entry.raw, index);
-        var hasExplicitTag = Array.isArray(card._tags) && card._tags.indexOf(tagTitle) !== -1;
+        var light = buildLightItem(entry.kind, entry.raw);
+        if (!light || candidates.has(light._nodeId)) return;
+        var hasExplicitTag = Array.isArray(light._tags) && light._tags.indexOf(tagTitle) !== -1;
         if (!hasExplicitTag && matchingEdges.length > 0) {
-          // For already well-curated themes/moods in edges.json, keep fallback tightly scoped to explicit tags or direct title mentions
-          var titleHay = normalizeSearchText(card._title);
-          var hitTitle = stems.some(function (st) { return titleHay.indexOf(st) !== -1; });
-          if (!hitTitle) return;
-          addCandidate(card, 300 + typeRank(card._type));
+          var titleHay = normalizeSearchText(light._title);
+          if (!stems.some(function (st) { return titleHay.indexOf(st) !== -1; })) return;
+          addCandidate(makeCardItem(entry.kind, entry.raw, index), 300 + typeRank(light._type));
           return;
         }
         if (hasExplicitTag) {
-          addCandidate(card, 500 + typeRank(card._type));
+          addCandidate(makeCardItem(entry.kind, entry.raw, index), 500 + typeRank(light._type));
         } else {
-          var hay = normalizeSearchText([card._title, card._sub, card._trn, card._tr].filter(Boolean).join(' '));
+          var hay = normalizeSearchText([light._title, light._sub, light._trn, light._tr].filter(Boolean).join(' '));
           if (stems.some(function (st) { return hay.indexOf(st) !== -1; })) {
-            addCandidate(card, 250 + typeRank(card._type));
+            addCandidate(makeCardItem(entry.kind, entry.raw, index), 250 + typeRank(light._type));
           }
         }
       });
     } else if (rawTag) {
-      // Custom / legacy tag fallback
       var legacyStems = PATH_FALLBACK_STEMS[rawTag] || [rawTag.toLowerCase()];
-      var legacyList = []
-        .concat(index.ayahs.map(function (a) { return { kind: 'ayah', raw: a }; }))
-        .concat(index.hadiths.map(function (h) { return { kind: 'hadith', raw: h }; }))
-        .concat(index.duas.map(function (d) { return { kind: 'dua', raw: d }; }))
-        .concat(index.tasbihs.map(function (t) { return { kind: 'tasbih', raw: t }; }));
+      var legacyList = [];
+      pushAllNodes(legacyList);
       legacyList.forEach(function (entry) {
-        var card = makeCardItem(entry.kind, entry.raw, index);
-        var hasTag = Array.isArray(card._tags) && card._tags.indexOf(rawTag) !== -1;
-        var hay = normalizeSearchText([card._title, card._sub, card._trn, card._tr, card._note].filter(Boolean).join(' '));
+        var light = buildLightItem(entry.kind, entry.raw);
+        if (!light) return;
+        var hasTag = Array.isArray(light._tags) && light._tags.indexOf(rawTag) !== -1;
+        var hay = normalizeSearchText([light._title, light._sub, light._trn, light._tr, light._note].filter(Boolean).join(' '));
         if (hasTag || legacyStems.some(function (st) { return hay.indexOf(st) !== -1; })) {
-          addCandidate(card, (hasTag ? 500 : 250) + typeRank(card._type));
+          addCandidate(makeCardItem(entry.kind, entry.raw, index), (hasTag ? 500 : 250) + typeRank(light._type));
         }
       });
     } else if (normQuery) {
-      var everyEntry = []
-        .concat(index.ayahs.map(function (a) { return { kind: 'ayah', raw: a }; }))
-        .concat(index.hadiths.map(function (h) { return { kind: 'hadith', raw: h }; }))
-        .concat(index.duas.map(function (d) { return { kind: 'dua', raw: d }; }))
-        .concat(index.tasbihs.map(function (t) { return { kind: 'tasbih', raw: t }; }));
+      var everyEntry = [];
+      pushAllNodes(everyEntry);
 
       everyEntry.forEach(function (entry) {
+        var light = buildLightItem(entry.kind, entry.raw);
+        if (!light) return;
+        // Быстрая предварительная проверка по сырым полям и привязанным рёбрам (O(1) для ~6200 несовпавших аятов)
+        var prelim = itemMatchesQuery(light, normQuery, tokens);
+        var edgeHits = false;
+        if (!prelim.matched && index.edgesByNode) {
+          var relEdges = index.edgesByNode.get(light._nodeId);
+          if (relEdges && relEdges.length) edgeHits = true;
+        }
+        if (!prelim.matched && !edgeHits) return;
         var card = makeCardItem(entry.kind, entry.raw, index);
         var res = itemMatchesQuery(card, normQuery, tokens);
         if (res.matched) {
