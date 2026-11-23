@@ -15,6 +15,12 @@ function renderHadithList() {
   }).join('');
 }
 
+function _hadithLinkify(html) {
+  return (typeof IqraScholars !== 'undefined' && typeof IqraScholars.linkifyScholars === 'function')
+    ? IqraScholars.linkifyScholars(html)
+    : html;
+}
+
 function openHadith(id) {
   activeHadithId = id; const h = getHadithById(id); if (!h) return;
   trackEvent('hadith/' + id, 'Хадис: ' + h.title);
@@ -32,13 +38,13 @@ function openHadith(id) {
         <div class="read-ayah-trn">${escNl(h.translation)}</div>
       </div>
     </div>
-    ${h.note ? `<div class="note-box"><svg class="ico ico-sm" style="flex-shrink:0;color:var(--accent2)"><use href="#i-lightbulb"/></svg><div>${escNl(h.note)}</div></div>` : ''}
+    ${h.note ? `<div class="note-box"><svg class="ico ico-sm" style="flex-shrink:0;color:var(--accent2)"><use href="#i-lightbulb"/></svg><div>${_hadithLinkify(escNl(h.note))}</div></div>` : ''}
     <div class="detail-actions"><button class="btn" onclick="openMemorizeFor(getHadithById('${escAttr(h.id)}'))"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-lightbulb"/></svg>Заучить</button><button class="btn secondary" onclick="shareItem('hadith','${escAttr(h.id)}')"><svg class="ico ico-sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"><use href="#i-upload"/></svg>Поделиться</button></div>
     <div class="learned-toggle ${h.learned?'done':''}" onclick="toggleHadithLearned('${escAttr(h.id)}')">
       <div class="lt-icon">${h.learned?'<svg class="ico ico-sm"><use href="#i-check"/></svg>':'<svg class="ico ico-sm"><use href="#i-book"/></svg>'}</div>
       <div class="lt-body"><div class="lt-title">${h.learned?'Изучено':'Отметить как изученный'}</div><div class="lt-sub">${h.learned?'Нажми, чтобы снять отметку':'Изучи хадис и отметь'}</div></div>
     </div>
-    ${h.source ? `<div class="dh-section" style="margin-top:20px;"><div class="dh-label">Источник</div><div class="dh-text muted" style="font-size:13px;">${esc(h.source)}</div></div>` : ''}
+    ${h.source ? `<div class="dh-section" style="margin-top:20px;"><div class="dh-label">Источник</div><div class="dh-text muted" style="font-size:13px;">${_hadithLinkify(esc(h.source))}</div></div>` : ''}
     ${typeof renderEcosystemSection === 'function' ? renderEcosystemSection('hadith:' + h.id, { title: 'Связи в Умной книге' }) : ''}
     ${transcriptionNote()}
   `;

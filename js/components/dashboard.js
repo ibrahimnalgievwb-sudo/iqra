@@ -6,6 +6,96 @@
    Прогресс-баров нет — патч D-06 не требуется.
    ============================================================ */
 
+var _smartCycleOffset = 0;
+var _activeSmartScenario = null;
+
+function getSmartReminderContext(nowDate) {
+  var now = nowDate instanceof Date ? nowDate : new Date();
+  var today = (typeof todayKey === 'function') ? todayKey() : '';
+  var todayEntry = (state && state.history && today) ? state.history[today] : null;
+  return {
+    now: now,
+    prefs: state && state.settings ? state.settings.smartReminders : null,
+    onboarded: !!(state && state.migrations && state.migrations.onboarded),
+    todayTotal: todayEntry ? Number(todayEntry.total || 0) : 0,
+    dailyGoal: state && state.settings ? Number(state.settings.dailyGoal || 0) : 0,
+    quranLearned: (state && state.quranProgress) || {},
+    cycleOffset: _smartCycleOffset
+  };
+}
+
+function executeSmartAction(type, id) {
+  if (!type) return;
+  if (type === 'read' && id && typeof openRead === 'function') openRead(id);
+  else if (type === 'counter' && id && typeof openCounter === 'function') openCounter(id);
+  else if (type === 'dua' && id && typeof openDua === 'function') openDua(id);
+  else if (type === 'hadith' && id && typeof openHadith === 'function') openHadith(id);
+  else if (type === 'night' && typeof openNight === 'function') openNight(parseInt(id || '0', 10) || 0);
+  else if (type === 'tab' && id && typeof switchTab === 'function') switchTab(id);
+}
+
+function cycleSmartReminder() {
+  _smartCycleOffset++;
+  renderDashSmartReminder();
+}
+
+function dismissSmartReminderToday() {
+  if (!state || !state.settings) return;
+  if (typeof IqraSmartReminders !== 'undefined') {
+    state.settings.smartReminders = IqraSmartReminders.sanitizePrefs(state.settings.smartReminders);
+    state.settings.smartReminders.mutedDate = IqraSmartReminders.formatDateKey(new Date());
+  }
+  save();
+  renderDashSmartReminder();
+  if (typeof showMarkToast === 'function') showMarkToast('Напоминание скрыто до завтра');
+}
+
+function renderDashSmartReminder() {
+  var slot = document.getElementById('dash-smart-reminder-slot');
+  if (!slot) return;
+  if (typeof IqraSmartReminders === 'undefined' || !state) {
+    slot.innerHTML = '';
+    slot.style.display = 'none';
+    _activeSmartScenario = null;
+    return;
+  }
+  var ctx = getSmartReminderContext(new Date());
+  var eligible = IqraSmartReminders.listEligibleScenarios(ctx);
+  var scenario = IqraSmartReminders.selectActiveReminder(ctx);
+  _activeSmartScenario = scenario;
+  if (!scenario) {
+    slot.innerHTML = '';
+    slot.style.display = 'none';
+    return;
+  }
+  slot.style.display = 'block';
+  var canCycle = eligible.length > 1;
+  var secBtn = (scenario.secondaryLabel && scenario.secondaryAction)
+    ? '<button type="button" class="btn secondary btn-inline src-action-btn" onclick="executeSmartAction(\'' + escAttr(scenario.secondaryAction.type) + '\',\'' + escAttr(scenario.secondaryAction.id) + '\')">' + esc(scenario.secondaryLabel) + '</button>'
+    : '';
+  var _dashLinkify = (typeof IqraScholars !== 'undefined' && typeof IqraScholars.linkifyScholars === 'function')
+    ? IqraScholars.linkifyScholars
+    : function (h) { return h; };
+  slot.innerHTML =
+    '<aside class="smart-reminder-card" aria-label="Умное напоминание">' +
+      '<div class="src-head">' +
+        '<div class="src-meta">' + esc(scenario.kicker) + '</div>' +
+        '<div class="src-head-actions">' +
+          (canCycle ? '<button type="button" class="icon-btn ghost src-icon-btn" onclick="cycleSmartReminder()" aria-label="Следующее напоминание"><svg class="ico ico-sm"><use href="#i-rotate-ccw"/></svg></button>' : '') +
+        '</div>' +
+      '</div>' +
+      '<div class="src-title">' + esc(scenario.title) + '</div>' +
+      (scenario.arabic ? '<div class="src-ar ar-font">' + esc(scenario.arabic) + '</div>' : '') +
+      '<div class="src-hadith">' + _dashLinkify(esc(scenario.hadithText)) + '</div>' +
+      '<div class="src-source">' + _dashLinkify(esc(scenario.source)) + '</div>' +
+      '<div class="src-actions">' +
+        '<button type="button" class="btn secondary btn-inline src-action-btn src-action-primary" onclick="executeSmartAction(\'' + escAttr(scenario.action.type) + '\',\'' + escAttr(scenario.action.id) + '\')">' + esc(scenario.actionLabel) + '<svg class="ico ico-sm"><use href="#i-arrow-right"/></svg></button>' +
+        secBtn +
+        '<button type="button" class="src-dismiss-btn" onclick="dismissSmartReminderToday()">Скрыть на сегодня</button>' +
+      '</div>' +
+    '</aside>';
+}
+
 function getDailyQuote() {
   var key = 'iqra_quote_' + todayKey();
   try {
@@ -43,13 +133,13 @@ function renderDashSpiritual() {
 
   el.innerHTML = `
     <div class="spiritual-card">
-      <div class="sc-ar-bismillah">${esc(BISMILLAH.arabic)}</div>
+      <div class="sc-ar-bismillah ar-font">${esc(BISMILLAH.arabic)}</div>
       <div class="sc-tr-bismillah">${esc(BISMILLAH.transcription)}</div>
       <div class="sc-trn-bismillah">${esc(BISMILLAH.translation)}</div>
       
       <div class="sc-divider"></div>
       
-      <div class="sc-ar-alyaq">${esc(arText)}</div>
+      <div class="sc-ar-alyaq ar-font">${esc(arText)}</div>
       <div class="sc-tr-alyaq">${esc(trText)}</div>
       <div class="sc-trn-alyaq">${esc(trnText)}</div>
       
@@ -82,6 +172,8 @@ function renderDashboard() {
     }
     contEl.innerHTML = `<button type="button" class="continue-card continue-card-btn" onclick="openRead('${escAttr(contId)}')"><div class="cc-label">${esc(contLabel)}</div><div class="cc-title">${esc(contTitle)}</div><div class="cc-sub">${esc(contSub)}</div></button>`;
   }
+
+  renderDashSmartReminder();
 
   _dashQuote = getDailyQuote();
   const qEl = document.getElementById('dash-quote');

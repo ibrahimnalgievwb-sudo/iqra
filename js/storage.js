@@ -40,7 +40,12 @@ function defaultSettings() {
     seenGuides: {},
     readerPrefs: { showTranscription: true, pageBatch: 40 },
     prayerPrefs: { method: 'dum_rf', asrMadhhab: 'shafii', city: '', lat: null, lng: null, timezone: '' },
-    syncPrefs: { autoBackupHint: false, lastLocalSyncAt: 0 }
+    syncPrefs: { autoBackupHint: false, lastLocalSyncAt: 0 },
+    smartReminders: (typeof IqraSmartReminders !== 'undefined') ? IqraSmartReminders.defaultPrefs() : {
+      enabled: true, browserNotify: false, quietStart: '23:00', quietEnd: '05:00',
+      categories: { adhkar: true, night: true, friday: true, motivation: true },
+      mutedDate: '', dismissed: {}, notified: {}
+    }
   };
 }
 
@@ -152,6 +157,11 @@ function load() {
   s.settings.readerPrefs = Object.assign({}, defSet.readerPrefs, (s.settings.readerPrefs && typeof s.settings.readerPrefs === 'object') ? s.settings.readerPrefs : {});
   s.settings.prayerPrefs = Object.assign({}, defSet.prayerPrefs, (s.settings.prayerPrefs && typeof s.settings.prayerPrefs === 'object') ? s.settings.prayerPrefs : {});
   s.settings.syncPrefs = Object.assign({}, defSet.syncPrefs, (s.settings.syncPrefs && typeof s.settings.syncPrefs === 'object') ? s.settings.syncPrefs : {});
+  if (typeof IqraSmartReminders !== 'undefined') {
+    s.settings.smartReminders = IqraSmartReminders.sanitizePrefs(s.settings.smartReminders);
+  } else {
+    s.settings.smartReminders = Object.assign({}, defSet.smartReminders, (s.settings.smartReminders && typeof s.settings.smartReminders === 'object') ? s.settings.smartReminders : {});
+  }
 
   s.reminders = Array.isArray(s.reminders) ? s.reminders : [];
   s.draft = s.draft && typeof s.draft === 'object' ? s.draft : null;
@@ -230,6 +240,14 @@ function load() {
     }
     if (Array.isArray(DEFAULT_DUAS) && DEFAULT_DUAS.length) s.duas = sync(s.duas, DEFAULT_DUAS);
     if (Array.isArray(DEFAULT_HADITHS) && DEFAULT_HADITHS.length) s.hadiths = sync(s.hadiths, DEFAULT_HADITHS);
+    if (typeof DEFAULT_TASBIHS !== 'undefined' && Array.isArray(DEFAULT_TASBIHS) && DEFAULT_TASBIHS.length && Array.isArray(s.tasbihs)) {
+      var defTasbihById = new Map(DEFAULT_TASBIHS.map(function (t) { return [t.id, t]; }));
+      s.tasbihs.forEach(function (t) {
+        if (!t || !t.id) return;
+        var defT = defTasbihById.get(t.id);
+        if (defT && defT.dalil) t.dalil = defT.dalil;
+      });
+    }
     if (s.settings) delete s.settings.sound;
   })();
 
@@ -434,8 +452,10 @@ function ayahMarker(n) {
 function debounce(fn, wait) {
   let t = null;
   return function () {
+    const ctx = this;
+    const args = arguments;
     if (t) clearTimeout(t);
-    t = setTimeout(function () { t = null; fn.apply(null, arguments); }, wait);
+    t = setTimeout(function () { t = null; fn.apply(ctx, args); }, wait);
   };
 }
 

@@ -1,4 +1,4 @@
-const SW_VERSION   = 'iqra-v451'; /* МЕНЯЙ ВЕРСИЮ ТОЛЬКО ЗДЕСЬ */
+const SW_VERSION   = 'iqra-v453'; /* МЕНЯЙ ВЕРСИЮ ТОЛЬКО ЗДЕСЬ */
 const SW_VER_SHORT = SW_VERSION.replace(/^iqra-/, '');
 const CACHE_STATIC = 'iqra-static-' + SW_VER_SHORT;
 const CACHE_DATA   = 'iqra-data-'   + SW_VER_SHORT;
@@ -16,6 +16,7 @@ const PRECACHE_STATIC = [
   './css/tajweed.css',
   './css/polish.css',
   './js/architecture.js',
+  './js/smart-reminders.js',
   './js/api.js',
   './js/storage.js',
   './js/app.js',
@@ -111,6 +112,28 @@ self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const action = event.notification && event.notification.data ? event.notification.data.action : '';
+  event.waitUntil((async () => {
+    const windowClients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+    for (let i = 0; i < windowClients.length; i++) {
+      const client = windowClients[i];
+      if ('focus' in client) {
+        await client.focus();
+        if (action) {
+          try { client.postMessage({ type: 'SMART_REMINDER_ACTION', action }); } catch (e) {}
+        }
+        return;
+      }
+    }
+    if (self.clients.openWindow) {
+      const targetUrl = action ? ('./?smart_action=' + encodeURIComponent(action)) : './';
+      await self.clients.openWindow(targetUrl);
+    }
+  })());
 });
 
 self.addEventListener('fetch', (event) => {

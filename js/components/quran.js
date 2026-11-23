@@ -73,15 +73,15 @@ function renderQuranList() {
   if (quranFilter === 'ruqyah' && !rawQ) {
     html += '<button type="button" class="content-card content-card--feature content-card-btn" onclick="openDua(\'ruqyah_guide\')">' +
       '<div class="c-title"><svg class="ico ico-sm ico-inline-gold"><use href="#i-book"/></svg>Руководство по Рукье</div>' +
-      '<div class="c-sub">Статус сидра · Аяты о колдовстве · Профилактика</div>' +
-      '<div class="c-tr">Нажмите, чтобы прочитать важные наставления учёных и фетвы Ибн База</div>' +
+      '<div class="c-sub">Аль-Му‘аввизат · Аят аль-Курси · Достоверная Сунна</div>' +
+      '<div class="c-tr">Аяты Корана и полные тексты хадисов из «Сахихов» аль-Бухари и Муслима</div>' +
     '</button>';
     html += '<button type="button" class="content-card content-card--feature content-card-btn" onclick="openQuran(\'ruqyah_araf\')">' +
-      '<div class="c-badge">Рукья</div>' +
-      '<div class="c-title">Аяты о колдовстве</div>' +
-      '<div class="c-sub">Начните с аль-А\'раф 117–119 · Юнус и Та Ха — ниже в списке</div>' +
-      '<div class="c-ar ar-font">وَأَوْحَيْنَا إِلَىٰ مُوسَىٰ أَنْ أَلْقِ عَصَاكَ ۖ فَإِذَا هِيَ تَلْقَفُ مَا يَأْفِكُونَ</div>' +
-      '<div class="c-tr">Читаются в составе шариатской рукьи на воду или над больным</div>' +
+      '<div class="c-badge">Коран · 7:117–119</div>' +
+      '<div class="c-title">Аяты о победе истины над колдовством</div>' +
+      '<div class="c-sub">Суры «Аль-А‘раф» (7:117–119), «Юнус» (10:79–82) и «Та Ха» (20:65–69)</div>' +
+      '<div class="c-ar ar-font">۞ وَأَوْحَيْنَآ إِلَىٰ مُوسَىٰٓ أَنْ أَلْقِ عَصَاكَ ۖ فَإِذَا هِىَ تَلْقَفُ مَا يَأْفِكُونَ</div>' +
+      '<div class="c-tr">«Мы внушили Мусе: \"Брось свой посох!\". И вот она (змея) стала заглатывать то, что они измыслили»</div>' +
     '</button>';
   }
 
@@ -117,6 +117,7 @@ function setQuranFilter(f) {
 function _buildQuranDetailAyahHtml(item, a, idx) {
   var verseKey = '';
   if (item.type === 'surah') verseKey = item.number + ':' + (idx + 1);
+  else if (/^\d+:\d+$/.test(String(a.num || ''))) verseKey = String(a.num);
   else if (item.number && String(item.number).indexOf('-') === -1) verseKey = String(item.number);
 
   return '<div class="read-ayah ' + (item.type === 'ayat' ? 'ayat-mode' : '') + '" id="q-detail-ayah-' + idx + '" data-verse-key="' + escAttr(verseKey) + '">' +
@@ -190,15 +191,20 @@ function openQuran(id, targetAyahIdx, keepLimit) {
     '</div>';
   }
 
+  var _qLinkify = (typeof IqraScholars !== 'undefined' && typeof IqraScholars.linkifyScholars === 'function')
+    ? IqraScholars.linkifyScholars
+    : function (h) { return h; };
+
   el.innerHTML =
     '<div class="detail-hero">' +
       '<div class="dh-title">' + esc(item.title) + '</div>' +
       '<div class="dh-sub">' + esc(item.subtitle || '') + '</div>' +
     '</div>' +
-    (item.note ? '<div class="note-box"><svg class="ico ico-sm note-box-ico"><use href="#i-lightbulb"/></svg><div>' + escNl(item.note) + '</div></div>' : '') +
+    (item.note ? '<div class="note-box"><svg class="ico ico-sm note-box-ico"><use href="#i-lightbulb"/></svg><div>' + _qLinkify(escNl(item.note)) + '</div></div>' : '') +
     '<div class="detail-actions">' +
       '<button type="button" class="btn secondary" onclick="openRead(\'' + escAttr(item.id) + '\')"><svg class="ico ico-sm"><use href="#i-book"/></svg>Читать</button>' +
       '<button type="button" class="btn secondary" onclick="openMemorize(\'' + escAttr(item.id) + '\')"><svg class="ico ico-sm"><use href="#i-lightbulb"/></svg>Заучить</button>' +
+      '<button type="button" class="btn secondary" onclick="openTajweedGuide()"><svg class="ico ico-sm"><use href="#i-book"/></svg>Таджвид</button>' +
       '<button type="button" class="btn secondary" onclick="shareItem(\'quran\',\'' + escAttr(item.id) + '\')"><svg class="ico ico-sm"><use href="#i-upload"/></svg>Поделиться</button>' +
     '</div>' +
     '<button type="button" class="learned-toggle ' + (item.learned ? 'done' : '') + '" onclick="toggleQuranLearned(\'' + escAttr(item.id) + '\')">' +
@@ -213,7 +219,7 @@ function openQuran(id, targetAyahIdx, keepLimit) {
     '<div class="spacer-sm"></div>' +
     visibleAyahs.map(function (a, idx) { return _buildQuranDetailAyahHtml(item, a, idx); }).join('') +
     (hasMore ? '<button type="button" class="show-all-btn" onclick="showMoreQuranDetailAyahs()">Показать ещё аяты (' + visibleCount + ' из ' + ayahs.length + ')</button>' : '') +
-    (item.source ? '<div class="dh-section detail-source-block"><div class="dh-label">Источник</div><div class="dh-text muted detail-source-text">' + esc(item.source) + '</div></div>' : '') +
+    (item.source ? '<div class="dh-section detail-source-block"><div class="dh-label">Источник</div><div class="dh-text muted detail-source-text">' + _qLinkify(esc(item.source)) + '</div></div>' : '') +
     (typeof renderEcosystemSection === 'function' ? renderEcosystemSection('quran:' + item.id, { title: 'Связи в Умной книге' }) : '') +
     transcriptionNote();
 

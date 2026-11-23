@@ -5,15 +5,27 @@
    Проект «Икра» · v383 (рефакторинг)
    ============================================================ */
 
+function _nightPluralRaz(n) {
+  var mod10 = n % 10, mod100 = n % 100;
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return n + ' раза';
+  return n + ' раз';
+}
+
+function _nightLinkify(html) {
+  return (typeof IqraScholars !== 'undefined' && typeof IqraScholars.linkifyScholars === 'function')
+    ? IqraScholars.linkifyScholars(html)
+    : html;
+}
+
 function renderNightList() {
   const el = document.getElementById('night-list');
-  let html = `<div class="night-note"><b>Что читать перед сном</b><br>В достоверных хадисах упоминается чтение перед сном: сур «Аль-Ихлас», «Аль-Фаляк», «Ан-Нас» (по три раза, хадис Аиши — аль-Бухари 5017), Аята аль-Курси (аль-Бухари 2311), двух последних аятов суры «Аль-Бакара» (аль-Бухари 5009) и суры «Аль-Мульк» (ат-Тирмизи 2891). Строгий порядок между ними в Сунне не установлен.</div>`;
+  let html = `<div class="night-note">${_nightLinkify('<b>Что читать перед сном по достоверным хадисам</b><br>Суры «Аль-Ихлас», «Аль-Фаляк» и «Ан-Нас» по три раза с дуновением на ладони и протиранием тела (Сахих аль-Бухари № 5017), Аят аль-Курси (аль-Бухари № 2311), два последних аята суры «Аль-Бакара» (аль-Бухари № 5009, Муслим № 807), суру «Аль-Мульк» (ат-Тирмизи № 2891, Абу Дауд № 1400) и пророческое дуа перед сном (аль-Бухари № 6320, Муслим № 2714).')}</div>`;
   NIGHT_ORDER.forEach((n, i) => {
     let title='', sub='', ar='', trn='';
-    if (n.quranId) { const it=getQuranById(n.quranId); if (!it) return; title=it.title; sub=(it.subtitle||'')+' · Читать '+n.times+' раз'+(n.times>1?'а':''); ar=it.arabic; trn=it.translation; }
+    if (n.quranId) { const it=getQuranById(n.quranId); if (!it) return; title=it.title; sub=(it.subtitle||'')+' · Читать '+_nightPluralRaz(n.times); ar=it.arabic; trn=it.translation; }
     else if (n.duaId) { const it=getDuaById(n.duaId); if (!it) return; title=it.title; sub=it.subtitle||''; ar=it.arabic; trn=it.translation; }
     else if (n.hadithId) { const it=getHadithById(n.hadithId); if (!it) return; title=it.title; sub=it.subtitle||''; ar=it.arabic; trn=it.translation; }
-    html += `<div class="content-card has-num" onclick="openNight(${i})"><div class="c-num">${i+1}</div><div class="c-title">${esc(title)}</div><div class="c-sub">${esc(sub)}</div><div class="c-ar ar-font">${esc(ar)}</div><div class="c-tr">${esc(trn)}</div></div>`;
+    html += `<div class="content-card has-num" role="button" tabindex="0" onclick="openNight(${i})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openNight(${i})}"><div class="c-num">${i+1}</div><div class="c-title">${esc(title)}</div><div class="c-sub">${esc(sub)}</div><div class="c-ar ar-font">${esc(ar)}</div><div class="c-tr">${esc(trn)}</div></div>`;
   });
   el.innerHTML = html;
 }
@@ -33,7 +45,7 @@ function openNight(idx) {
   el.innerHTML = `
     <div class="detail-hero">
       <div class="dh-title">${esc(item.title)}</div>
-      <div class="dh-sub">${esc(item.subtitle||'')} ${n.times>1?' · Читать '+n.times+' раза':''}</div>
+      <div class="dh-sub">${esc(item.subtitle||'')} ${n.times>1?' · Читать '+_nightPluralRaz(n.times):''}</div>
     </div>
     ${ayahs.map(a => `
       <div class="read-ayah ${item.type==='ayat'?'ayat-mode':''}">
@@ -43,8 +55,8 @@ function openNight(idx) {
         <div class="read-ayah-trn">${esc(a.trn)}</div>
       </div>
     `).join('')}
-    ${item.note ? `<div class="note-box"><svg class="ico ico-sm" style="flex-shrink:0;color:var(--accent2)"><use href="#i-lightbulb"/></svg><div>${escNl(item.note)}</div></div>` : ''}
-    ${item.source ? `<div class="dh-section" style="margin-top:20px;"><div class="dh-label">Источник</div><div class="dh-text muted" style="font-size:13px;">${esc(item.source)}</div></div>` : ''}
+    ${item.note ? `<div class="note-box"><svg class="ico ico-sm" style="flex-shrink:0;color:var(--accent2)"><use href="#i-lightbulb"/></svg><div>${_nightLinkify(escNl(item.note))}</div></div>` : ''}
+    ${item.source ? `<div class="dh-section" style="margin-top:20px;"><div class="dh-label">Источник</div><div class="dh-text muted" style="font-size:13px;">${_nightLinkify(esc(item.source))}</div></div>` : ''}
     ${typeof renderEcosystemSection === 'function' ? renderEcosystemSection(n.quranId ? ('quran:' + n.quranId) : (n.duaId ? ('dua:' + n.duaId) : (n.hadithId ? ('hadith:' + n.hadithId) : '')), { title: 'Связи в Умной книге' }) : ''}
     ${transcriptionNote()}
     <div class="detail-actions" style="margin-top:20px">

@@ -678,3 +678,147 @@ details[open] > .tafsir-summary .tafsir-arrow { transform: rotate(45deg); }
   line-height: 1.45;
   color: var(--muted);
 }
+
+/* ---------- 14. УМНЫЕ НАПОМИНАНИЯ (тихая карточка и тихие часы) ---------- */
+#dash-smart-reminder-slot {
+  margin-bottom: var(--space-2);
+}
+.smart-reminder-card {
+  background: var(--card);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  border-radius: 20px;
+  padding: var(--card-pad-y) var(--card-pad-x);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+[data-theme="dark"] .smart-reminder-card,
+[data-theme="mono"] .smart-reminder-card {
+  border-color: rgba(212, 175, 55, 0.15);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme]) .smart-reminder-card {
+    border-color: rgba(212, 175, 55, 0.15);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  }
+}
+.smart-reminder-card .src-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.smart-reminder-card .src-meta {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--gold-text-light);
+  letter-spacing: 0.01em;
+}
+[data-theme="dark"] .smart-reminder-card .src-meta,
+[data-theme="mono"] .smart-reminder-card .src-meta {
+  color: var(--gold-text-dark);
+}
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme]) .smart-reminder-card .src-meta { color: var(--gold-text-dark); }
+}
+.smart-reminder-card .src-icon-btn {
+  min-width: 44px;
+  min-height: 44px;
+  margin: -8px -8px -8px 0;
+  color: var(--muted);
+}
+.smart-reminder-card .src-title {
+  font-size: var(--fs-md);
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+.smart-reminder-card .src-ar {
+  font-size: calc(var(--fs-ar) * var(--ar-scale) * 0.92);
+  line-height: 1.95;
+  direction: rtl;
+  text-align: right;
+  color: var(--text);
+  padding: 6px 0 8px;
+  margin-bottom: 8px;
+  border-bottom: 1px dashed rgba(212, 175, 55, 0.28);
+}
+.smart-reminder-card .src-hadith {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+.smart-reminder-card .src-source {
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+.smart-reminder-card .src-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.smart-reminder-card .src-action-btn {
+  margin: 0;
+  min-height: 44px;
+  padding: 10px 14px;
+  font-size: 13.5px;
+  width: auto;
+}
+.smart-reminder-card .src-dismiss-btn {
+  min-height: 44px;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  cursor: pointer;
+  margin-left: auto;
+  transition: color 0.16s ease, background 0.16s ease;
+}
+.smart-reminder-card .src-dismiss-btn:hover {
+  color: var(--text);
+  background: var(--card2);
+}
+
+.quiet-hours-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+.qh-field {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 6px 10px;
+  min-height: 44px;
+}
+.qh-field span {
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 600;
+}
+.qh-field input[type="time"] {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 600;
+  outline: none;
+}
+

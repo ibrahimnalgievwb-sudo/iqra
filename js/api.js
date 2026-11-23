@@ -107,11 +107,14 @@ async function loadAllData() {
     if (!exists) mergedTafsirs.push(t);
   });
   DEFAULT_TAFSIRS = mergedTafsirs;
-  DEFAULT_BIOGRAPHIES = fatihaData.biographies || [];
-
+  var baseBios = fatihaData.biographies || [];
   GRAPH_EDGES = Array.isArray(edgesData) ? edgesData : (edgesData && edgesData.edges) || [];
   GRAPH_THEMES = Array.isArray(themesData) ? themesData : (themesData && themesData.themes) || [];
   GRAPH_SCHOLARS = Array.isArray(scholarsData) ? scholarsData : (scholarsData && scholarsData.scholars) || [];
+
+  DEFAULT_BIOGRAPHIES = (typeof IqraScholars !== 'undefined' && typeof IqraScholars.mergeBiographies === 'function')
+    ? IqraScholars.mergeBiographies(baseBios, GRAPH_SCHOLARS)
+    : baseBios;
 
   window.DEFAULT_QURAN = DEFAULT_QURAN;
   window.DEFAULT_DUAS = DEFAULT_DUAS;
@@ -140,6 +143,9 @@ function getTafsirForAyah(surah, ayah) {
 }
 
 function getBiographyById(id) {
+  if (typeof IqraScholars !== 'undefined' && typeof IqraScholars.getScholarById === 'function') {
+    return IqraScholars.getScholarById(id, DEFAULT_BIOGRAPHIES, GRAPH_SCHOLARS);
+  }
   if (!Array.isArray(DEFAULT_BIOGRAPHIES)) return null;
   return DEFAULT_BIOGRAPHIES.find(function (b) { return b && b.id === id; }) || null;
 }
@@ -201,10 +207,15 @@ function renderTajweedForElement(el, ayahBlock, surahMap) {
   var ayahNum = parts.length === 2 ? String(parseInt(parts[1], 10)) : '';
   var tajweedText = surahMap && ayahNum ? surahMap[ayahNum] : null;
   var raw = el.dataset.raw || '';
+  var existingMarker = el.querySelector('.read-ayah-marker');
+  var markerHtml = existingMarker
+    ? existingMarker.outerHTML
+    : (el.dataset.marker ? '<span class="read-ayah-marker">' + esc(el.dataset.marker) + '</span>' : '');
+  var markerSuffix = markerHtml ? ' ' + markerHtml : '';
 
   if (tajweedText && _isValidTajweedText(tajweedText)) {
     var result = renderTajweedHtml(tajweedText);
-    el.innerHTML = result.text;
+    el.innerHTML = result.text + markerSuffix;
     el.classList.add('has-tajweed');
     var existingRules = ayahBlock.querySelector('.ayah-tajweed-rules');
     if (existingRules) existingRules.remove();
@@ -217,7 +228,7 @@ function renderTajweedForElement(el, ayahBlock, surahMap) {
     }
     return true;
   }
-  el.innerHTML = esc(raw);
+  el.innerHTML = esc(raw) + markerSuffix;
   el.classList.remove('has-tajweed');
   return false;
 }

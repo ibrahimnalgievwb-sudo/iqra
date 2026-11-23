@@ -196,9 +196,18 @@
         });
       }
       var s = st.settings && typeof st.settings === 'object' ? st.settings : {};
-      var customTasbihs = Array.isArray(st.tasbihs)
-        ? st.tasbihs.filter(function (t) { return t && t.custom === true; }).map(function (t) { return Object.assign({}, t); })
-        : [];
+      var customTasbihMap = new Map();
+      if (Array.isArray(st.customTasbihs)) {
+        st.customTasbihs.forEach(function (t) {
+          if (t && t.id) customTasbihMap.set(t.id, Object.assign({}, t));
+        });
+      }
+      if (Array.isArray(st.tasbihs)) {
+        st.tasbihs.forEach(function (t) {
+          if (t && t.id && t.custom === true) customTasbihMap.set(t.id, Object.assign({}, t));
+        });
+      }
+      var customTasbihs = Array.from(customTasbihMap.values());
       return {
         schema: IqraSync.SNAPSHOT_SCHEMA,
         updatedAt: Number(st.updatedAt || Date.now()),
@@ -223,6 +232,7 @@
           prayerPrefs: Object.assign({}, s.prayerPrefs || {}),
           readerPrefs: Object.assign({}, s.readerPrefs || {}),
           syncPrefs: Object.assign({}, s.syncPrefs || {}),
+          smartReminders: s.smartReminders && typeof s.smartReminders === 'object' ? Object.assign({}, s.smartReminders) : null,
           updatedAt: Number(s.updatedAt || st.updatedAt || 0)
         }
       };
@@ -299,8 +309,10 @@
       (a.customTasbihs || []).concat(b.customTasbihs || []).forEach(function (t) {
         if (!t || !t.id) return;
         var prev = customMap.get(t.id);
-        var scoreT = Number(t.cycles || 0) * Math.max(1, Number(t.target || 33)) + Number(t.count || 0);
-        var scoreP = prev ? (Number(prev.cycles || 0) * Math.max(1, Number(prev.target || 33)) + Number(prev.count || 0)) : -1;
+        var curT = Number(t.current != null ? t.current : (t.count || 0));
+        var curP = prev ? Number(prev.current != null ? prev.current : (prev.count || 0)) : 0;
+        var scoreT = Number(t.cycles || 0) * Math.max(1, Number(t.target || 33)) + curT;
+        var scoreP = prev ? (Number(prev.cycles || 0) * Math.max(1, Number(prev.target || 33)) + curP) : -1;
         if (!prev || scoreT >= scoreP) customMap.set(t.id, Object.assign({}, t));
       });
 
@@ -333,7 +345,8 @@
           readScrolls: readScrolls,
           prayerPrefs: Object.assign({}, sa.prayerPrefs || {}, sb.prayerPrefs || {}),
           readerPrefs: Object.assign({}, sa.readerPrefs || {}, sb.readerPrefs || {}),
-          syncPrefs: Object.assign({}, sa.syncPrefs || {}, sb.syncPrefs || {})
+          syncPrefs: Object.assign({}, sa.syncPrefs || {}, sb.syncPrefs || {}),
+          smartReminders: (newer && newer.smartReminders) ? Object.assign({}, newer.smartReminders) : (sa.smartReminders || sb.smartReminders || null)
         })
       };
     },
@@ -420,8 +433,8 @@
       id: 'read-mode',
       title: 'Режим чтения и таджвид',
       items: [
-        'Кнопка «Таджвид» в шапке включает цветовую подсветку правил Хафс ан Асим офлайн — интернет не требуется.',
-        'Нажмите на любой аят, чтобы открыть тафсир Ибн Касира (для доступных аятов) или поставить закладку.',
+        'Цветовая подсветка правил таджвида Хафс ан Асим работает полностью офлайн. Нажмите кнопку «Таджвид» под аятом для разбора правил.',
+        'Под аятом доступны тафсир Ибн Касира (для суры «Аль-Фатиха») и перекрёстные связи, а в шапке можно добавить закладку.',
         'Для длинных сур используйте быстрый переход к нужному номеру аята в верхней панели.'
       ]
     },
@@ -438,7 +451,7 @@
       id: 'library',
       title: 'Дуа, хадисы и рукья',
       items: [
-        'Здесь собраны достоверные мольбы, хадисы с указанием сборников и пошаговое руководство по шариатской рукье.',
+        'Здесь собраны достоверные мольбы, хадисы с указанием сборников и руководство по шариатской рукье на основе Корана и Сунны.',
         'Используйте закладку-флажок вверху, чтобы отфильтровать только сохранённое в избранное.'
       ]
     },
@@ -447,7 +460,7 @@
       title: 'Счётчик тасбиха',
       items: [
         'Касайтесь центрального круга для счёта. Виброотклик и автопереход к следующему зикру настраиваются в Настройках.',
-        'Сверху выбирайте готовые формулы зикра или создавайте собственные напоминания через «Мои».'
+        'Выбирайте готовые формулы зикра в списке или создавайте собственные напоминания через кнопку «+».'
       ]
     },
     cal: {

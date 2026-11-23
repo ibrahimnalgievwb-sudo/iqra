@@ -70,6 +70,71 @@ async function requestWakeLock() { try { if ('wakeLock' in navigator) { wakeLock
 function releaseWakeLock() { try { if (wakeLock) { wakeLock.release(); wakeLock=null; } } catch(e){} }
 
 /* ---------- REMINDERS ---------- */
+function checkSmartBrowserNotification() {
+  if (typeof IqraSmartReminders === 'undefined' || !state || !state.settings) return;
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  var ctx = (typeof getSmartReminderContext === 'function')
+    ? getSmartReminderContext(new Date())
+    : {
+        now: new Date(),
+        prefs: state.settings.smartReminders,
+        onboarded: !!(state.migrations && state.migrations.onboarded),
+        todayTotal: (state.history[todayKey()] && state.history[todayKey()].total) || 0,
+        dailyGoal: state.settings.dailyGoal || 0,
+        quranLearned: state.quranProgress || {}
+      };
+  var scenario = IqraSmartReminders.selectActiveReminder(ctx);
+  if (!scenario || !IqraSmartReminders.shouldSendBrowserNotification(scenario, ctx)) return;
+
+  state.settings.smartReminders = IqraSmartReminders.sanitizePrefs(state.settings.smartReminders);
+  state.settings.smartReminders.notified[scenario.id] = IqraSmartReminders.formatDateKey(ctx.now);
+  save();
+
+  var title = scenario.notifyTitle || scenario.title;
+  var body = scenario.notifyBody || scenario.hadithText;
+  var actionStr = scenario.action ? (scenario.action.type + ':' + scenario.action.id) : '';
+  var opts = {
+    body: body,
+    icon: './assets/icons/icon-192.png',
+    badge: './assets/icons/icon-192.png',
+    tag: 'iqra-smart-' + scenario.id,
+    data: { action: actionStr }
+  };
+
+  if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+    navigator.serviceWorker.ready.then(function (reg) {
+      if (reg && typeof reg.showNotification === 'function') {
+        return reg.showNotification(title, opts);
+      }
+      throw new Error('no showNotification');
+    }).catch(function () {
+      try {
+        var n = new Notification(title, opts);
+        n.onclick = function () {
+          try { window.focus(); } catch (e) {}
+          if (actionStr && typeof executeSmartAction === 'function') {
+            var parts = actionStr.split(':');
+            executeSmartAction(parts[0], parts[1]);
+          }
+          n.close();
+        };
+      } catch (e) {}
+    });
+  } else {
+    try {
+      var n = new Notification(title, opts);
+      n.onclick = function () {
+        try { window.focus(); } catch (e) {}
+        if (actionStr && typeof executeSmartAction === 'function') {
+          var parts = actionStr.split(':');
+          executeSmartAction(parts[0], parts[1]);
+        }
+        n.close();
+      };
+    } catch (e) {}
+  }
+}
+
 function checkReminders() {
   if (document.visibilityState !== 'visible') return;
   const now = new Date();
@@ -84,6 +149,7 @@ function checkReminders() {
       }
     }
   });
+  checkSmartBrowserNotification();
 }
 function scheduleReminders() {
   if (_reminderTimer) clearTimeout(_reminderTimer);
@@ -522,7 +588,18 @@ async function _boot() {
     } catch (e) {}
     initDebugMode();
     initApp();
+    try {
+      const qsAction = new URLSearchParams(location.search).get('smart_action');
+      if (qsAction && typeof executeSmartAction === 'function') {
+        const parts = qsAction.split(':');
+        if (parts[0] && parts[1]) {
+          history.replaceState(null, '', location.pathname);
+          setTimeout(function () { executeSmartAction(parts[0], parts[1]); }, 120);
+        }
+      }
+    } catch (e) {}
     if (!state.migrations.onboarded) setTimeout(startOnboarding, 200);
+    else setTimeout(checkSmartBrowserNotification, 1200);
   } catch (e) {
     console.error('Ошибка загрузки данных:', e);
     var splash = document.getElementById('splash-screen');
@@ -686,6 +763,9 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.addEventListener('message', function(e) {
     if (e.data && e.data.type === 'SW_UPDATED') {
       swReload();
+    } else if (e.data && e.data.type === 'SMART_REMINDER_ACTION' && e.data.action && typeof executeSmartAction === 'function') {
+      var parts = String(e.data.action).split(':');
+      executeSmartAction(parts[0], parts[1]);
     }
   });
 }
@@ -765,10 +845,18 @@ if ('serviceWorker' in navigator) {
   function hookCloser(fnName, ovId) {
     var orig = window[fnName];
     if (typeof orig !== 'function') return;
-    window[fnName] = function() {
+    window[fnName] = function(opts) {
       var st = history.state;
       if (!going && st && st.overlay === ovId) {
-        try { history.back(); } catch(e) {}
+        if (opts && opts.skipHistoryBack) {
+          try {
+            var nextSt = Object.assign({}, st);
+            delete nextSt.overlay;
+            history.replaceState(nextSt, '');
+          } catch(e) {}
+        } else {
+          try { history.back(); } catch(e) {}
+        }
       }
       return orig.apply(this, arguments);
     };
@@ -947,8 +1035,8 @@ document.addEventListener('click', function(e) {
     if (tag) {
       e.preventDefault();
       e.stopPropagation();
-      if (typeof closeSearch === 'function') closeSearch();
-      if (typeof closeRead === 'function') closeRead();
+      if (typeof closeSearch === 'function') closeSearch({ skipHistoryBack: true });
+      if (typeof closeRead === 'function') closeRead({ skipHistoryBack: true });
       if (typeof openPathFilter === 'function') {
         openPathFilter(null, tag);
       } else {

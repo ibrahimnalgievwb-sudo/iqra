@@ -246,8 +246,11 @@ function openCounter(id) {
   const dalilEl = document.getElementById('c-dalil');
   if (dalilEl) {
     if (t.dalil) {
+      var dalilHtml = (typeof IqraScholars !== 'undefined' && typeof IqraScholars.linkifyScholars === 'function')
+        ? IqraScholars.linkifyScholars(escNl(t.dalil))
+        : escNl(t.dalil);
       dalilEl.style.display = 'flex';
-      dalilEl.innerHTML = '<svg class="ico ico-sm" style="flex-shrink:0;color:var(--accent2)"><use href="#i-lightbulb"/></svg><div><b>Далиль (доказательство из Сунны):</b><br>' + esc(t.dalil) + '</div>';
+      dalilEl.innerHTML = '<svg class="ico ico-sm" style="flex-shrink:0;color:var(--accent2)"><use href="#i-lightbulb"/></svg><div><b>Далиль (доказательство из Сунны):</b><br>' + dalilHtml + '</div>';
     } else {
       dalilEl.style.display = 'none';
       dalilEl.innerHTML = '';
@@ -330,5 +333,5 @@ function cancelForm() { if (activeId) showScreen('screen-counter'); else { rende
 function stepTarget(d){ const el=document.getElementById('f-target'); el.value=Math.max(1,(parseInt(el.value)||1)+d); updatePreview(); }
 function saveForm() { const arabic=document.getElementById('f-ar').value.trim().slice(0,LIMITS.textLen); const transcription=document.getElementById('f-tr').value.trim().slice(0,LIMITS.textLen); const translation=document.getElementById('f-trn').value.trim().slice(0,LIMITS.textLen); const target=Math.max(1,Math.min(LIMITS.targetMax,parseInt(document.getElementById('f-target').value)||33)); if (!arabic && !transcription && !translation) { showMarkToast('Заполните хотя бы одно поле', 3200); return; } if (editingId) { const t=getById(editingId); t.arabic=arabic; t.transcription=transcription; t.translation=translation; t.target=target; if (t.current>target) { t.current=0; t.cycles=0; } } else {
     if (state.tasbihs.length >= LIMITS.tasbihs) { showMarkToast('Максимум ' + LIMITS.tasbihs + ' тасбихов. Удалите старые.', 3200); return; }
-    state.tasbihs.push({id:'u'+Date.now(),arabic,transcription,translation,target,current:0,cycles:0}); } state.draft=null; save(); if (state.settings.vibrate && navigator.vibrate) navigator.vibrate(15); showMarkToast('Сохранено'); if (activeId) openCounter(activeId); else { renderTasbih(); showScreen('screen-tasbih'); } }
+    state.tasbihs.push({id:'u'+Date.now(),arabic,transcription,translation,target,current:0,cycles:0,custom:true}); } state.draft=null; save(); if (state.settings.vibrate && navigator.vibrate) navigator.vibrate(15); showMarkToast('Сохранено'); if (activeId) openCounter(activeId); else { renderTasbih(); showScreen('screen-tasbih'); } }
 async function deleteCurrent() {   if (!editingId) return;   if (!await confirmAsync('Удалить тасбих?', 'Это действие нельзя отменить.', 'Удалить', 'Отмена')) return;   state.tasbihs = state.tasbihs.filter(t => t.id !== editingId);   save(); activeId = null; editingId = null; renderTasbih(); showScreen('screen-tasbih'); }

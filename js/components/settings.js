@@ -15,6 +15,7 @@ function openSettings() {
   document.getElementById('opt-goal-notify').checked = !!state.settings.goalNotify;
   document.querySelectorAll('#size-seg button').forEach(b=>b.classList.toggle('active', parseFloat(b.dataset.size)===state.settings.arSize));
   renderSettingsArchitecture();
+  renderSmartReminderSettings();
   renderReminders();
   showScreen('screen-settings');
 }
@@ -75,9 +76,158 @@ function setPrayerPref(field, val) {
 
 function setDailyGoal(v) { state.settings.dailyGoal = Math.max(0, Math.min(1000000, parseInt(v)||0)); save(); }
 
+/* ---------- SMART REMINDERS SETTINGS ---------- */
+function _ensureSmartPrefs() {
+  if (!state || !state.settings) return null;
+  if (typeof IqraSmartReminders !== 'undefined') {
+    state.settings.smartReminders = IqraSmartReminders.sanitizePrefs(state.settings.smartReminders);
+  } else if (!state.settings.smartReminders || typeof state.settings.smartReminders !== 'object') {
+    state.settings.smartReminders = {
+      enabled: true, browserNotify: false, quietStart: '23:00', quietEnd: '05:00',
+      categories: { adhkar: true, night: true, friday: true, motivation: true },
+      mutedDate: '', dismissed: {}, notified: {}
+    };
+  }
+  return state.settings.smartReminders;
+}
+
+function renderSmartReminderSettings() {
+  var prefs = _ensureSmartPrefs();
+  if (!prefs) return;
+  var enEl = document.getElementById('opt-smart-enabled');
+  if (enEl) enEl.checked = !!prefs.enabled;
+
+  var nfEl = document.getElementById('opt-smart-notify');
+  if (nfEl) nfEl.checked = !!prefs.browserNotify;
+
+  var qsEl = document.getElementById('smart-quiet-start');
+  if (qsEl) qsEl.value = prefs.quietStart || '23:00';
+  var qeEl = document.getElementById('smart-quiet-end');
+  if (qeEl) qeEl.value = prefs.quietEnd || '05:00';
+
+  ['adhkar', 'night', 'friday', 'motivation'].forEach(function (cat) {
+    var cb = document.getElementById('opt-smart-cat-' + cat);
+    if (cb) cb.checked = !!(prefs.categories && prefs.categories[cat]);
+  });
+
+  var wrapEl = document.getElementById('smart-reminders-controls');
+  if (wrapEl) {
+    wrapEl.style.opacity = prefs.enabled ? '1' : '0.55';
+  }
+
+  var statusEl = document.getElementById('smart-notify-status');
+  if (statusEl) {
+    if (!('Notification' in window)) {
+      statusEl.textContent = 'Браузерные уведомления недоступны в этом окружении (тихая карточка на главной продолжит работать).';
+    } else if (Notification.permission === 'denied') {
+      statusEl.textContent = 'Уведомления заблокированы в настройках браузера или системы.';
+    } else if (prefs.browserNotify && Notification.permission === 'granted') {
+      statusEl.textContent = 'Разрешено · срабатывает не чаще раза в окно, вне тихих часов.';
+    } else {
+      statusEl.textContent = 'Ненавязчивое уведомление браузера (по одному на окно времени).';
+    }
+  }
+
+  var unmuteRow = document.getElementById('smart-unmute-row');
+  if (unmuteRow) {
+    unmuteRow.style.display = (prefs.mutedDate && prefs.mutedDate === todayKey()) ? 'flex' : 'none';
+  }
+}
+
+function setSmartReminderEnabled(v) {
+  var prefs = _ensureSmartPrefs();
+  if (!prefs) return;
+  prefs.enabled = !!v;
+  save();
+  renderSmartReminderSettings();
+  if (typeof renderDashboard === 'function') renderDashboard();
+}
+
+function setSmartReminderNotify(v) {
+  var prefs = _ensureSmartPrefs();
+  if (!prefs) return;
+  if (!v) {
+    prefs.browserNotify = false;
+    save();
+    renderSmartReminderSettings();
+    return;
+  }
+  if (!('Notification' in window)) {
+    prefs.browserNotify = false;
+    save();
+    renderSmartReminderSettings();
+    if (typeof showMarkToast === 'function') showMarkToast('Уведомления браузера не поддерживаются здесь');
+    return;
+  }
+  if (Notification.permission === 'granted') {
+    prefs.browserNotify = true;
+    save();
+    renderSmartReminderSettings();
+    if (typeof checkReminders === 'function') checkReminders();
+    return;
+  }
+  if (Notification.permission === 'denied') {
+    prefs.browserNotify = false;
+    save();
+    renderSmartReminderSettings();
+    if (typeof showMarkToast === 'function') showMarkToast('Разрешите уведомления в настройках браузера', 3200);
+    return;
+  }
+  try {
+    var req = Notification.requestPermission();
+    if (req && typeof req.then === 'function') {
+      req.then(function (perm) {
+        prefs.browserNotify = (perm === 'granted');
+        save();
+        renderSmartReminderSettings();
+        if (prefs.browserNotify && typeof checkReminders === 'function') checkReminders();
+      }).catch(function () {
+        prefs.browserNotify = false;
+        save();
+        renderSmartReminderSettings();
+      });
+    }
+  } catch (e) {
+    prefs.browserNotify = false;
+    save();
+    renderSmartReminderSettings();
+  }
+}
+
+function setSmartReminderCategory(cat, v) {
+  var prefs = _ensureSmartPrefs();
+  if (!prefs || !prefs.categories) return;
+  if (Object.prototype.hasOwnProperty.call(prefs.categories, cat)) {
+    prefs.categories[cat] = !!v;
+    save();
+    if (typeof renderDashboard === 'function') renderDashboard();
+  }
+}
+
+function setSmartReminderQuiet(field, v) {
+  var prefs = _ensureSmartPrefs();
+  if (!prefs) return;
+  if (!/^\d{2}:\d{2}$/.test(String(v || ''))) return;
+  if (field === 'start') prefs.quietStart = v;
+  else if (field === 'end') prefs.quietEnd = v;
+  save();
+  if (typeof renderDashboard === 'function') renderDashboard();
+}
+
+function unmuteSmartRemindersToday() {
+  var prefs = _ensureSmartPrefs();
+  if (!prefs) return;
+  prefs.mutedDate = '';
+  prefs.dismissed = {};
+  save();
+  renderSmartReminderSettings();
+  if (typeof renderDashboard === 'function') renderDashboard();
+  if (typeof showMarkToast === 'function') showMarkToast('Умные напоминания снова активны');
+}
+
 /* ---------- REMINDERS ---------- */
 function renderReminders() { const el=document.getElementById('reminders-list'); if (!state.reminders.length) { el.innerHTML=`<div style="padding:14px 16px;color:var(--muted);font-size:13px">Пока нет напоминаний</div>`; return; } el.innerHTML = state.reminders.map((r,i)=>`<div class="reminder-row"><div class="rr-top"><input type="time" value="${esc(r.time)}" onchange="updateReminderField(${i},'time',this.value)"><label class="toggle"><input type="checkbox" ${r.on?'checked':''} onchange="toggleReminder(${i}, this.checked)"><span class="slider"></span></label><button class="del" onclick="deleteReminder(${i})" aria-label="Удалить"><svg class="ico ico-sm"><use href="#i-x"/></svg></button></div><input type="text" value="${esc(r.message||'')}" placeholder="Сообщение (необязательно)" maxlength="200" onchange="updateReminderField(${i},'message',this.value)"></div>`).join(''); }
-function addReminder() { if (state.reminders.length >= LIMITS.reminders) { showMarkToast('Максимум '+LIMITS.reminders+' напоминаний', 3200); return; } const t=document.getElementById('new-reminder-time').value; const mi=document.getElementById('new-reminder-msg'); const msg=(mi?mi.value:'').trim().slice(0,200); if (!t || !/^\d{2}:\d{2}$/.test(t)) return; state.reminders.push({time:t,on:true,lastFired:'',message:msg}); if (mi) mi.value=''; save(); renderReminders(); if ('Notification' in window && Notification.permission === 'default') { try { const p = Notification.requestPermission(); if (p && typeof p.catch === 'function') p.catch(function(){}); } catch(e) {} } }
+function addReminder() { if (state.reminders.length >= LIMITS.reminders) { showMarkToast('Максимум '+LIMITS.reminders+' напоминаний', 3200); return; } const t=document.getElementById('new-reminder-time').value; const mi=document.getElementById('new-reminder-msg'); const msg=(mi?mi.value:'').trim().slice(0,200); if (!t || !/^\d{2}:\d{2}$/.test(t)) { showMarkToast('Укажите корректное время ЧЧ:ММ', 2600); return; } state.reminders.push({time:t,on:true,lastFired:'',message:msg}); if (mi) mi.value=''; save(); renderReminders(); showMarkToast('Напоминание добавлено'); if ('Notification' in window && Notification.permission === 'default') { try { const p = Notification.requestPermission(); if (p && typeof p.catch === 'function') p.catch(function(){}); } catch(e) {} } }
 function updateReminderField(i, field, v) { if (field==='time') { if (!/^\d{2}:\d{2}$/.test(v)) return; state.reminders[i].time=v; } else if (field==='message') { state.reminders[i].message=String(v||'').trim().slice(0,200); } save(); }
 function toggleReminder(i,v) { state.reminders[i].on = v; save(); }
 function deleteReminder(i) { state.reminders.splice(i,1); save(); renderReminders(); }
@@ -254,6 +404,11 @@ function sanitizeSettings(raw) {
     autoBackupHint: bool(sp.autoBackupHint, false),
     lastLocalSyncAt: Math.floor(num(sp.lastLocalSyncAt, 0, 9999999999999, 0))
   };
+  if (typeof IqraSmartReminders !== 'undefined') {
+    out.smartReminders = IqraSmartReminders.sanitizePrefs(src.smartReminders);
+  } else {
+    out.smartReminders = base.smartReminders;
+  }
   return out;
 }
 /* История зикра: { 'ГГГГ-ММ-ДД': { total, byId: { id: число } } }.

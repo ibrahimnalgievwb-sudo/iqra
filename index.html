@@ -169,6 +169,7 @@
       <div class="dash-hijri-gold text-gold-metallic" id="dash-hijri-header"></div>
     </div>
     <div id="dash-continue-block"></div>
+    <div id="dash-smart-reminder-slot" style="display:none;"></div>
     <div class="dash-call-card" role="button" tabindex="0" data-click='[["switchTab","path"]]'>
       <div class="dcc-title">Что тревожит вашу душу?</div>
       <div class="dcc-sub">Найдите ответ в Коране и Сунне</div>
@@ -460,7 +461,56 @@
             <div class="setting-row"><div><div class="lbl">Вибрация</div></div><label class="toggle"><input type="checkbox" id="opt-vibrate"><span class="slider"></span></label></div>
     </div>
     <div class="settings-group">
-      <div class="sg-title">Напоминания</div>
+      <div class="sg-title">Умные напоминания</div>
+      <div class="setting-row">
+        <div>
+          <div class="lbl">Тихая карточка на главной</div>
+          <div class="sub">Азкары, тасбих и хадисы по времени суток и в пятницу</div>
+        </div>
+        <label class="toggle"><input type="checkbox" id="opt-smart-enabled" data-change='[["setSmartReminderEnabled",{"$":"checked"}]]'><span class="slider"></span></label>
+      </div>
+      <div id="smart-reminders-controls">
+        <div class="setting-row">
+          <div>
+            <div class="lbl">Уведомления браузера</div>
+            <div class="sub" id="smart-notify-status">Ненавязчивое уведомление браузера (по одному на окно времени).</div>
+          </div>
+          <label class="toggle"><input type="checkbox" id="opt-smart-notify" data-change='[["setSmartReminderNotify",{"$":"checked"}]]'><span class="slider"></span></label>
+        </div>
+        <div class="setting-row">
+          <div><div class="lbl">Утро и вечер (азкары и тасбих)</div><div class="sub">Слова таухида, истигфар и защитные суры</div></div>
+          <label class="toggle"><input type="checkbox" id="opt-smart-cat-adhkar" data-change='[["setSmartReminderCategory","adhkar",{"$":"checked"}]]'><span class="slider"></span></label>
+        </div>
+        <div class="setting-row">
+          <div><div class="lbl">Ночное чтение перед сном</div><div class="sub">Аят аль-Курси, конец «Аль-Бакары», сура «Аль-Мульк»</div></div>
+          <label class="toggle"><input type="checkbox" id="opt-smart-cat-night" data-change='[["setSmartReminderCategory","night",{"$":"checked"}]]'><span class="slider"></span></label>
+        </div>
+        <div class="setting-row">
+          <div><div class="lbl">Пятница (сура «Аль-Кахф» и салават)</div><div class="sub">Достоверные хадисы о пятничной Сунне</div></div>
+          <label class="toggle"><input type="checkbox" id="opt-smart-cat-friday" data-change='[["setSmartReminderCategory","friday",{"$":"checked"}]]'><span class="slider"></span></label>
+        </div>
+        <div class="setting-row">
+          <div><div class="lbl">Хадисы о награде за Коран и зикр</div><div class="sub">Напоминания со словами Пророка ﷺ и указанием сборников</div></div>
+          <label class="toggle"><input type="checkbox" id="opt-smart-cat-motivation" data-change='[["setSmartReminderCategory","motivation",{"$":"checked"}]]'><span class="slider"></span></label>
+        </div>
+        <div class="setting-row setting-col">
+          <div>
+            <div class="lbl">Тихие часы (не беспокоить)</div>
+            <div class="sub">В этот интервал карточка и уведомления не показываются</div>
+          </div>
+          <div class="quiet-hours-row">
+            <label class="qh-field"><span>С</span><input type="time" id="smart-quiet-start" value="23:00" data-change='[["setSmartReminderQuiet","start",{"$":"value"}]]'></label>
+            <label class="qh-field"><span>До</span><input type="time" id="smart-quiet-end" value="05:00" data-change='[["setSmartReminderQuiet","end",{"$":"value"}]]'></label>
+          </div>
+        </div>
+        <div class="setting-row" id="smart-unmute-row" style="display:none;">
+          <div><div class="lbl">Напоминание скрыто на сегодня</div><div class="sub">Завтра карточка появится автоматически</div></div>
+          <button type="button" class="btn secondary btn-inline" style="margin:0;width:auto;" data-click='[["unmuteSmartRemindersToday"]]'>Показать сегодня</button>
+        </div>
+      </div>
+    </div>
+    <div class="settings-group">
+      <div class="sg-title">Напоминания по времени</div>
       <div id="reminders-list"></div>
       <div style="padding:12px 16px; border-top:1px solid var(--border);">
         <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
@@ -664,6 +714,7 @@
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script src="./js/architecture.js"></script>
+<script src="./js/smart-reminders.js"></script>
 <script src="./js/api.js"></script>
 <script src="./js/storage.js"></script>
 <script src="./js/components/guide.js"></script>

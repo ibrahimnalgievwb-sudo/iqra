@@ -8,8 +8,9 @@
 
 var debouncedRenderGlobalSearch = debounce(renderGlobalSearch, 200);
 
-function openSearch(){ document.getElementById('search-overlay').classList.add('active'); setTimeout(()=>{ const i=document.getElementById('global-search-input'); if (i) i.focus(); }, 120); renderGlobalSearch(); }
-function closeSearch(){ document.getElementById('search-overlay').classList.remove('active'); const i=document.getElementById('global-search-input'); if (i) i.value=''; }
+var _lastSearchQuery = '';
+function openSearch(){ _searchShowAll = false; _lastSearchQuery = ''; document.getElementById('search-overlay').classList.add('active'); setTimeout(()=>{ const i=document.getElementById('global-search-input'); if (i) i.focus(); }, 120); renderGlobalSearch(); }
+function closeSearch(){ _searchShowAll = false; _lastSearchQuery = ''; document.getElementById('search-overlay').classList.remove('active'); const i=document.getElementById('global-search-input'); if (i) i.value=''; }
 function showAllSearchResults() { _searchShowAll = true; renderGlobalSearch(); }
 
 function searchOpen(type, id){
@@ -29,10 +30,10 @@ function searchOpen(type, id){
   else if (type==='tasbih') openCounter(id);
 }
 
-function setSearchFilter(key, value){ searchFilters[key] = value; document.querySelectorAll('#search-filters .filter-group[data-filter="' + key + '"] .filter-chip').forEach(function(b){ b.classList.toggle('active', b.dataset.value === value); }); renderGlobalSearch(); }
+function setSearchFilter(key, value){ _searchShowAll = false; searchFilters[key] = value; document.querySelectorAll('#search-filters .filter-group[data-filter="' + key + '"] .filter-chip').forEach(function(b){ b.classList.toggle('active', b.dataset.value === value); }); renderGlobalSearch(); }
 
 function openPathFromGlobalSearch(mode, tag) {
-  closeSearch();
+  closeSearch({ skipHistoryBack: true });
   if (typeof openPathFilter === 'function') {
     openPathFilter(mode, tag);
   }
@@ -40,12 +41,16 @@ function openPathFromGlobalSearch(mode, tag) {
 
 function renderGlobalSearch() {
   const rawQ = (document.getElementById('global-search-input').value || '').trim();
+  if (rawQ !== _lastSearchQuery) {
+    _lastSearchQuery = rawQ;
+    _searchShowAll = false;
+  }
   const q = rawQ.toLowerCase();
   const el = document.getElementById('search-results');
   const hasGraph = typeof IqraGraph !== 'undefined';
   const indexOrCtx = hasGraph ? (typeof getPathGraphIndex === 'function' ? getPathGraphIndex() : (typeof getPathGraphContext === 'function' ? getPathGraphContext() : null)) : null;
 
-  if (!q && searchFilters.type === 'all') {
+  if (!q && searchFilters.type === 'all' && searchFilters.status === 'all' && searchFilters.favorite === 'all') {
     let quickHtml = '';
     if (hasGraph && indexOrCtx) {
       const themes = IqraGraph.getThemeCatalog(indexOrCtx).slice(0, 4);
@@ -140,7 +145,7 @@ function renderGlobalSearch() {
   if (verseRef && showType('quran')) {
     const vs = getQuranById('q' + verseRef.surah);
     if (vs) {
-      html += '<button type="button" class="content-card content-card--feature content-card-btn" onclick="closeSearch();openRead(\'' + escAttr(vs.id) + '\',' + Math.max(0, verseRef.ayah - 1) + ')"><div class="c-badge">Прямой переход</div><div class="c-title">Открыть аят ' + verseRef.surah + ':' + verseRef.ayah + ' (' + esc(vs.title) + ')</div><div class="c-sub">Перейти в режим чтения к аяту ' + verseRef.ayah + '</div></button>';
+      html += '<button type="button" class="content-card content-card--feature content-card-btn" onclick="closeSearch({skipHistoryBack:true});openRead(\'' + escAttr(vs.id) + '\',' + Math.max(0, verseRef.ayah - 1) + ')"><div class="c-badge">Прямой переход</div><div class="c-title">Открыть аят ' + verseRef.surah + ':' + verseRef.ayah + ' (' + esc(vs.title) + ')</div><div class="c-sub">Перейти в режим чтения к аяту ' + verseRef.ayah + '</div></button>';
     }
   }
 

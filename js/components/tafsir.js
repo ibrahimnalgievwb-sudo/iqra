@@ -38,7 +38,15 @@ const TAFSIR_SCHOLARS = [
 
 /* Ссылка на справку об учёном (единый вид для текста и для хадисов) */
 function tafsirScholarLink(scholarId, label) {
-  return '<a href="#" class="scholar-link" onclick="event.preventDefault(); openScholarInfo(\'' + escAttr(scholarId) + '\')">' + label + '</a>';
+  var safeId = escAttr(scholarId);
+  return '<span role="button" tabindex="0" class="scholar-link" data-scholar-id="' + safeId + '" onclick="event.preventDefault();event.stopPropagation();openScholarInfo(\'' + safeId + '\')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();event.stopPropagation();openScholarInfo(\'' + safeId + '\')}">' + label + '</span>';
+}
+
+function _linkifyTafsirSafeHtml(safeHtml) {
+  if (typeof IqraScholars !== 'undefined' && typeof IqraScholars.linkifyScholars === 'function') {
+    return IqraScholars.linkifyScholars(safeHtml);
+  }
+  return safeHtml;
 }
 
 function formatTafsirText(text) {
@@ -51,14 +59,20 @@ function formatTafsirText(text) {
     html = html.replace(regex, `$1<span class="tafsir-term">$2 ${TAFSIR_TERMS[term]}</span>`);
   });
 
-  // 2. Кликабельные имена учёных и передатчиков
-  TAFSIR_SCHOLARS.forEach(scholar => {
-    scholar.names.forEach(name => {
-      const safeName = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      const regex = new RegExp(`(^|\\s|[.,!?()«»"'])(${safeName})(?=\\s|[.,!?()«»"']|$)`, 'g');
-      html = html.replace(regex, (m, pre, nm) => pre + tafsirScholarLink(scholar.id, nm));
+  // 2. Кликабельные имена сподвижников, таби‘инов и учёных (через централизованный IqraScholars)
+  if (typeof IqraScholars !== 'undefined' && typeof IqraScholars.linkifyScholars === 'function') {
+    html = IqraScholars.linkifyScholars(html);
+  } else {
+    TAFSIR_SCHOLARS.forEach(scholar => {
+      scholar.names.forEach(name => {
+        const safeName = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(`(^|\\s|[.,!?()«»"'])(${safeName})(?=\\s|[.,!?()«»"']|$)`, 'g');
+        html = html.split(/(<[^>]+>)/g).map((seg, idx) => (
+          idx % 2 === 0 ? seg.replace(regex, (m, pre, nm) => pre + tafsirScholarLink(scholar.id, nm)) : seg
+        )).join('');
+      });
     });
-  });
+  }
 
   return html;
 }
@@ -66,8 +80,8 @@ function formatTafsirText(text) {
 /* Сводка «Справка» + источник — нижняя строка карточки тафсира */
 function tafsirFootHtml(sourceLine, scholarId) {
   return '<div class="tafsir-foot">' +
-    '<div class="tafsir-source">' + esc(sourceLine) + '</div>' +
-    '<button type="button" onclick="event.preventDefault(); openScholarInfo(\'' + escAttr(scholarId) + '\')" class="btn secondary tafsir-info-btn">' +
+    '<div class="tafsir-source">' + _linkifyTafsirSafeHtml(esc(sourceLine)) + '</div>' +
+    '<button type="button" onclick="event.preventDefault();event.stopPropagation();openScholarInfo(\'' + escAttr(scholarId) + '\')" class="btn secondary tafsir-info-btn">' +
       '<svg class="ico ico-sm"><use href="#i-info"/></svg> Справка' +
     '</button>' +
   '</div>';
@@ -97,20 +111,15 @@ function getSmartTafsirHtml(item, ayahNum) {
   const tafsir = (typeof getTafsirForAyah === 'function') ? getTafsirForAyah(surah, ayah) : null;
   if (!tafsir) return '';
 
+  const isPlaceholder = tafsir.status === 'placeholder' || !tafsir.tafsir_text ||
+    String(tafsir.tafsir_text).indexOf('Ин ша Аллах, здесь скоро появится тафсир') !== -1;
+  if (isPlaceholder) return '';
+
   const summaryHtml =
     '<summary class="tafsir-summary">' +
       '<span class="tafsir-arrow" aria-hidden="true"></span>' +
       '<svg class="ico ico-sm"><use href="#i-book"/></svg> Тафсир' +
     '</summary>';
-
-  const isPlaceholder = tafsir.status === 'placeholder' || !tafsir.tafsir_text;
-
-  if (isPlaceholder) {
-    return '<details class="tafsir-card tafsir-full is-placeholder">' +
-      summaryHtml +
-      '<div class="tafsir-placeholder-note">' + esc(tafsir.tafsir_text || 'Ин ша Аллах, здесь скоро появится тафсир') + '</div>' +
-    '</details>';
-  }
 
   const scholar = tafsir.source && tafsir.source.scholar ? tafsir.source.scholar : 'Ибн Касир';
   const scholarId = (tafsir.source && tafsir.source.scholar_id) ? tafsir.source.scholar_id : 'ibn_kathir';
@@ -136,13 +145,20 @@ function getSmartTafsirHtml(item, ayahNum) {
         const hTransmitterId = h.transmitter_id || '';
         const hSource = h.source || '';
         const hStatus = h.status || '';
+        const statusLabels = {
+          sahih: 'Достоверный (сахих)',
+          hasan: 'Хороший (хасан)',
+          daif: 'Слабый (да‘иф)',
+          requires_verification: 'Требует уточнения'
+        };
+        const statusLabel = statusLabels[hStatus] || hStatus;
         const statusClass = hStatus === 'sahih' ? 'is-sahih' : (hStatus === 'hasan' ? 'is-hasan' : 'is-other');
         const transmitterClickable = hTransmitterId
           ? tafsirScholarLink(hTransmitterId, esc(hTransmitter))
-          : esc(hTransmitter);
+          : _linkifyTafsirSafeHtml(esc(hTransmitter));
         return '<div class="tafsir-hadith">' +
-          '<div class="tafsir-hadith-text">«' + esc(h.text) + '»</div>' +
-          '<div class="tafsir-hadith-meta">Передал: ' + transmitterClickable + ' · Источник: ' + esc(hSource) + ' · <span class="tafsir-status ' + statusClass + '">' + esc(hStatus) + '</span></div>' +
+          '<div class="tafsir-hadith-text">«' + _linkifyTafsirSafeHtml(esc(h.text)) + '»</div>' +
+          '<div class="tafsir-hadith-meta">Передал: ' + transmitterClickable + ' · Источник: ' + _linkifyTafsirSafeHtml(esc(hSource)) + ' · <span class="tafsir-status ' + statusClass + '">' + esc(statusLabel) + '</span></div>' +
           '</div>';
       }).join('') +
       '</div>';
@@ -151,7 +167,7 @@ function getSmartTafsirHtml(item, ayahNum) {
   let israiliyatHtml = '';
   if (tafsir.israiliyat_note && tafsir.israiliyat_note.present) {
     israiliyatHtml = '<div class="tafsir-israiliyat">' +
-      '<b>Памятка об исраилят:</b> ' + esc(tafsir.israiliyat_note.text) +
+      '<b>Памятка об исраилят:</b> ' + _linkifyTafsirSafeHtml(esc(tafsir.israiliyat_note.text)) +
       '</div>';
   }
 

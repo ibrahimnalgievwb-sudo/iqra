@@ -54,15 +54,27 @@ function memNext() {
     if (memorizeStep < total - 1) { memorizeStep++; memorizeRevealed = false; renderMemorize(); }
     else {
       var doneItem = memorizeItem;
-      closeMemorize(); 
+      closeMemorize();
       if (navigator.vibrate) navigator.vibrate([30,40,30]);
+      var markedNew = false;
       if (doneItem && doneItem.id) {
         const q = getQuranById(doneItem.id);
-        if (q && !q.learned) { q.learned = true; q.learnedAt = todayKey(); save(); }
+        if (q && !q.learned) { q.learned = true; q.learnedAt = todayKey(); markedNew = true; save(); }
         const d = getDuaById(doneItem.id);
-        if (d && !d.learned) { d.learned = true; save(); }
+        if (d && !d.learned) { d.learned = true; markedNew = true; save(); }
         const h = getHadithById(doneItem.id);
-        if (h && !h.learned) { h.learned = true; save(); }
+        if (h && !h.learned) { h.learned = true; markedNew = true; save(); }
+        if (markedNew) {
+          var scrQ = document.getElementById('screen-quran-detail');
+          var scrD = document.getElementById('screen-dua-detail');
+          var scrH = document.getElementById('screen-hadith-detail');
+          if (scrQ && scrQ.classList.contains('active') && activeQuranId === doneItem.id && typeof openQuran === 'function') openQuran(doneItem.id, null, true);
+          else if (scrD && scrD.classList.contains('active') && activeDuaId === doneItem.id && typeof openDua === 'function') openDua(doneItem.id);
+          else if (scrH && scrH.classList.contains('active') && activeHadithId === doneItem.id && typeof openHadith === 'function') openHadith(doneItem.id);
+        }
+      }
+      if (typeof showMarkToast === 'function') {
+        showMarkToast(markedNew ? 'Отмечено как выученное' : 'Проверка завершена');
       }
     }
   }
