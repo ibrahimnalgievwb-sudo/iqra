@@ -41,7 +41,7 @@ function escapeHtml(s) {
 
 /* ---------- GLOBAL STATE ---------- */
 let activeId = null, editingId = null;
-let activeDuaId = null, activeQuranId = null, activeHadithId = null, activeNightId = null;
+let activeDuaId = null, activeQuranId = null, activeQuranAyahIdx = null, activeHadithId = null, activeNightId = null;
 let quranFilter = 'all';
 let activeReadId = null;
 let _lastScreenName = null, _lastScreenTs = null;
@@ -220,20 +220,24 @@ function openDay(key) {
 function showScreen(id) {
   var readModeEl = document.getElementById('read-mode');
   if (readModeEl && readModeEl.classList.contains('active') && typeof closeRead === 'function') {
-    closeRead();
+    closeRead({ skipHistoryBack: true });
   }
   var memModeEl = document.getElementById('memorize-mode');
   if (memModeEl && memModeEl.classList.contains('active')) {
-    memModeEl.classList.remove('active');
-    memorizeItem = null;
+    if (typeof closeMemorize === 'function') closeMemorize({ skipHistoryBack: true });
+    else {
+      memModeEl.classList.remove('active');
+      memorizeItem = null;
+    }
   }
   var searchOvEl = document.getElementById('search-overlay');
   if (searchOvEl && searchOvEl.classList.contains('active')) {
-    searchOvEl.classList.remove('active');
+    if (typeof closeSearch === 'function') closeSearch({ skipHistoryBack: true });
+    else searchOvEl.classList.remove('active');
   }
   var modalBgEl = document.getElementById('modal-bg');
   if (modalBgEl && modalBgEl.classList.contains('active') && !_pendingConfirmResolve) {
-    closeModal();
+    closeModal({ skipHistoryBack: true });
   }
   if (_lastScreenName && _lastScreenTs) {
     const dur = Math.round((Date.now() - _lastScreenTs) / 1000);
@@ -785,19 +789,52 @@ if ('serviceWorker' in navigator) {
     var el = document.querySelector('.screen.active');
     return el ? el.id : null;
   }
-  function currentOverlay() {
-    for (var i = 0; i < ALL_OVERLAYS.length; i++) {
-      var el = document.getElementById(ALL_OVERLAYS[i]);
-      if (el && el.classList.contains('active')) return ALL_OVERLAYS[i];
-    }
-    return null;
-  }
-  function closeOverlay(name) {
+  function closeOverlay(name, opts) {
     var fn = OVERLAY_CLOSERS[name];
     if (fn && typeof window[fn] === 'function') {
-      try { window[fn](); } catch(e) {}
+      try { window[fn](opts); } catch(e) {}
     }
   }
+  function snapshotPathState() {
+    var inp = document.getElementById('path-search');
+    return {
+      mode: typeof pathMode === 'string' ? pathMode : 'all',
+      tag: activePathTag || null,
+      typeFilter: typeof pathTypeFilter === 'string' ? pathTypeFilter : 'all',
+      query: inp ? (inp.value || '') : ''
+    };
+  }
+  function restorePathState(ps) {
+    if (!ps) return;
+    pathMode = ps.mode || 'all';
+    activePathTag = ps.tag || null;
+    pathTypeFilter = ps.typeFilter || 'all';
+    pathShowAll = false;
+    var inp = document.getElementById('path-search');
+    if (inp) inp.value = ps.query || '';
+    if (typeof renderPath === 'function') renderPath();
+  }
+
+  function dismissOverlaysForNavigation(opts) {
+    var o = opts || {};
+    var searchEl = document.getElementById('search-overlay');
+    if (searchEl && searchEl.classList.contains('active')) {
+      closeOverlay('search-overlay', { skipHistoryBack: true });
+    }
+    var memEl = document.getElementById('memorize-mode');
+    if (memEl && memEl.classList.contains('active')) {
+      closeOverlay('memorize-mode', { skipHistoryBack: true });
+    }
+    var modalEl = document.getElementById('modal-bg');
+    if (!o.keepModal && modalEl && modalEl.classList.contains('active') && !_pendingConfirmResolve) {
+      closeOverlay('modal-bg', { skipHistoryBack: true });
+    }
+    var readEl = document.getElementById('read-mode');
+    if (!o.keepRead && readEl && readEl.classList.contains('active')) {
+      closeOverlay('read-mode', { skipHistoryBack: true });
+    }
+  }
+  window.dismissOverlaysForNavigation = dismissOverlaysForNavigation;
 
   try {
     var s0 = currentScreen();
@@ -807,13 +844,21 @@ if ('serviceWorker' in navigator) {
   var _showScreen = window.showScreen;
   window.showScreen = function(id) {
     if (!going) {
+      dismissOverlaysForNavigation();
       var cur = currentScreen();
       if (cur && cur !== id) {
-        var st = { screen: id };
-        var ov = currentOverlay();
-        if (ov) st.overlay = ov;
+        if (cur === 'screen-path') {
+          try {
+            var curSt = Object.assign({}, history.state || { screen: cur });
+            curSt.screen = cur;
+            curSt.pathState = snapshotPathState();
+            history.replaceState(curSt, '');
+          } catch(e) {}
+        }
+        var st = { screen: id, fromScreen: cur };
         if (activeId) st.tasbihId = activeId;
         if (activeQuranId) st.quranId = activeQuranId;
+        if (typeof activeQuranAyahIdx === 'number' && activeQuranAyahIdx >= 0) st.ayahIdx = activeQuranAyahIdx;
         if (activeDuaId) st.duaId = activeDuaId;
         if (activeHadithId) st.hadithId = activeHadithId;
         if (typeof activeNightId === 'number') st.nightId = activeNightId;
@@ -828,11 +873,31 @@ if ('serviceWorker' in navigator) {
     if (typeof orig !== 'function') return;
     window[fnName] = function() {
       if (!going) {
+        if (ovId === 'read-mode') dismissOverlaysForNavigation({ keepRead: true });
+        else if (ovId === 'search-overlay' || ovId === 'memorize-mode') dismissOverlaysForNavigation({ keepRead: false });
+        else if (ovId === 'modal-bg') dismissOverlaysForNavigation({ keepRead: true, keepModal: true });
+
+        var curSt = history.state || {};
         var st = { screen: currentScreen(), overlay: ovId };
-        if (ovId === 'read-mode' && arguments[0]) st.readQuranId = arguments[0];
-        else if (ovId === 'memorize-mode' && arguments[0] && arguments[0].id) st.memId = arguments[0].id;
-        else if (ovId === 'modal-bg' && arguments[0]) st.modalKey = arguments[0];
-        try { history.pushState(st, ''); } catch(e) {}
+        if (curSt.fromScreen) st.fromScreen = curSt.fromScreen;
+        if (curSt.quranId) st.quranId = curSt.quranId;
+        if (curSt.duaId) st.duaId = curSt.duaId;
+        if (curSt.hadithId) st.hadithId = curSt.hadithId;
+        if (curSt.tasbihId) st.tasbihId = curSt.tasbihId;
+        if (typeof curSt.nightId === 'number') st.nightId = curSt.nightId;
+
+        if (ovId === 'read-mode' && arguments[0]) {
+          st.readQuranId = arguments[0];
+          if (typeof arguments[1] === 'number' && arguments[1] >= 0) st.ayahIdx = arguments[1];
+        } else if (ovId === 'memorize-mode' && arguments[0] && arguments[0].id) {
+          st.memId = arguments[0].id;
+        } else if (ovId === 'modal-bg' && arguments[0]) {
+          st.modalKey = arguments[0];
+        }
+        try {
+          if (curSt.overlay === ovId) history.replaceState(st, '');
+          else history.pushState(st, '');
+        } catch(e) {}
       }
       return orig.apply(this, arguments);
     };
@@ -852,6 +917,9 @@ if ('serviceWorker' in navigator) {
           try {
             var nextSt = Object.assign({}, st);
             delete nextSt.overlay;
+            delete nextSt.readQuranId;
+            delete nextSt.memId;
+            delete nextSt.modalKey;
             history.replaceState(nextSt, '');
           } catch(e) {}
         } else {
@@ -877,10 +945,12 @@ if ('serviceWorker' in navigator) {
         if (!el) continue;
         var isOpen = el.classList.contains('active');
         var shouldBeOpen = (ov === targetOverlay);
-        if (isOpen && !shouldBeOpen) closeOverlay(ov);
+        if (isOpen && !shouldBeOpen) closeOverlay(ov, { skipHistoryBack: true });
       }
       if (st.screen === 'screen-quran-detail' && st.quranId) {
-        if (activeQuranId !== st.quranId || currentScreen() !== 'screen-quran-detail') openQuran(st.quranId);
+        if (activeQuranId !== st.quranId || currentScreen() !== 'screen-quran-detail') {
+          openQuran(st.quranId, typeof st.ayahIdx === 'number' ? st.ayahIdx : null);
+        }
       } else if (st.screen === 'screen-dua-detail' && st.duaId) {
         if (activeDuaId !== st.duaId || currentScreen() !== 'screen-dua-detail') openDua(st.duaId);
       } else if (st.screen === 'screen-hadith-detail' && st.hadithId) {
@@ -894,6 +964,14 @@ if ('serviceWorker' in navigator) {
         }
       } else if (st.screen && currentScreen() !== st.screen) {
         try { _showScreen.call(window, st.screen); } catch(err) {}
+        if (st.screen === 'screen-path' && st.pathState) restorePathState(st.pathState);
+        else if (st.screen === 'screen-quran' && typeof renderQuranList === 'function') renderQuranList();
+        else if (st.screen === 'screen-tasbih' && typeof renderTasbih === 'function') renderTasbih();
+        else if (st.screen === 'screen-night' && typeof renderNightList === 'function') renderNightList();
+        else if (st.screen === 'screen-library') {
+          if (typeof renderDuaList === 'function') renderDuaList();
+          if (typeof renderHadithList === 'function') renderHadithList();
+        } else if (st.screen === 'screen-cal' && typeof renderProgress === 'function') renderProgress();
       }
       if (targetOverlay) {
         var ovEl = document.getElementById(targetOverlay);
@@ -901,7 +979,7 @@ if ('serviceWorker' in navigator) {
           if (targetOverlay === 'search-overlay') {
             openSearch();
           } else if (targetOverlay === 'read-mode' && st.readQuranId) {
-            openRead(st.readQuranId);
+            openRead(st.readQuranId, typeof st.ayahIdx === 'number' ? st.ayahIdx : null);
           } else if (targetOverlay === 'memorize-mode' && st.memId) {
             var memItem = getQuranById(st.memId) || getDuaById(st.memId) || getHadithById(st.memId);
             if (memItem) openMemorizeFor(memItem);
@@ -914,6 +992,31 @@ if ('serviceWorker' in navigator) {
       going = false;
     }
   });
+
+  window.goTasbihList = function() {
+    if (activeId) saveNow();
+    activeId = null;
+    releaseWakeLock();
+    if (typeof renderTasbih === 'function') renderTasbih();
+    showScreen('screen-tasbih');
+  };
+
+  window.goDetailBack = function(fallbackFnName) {
+    if (currentScreen() === 'screen-counter') {
+      if (activeId) saveNow();
+      activeId = null;
+      releaseWakeLock();
+    }
+    var st = history.state;
+    if (st && st.fromScreen && st.fromScreen !== currentScreen()) {
+      try { history.back(); return; } catch(e) {}
+    }
+    if (fallbackFnName && typeof window[fallbackFnName] === 'function') {
+      window[fallbackFnName]();
+      return;
+    }
+    if (typeof goHome === 'function') goHome();
+  };
 
   window.goBack = function() {
     try { history.back(); } catch(e) {}

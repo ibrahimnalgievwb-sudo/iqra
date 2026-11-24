@@ -1,4 +1,4 @@
-const SW_VERSION   = 'iqra-v453'; /* МЕНЯЙ ВЕРСИЮ ТОЛЬКО ЗДЕСЬ */
+const SW_VERSION   = 'iqra-v455'; /* МЕНЯЙ ВЕРСИЮ ТОЛЬКО ЗДЕСЬ */
 const SW_VER_SHORT = SW_VERSION.replace(/^iqra-/, '');
 const CACHE_STATIC = 'iqra-static-' + SW_VER_SHORT;
 const CACHE_DATA   = 'iqra-data-'   + SW_VER_SHORT;
@@ -17,6 +17,8 @@ const PRECACHE_STATIC = [
   './css/polish.css',
   './js/architecture.js',
   './js/smart-reminders.js',
+  './js/scholars.js',
+  './js/dalil.js',
   './js/api.js',
   './js/storage.js',
   './js/app.js',

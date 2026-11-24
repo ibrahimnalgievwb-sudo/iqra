@@ -229,7 +229,7 @@ function buildPathContextBannerHtml(queryRes) {
   if (queryRes && queryRes.activeScholar) {
     var sc = queryRes.activeScholar;
     var roleLabels = {
-      companion: 'Сподвижник Пророка ﷺ',
+      companion: 'Сподвижник Пророка (да благословит его Аллах и приветствует)',
       tabii: 'Таби‘ин (поколение учеников сподвижников)',
       scholar: 'Учёный Ахлю-с-Сунна',
       transmitter: 'Передатчик'
@@ -300,7 +300,7 @@ function renderIdlePathOverview(ctxOrIndex, mode) {
 
   if (mode === 'scholar') {
     var groups = [
-      { key: 'companion', title: 'Сподвижники Пророка ﷺ (сахабы)', items: scholars.filter(function (s) { return s.type === 'companion'; }) },
+      { key: 'companion', title: 'Сподвижники Пророка, да благословит его Аллах и приветствует (сахабы)', items: scholars.filter(function (s) { return s.type === 'companion'; }) },
       { key: 'tabii', title: 'Таби‘ины (ученики сподвижников)', items: scholars.filter(function (s) { return s.type === 'tabii'; }) },
       { key: 'scholar', title: 'Имамы и учёные Ахлю-с-Сунна', items: scholars.filter(function (s) { return s.type !== 'companion' && s.type !== 'tabii'; }) }
     ];
@@ -468,13 +468,20 @@ function buildEcosystemHtml(rels, opts) {
   var groupsHtml = '';
 
   if (ayahs.length) {
+    var inReader = typeof o.inReader === 'boolean'
+      ? o.inReader
+      : Boolean(typeof document !== 'undefined' && document.getElementById('read-mode') && document.getElementById('read-mode').classList.contains('active'));
     groupsHtml +=
       '<div class="ecosystem-group">' +
         '<div class="ecosystem-group-label">Аяты Корана</div>' +
         '<div class="ecosystem-pills">' +
           ayahs.slice(0, compact ? 4 : 8).map(function (a) {
-            var label = (a.refLabel ? (a.refLabel + ' · ') : '') + a.title.replace(/\s*·\s*аят\s*\d+$/i, '');
-            return '<button type="button" class="ecosystem-pill" onclick="event.stopPropagation();openQuran(\'' + escAttr(a.surahId) + '\',' + Number(a.ayahIdx || 0) + ')" title="' + escAttr(a.evidence || a.title) + '">' +
+            var cleanTitle = a.title.replace(/\s*·\s*(?:\d+:\d+|аят\s*\d+)$/i, '');
+            var label = (a.refLabel ? (a.refLabel + ' · ') : '') + cleanTitle;
+            var ayahAction = inReader
+              ? ('openRead(\'' + escAttr(a.surahId) + '\',' + Number(a.ayahIdx || 0) + ')')
+              : ('openQuran(\'' + escAttr(a.surahId) + '\',' + Number(a.ayahIdx || 0) + ')');
+            return '<button type="button" class="ecosystem-pill" onclick="event.stopPropagation();' + ayahAction + '" title="' + escAttr(a.evidence || a.title) + '">' +
               '<svg class="ico ico-sm"><use href="#i-book"/></svg>' +
               '<span>' + esc(label) + '</span>' +
             '</button>';
@@ -603,7 +610,6 @@ function renderAyahEcosystemDetails(ayahNodeId, options) {
   if (!ayahNodeId || typeof IqraGraph === 'undefined') return '';
   var index = getPathGraphIndex();
   if (!index) return '';
-  if (index.edgesByNode && !index.edgesByNode.has(ayahNodeId)) return '';
   var rels = IqraGraph.getSmartBookRelations(ayahNodeId, index);
   if (!rels) return '';
   var count =
@@ -640,14 +646,30 @@ function renderPathResultCard(item) {
   var openAction = 'openPathItem(\'' + escAttr(item._type) + '\',\'' + escAttr(openId) + '\',' + (typeof item._ayahIdx === 'number' ? item._ayahIdx : 0) + ')';
 
   var actionsHtml = '';
-  if (isAyah && item._isSurahAyah) {
+  if (isAyah) {
+    var ayahActionLabel = item._isSurahAyah ? ('Читать аят ' + esc(item._verseLabel || '')) : 'Читать в режиме чтения';
+    var secondaryLabel = item._isSurahAyah ? 'Открыть суру' : 'Открыть разбор';
     actionsHtml =
       '<div class="path-card-actions">' +
         '<button type="button" class="btn secondary btn-inline" onclick="event.stopPropagation();openRead(\'' + escAttr(item._surahId) + '\',' + Number(item._ayahIdx || 0) + ')">' +
-          '<svg class="ico ico-sm"><use href="#i-book"/></svg> Читать аят ' + esc(item._verseLabel || '') +
+          '<svg class="ico ico-sm"><use href="#i-book"/></svg> ' + ayahActionLabel +
         '</button>' +
         '<button type="button" class="btn secondary btn-inline" onclick="event.stopPropagation();openQuran(\'' + escAttr(item._surahId) + '\',' + Number(item._ayahIdx || 0) + ')">' +
-          'Открыть суру' +
+          secondaryLabel +
+        '</button>' +
+      '</div>';
+  } else if (item._type === 'hadith') {
+    actionsHtml =
+      '<div class="path-card-actions">' +
+        '<button type="button" class="btn secondary btn-inline" onclick="event.stopPropagation();openHadith(\'' + escAttr(item._id) + '\')">' +
+          '<svg class="ico ico-sm"><use href="#i-scroll"/></svg> Открыть хадис' +
+        '</button>' +
+      '</div>';
+  } else if (item._type === 'dua') {
+    actionsHtml =
+      '<div class="path-card-actions">' +
+        '<button type="button" class="btn secondary btn-inline" onclick="event.stopPropagation();openDua(\'' + escAttr(item._id) + '\')">' +
+          '<svg class="ico ico-sm"><use href="#i-dua"/></svg> Открыть дуа' +
         '</button>' +
       '</div>';
   } else if (item._type === 'tasbih') {

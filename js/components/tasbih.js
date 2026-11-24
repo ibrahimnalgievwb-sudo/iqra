@@ -41,25 +41,27 @@ function renderTasbih() {
       if (q) { lrItem = q; lrLabel = 'Продолжить чтение'; }
     }
     if (lrItem) {
-      const card = document.createElement('div');
-      card.className = 'continue-card';
+      const card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'continue-card continue-card-btn';
       card.addEventListener('click', () => openRead(lrItem.id));
-      
+
       const lbl = document.createElement('div');
       lbl.className = 'cc-label';
       lbl.textContent = lrLabel;
-      
+
       const title = document.createElement('div');
       title.className = 'cc-title';
       title.textContent = lrItem.title;
-      
-      const sub = document.createElement('div');
-      sub.className = 'cc-sub';
-      sub.textContent = lrItem.subtitle || '';
-      
+
       card.appendChild(lbl);
       card.appendChild(title);
-      card.appendChild(sub);
+      if (lrItem.subtitle) {
+        const sub = document.createElement('div');
+        sub.className = 'cc-sub';
+        sub.textContent = lrItem.subtitle;
+        card.appendChild(sub);
+      }
       contSlot.appendChild(card);
     }
   }
@@ -246,13 +248,15 @@ function openCounter(id) {
   const dalilEl = document.getElementById('c-dalil');
   if (dalilEl) {
     if (t.dalil) {
-      var dalilHtml = (typeof IqraScholars !== 'undefined' && typeof IqraScholars.linkifyScholars === 'function')
-        ? IqraScholars.linkifyScholars(escNl(t.dalil))
-        : escNl(t.dalil);
-      dalilEl.style.display = 'flex';
-      dalilEl.innerHTML = '<svg class="ico ico-sm" style="flex-shrink:0;color:var(--accent2)"><use href="#i-lightbulb"/></svg><div><b>Далиль (доказательство из Сунны):</b><br>' + dalilHtml + '</div>';
+      var linkifyFn = (typeof IqraScholars !== 'undefined' && typeof IqraScholars.linkifyScholars === 'function')
+        ? IqraScholars.linkifyScholars
+        : function (h) { return h; };
+      if (typeof IqraDalil !== 'undefined' && typeof IqraDalil.renderDalilDisclosureHtml === 'function') {
+        dalilEl.innerHTML = IqraDalil.renderDalilDisclosureHtml(t.dalil, { linkify: linkifyFn, open: false });
+      } else {
+        dalilEl.innerHTML = '<details class="dalil-disclosure"><summary class="dalil-summary"><span class="dalil-summary-main"><svg class="ico ico-sm dalil-ico" aria-hidden="true"><use href="#i-lightbulb"/></svg><span class="dalil-title">Далиль (довод из Сунны)</span></span><span class="dalil-summary-meta"><span class="dalil-arrow" aria-hidden="true"></span></span></summary><div class="dalil-body"><div class="dalil-hadith-card"><div class="dalil-hadith-text">' + linkifyFn(escNl(t.dalil)) + '</div></div></div></details>';
+      }
     } else {
-      dalilEl.style.display = 'none';
       dalilEl.innerHTML = '';
     }
   }

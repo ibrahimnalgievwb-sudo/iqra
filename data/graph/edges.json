@@ -532,7 +532,7 @@
     "to": "theme:shukr",
     "type": "ayah_theme",
     "evidence_source": "quran:108_1",
-    "evidence_note": "Сура «Аль-Каусар», аят 1: дар обильного блага Пророку ﷺ",
+    "evidence_note": "Сура «Аль-Каусар», аят 1: дар обильного блага Пророку (да благословит его Аллах и приветствует)",
     "weight": 0.95
   },
   {
@@ -932,7 +932,7 @@
     "to": "theme:ruqyah",
     "type": "dua_theme",
     "evidence_source": "dua:ruqyah_jibril",
-    "evidence_note": "Сахих Муслим № 2186: дуа исцеления, которое читал Джибриль Пророку ﷺ",
+    "evidence_note": "Сахих Муслим № 2186: дуа исцеления, которое читал Джибриль Пророку (да благословит его Аллах и приветствует)",
     "weight": 1
   },
   {
@@ -1724,7 +1724,7 @@
     "to": "mood:Болезнь",
     "type": "ayah_mood",
     "evidence_source": "hadith:h_muawwizat",
-    "evidence_note": "Сахих аль-Бухари № 5735, Муслим № 2192: Пророк ﷺ читал аль-Муаввизат при болезни, потирая тело руками",
+    "evidence_note": "Сахих аль-Бухари № 5735, Муслим № 2192: Пророк (да благословит его Аллах и приветствует) читал аль-Муаввизат при болезни, потирая тело руками",
     "weight": 0.95
   },
   {
@@ -1892,7 +1892,7 @@
     "to": "mood:Семья",
     "type": "dua_mood",
     "evidence_source": "dua:ruqyah_hifz",
-    "evidence_note": "Сахих аль-Бухари № 3371: Пророк ﷺ просил этим дуа защиты для аль-Хасана и аль-Хусейна («у‘изукума бикалимати-Лляхи-т-таммати», как Ибрахим для Исмаила и Исхака)",
+    "evidence_note": "Сахих аль-Бухари № 3371: Пророк (да благословит его Аллах и приветствует) просил этим дуа защиты для аль-Хасана и аль-Хусейна («у‘изукума бикалимати-Лляхи-т-таммати», как Ибрахим для Исмаила и Исхака)",
     "weight": 1
   },
   {
@@ -1917,6 +1917,70 @@
     "type": "dua_mood",
     "evidence_source": "dua:ruqyah_shifa",
     "evidence_note": "Сахих аль-Бухари № 5675: чтение этой мольбы над больным членом семьи",
+    "weight": 0.95
+  },
+  {
+    "from": "ayah:ruqyah_araf#1",
+    "to": "ayah:ruqyah_yunus#1",
+    "type": "ayah_related_ayah",
+    "evidence_source": "dua:ruqyah_guide",
+    "evidence_note": "Аяты рукьи из истории пророка Мусы в сурах «Аль-А‘раф» (7:117–119) и «Юнус» (10:79–82) о разрушении колдовства",
+    "weight": 0.95
+  },
+  {
+    "from": "ayah:ruqyah_yunus#1",
+    "to": "ayah:ruqyah_taha#1",
+    "type": "ayah_related_ayah",
+    "evidence_source": "dua:ruqyah_guide",
+    "evidence_note": "Аяты рукьи из истории пророка Мусы в сурах «Юнус» (10:79–82) и «Та Ха» (20:65–69) о ничтожности козней колдунов",
+    "weight": 0.95
+  },
+  {
+    "from": "ayah:ruqyah_araf#1",
+    "to": "ayah:ruqyah_taha#1",
+    "type": "ayah_related_ayah",
+    "evidence_source": "dua:ruqyah_guide",
+    "evidence_note": "Аяты рукьи из истории пророка Мусы в сурах «Аль-А‘раф» (7:117–119) и «Та Ха» (20:65–69) о победе истины",
+    "weight": 0.95
+  },
+  {
+    "from": "ayah:q112#1",
+    "to": "ayah:q113#1",
+    "type": "ayah_related_ayah",
+    "evidence_source": "hadith:h_muawwizat",
+    "evidence_note": "Сунан Абу Дауда № 5082, ат-Тирмизи № 3575, Сахих аль-Бухари № 5017: чтение сур «Аль-Ихлас» и «Аль-Фаляк» вместе в качестве защиты",
+    "weight": 0.95
+  },
+  {
+    "from": "ayah:q112#1",
+    "to": "ayah:q114#1",
+    "type": "ayah_related_ayah",
+    "evidence_source": "hadith:h_muawwizat",
+    "evidence_note": "Сунан Абу Дауда № 5082, ат-Тирмизи № 3575, Сахих аль-Бухари № 5017: чтение сур «Аль-Ихлас» и «Ан-Нас» вместе в качестве защиты",
+    "weight": 0.95
+  },
+  {
+    "from": "tasbih:u1",
+    "to": "ayah:q87#1",
+    "type": "ayah_tasbih",
+    "evidence_source": "quran:87_1",
+    "evidence_note": "Сура «Аль-А‘ля», 87:1: повеление возвеличивать и прославлять имя Всевышнего Господа («Саббих исма Раббика»)",
+    "weight": 0.95
+  },
+  {
+    "from": "tasbih:u2",
+    "to": "ayah:q1#2",
+    "type": "ayah_tasbih",
+    "evidence_source": "tafsir:ibn_kathir_1_2",
+    "evidence_note": "Тафсир Ибн Касира (1:2) и Сахих Муслим № 597: «Хвала Аллаху, Господу миров» («Альхамдулиллях»)",
+    "weight": 0.95
+  },
+  {
+    "from": "tasbih:istighfar",
+    "to": "ayah:q110#3",
+    "type": "ayah_tasbih",
+    "evidence_source": "quran:110_3",
+    "evidence_note": "Сура «Ан-Наср», 110:3: «Восславь Господа твоего и проси у Него прощения — поистине, Он Принимающий покаяния»",
     "weight": 0.95
   }
 ]

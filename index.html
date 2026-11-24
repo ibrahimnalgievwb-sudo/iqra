@@ -153,7 +153,7 @@
 </svg>
 
 <div class="screen active" id="screen-dashboard">
-  <div class="header dash-header" style="justify-content: flex-end;">
+  <div class="header dash-header">
     <div class="dash-header-actions">
       <button type="button" class="icon-btn ghost" data-click='[["toggleScreenGuide","dashboard"]]' aria-label="Справка по главной панели"><span class="guide-help-glyph">?</span></button>
       <button type="button" class="icon-btn ghost" data-click='[["switchTab","cal"]]' aria-label="Статистика"><svg class="ico"><use href="#i-chart"/></svg></button>
@@ -166,32 +166,32 @@
     <div id="dash-spiritual"></div> 
     <div class="dash-greeting-block">
       <div class="dash-salam-subtle">Ассаляму алейкум</div>
-      <div class="dash-hijri-gold text-gold-metallic" id="dash-hijri-header"></div>
+      <div class="dash-hijri-gold" id="dash-hijri-header"></div>
     </div>
     <div id="dash-continue-block"></div>
     <div id="dash-smart-reminder-slot" style="display:none;"></div>
-    <div class="dash-call-card" role="button" tabindex="0" data-click='[["switchTab","path"]]'>
-      <div class="dcc-title">Что тревожит вашу душу?</div>
-      <div class="dcc-sub">Найдите ответ в Коране и Сунне</div>
-    </div>
+    <button type="button" class="dash-call-card" data-click='[["switchTab","path"]]'>
+      <span class="dcc-title">Что тревожит вашу душу?</span>
+      <span class="dcc-sub">Найдите ответ в Коране и Сунне</span>
+    </button>
     <div class="dash-quote" id="dash-quote" role="button" tabindex="0" data-click='[["dashQuoteTap"]]'></div>
     <div class="dash-grid-2x2">
-      <div class="dash-grid-item" role="button" tabindex="0" data-click='[["openNight",0]]'>
+      <button type="button" class="dash-grid-item" data-click='[["openNight",0]]'>
         <svg class="ico dgi-icon"><use href="#i-moon"/></svg>
-        <div class="dgi-title">Ночное чтение</div>
-      </div>
-      <div class="dash-grid-item" role="button" tabindex="0" data-click='[["switchTab","quran"],["setQuranFilter","ruqyah"]]'>
+        <span class="dgi-title">Ночное чтение</span>
+      </button>
+      <button type="button" class="dash-grid-item" data-click='[["switchTab","quran"],["setQuranFilter","ruqyah"]]'>
         <svg class="ico dgi-icon"><use href="#i-shield"/></svg>
-        <div class="dgi-title">Шариатская рукья</div>
-      </div>
-      <div class="dash-grid-item" role="button" tabindex="0" data-click='[["openFavorites"]]'>
+        <span class="dgi-title">Шариатская рукья</span>
+      </button>
+      <button type="button" class="dash-grid-item" data-click='[["openFavorites"]]'>
         <svg class="ico dgi-icon"><use href="#i-star"/></svg>
-        <div class="dgi-title">Метки</div>
-      </div>
-      <div class="dash-grid-item" role="button" tabindex="0" data-click='[["openDua","dua_anxiety"]]'>
+        <span class="dgi-title">Метки</span>
+      </button>
+      <button type="button" class="dash-grid-item" data-click='[["openDua","dua_anxiety"]]'>
         <svg class="ico dgi-icon"><use href="#i-dua"/></svg>
-        <div class="dgi-title">Дуа дня</div>
-      </div>
+        <span class="dgi-title">Дуа дня</span>
+      </button>
     </div>
   </div>
 </div>
@@ -218,7 +218,7 @@
 <div class="screen" id="screen-counter">
   <div class="top-progress"><div id="top-progress-bar"></div></div>
   <div class="header">
-    <button class="icon-btn ghost" data-click='[["goHome"]]' aria-label="Назад"><svg class="ico"><use href="#i-arrow-left"/></svg></button>
+    <button class="icon-btn ghost" data-click='[["goDetailBack","goTasbihList"]]' aria-label="Назад"><svg class="ico"><use href="#i-arrow-left"/></svg></button>
     <div style="display:flex;gap:6px">
       <button class="icon-btn ghost" data-click='[["shareCurrent",{"$":"event"}]]' aria-label="Поделиться"><svg class="ico"><use href="#i-upload"/></svg></button>
       <button class="icon-btn ghost" data-click='[["resetCurrent",{"$":"event"}]]' aria-label="Сбросить"><svg class="ico"><use href="#i-rotate-ccw"/></svg></button>
@@ -238,7 +238,7 @@
     </div>
     <div class="target-label" id="c-target">из 33</div>
     <div class="cycles" id="c-cycles">Циклов: 0</div>
-    <div id="c-dalil" class="note-box" style="margin-top:14px;display:none;text-align:left;" data-click='["@stop"]'></div>
+    <div id="c-dalil" class="counter-dalil-slot" data-click='["@stop"]'></div>
     <div id="counter-ecosystem" class="counter-ecosystem" data-click='["@stop"]'></div>
     <div class="transcription-note" data-click='["@stop"]'>
       <svg class="ico ico-sm tn-icon" style="flex-shrink:0;opacity:.75"><use href="#i-info"/></svg>
@@ -301,7 +301,7 @@
 
 <div class="screen" id="screen-quran-detail">
   <div class="header">
-    <button class="icon-btn ghost" data-click='[["goQuranList"]]' aria-label="Назад"><svg class="ico"><use href="#i-arrow-left"/></svg></button>
+    <button class="icon-btn ghost" data-click='[["goDetailBack","goQuranList"]]' aria-label="Назад"><svg class="ico"><use href="#i-arrow-left"/></svg></button>
     <h1 style="font-size:16px" id="quran-detail-title">Текст</h1>
     <button class="icon-btn ghost" id="quran-detail-star" data-click='[["detailStarClick"]]' aria-label="Избранное"><svg class="ico"><use href="#i-star"/></svg></button>
   </div>
@@ -315,7 +315,7 @@
 
 <div class="screen" id="screen-night-detail">
   <div class="header">
-    <button class="icon-btn ghost" data-click='[["goNightList"]]' aria-label="Назад"><svg class="ico"><use href="#i-arrow-left"/></svg></button>
+    <button class="icon-btn ghost" data-click='[["goDetailBack","goNightList"]]' aria-label="Назад"><svg class="ico"><use href="#i-arrow-left"/></svg></button>
     <h1 style="font-size:16px" id="night-detail-title">Текст</h1>
     <div style="width:42px"></div>
   </div>
@@ -329,7 +329,7 @@
 
 <div class="screen" id="screen-dua-detail">
   <div class="header">
-    <button class="icon-btn ghost" data-click='[["goDuaList"]]' aria-label="Назад"><svg class="ico"><use href="#i-arrow-left"/></svg></button>
+    <button class="icon-btn ghost" data-click='[["goDetailBack","goDuaList"]]' aria-label="Назад"><svg class="ico"><use href="#i-arrow-left"/></svg></button>
     <h1 style="font-size:16px">Дуа</h1>
     <button class="icon-btn ghost" id="dua-detail-star" data-click='[["detailStarClick"]]' aria-label="Избранное"><svg class="ico"><use href="#i-star"/></svg></button>
   </div>
@@ -343,7 +343,7 @@
 
 <div class="screen" id="screen-hadith-detail">
   <div class="header">
-    <button class="icon-btn ghost" data-click='[["goHadithList"]]' aria-label="Назад"><svg class="ico"><use href="#i-arrow-left"/></svg></button>
+    <button class="icon-btn ghost" data-click='[["goDetailBack","goHadithList"]]' aria-label="Назад"><svg class="ico"><use href="#i-arrow-left"/></svg></button>
     <h1 style="font-size:16px">Хадис</h1>
     <button class="icon-btn ghost" id="hadith-detail-star" data-click='[["detailStarClick"]]' aria-label="Избранное"><svg class="ico"><use href="#i-star"/></svg></button>
   </div>
@@ -378,6 +378,7 @@
       <button type="button" role="tab" data-path-mode="all" class="active" data-click='[["setPathMode","all"]]'>По словам</button>
       <button type="button" role="tab" data-path-mode="theme" data-click='[["setPathMode","theme"]]'>По темам</button>
       <button type="button" role="tab" data-path-mode="mood" data-click='[["setPathMode","mood"]]'>Настроение</button>
+      <button type="button" role="tab" data-path-mode="scholar" data-click='[["setPathMode","scholar"]]'>Учёные</button>
     </div>
     <div class="search-wrap path-search-wrap">
       <input id="path-search" placeholder="Поиск по словам, арабскому тексту, теме…" data-input='[["debouncedRenderPath"]]' autocomplete="off">
@@ -490,7 +491,7 @@
           <label class="toggle"><input type="checkbox" id="opt-smart-cat-friday" data-change='[["setSmartReminderCategory","friday",{"$":"checked"}]]'><span class="slider"></span></label>
         </div>
         <div class="setting-row">
-          <div><div class="lbl">Хадисы о награде за Коран и зикр</div><div class="sub">Напоминания со словами Пророка ﷺ и указанием сборников</div></div>
+          <div><div class="lbl">Хадисы о награде за Коран и зикр</div><div class="sub">Напоминания со словами Пророка (да благословит его Аллах и приветствует) и указанием сборников</div></div>
           <label class="toggle"><input type="checkbox" id="opt-smart-cat-motivation" data-change='[["setSmartReminderCategory","motivation",{"$":"checked"}]]'><span class="slider"></span></label>
         </div>
         <div class="setting-row setting-col">
@@ -715,6 +716,8 @@
 
 <script src="./js/architecture.js"></script>
 <script src="./js/smart-reminders.js"></script>
+<script src="./js/scholars.js"></script>
+<script src="./js/dalil.js"></script>
 <script src="./js/api.js"></script>
 <script src="./js/storage.js"></script>
 <script src="./js/components/guide.js"></script>

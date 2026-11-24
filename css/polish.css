@@ -150,7 +150,8 @@
 .spiritual-card .sc-trn-bismillah { margin-bottom: 14px; }
 .spiritual-card .sc-divider { margin: 0 auto 14px; }
 .spiritual-card .sc-trn-alyaq { margin-bottom: 4px; }
-.dash-greeting-block { margin: 4px 0 14px; }
+.header.dash-header { justify-content: flex-end; min-height: 48px; padding-top: 8px; padding-bottom: 4px; }
+.dash-greeting-block { margin: 2px 0 12px; }
 .dash-quote, .dash-call-card, .continue-card, .dash-quick { margin-bottom: var(--space-2); }
 .dash-quote .dq-title { margin-bottom: 6px; }
 .dash-quote .dq-ar { margin-bottom: 6px; }
@@ -305,9 +306,8 @@
   --tg: var(--gold-text-light);                 /* золото для ТЕКСТА: достаточный контраст */
   margin-top: 16px;
   background: var(--card2);
-  border: 1px solid var(--card-outline);
-  border-left: 3px solid var(--gold-accent);
-  border-radius: 12px;
+  border: 1px solid var(--nav-active-border);
+  border-radius: 14px;
   text-align: left; direction: ltr;
   overflow: hidden;
 }
@@ -379,7 +379,7 @@ details[open] > .tafsir-summary .tafsir-arrow { transform: rotate(45deg); }
 
 .tafsir-israiliyat {
   margin-top: 14px; padding: 12px;
-  background: var(--nav-active-surface); border-left: 3px solid var(--gold-accent); border-radius: 8px;
+  background: var(--nav-active-surface); border: 1px solid var(--nav-active-border); border-radius: 10px;
   font-size: 12px; line-height: 1.6; color: var(--muted);
 }
 .tafsir-israiliyat b { color: var(--tg); }
@@ -412,8 +412,7 @@ details[open] > .tafsir-summary .tafsir-arrow { transform: rotate(45deg); }
   margin: 0 0 var(--space-3);
   padding: 14px 16px;
   background: var(--card);
-  border: 1px solid var(--card-outline);
-  border-left: 3px solid var(--gold-accent);
+  border: 1px solid var(--nav-active-border);
   border-radius: 16px;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
   text-align: left;
@@ -614,11 +613,10 @@ details[open] > .tafsir-summary .tafsir-arrow { transform: rotate(45deg); }
   padding: 14px;
   border-radius: 14px;
   background: var(--card2);
-  border: 1px solid var(--card-outline);
-  border-left: 3px solid var(--gold-accent);
+  border: 1px solid var(--nav-active-border);
 }
 .plan-block--future {
-  border-left-color: var(--border);
+  border-color: var(--border);
 }
 .plan-head {
   display: flex;
@@ -741,7 +739,6 @@ details[open] > .tafsir-summary .tafsir-arrow { transform: rotate(45deg); }
   line-height: 1.95;
   direction: rtl;
   text-align: right;
-  color: var(--text);
   padding: 6px 0 8px;
   margin-bottom: 8px;
   border-bottom: 1px dashed rgba(212, 175, 55, 0.28);
@@ -820,5 +817,204 @@ details[open] > .tafsir-summary .tafsir-arrow { transform: rotate(45deg); }
   font-size: 15px;
   font-weight: 600;
   outline: none;
+}
+
+/* ---------- 19. РАСКРЫВАЕМЫЙ ДАЛИЛЬ И РАЗБИТЫЕ ХАДИСЫ ---------- */
+.counter-dalil-slot {
+  width: 100%;
+  max-width: 460px;
+  margin-top: 14px;
+  text-align: left;
+  direction: ltr;
+}
+.counter-dalil-slot:empty {
+  display: none;
+}
+
+.dalil-disclosure {
+  --dg: var(--gold-text-light);
+  width: 100%;
+  background: var(--card);
+  border: 1px solid var(--card-outline);
+  border-radius: 16px;
+  box-shadow: var(--card-shadow);
+  overflow: hidden;
+  transition: border-color var(--dur-fast) var(--ease-out);
+}
+[data-theme="dark"] .dalil-disclosure,
+[data-theme="mono"] .dalil-disclosure {
+  --dg: var(--gold-text-dark);
+}
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme]) .dalil-disclosure {
+    --dg: var(--gold-text-dark);
+  }
+}
+.dalil-disclosure[open] {
+  border-color: var(--nav-active-border);
+}
+
+.dalil-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 46px;
+  padding: 11px 14px;
+  cursor: pointer;
+  list-style: none;
+  outline: none;
+  user-select: none;
+  background: var(--nav-active-surface);
+}
+.dalil-summary::-webkit-details-marker {
+  display: none;
+}
+.dalil-summary:focus-visible {
+  outline: 2px solid var(--gold-accent);
+  outline-offset: -2px;
+}
+.dalil-summary-main {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.dalil-ico {
+  color: var(--dg);
+  flex-shrink: 0;
+}
+.dalil-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--dg);
+  line-height: 1.3;
+}
+.dalil-summary-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.dalil-count {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.dalil-arrow {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid var(--dg);
+  border-bottom: 2px solid var(--dg);
+  transform: rotate(-45deg);
+  transition: transform var(--dur-base) var(--ease-out);
+}
+.dalil-disclosure[open] > .dalil-summary .dalil-arrow {
+  transform: rotate(45deg);
+}
+
+.dalil-body {
+  padding: 12px;
+  border-top: 1px solid var(--card-outline);
+  background: var(--card);
+}
+.dalil-hadith-list,
+.dalil-note-blocks {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.dalil-hadith-card {
+  --dg: var(--gold-text-light);
+  background: var(--card2);
+  border: 1px solid var(--card-outline);
+  border-radius: 12px;
+  padding: 11px 13px;
+}
+[data-theme="dark"] .dalil-hadith-card,
+[data-theme="mono"] .dalil-hadith-card {
+  --dg: var(--gold-text-dark);
+}
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme]) .dalil-hadith-card {
+    --dg: var(--gold-text-dark);
+  }
+}
+.dalil-hadith-head {
+  margin-bottom: 6px;
+  padding-bottom: 5px;
+  border-bottom: 1px dashed var(--card-outline);
+}
+.dalil-hadith-kicker {
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--dg);
+}
+.dalil-hadith-text,
+.dalil-note-single {
+  font-size: 13.5px;
+  line-height: 1.62;
+  color: var(--text);
+  text-align: left;
+  overflow-wrap: break-word;
+}
+.note-box-body {
+  flex: 1;
+  min-width: 0;
+}
+.note-box .dalil-hadith-card {
+  background: var(--card);
+}
+.detail-body .read-ayah.ruqyah-ayah-reset {
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  box-shadow: none;
+}
+.ruqyah-trn-body {
+  font-size: 15px;
+  line-height: 1.7;
+  text-align: left;
+  color: var(--text);
+}
+.smart-reminder-card .src-hadith .dalil-hadith-card {
+  background: var(--card2);
+}
+
+/* ---------- 20. УМНАЯ КНИГА: 4 ВКЛАДКИ И ПОДСВЕТКА ЦЕЛЕВОГО АЯТА ---------- */
+.path-mode-seg button {
+  min-width: 0;
+  padding: 8px 4px;
+  font-size: 12.5px;
+  letter-spacing: -0.01em;
+}
+@media (max-width: 400px) {
+  .path-mode-seg button {
+    font-size: 11.5px;
+    padding: 8px 3px;
+  }
+}
+
+.read-ayah.is-target-ayah {
+  border: 1.5px solid var(--gold-standard);
+  box-shadow: 0 0 0 3px var(--gold-tint);
+  animation: targetAyahGlow 2.4s ease-out 1;
+}
+@keyframes targetAyahGlow {
+  0% {
+    box-shadow: 0 0 0 6px rgba(184, 134, 11, 0.28);
+  }
+  100% {
+    box-shadow: 0 0 0 3px var(--gold-tint);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .read-ayah.is-target-ayah {
+    animation: none;
+  }
 }
 

@@ -76,6 +76,9 @@ function renderDashSmartReminder() {
   var _dashLinkify = (typeof IqraScholars !== 'undefined' && typeof IqraScholars.linkifyScholars === 'function')
     ? IqraScholars.linkifyScholars
     : function (h) { return h; };
+  var _dashHadithHtml = (typeof IqraDalil !== 'undefined' && typeof IqraDalil.renderNoteBlocksHtml === 'function')
+    ? IqraDalil.renderNoteBlocksHtml(scenario.hadithText, { linkify: _dashLinkify })
+    : _dashLinkify(esc(scenario.hadithText));
   slot.innerHTML =
     '<aside class="smart-reminder-card" aria-label="Умное напоминание">' +
       '<div class="src-head">' +
@@ -86,7 +89,7 @@ function renderDashSmartReminder() {
       '</div>' +
       '<div class="src-title">' + esc(scenario.title) + '</div>' +
       (scenario.arabic ? '<div class="src-ar ar-font">' + esc(scenario.arabic) + '</div>' : '') +
-      '<div class="src-hadith">' + _dashLinkify(esc(scenario.hadithText)) + '</div>' +
+      '<div class="src-hadith">' + _dashHadithHtml + '</div>' +
       '<div class="src-source">' + _dashLinkify(esc(scenario.source)) + '</div>' +
       '<div class="src-actions">' +
         '<button type="button" class="btn secondary btn-inline src-action-btn src-action-primary" onclick="executeSmartAction(\'' + escAttr(scenario.action.type) + '\',\'' + escAttr(scenario.action.id) + '\')">' + esc(scenario.actionLabel) + '<svg class="ico ico-sm"><use href="#i-arrow-right"/></svg></button>' +
@@ -170,7 +173,7 @@ function renderDashboard() {
         contSub = q.subtitle || '';
       }
     }
-    contEl.innerHTML = `<button type="button" class="continue-card continue-card-btn" onclick="openRead('${escAttr(contId)}')"><div class="cc-label">${esc(contLabel)}</div><div class="cc-title">${esc(contTitle)}</div><div class="cc-sub">${esc(contSub)}</div></button>`;
+    contEl.innerHTML = `<button type="button" class="continue-card continue-card-btn" onclick="openRead('${escAttr(contId)}')"><div class="cc-label">${esc(contLabel)}</div><div class="cc-title">${esc(contTitle)}</div>${contSub ? `<div class="cc-sub">${esc(contSub)}</div>` : ''}</button>`;
   }
 
   renderDashSmartReminder();

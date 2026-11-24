@@ -492,7 +492,7 @@
     (index.duas || []).forEach(function (d) {
       if (!d || !d.id) return;
       var extraBody = d.id === 'ruqyah_guide' ? (d.translation || '') : '';
-      var text = [d.note, d.source, extraBody].filter(Boolean).join(' ');
+      var text = [d.note, d.source, d.graded_by, extraBody].filter(Boolean).join(' ');
       extractMentionedScholarsForText(text, index).forEach(function (sid) {
         link(sid, 'dua:' + d.id, {
           kind: 'dua',
@@ -644,6 +644,29 @@
       if (edge.to !== edge.from) addNodeEdge(edge.to, edge);
     });
 
+    var canonicalGroupsByVerse = new Map();
+    var verseKeyByNode = new Map();
+    ayahs.forEach(function (a) {
+      var qObj = quranById.get(a._surahId);
+      var sa = resolveSurahAndAyah(qObj, a._ayahNum);
+      if (!sa) return;
+      var vk = sa.surah + ':' + sa.ayah;
+      verseKeyByNode.set(a._nodeId, vk);
+      var grp = canonicalGroupsByVerse.get(vk);
+      if (!grp) {
+        grp = [];
+        canonicalGroupsByVerse.set(vk, grp);
+      }
+      grp.push(a._nodeId);
+    });
+    var ayahAliasesByNode = new Map();
+    canonicalGroupsByVerse.forEach(function (grp) {
+      if (grp.length <= 1) return;
+      grp.forEach(function (nId) {
+        ayahAliasesByNode.set(nId, grp.slice());
+      });
+    });
+
     return {
       quran: quran,
       ayahs: ayahs,
@@ -657,6 +680,8 @@
       edges: edges,
       edgesByNode: edgesByNode,
       ayahByNode: ayahByNode,
+      verseKeyByNode: verseKeyByNode,
+      ayahAliasesByNode: ayahAliasesByNode,
       quranById: quranById,
       duaById: duaById,
       hadithById: hadithById,
@@ -684,8 +709,19 @@
     var s = String(nodeId || '');
     if (s.indexOf('quran:') === 0) {
       var qId = s.slice(6);
-      var list = index.ayahs.filter(function (a) { return a._surahId === qId; }).map(function (a) { return a._nodeId; });
+      var outSet = new Set();
+      index.ayahs.forEach(function (a) {
+        if (a._surahId !== qId) return;
+        outSet.add(a._nodeId);
+        if (index.ayahAliasesByNode && index.ayahAliasesByNode.has(a._nodeId)) {
+          index.ayahAliasesByNode.get(a._nodeId).forEach(function (al) { outSet.add(al); });
+        }
+      });
+      var list = Array.from(outSet);
       return list.length ? list : [s];
+    }
+    if (s.indexOf('ayah:') === 0 && index.ayahAliasesByNode && index.ayahAliasesByNode.has(s)) {
+      return index.ayahAliasesByNode.get(s).slice();
     }
     return [s];
   }
@@ -694,6 +730,7 @@
     switch (edgeType) {
       case 'hadith_explains_ayah': return isReverse ? 'Аят из хадиса' : 'Хадис разъясняет аят';
       case 'ayah_related_ayah': return 'Связанный аят';
+      case 'ayah_tasbih': return isReverse ? 'Аят с этим поминанием' : 'Тасбих по смыслу аята';
       case 'dua_hadith': return isReverse ? 'Связанное дуа' : 'Хадис о данном дуа';
       case 'dua_ayah': return isReverse ? 'Упоминается в руководстве/дуа' : 'Аят из этого раздела';
       case 'dua_tasbih': return isReverse ? 'Связанное дуа' : 'Связанный тасбих';
@@ -707,6 +744,7 @@
     var index = (ctxOrIndex && ctxOrIndex.ayahByNode) ? ctxOrIndex : createContextIndex(ctxOrIndex);
     var seedIds = expandTargetNodeIds(nodeId, index);
     var seedSet = new Set(seedIds);
+    var rawAyahTargets = new Map();
 
     var out = {
       themes: [],
@@ -757,11 +795,11 @@
     }
 
     function pushAyah(aNodeId, edge, isReverse) {
-      if (seedSet.has(aNodeId) || seenAyahs.has(aNodeId)) return;
+      if (seedSet.has(aNodeId)) return;
       var a = index.ayahByNode.get(aNodeId);
       if (!a) return;
-      seenAyahs.add(aNodeId);
-      out.ayahs.push({
+      var vk = (index.verseKeyByNode && index.verseKeyByNode.get(aNodeId)) || aNodeId;
+      var nextObj = {
         nodeId: a._nodeId,
         surahId: a._surahId,
         ayahNum: a._ayahNum,
@@ -773,7 +811,17 @@
         evidence: describePathEvidence(edge.evidence_source, index, a._surahNum, a._ayahNum),
         note: edge.evidence_note || '',
         weight: edge.weight || 0.8
-      });
+      };
+      var existing = rawAyahTargets.get(vk);
+      if (!existing) {
+        rawAyahTargets.set(vk, nextObj);
+      } else {
+        var nextIsRuqyah = nextObj.surahId.indexOf('ruqyah_') === 0;
+        var prevIsRuqyah = existing.surahId.indexOf('ruqyah_') === 0;
+        if ((nextObj.weight > existing.weight && !(nextIsRuqyah && !prevIsRuqyah)) || (prevIsRuqyah && !nextIsRuqyah)) {
+          rawAyahTargets.set(vk, nextObj);
+        }
+      }
     }
 
     function pushHadith(hNodeId, edge, isReverse) {
@@ -959,6 +1007,8 @@
       else if (other.indexOf('tasbih:') === 0) pushTasbih(other, edge, isReverse);
       else if (other.indexOf('scholar:') === 0 && !seedSet.has(other)) pushScholar(other);
     });
+
+    rawAyahTargets.forEach(function (item) { out.ayahs.push(item); });
 
     out.themes.sort(function (a, b) { return b.weight - a.weight; });
     out.moods.sort(function (a, b) { return b.weight - a.weight; });

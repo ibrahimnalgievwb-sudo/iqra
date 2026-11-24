@@ -14,16 +14,9 @@ function closeSearch(){ _searchShowAll = false; _lastSearchQuery = ''; document.
 function showAllSearchResults() { _searchShowAll = true; renderGlobalSearch(); }
 
 function searchOpen(type, id){
-  var ov = document.getElementById('search-overlay');
-  if (ov) ov.classList.remove('active');
-  var inp = document.getElementById('global-search-input');
-  if (inp) inp.value = '';
+  if (typeof closeSearch === 'function') closeSearch({ skipHistoryBack: true });
   var res = document.getElementById('search-results');
   if (res) res.innerHTML = '';
-  var st = history.state;
-  if (st && st.overlay) {
-    try { history.replaceState({ screen: st.screen }, ''); } catch(e) {}
-  }
   if (type==='quran') openQuran(id);
   else if (type==='dua') openDua(id);
   else if (type==='hadith') openHadith(id);
@@ -153,8 +146,10 @@ function renderGlobalSearch() {
     const pathRes = IqraGraph.queryPathItems({ query: rawQ, mode: 'all', itemTypeFilter: 'all' }, indexOrCtx);
     const hasTopics = pathRes.matchedTopics && pathRes.matchedTopics.length;
     const hasMoods = pathRes.matchedMoods && pathRes.matchedMoods.length;
-    if (hasTopics || hasMoods) {
+    const hasScholars = pathRes.matchedScholars && pathRes.matchedScholars.length;
+    if (hasTopics || hasMoods || hasScholars) {
       html += '<div class="search-smart-box"><div class="ssb-label">Разделы Умной книги</div><div class="ecosystem-pills">' +
+        (pathRes.matchedScholars || []).slice(0, 3).map(sc => '<button type="button" class="ecosystem-pill ecosystem-pill-scholar" onclick="openPathFromGlobalSearch(\'scholar\',\'scholar:' + escAttr(sc.id) + '\')"><svg class="ico ico-sm"><use href="#i-info"/></svg><span>Учёный: ' + esc(sc.name) + '</span></button>').join('') +
         (pathRes.matchedTopics || []).slice(0, 4).map(th => '<button type="button" class="ecosystem-pill ecosystem-pill-theme" onclick="openPathFromGlobalSearch(\'theme\',\'' + escAttr(th.title) + '\')"><svg class="ico ico-sm"><use href="#i-bookmark"/></svg><span>Тема: ' + esc(th.title) + '</span></button>').join('') +
         (pathRes.matchedMoods || []).slice(0, 4).map(m => '<button type="button" class="ecosystem-pill ecosystem-pill-mood" onclick="openPathFromGlobalSearch(\'mood\',\'' + escAttr(m.title) + '\')"><svg class="ico ico-sm"><use href="#i-compass"/></svg><span>Настроение: ' + esc(m.title) + '</span></button>').join('') +
         '</div></div>';

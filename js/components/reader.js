@@ -185,7 +185,7 @@ function _buildReadAyahHtml(item, a, idx) {
     (a.tr ? '<div class="read-ayah-tr">' + esc(a.tr) + '</div>' : '') +
     '<div class="read-ayah-trn">' + esc(a.trn) + '</div>' +
     getSmartTafsirHtml(item, idx + 1) +
-    (typeof renderAyahEcosystemDetails === 'function' ? renderAyahEcosystemDetails('ayah:' + item.id + '#' + (idx + 1)) : '') +
+    (typeof renderAyahEcosystemDetails === 'function' ? renderAyahEcosystemDetails('ayah:' + item.id + '#' + (idx + 1), { inReader: true }) : '') +
     '<button class="ayah-tajweed-btn" type="button" onclick="openTajweedInfo(this.closest(\'.read-ayah\'))" aria-label="Справка по таджвиду">' +
       '<svg class="ico ico-sm"><use href="#i-info"/></svg>Таджвид' +
     '</button>' +
@@ -293,6 +293,12 @@ async function openRead(id, targetAyahIdx, dir) {
     ? IqraScholars.linkifyScholars
     : function (s) { return s; };
 
+  var _rNoteHtml = item.note
+    ? ((typeof IqraDalil !== 'undefined' && typeof IqraDalil.renderNoteBlocksHtml === 'function')
+        ? IqraDalil.renderNoteBlocksHtml(item.note, { linkify: linkifyFn })
+        : linkifyFn(escNl(item.note)))
+    : '';
+
   container.innerHTML =
     '<div id="guide-slot-read-mode"></div>' +
     '<div class="detail-hero read-hero-title">' +
@@ -300,13 +306,13 @@ async function openRead(id, targetAyahIdx, dir) {
     '</div>' +
     legendHtml +
     jumpHtml +
-    (item.note ? '<div class="note-box"><svg class="ico ico-sm note-box-ico"><use href="#i-lightbulb"/></svg><div>' + linkifyFn(escNl(item.note)) + '</div></div>' : '') +
+    (item.note ? '<div class="note-box"><svg class="ico ico-sm note-box-ico"><use href="#i-lightbulb"/></svg><div class="note-box-body">' + _rNoteHtml + '</div></div>' : '') +
     bismillahHtml +
     '<div class="spacer-sm"></div>' +
     '<div id="read-ayahs-host">' + initialAyahsHtml + '</div>' +
     (initialCount < ayahs.length ? '<button type="button" id="read-more-ayahs-btn" class="show-all-btn" onclick="appendReadAyahBatch()">Показать следующие аяты (' + initialCount + ' из ' + ayahs.length + ')</button>' : '') +
     (item.source ? '<div class="dh-section detail-source-block"><div class="dh-label">Источник</div><div class="dh-text muted detail-source-text">' + linkifyFn(esc(item.source)) + '</div></div>' : '') +
-    (typeof renderEcosystemSection === 'function' ? renderEcosystemSection('quran:' + item.id, { title: 'Связи в Умной книге' }) : '') +
+    (typeof renderEcosystemSection === 'function' ? renderEcosystemSection('quran:' + item.id, { title: 'Связи в Умной книге', inReader: true }) : '') +
     transcriptionNote();
 
   if (typeof renderScreenGuideSlot === 'function') renderScreenGuideSlot('read-mode');
@@ -338,11 +344,16 @@ async function openRead(id, targetAyahIdx, dir) {
   if (typeof targetAyahIdx === 'number' && targetAyahIdx >= 0) {
     requestAnimationFrame(function () {
       var targetEl = document.getElementById('ayah-' + targetAyahIdx);
-      if (targetEl) targetEl.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      if (targetEl) {
+        targetEl.classList.add('is-target-ayah');
+        targetEl.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      }
     });
   } else if (state.settings.readScrolls && state.settings.readScrolls[id]) {
     var targetScroll = state.settings.readScrolls[id];
     requestAnimationFrame(function () { container.scrollTop = targetScroll; });
+  } else {
+    container.scrollTop = 0;
   }
   saveNavContext();
 }

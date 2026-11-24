@@ -121,7 +121,7 @@
   --card-shadow: 0 8px 24px rgba(48, 37, 16, 0.055), 0 1px 2px rgba(48, 37, 16, 0.035);
   --nav-active-surface: rgba(191, 149, 63, 0.11);
   --nav-active-border: rgba(191, 149, 63, 0.26);
-  --arabic-gold: #8B650F;
+  --arabic-gold: #8E6810;
   --arabic-highlight: rgba(255, 255, 255, 0.92);
   --arabic-edge: rgba(126, 91, 12, 0.25);
 }
@@ -141,8 +141,8 @@
   --gold-highlight: #F0D58A;
   --gold-deep: #896317;
   --gold-fill: #B88B2D;
-  --gold-text-light: #8B650F;
-  --arabic-gold: #8B650F;
+  --gold-text-light: #8E6810;
+  --arabic-gold: #8E6810;
   --arabic-highlight: rgba(255, 255, 255, 0.94);
   --arabic-edge: rgba(126, 91, 12, 0.25);
   --nav-surface: rgba(252, 251, 247, 0.96);
@@ -191,8 +191,8 @@
   --gold-standard: #D8C58D;
   --gold-highlight: #F0E4BE;
   --gold-deep: #9D8B5A;
-  --gold-text-dark: #E4D4A5;
-  --arabic-gold: #E4D4A5;
+  --gold-text-dark: #E6D5A3;
+  --arabic-gold: #E6D5A3;
   --arabic-highlight: rgba(255, 255, 255, 0.16);
   --arabic-edge: rgba(0, 0, 0, 0.72);
   --nav-surface: rgba(17, 17, 17, 0.97);
@@ -219,25 +219,25 @@
    Текст сплошной. Свечение — мягкая аура, блик — отдельный оверлей.
    ============================================================ */
 :root, [data-theme="light"] {
-  --arabic-glow:  0 0 10px rgba(184, 139, 45, 0.16);
-  --arabic-depth: 0 1px 0 rgba(255, 255, 255, 0.9);
-  --arabic-shine: rgba(255, 250, 220, 0.95);
+  --arabic-glow:  0 0 8px rgba(184, 139, 45, 0.14);
+  --arabic-depth: 0 1px 0 rgba(255, 255, 255, 0.72);
+  --arabic-shine: rgba(255, 250, 220, 0.85);
 }
 [data-theme="dark"] {
-  --arabic-glow:  0 0 14px rgba(240, 204, 112, 0.22);
-  --arabic-depth: 0 1px 1px rgba(0, 0, 0, 0.55);
-  --arabic-shine: rgba(255, 243, 176, 0.95);
+  --arabic-glow:  0 0 10px rgba(240, 204, 112, 0.16);
+  --arabic-depth: 0 1px 1px rgba(0, 0, 0, 0.45);
+  --arabic-shine: rgba(255, 243, 176, 0.85);
 }
 [data-theme="mono"] {
-  --arabic-glow:  0 0 14px rgba(228, 212, 165, 0.18);
-  --arabic-depth: 0 1px 1px rgba(0, 0, 0, 0.55);
-  --arabic-shine: rgba(255, 250, 232, 0.9);
+  --arabic-glow:  0 0 10px rgba(230, 213, 163, 0.14);
+  --arabic-depth: 0 1px 1px rgba(0, 0, 0, 0.45);
+  --arabic-shine: rgba(255, 250, 232, 0.80);
 }
 @media (prefers-color-scheme: dark) {
   html:not([data-theme]) {
-    --arabic-glow:  0 0 14px rgba(240, 204, 112, 0.22);
-    --arabic-depth: 0 1px 1px rgba(0, 0, 0, 0.55);
-    --arabic-shine: rgba(255, 243, 176, 0.95);
+    --arabic-glow:  0 0 10px rgba(240, 204, 112, 0.16);
+    --arabic-depth: 0 1px 1px rgba(0, 0, 0, 0.45);
+    --arabic-shine: rgba(255, 243, 176, 0.85);
   }
 }
 

@@ -69,7 +69,7 @@ window.openScholarInfo = function(scholarId) {
   modalBg.style.webkitBackdropFilter = 'blur(8px)';
 
   var typeLabels = {
-    companion: 'Сподвижник Пророка ﷺ',
+    companion: 'Сподвижник Пророка (да благословит его Аллах и приветствует)',
     tabii: 'Таби‘ин (поколение учеников сподвижников)',
     scholar: 'Учёный Ахлю-с-Сунна',
     transmitter: 'Передатчик'
@@ -107,7 +107,7 @@ window.openScholarInfo = function(scholarId) {
     : '';
 
   var openInPathBtn = (typeof openPathFilter === 'function')
-    ? '<button type="button" class="btn secondary sm-action-btn" onclick="closeModal();openPathFilter(\'scholar\',\'' + escAttr(person.id) + '\')"><svg class="ico ico-sm"><use href="#i-compass"/></svg>Материалы в Умной книге</button>'
+    ? '<button type="button" class="btn secondary sm-action-btn" onclick="closeModal({skipHistoryBack:true});openPathFilter(\'scholar\',\'' + escAttr(person.id) + '\')"><svg class="ico ico-sm"><use href="#i-compass"/></svg>Материалы в Умной книге</button>'
     : '';
 
   modalContent.innerHTML =
