@@ -13,7 +13,7 @@ function renderDuaList() {
     const star = `<button type="button" class="star-btn ${fav?'active':''}" aria-label="${fav?'Убрать из избранного':'Добавить в избранное'}: ${escAttr(d.title)}" onclick="starClick(event,'${escAttr(d.id)}','dua')">${fav?'<svg class="ico"><use href="#i-star-filled"/></svg>':'<svg class="ico"><use href="#i-star"/></svg>'}</button>`;
     const subHtml = d.subtitle ? `<div class="c-sub">${esc(d.subtitle)}</div>` : '';
     const arHtml = d.arabic ? `<div class="c-ar ar-font">${esc(d.arabic)}</div>` : '';
-    return `<div class="content-card" role="button" tabindex="0" onclick="openDua('${escAttr(d.id)}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openDua('${escAttr(d.id)}')}">${star}<div class="c-title">${esc(d.title)}</div>${subHtml}${arHtml}<div class="c-tr">${esc(String(d.translation == null ? '' : d.translation).replace(/\*\*/g, '').replace(/\s*\n+\s*/g, ' '))}</div></div>`;
+    return `<div class="content-card" role="button" tabindex="0" onclick="openDua('${escAttr(d.id)}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openDua('${escAttr(d.id)}')}">${star}<div class="c-title">${esc(d.title)}</div>${subHtml}${arHtml}<div class="c-tr">${esc(d.translation)}</div></div>`;
   }).join('');
 }
 
