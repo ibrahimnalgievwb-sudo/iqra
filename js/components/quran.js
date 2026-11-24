@@ -98,8 +98,8 @@ function renderQuranList() {
       numHtml + star + readBadge +
       '<div class="c-title">' + esc(item.title) + '</div>' +
       (item.subtitle ? '<div class="c-sub">' + esc(item.subtitle) + '</div>' : '') +
-      '<div class="c-ar ar-font">' + esc(excerpt(item.arabic, 2)) + '</div>' +
-      '<div class="c-tr">' + esc(excerpt(item.translation, 2)) + '</div>' +
+      '<div class="c-ar ar-font">' + esc(excerpt(item.arabic, 1)) + '</div>' +
+      '<div class="c-tr">' + esc(excerpt(item.translation, 1)) + '</div>' +
     '</div>';
   }).join('');
 

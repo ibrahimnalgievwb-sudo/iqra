@@ -1018,3 +1018,49 @@ details[open] > .tafsir-summary .tafsir-arrow { transform: rotate(45deg); }
   }
 }
 
+
+/* ---------- 21. СПИСКИ ДУА И ХАДИСОВ: чистая обрезка превью (v451) ----------
+   Раньше арабская строка обрезалась по max-height и из-под неё
+   выглядывали значки второй строки, а перевод обрывался на полуслове.
+   Теперь — ровно одна строка арабского и до двух строк перевода с «…». */
+.content-card .c-ar {
+  max-height: none;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-top: 2px;
+}
+.content-card .c-tr {
+  max-height: none;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---------- 22. ПРОГРЕСС: карточка «Сегодня» и сетка статистики (v451) ----------
+   Карточка «Сегодня» красилась в серый от чёрного акцента светлой темы,
+   а пятая карточка сетки оставалась одна в ряду на пол-ширины. */
+#prog-body > .stat-card:first-child {
+  background: linear-gradient(135deg, rgba(212, 175, 55, .18), rgba(212, 175, 55, .06)) !important;
+  border: 1px solid rgba(212, 175, 55, .35);
+  box-shadow: var(--gold-glow-sm);
+}
+#prog-body > .stat-card:first-child .sc-label { color: var(--gold-text-light); }
+[data-theme="dark"] #prog-body > .stat-card:first-child .sc-label { color: var(--gold-text-dark); }
+#prog-body > .stat-card:first-child > div:last-child {
+  background: rgba(212, 175, 55, .16) !important;
+}
+#prog-body > .stat-card:first-child > div:last-child > div {
+  background: var(--gold-gradient) !important;
+}
+.stat-grid > .stat-card:last-child:nth-child(odd) { grid-column: 1 / -1; }
+
+/* ---------- 23. РЕЖИМ ЧТЕНИЯ: одинаковые промежутки между блоками шапки (v451) ---------- */
+#read-body .ayah-jumper { margin-bottom: var(--space-3); }
+#read-body .bismillah-card { margin-top: 0; margin-bottom: var(--space-3); }
