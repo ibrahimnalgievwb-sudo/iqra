@@ -16,14 +16,20 @@ function renderDuaList() {
     const fav = isFavorite(d.id);
     const star = `<button type="button" class="star-btn ${fav?'active':''}" aria-label="${fav?'Убрать из избранного':'Добавить в избранное'}: ${escAttr(d.title)}" onclick="starClick(event,'${escAttr(d.id)}','dua')">${fav?'<svg class="ico"><use href="#i-star-filled"/></svg>':'<svg class="ico"><use href="#i-star"/></svg>'}</button>`;
     const subHtml = d.subtitle ? `<div class="c-sub">${esc(d.subtitle)}</div>` : '';
+<<<<<<< HEAD
     const arPrev = _duaPreview(d.arabic, 2);
     const trnPrev = _duaPreview(d.translation, 2);
     const arHtml = arPrev ? `<div class="c-ar ar-font" dir="rtl" lang="ar">${esc(arPrev)}</div>` : '';
     return `<div class="content-card" role="button" tabindex="0" onclick="openDua('${escAttr(d.id)}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openDua('${escAttr(d.id)}')}">${star}<div class="c-title">${esc(d.title)}</div>${subHtml}${arHtml}<div class="c-tr">${esc(trnPrev)}</div></div>`;
+=======
+    const arHtml = d.arabic ? `<div class="c-ar ar-font">${esc(d.arabic)}</div>` : '';
+    return `<div class="content-card" role="button" tabindex="0" onclick="openDua('${escAttr(d.id)}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openDua('${escAttr(d.id)}')}">${star}<div class="c-title">${esc(d.title)}</div>${subHtml}${arHtml}<div class="c-tr">${esc(d.translation)}</div></div>`;
+>>>>>>> ca4756abbe657ac1e757d8f0c9ae20ab9f37d6ce
   }).join('');
 }
 
 function _duaLinkify(html) {
+<<<<<<< HEAD
   var out = (typeof IqraScholars !== 'undefined' && typeof IqraScholars.linkifyScholars === 'function')
     ? IqraScholars.linkifyScholars(html)
     : html;
@@ -31,6 +37,11 @@ function _duaLinkify(html) {
     out = IqraScholars.formatSacredTermsHtml(out);
   }
   return out;
+=======
+  return (typeof IqraScholars !== 'undefined' && typeof IqraScholars.linkifyScholars === 'function')
+    ? IqraScholars.linkifyScholars(html)
+    : html;
+>>>>>>> ca4756abbe657ac1e757d8f0c9ae20ab9f37d6ce
 }
 
 function openDua(id) {
@@ -53,7 +64,11 @@ function openDua(id) {
       <div class="read-ayah${isGuide ? ' ruqyah-ayah-reset' : ''}">
         ${d.arabic ? `<div class="read-ayah-ar ar-font">${escNl(d.arabic)}</div>` : ''}
         ${d.transcription ? `<div class="read-ayah-tr">${escNl(d.transcription)}</div>` : ''}
+<<<<<<< HEAD
         <div class="read-ayah-trn${isGuide ? ' ruqyah-trn-body' : ''}">${isGuide ? _duaLinkify(escRich(d.translation)) : _duaLinkify(escNl(d.translation))}</div>
+=======
+        <div class="read-ayah-trn${isGuide ? ' ruqyah-trn-body' : ''}">${isGuide ? _duaLinkify(escRich(d.translation)) : escNl(d.translation)}</div>
+>>>>>>> ca4756abbe657ac1e757d8f0c9ae20ab9f37d6ce
       </div>
     </div>
     ${d.note ? `<div class="note-box"><svg class="ico ico-sm note-box-ico"><use href="#i-lightbulb"/></svg><div class="note-box-body">${noteContent}</div></div>` : ''}

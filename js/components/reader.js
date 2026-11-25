@@ -100,6 +100,7 @@ function openTajweedGuide(initialRule) {
     '<div class="tg-body">' + groupsHtml + '</div>' +
     '<button type="button" class="btn secondary tg-close-btn" onclick="closeModal()">Закрыть</button>';
 
+<<<<<<< HEAD
   bg.style.backgroundColor = '';
   bg.style.backdropFilter = '';
   bg.style.webkitBackdropFilter = '';
@@ -109,6 +110,16 @@ function openTajweedGuide(initialRule) {
   if (safeInitialRule) {
     requestAnimationFrame(function () {
       var target = modal.querySelector('[data-rule-id="' + safeInitialRule + '"]');
+=======
+  bg.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+  bg.style.backdropFilter = 'blur(8px)';
+  bg.style.webkitBackdropFilter = 'blur(8px)';
+  bg.classList.add('active');
+
+  if (initialRule) {
+    requestAnimationFrame(function () {
+      var target = modal.querySelector('[data-rule-id="' + initialRule + '"]');
+>>>>>>> ca4756abbe657ac1e757d8f0c9ae20ab9f37d6ce
       if (target && typeof target.scrollIntoView === 'function') {
         target.scrollIntoView({ block: 'center', behavior: 'smooth' });
       }
@@ -166,9 +177,9 @@ function openTajweedInfo(ayahBlock) {
       '<div class="tm-note">Чтение Хафс ‘ан ‘Асым. Встроенная офлайн-разметка таджвида.</div>' +
     '</div>';
 
-  bg.style.backgroundColor = '';
-  bg.style.backdropFilter = '';
-  bg.style.webkitBackdropFilter = '';
+  bg.style.backgroundColor = 'rgba(0, 0, 0, 0.45)';
+  bg.style.backdropFilter = 'blur(8px)';
+  bg.style.webkitBackdropFilter = 'blur(8px)';
 
   bg.classList.add('active');
 }
@@ -297,12 +308,18 @@ async function openRead(id, targetAyahIdx, dir) {
     return _buildReadAyahHtml(item, a, idx);
   }).join('');
 
+<<<<<<< HEAD
   var linkifyFn = function (s) {
     var out = (typeof IqraScholars !== 'undefined' && typeof IqraScholars.linkifyScholars === 'function')
       ? IqraScholars.linkifyScholars(s)
       : s;
     return _readerFormatSacred(out);
   };
+=======
+  var linkifyFn = (typeof IqraScholars !== 'undefined' && typeof IqraScholars.linkifyScholars === 'function')
+    ? IqraScholars.linkifyScholars
+    : function (s) { return s; };
+>>>>>>> ca4756abbe657ac1e757d8f0c9ae20ab9f37d6ce
 
   var _rNoteHtml = item.note
     ? ((typeof IqraDalil !== 'undefined' && typeof IqraDalil.renderNoteBlocksHtml === 'function')

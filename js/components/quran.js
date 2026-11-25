@@ -201,12 +201,18 @@ function openQuran(id, targetAyahIdx, keepLimit) {
     '</div>';
   }
 
+<<<<<<< HEAD
   var _qLinkify = function (h) {
     var out = (typeof IqraScholars !== 'undefined' && typeof IqraScholars.linkifyScholars === 'function')
       ? IqraScholars.linkifyScholars(h)
       : h;
     return _quranFormatSacred(out);
   };
+=======
+  var _qLinkify = (typeof IqraScholars !== 'undefined' && typeof IqraScholars.linkifyScholars === 'function')
+    ? IqraScholars.linkifyScholars
+    : function (h) { return h; };
+>>>>>>> ca4756abbe657ac1e757d8f0c9ae20ab9f37d6ce
 
   var _qNoteHtml = item.note
     ? ((typeof IqraDalil !== 'undefined' && typeof IqraDalil.renderNoteBlocksHtml === 'function')

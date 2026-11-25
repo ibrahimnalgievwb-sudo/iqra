@@ -78,6 +78,7 @@ window.openScholarInfo = function(scholarId) {
   var modalBg = document.getElementById('modal-bg');
   if (!modalContent || !modalBg) return;
 
+<<<<<<< HEAD
   var isProphet = person.type === 'prophet' || person.id === 'prophet_muhammad';
   modalContent.className = 'modal scholar-modal' + (isProphet ? ' is-prophet' : '');
 
@@ -87,6 +88,15 @@ window.openScholarInfo = function(scholarId) {
 
   var typeLabels = {
     prophet: 'Посланник Аллаха и печать пророков',
+=======
+  modalContent.className = 'modal scholar-modal';
+
+  modalBg.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+  modalBg.style.backdropFilter = 'blur(8px)';
+  modalBg.style.webkitBackdropFilter = 'blur(8px)';
+
+  var typeLabels = {
+>>>>>>> ca4756abbe657ac1e757d8f0c9ae20ab9f37d6ce
     companion: 'Сподвижник Пророка (да благословит его Аллах и приветствует)',
     tabii: 'Таби‘ин (поколение учеников сподвижников)',
     scholar: 'Учёный Ахлю-с-Сунна',
@@ -100,6 +110,7 @@ window.openScholarInfo = function(scholarId) {
     not_found: 'Данные уточняются'
   };
   var statusLabel = statusLabels[person.verification_status] || '';
+<<<<<<< HEAD
   var iconUse = isProphet
     ? '#i-star-filled'
     : (person.type === 'companion' ? '#i-scroll' : (person.type === 'transmitter' ? '#i-info' : '#i-book'));
@@ -108,6 +119,16 @@ window.openScholarInfo = function(scholarId) {
     ? String(person.description).split(/\n{2,}/).filter(Boolean).map(function(p) {
         return '<p class="sm-desc">' + _formatModalTextHtml(escNl(p.trim()), person.id) + '</p>';
       }).join('')
+=======
+  var iconUse = person.type === 'companion' ? '#i-scroll' : (person.type === 'transmitter' ? '#i-info' : '#i-book');
+
+  var linkifyFn = (typeof IqraScholars !== 'undefined' && typeof IqraScholars.linkifyScholars === 'function')
+    ? function(safeHtml) { return IqraScholars.linkifyScholars(safeHtml, { excludeId: person.id }); }
+    : function(safeHtml) { return safeHtml; };
+
+  var descHtml = person.description
+    ? '<p class="sm-desc">' + linkifyFn(escNl(person.description)) + '</p>'
+>>>>>>> ca4756abbe657ac1e757d8f0c9ae20ab9f37d6ce
     : '<p class="sm-desc is-empty">Биографические данные уточняются.</p>';
 
   var sourcesHtml = '';
@@ -115,16 +136,28 @@ window.openScholarInfo = function(scholarId) {
     sourcesHtml = '<div class="sm-sources">' +
       '<div class="sm-sources-title">Источники биографии</div>' +
       '<ul class="sm-sources-list">' +
+<<<<<<< HEAD
       person.sources.map(function(s) { return '<li>' + _formatModalTextHtml(esc(s), person.id) + '</li>'; }).join('') +
+=======
+      person.sources.map(function(s) { return '<li>' + linkifyFn(esc(s)) + '</li>'; }).join('') +
+>>>>>>> ca4756abbe657ac1e757d8f0c9ae20ab9f37d6ce
       '</ul>' +
       '</div>';
   }
 
+<<<<<<< HEAD
   var ecoHtml = (!isProphet && typeof renderEcosystemSection === 'function')
     ? renderEcosystemSection('scholar:' + person.id, { compact: true, title: 'Упоминания и связи в Умной книге' })
     : '';
 
   var openInPathBtn = (!isProphet && typeof openPathFilter === 'function')
+=======
+  var ecoHtml = (typeof renderEcosystemSection === 'function')
+    ? renderEcosystemSection('scholar:' + person.id, { compact: true, title: 'Упоминания и связи в Умной книге' })
+    : '';
+
+  var openInPathBtn = (typeof openPathFilter === 'function')
+>>>>>>> ca4756abbe657ac1e757d8f0c9ae20ab9f37d6ce
     ? '<button type="button" class="btn secondary sm-action-btn" onclick="closeModal({skipHistoryBack:true});openPathFilter(\'scholar\',\'' + escAttr(person.id) + '\')"><svg class="ico ico-sm"><use href="#i-compass"/></svg>Материалы в Умной книге</button>'
     : '';
 
@@ -133,6 +166,7 @@ window.openScholarInfo = function(scholarId) {
       '<div class="sm-drag"></div>' +
       '<button type="button" class="sm-close" aria-label="Закрыть" onclick="closeModal()"><svg class="ico ico-sm"><use href="#i-x"/></svg></button>' +
     '</div>' +
+<<<<<<< HEAD
     '<div class="sm-hero">' +
       '<div class="sm-avatar"><svg class="ico ico-lg"><use href="' + iconUse + '"/></svg></div>' +
       '<h2 class="sm-name">' + esc(person.name) + '</h2>' +
@@ -148,6 +182,17 @@ window.openScholarInfo = function(scholarId) {
       (ecoHtml ? '<div class="scholar-eco-wrap">' + ecoHtml + '</div>' : '') +
       (statusLabel ? '<div class="sm-status">' + esc(statusLabel) + '</div>' : '') +
     '</div>' +
+=======
+    '<div class="sm-avatar"><svg class="ico ico-lg"><use href="' + iconUse + '"/></svg></div>' +
+    '<h2 class="sm-name">' + esc(person.name) + '</h2>' +
+    (person.full_name ? '<div class="sm-fullname">' + esc(person.full_name) + '</div>' : '') +
+    '<div class="sm-role">' + esc(typeLabel) + '</div>' +
+    (person.lifespan ? '<div class="sm-life">' + esc(person.lifespan) + '</div>' : '') +
+    '<div class="sm-body">' + descHtml + '</div>' +
+    sourcesHtml +
+    (ecoHtml ? '<div class="scholar-eco-wrap">' + ecoHtml + '</div>' : '') +
+    (statusLabel ? '<div class="sm-status">' + esc(statusLabel) + '</div>' : '') +
+>>>>>>> ca4756abbe657ac1e757d8f0c9ae20ab9f37d6ce
     '<div class="sm-actions">' +
       openInPathBtn +
       '<button type="button" class="btn secondary sm-close-btn" onclick="closeModal()">Закрыть</button>' +

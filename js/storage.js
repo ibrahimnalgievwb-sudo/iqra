@@ -45,9 +45,13 @@ function defaultSettings() {
       enabled: true, browserNotify: false, quietStart: '23:00', quietEnd: '05:00',
       categories: { adhkar: true, night: true, friday: true, motivation: true },
       mutedDate: '', dismissed: {}, notified: {}
+<<<<<<< HEAD
     },
     nightChecklist: { date: '', done: [] },
     widgetPrefs: { enabled: ['goal_ring', 'night_check', 'mini_tasbih', 'daily_dhikr'] }
+=======
+    }
+>>>>>>> ca4756abbe657ac1e757d8f0c9ae20ab9f37d6ce
   };
 }
 
@@ -176,6 +180,7 @@ function load() {
   } else {
     s.settings.smartReminders = Object.assign({}, defSet.smartReminders, (s.settings.smartReminders && typeof s.settings.smartReminders === 'object') ? s.settings.smartReminders : {});
   }
+<<<<<<< HEAD
   var nc = s.settings.nightChecklist;
   s.settings.nightChecklist = (nc && typeof nc === 'object' && !Array.isArray(nc))
     ? {
@@ -188,6 +193,8 @@ function load() {
   s.settings.widgetPrefs = (wp && typeof wp === 'object' && !Array.isArray(wp) && Array.isArray(wp.enabled))
     ? { enabled: wp.enabled.filter(function (w) { return allowedWidgets.indexOf(w) !== -1; }).slice(0, 8) }
     : { enabled: allowedWidgets.slice() };
+=======
+>>>>>>> ca4756abbe657ac1e757d8f0c9ae20ab9f37d6ce
 
   s.reminders = Array.isArray(s.reminders) ? s.reminders : [];
   s.draft = s.draft && typeof s.draft === 'object' ? s.draft : null;

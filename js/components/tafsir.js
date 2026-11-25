@@ -39,6 +39,7 @@ function tafsirScholarLink(scholarId, label) {
 }
 
 function _linkifyTafsirSafeHtml(safeHtml) {
+<<<<<<< HEAD
   var out = safeHtml == null ? '' : String(safeHtml);
   if (typeof IqraScholars !== 'undefined' && typeof IqraScholars.linkifyScholars === 'function') {
     out = IqraScholars.linkifyScholars(out);
@@ -69,10 +70,17 @@ function _formatInlineTafsirSegment(rawParagraph) {
   });
 
   return _linkifyTafsirSafeHtml(html);
+=======
+  if (typeof IqraScholars !== 'undefined' && typeof IqraScholars.linkifyScholars === 'function') {
+    return IqraScholars.linkifyScholars(safeHtml);
+  }
+  return safeHtml;
+>>>>>>> ca4756abbe657ac1e757d8f0c9ae20ab9f37d6ce
 }
 
 function formatTafsirText(text) {
   if (!text) return '';
+<<<<<<< HEAD
   var normalized = String(text).replace(/\r\n/g, '\n').trim();
   if (!normalized) return '';
   var paras = normalized.split(/\n{2,}/).map(function (p) { return p.trim(); }).filter(Boolean);
@@ -80,6 +88,32 @@ function formatTafsirText(text) {
   return paras.map(function (p) {
     return '<p class="tafsir-para">' + _formatInlineTafsirSegment(p) + '</p>';
   }).join('');
+=======
+  let html = escNl(text);
+
+  // 1. Пояснения для терминов
+  Object.keys(TAFSIR_TERMS).forEach(term => {
+    const regex = new RegExp(`(^|\\s|[.,!?()«»"'])(${term})(?=\\s|[.,!?()«»"']|$)`, 'gi');
+    html = html.replace(regex, `$1<span class="tafsir-term">$2 ${TAFSIR_TERMS[term]}</span>`);
+  });
+
+  // 2. Кликабельные имена сподвижников, таби‘инов и учёных (через централизованный IqraScholars)
+  if (typeof IqraScholars !== 'undefined' && typeof IqraScholars.linkifyScholars === 'function') {
+    html = IqraScholars.linkifyScholars(html);
+  } else {
+    TAFSIR_SCHOLARS.forEach(scholar => {
+      scholar.names.forEach(name => {
+        const safeName = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(`(^|\\s|[.,!?()«»"'])(${safeName})(?=\\s|[.,!?()«»"']|$)`, 'g');
+        html = html.split(/(<[^>]+>)/g).map((seg, idx) => (
+          idx % 2 === 0 ? seg.replace(regex, (m, pre, nm) => pre + tafsirScholarLink(scholar.id, nm)) : seg
+        )).join('');
+      });
+    });
+  }
+
+  return html;
+>>>>>>> ca4756abbe657ac1e757d8f0c9ae20ab9f37d6ce
 }
 
 /* Сводка «Справка» + «Открыть крупно» + источник — нижняя строка карточки тафсира */
@@ -91,6 +125,7 @@ function tafsirFootHtml(sourceLine, scholarId, surah, ayah) {
     : '';
   return '<div class="tafsir-foot">' +
     '<div class="tafsir-source">' + _linkifyTafsirSafeHtml(esc(sourceLine)) + '</div>' +
+<<<<<<< HEAD
     '<div class="tafsir-foot-actions">' +
       openReaderBtn +
       '<button type="button" onclick="event.preventDefault();event.stopPropagation();openScholarInfo(\'' + escAttr(scholarId) + '\')" class="btn secondary tafsir-info-btn">' +
@@ -125,6 +160,11 @@ function _buildTafsirHadithsHtml(tafsir) {
         '<div class="tafsir-hadith-meta">Передал: ' + transmitterClickable + ' · Источник: ' + _linkifyTafsirSafeHtml(esc(hSource)) + ' · <span class="tafsir-status ' + statusClass + '">' + esc(statusLabel) + '</span></div>' +
       '</div>';
     }).join('') +
+=======
+    '<button type="button" onclick="event.preventDefault();event.stopPropagation();openScholarInfo(\'' + escAttr(scholarId) + '\')" class="btn secondary tafsir-info-btn">' +
+      '<svg class="ico ico-sm"><use href="#i-info"/></svg> Справка' +
+    '</button>' +
+>>>>>>> ca4756abbe657ac1e757d8f0c9ae20ab9f37d6ce
   '</div>';
 }
 
@@ -152,18 +192,28 @@ function getSmartTafsirHtml(item, ayahNum) {
   var tafsir = (typeof getTafsirForAyah === 'function') ? getTafsirForAyah(surah, ayah) : null;
   if (!tafsir) return '';
 
+<<<<<<< HEAD
   var isPlaceholder = tafsir.status === 'placeholder' || !tafsir.tafsir_text ||
     String(tafsir.tafsir_text).indexOf('Ин ша Аллах, здесь скоро появится тафсир') !== -1;
   if (isPlaceholder) return '';
 
   var summaryHtml =
     '<summary class="tafsir-summary" aria-expanded="false" onclick="toggleTafsirDisclosure(this,event)">' +
+=======
+  const isPlaceholder = tafsir.status === 'placeholder' || !tafsir.tafsir_text ||
+    String(tafsir.tafsir_text).indexOf('Ин ша Аллах, здесь скоро появится тафсир') !== -1;
+  if (isPlaceholder) return '';
+
+  const summaryHtml =
+    '<summary class="tafsir-summary">' +
+>>>>>>> ca4756abbe657ac1e757d8f0c9ae20ab9f37d6ce
       '<span class="tafsir-arrow" aria-hidden="true"></span>' +
       '<svg class="ico ico-sm" aria-hidden="true"><use href="#i-book"/></svg>' +
       '<span class="tafsir-summary-label">Тафсир</span>' +
       '<span class="tafsir-state-hint" aria-hidden="true"></span>' +
     '</summary>';
 
+<<<<<<< HEAD
   var scholar = tafsir.source && tafsir.source.scholar ? tafsir.source.scholar : 'Ибн Касир';
   var scholarId = (tafsir.source && tafsir.source.scholar_id) ? tafsir.source.scholar_id : 'ibn_kathir';
   var book = (tafsir.source && tafsir.source.book) ? tafsir.source.book : '';
@@ -175,13 +225,54 @@ function getSmartTafsirHtml(item, ayahNum) {
   if (!formattedText) return '';
 
   var themesHtml = '';
+=======
+  const scholar = tafsir.source && tafsir.source.scholar ? tafsir.source.scholar : 'Ибн Касир';
+  const scholarId = (tafsir.source && tafsir.source.scholar_id) ? tafsir.source.scholar_id : 'ibn_kathir';
+  const book = (tafsir.source && tafsir.source.book) ? tafsir.source.book : '';
+  const volume = (tafsir.source && tafsir.source.volume) ? ('т. ' + tafsir.source.volume) : '';
+  const page = (tafsir.source && tafsir.source.page) ? tafsir.source.page : '';
+
+  const sourceLine = [scholar, book, volume, page].filter(Boolean).join(' · ');
+  const formattedText = formatTafsirText(tafsir.tafsir_text);
+
+  let themesHtml = '';
+>>>>>>> ca4756abbe657ac1e757d8f0c9ae20ab9f37d6ce
   if (Array.isArray(tafsir.themes) && tafsir.themes.length) {
     themesHtml = '<div class="tafsir-themes">' +
       tafsir.themes.map(function (th) { return '<span class="tafsir-theme">' + esc(th) + '</span>'; }).join('') +
       '</div>';
   }
 
+<<<<<<< HEAD
   var hadithsHtml = _buildTafsirHadithsHtml(tafsir);
+=======
+  let hadithsHtml = '';
+  if (Array.isArray(tafsir.hadiths) && tafsir.hadiths.length) {
+    hadithsHtml = '<div class="tafsir-hadiths"><div class="tafsir-hadiths-title">Хадисы в тафсире</div>' +
+      tafsir.hadiths.map(function(h) {
+        const hTransmitter = h.transmitter || '';
+        const hTransmitterId = h.transmitter_id || '';
+        const hSource = h.source || '';
+        const hStatus = h.status || '';
+        const statusLabels = {
+          sahih: 'Достоверный (сахих)',
+          hasan: 'Хороший (хасан)',
+          daif: 'Слабый (да‘иф)',
+          requires_verification: 'Требует уточнения'
+        };
+        const statusLabel = statusLabels[hStatus] || hStatus;
+        const statusClass = hStatus === 'sahih' ? 'is-sahih' : (hStatus === 'hasan' ? 'is-hasan' : 'is-other');
+        const transmitterClickable = hTransmitterId
+          ? tafsirScholarLink(hTransmitterId, esc(hTransmitter))
+          : _linkifyTafsirSafeHtml(esc(hTransmitter));
+        return '<div class="tafsir-hadith">' +
+          '<div class="tafsir-hadith-text">«' + _linkifyTafsirSafeHtml(esc(h.text)) + '»</div>' +
+          '<div class="tafsir-hadith-meta">Передал: ' + transmitterClickable + ' · Источник: ' + _linkifyTafsirSafeHtml(esc(hSource)) + ' · <span class="tafsir-status ' + statusClass + '">' + esc(statusLabel) + '</span></div>' +
+          '</div>';
+      }).join('') +
+      '</div>';
+  }
+>>>>>>> ca4756abbe657ac1e757d8f0c9ae20ab9f37d6ce
 
   var israiliyatHtml = '';
   if (tafsir.israiliyat_note && tafsir.israiliyat_note.present) {

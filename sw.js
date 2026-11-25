@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 const SW_VERSION   = 'iqra-v463'; /* МЕНЯЙ ВЕРСИЮ ТОЛЬКО ЗДЕСЬ */
+=======
+const SW_VERSION   = 'iqra-v456'; /* МЕНЯЙ ВЕРСИЮ ТОЛЬКО ЗДЕСЬ */
+>>>>>>> ca4756abbe657ac1e757d8f0c9ae20ab9f37d6ce
 const SW_VER_SHORT = SW_VERSION.replace(/^iqra-/, '');
 const CACHE_STATIC = 'iqra-static-' + SW_VER_SHORT;
 const CACHE_DATA   = 'iqra-data-'   + SW_VER_SHORT;
