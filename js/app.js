@@ -135,7 +135,6 @@ function checkSmartBrowserNotification() {
   }
 }
 
-<<<<<<< HEAD
 var _inappReminderTimer = null;
 
 function _parseReminderMinutes(hhmm) {
@@ -220,8 +219,6 @@ function showReminderToastBanner(msg, actionObj) {
   _inappReminderTimer = setTimeout(hideReminderToastBanner, 10000);
 }
 
-=======
->>>>>>> ca4756abbe657ac1e757d8f0c9ae20ab9f37d6ce
 function checkReminders() {
   if (document.visibilityState !== 'visible') return;
   const now = new Date();
@@ -237,10 +234,7 @@ function checkReminders() {
       try { new Notification('Iqra | Читай', { body: msg }); } catch (e) {}
     }
   });
-<<<<<<< HEAD
   if (fired) save();
-=======
->>>>>>> ca4756abbe657ac1e757d8f0c9ae20ab9f37d6ce
   checkSmartBrowserNotification();
 }
 function scheduleReminders() {
@@ -703,7 +697,6 @@ async function _boot() {
     } catch (e) {}
     initDebugMode();
     initApp();
-<<<<<<< HEAD
     var widgetParam = '';
     try {
       const qs2 = new URLSearchParams(location.search);
@@ -713,11 +706,6 @@ async function _boot() {
         state.migrations.onboarded = true;
         renderStandaloneWidgetMode(widgetParam);
       } else if (qsAction && typeof executeSmartAction === 'function') {
-=======
-    try {
-      const qsAction = new URLSearchParams(location.search).get('smart_action');
-      if (qsAction && typeof executeSmartAction === 'function') {
->>>>>>> ca4756abbe657ac1e757d8f0c9ae20ab9f37d6ce
         const parts = qsAction.split(':');
         if (parts[0] && parts[1]) {
           history.replaceState(null, '', location.pathname);
@@ -725,15 +713,10 @@ async function _boot() {
         }
       }
     } catch (e) {}
-<<<<<<< HEAD
     if (!widgetParam) {
       if (!state.migrations.onboarded) setTimeout(startOnboarding, 200);
       else setTimeout(checkSmartBrowserNotification, 1200);
     }
-=======
-    if (!state.migrations.onboarded) setTimeout(startOnboarding, 200);
-    else setTimeout(checkSmartBrowserNotification, 1200);
->>>>>>> ca4756abbe657ac1e757d8f0c9ae20ab9f37d6ce
   } catch (e) {
     console.error('Ошибка загрузки данных:', e);
     var splash = document.getElementById('splash-screen');

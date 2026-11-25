@@ -1039,7 +1039,6 @@ details[open] > .psb-tafsir-sum .tafsir-arrow { transform: rotate(45deg); }
   }
 }
 
-<<<<<<< HEAD
 /* ---------- 21. ЕДИНОЕ ЗОЛОТО АРАБСКОГО ТЕКСТА И БЛЕСК БЕЗ ТУСКЛЫХ ЗОН ---------- */
 .ar-font:not(.has-tajweed):not(.tajweed-example),
 [lang="ar"]:not(.has-tajweed):not(.tajweed-example),
@@ -2504,5 +2503,3 @@ body.widget-mode > .install-banner {
   transform-origin: bottom center;
   height: 100%;
 }
-=======
->>>>>>> ca4756abbe657ac1e757d8f0c9ae20ab9f37d6ce

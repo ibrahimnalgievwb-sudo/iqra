@@ -226,7 +226,6 @@ function unmuteSmartRemindersToday() {
 }
 
 /* ---------- REMINDERS ---------- */
-<<<<<<< HEAD
 function renderReminders() {
   const el = document.getElementById('reminders-list');
   if (!el) return;
@@ -297,13 +296,6 @@ function testReminderNotification() {
 function updateReminderField(i, field, v) { if (field === 'time') { if (!/^\d{2}:\d{2}$/.test(v)) return; state.reminders[i].time = v; } else if (field === 'message') { state.reminders[i].message = String(v || '').trim().slice(0, 200); } save(); }
 function toggleReminder(i, v) { state.reminders[i].on = v; save(); }
 function deleteReminder(i) { state.reminders.splice(i, 1); save(); renderReminders(); }
-=======
-function renderReminders() { const el=document.getElementById('reminders-list'); if (!state.reminders.length) { el.innerHTML=`<div style="padding:14px 16px;color:var(--muted);font-size:13px">Пока нет напоминаний</div>`; return; } el.innerHTML = state.reminders.map((r,i)=>`<div class="reminder-row"><div class="rr-top"><input type="time" value="${esc(r.time)}" onchange="updateReminderField(${i},'time',this.value)"><label class="toggle"><input type="checkbox" ${r.on?'checked':''} onchange="toggleReminder(${i}, this.checked)"><span class="slider"></span></label><button class="del" onclick="deleteReminder(${i})" aria-label="Удалить"><svg class="ico ico-sm"><use href="#i-x"/></svg></button></div><input type="text" value="${esc(r.message||'')}" placeholder="Сообщение (необязательно)" maxlength="200" onchange="updateReminderField(${i},'message',this.value)"></div>`).join(''); }
-function addReminder() { if (state.reminders.length >= LIMITS.reminders) { showMarkToast('Максимум '+LIMITS.reminders+' напоминаний', 3200); return; } const t=document.getElementById('new-reminder-time').value; const mi=document.getElementById('new-reminder-msg'); const msg=(mi?mi.value:'').trim().slice(0,200); if (!t || !/^\d{2}:\d{2}$/.test(t)) { showMarkToast('Укажите корректное время ЧЧ:ММ', 2600); return; } state.reminders.push({time:t,on:true,lastFired:'',message:msg}); if (mi) mi.value=''; save(); renderReminders(); showMarkToast('Напоминание добавлено'); if ('Notification' in window && Notification.permission === 'default') { try { const p = Notification.requestPermission(); if (p && typeof p.catch === 'function') p.catch(function(){}); } catch(e) {} } }
-function updateReminderField(i, field, v) { if (field==='time') { if (!/^\d{2}:\d{2}$/.test(v)) return; state.reminders[i].time=v; } else if (field==='message') { state.reminders[i].message=String(v||'').trim().slice(0,200); } save(); }
-function toggleReminder(i,v) { state.reminders[i].on = v; save(); }
-function deleteReminder(i) { state.reminders.splice(i,1); save(); renderReminders(); }
->>>>>>> ca4756abbe657ac1e757d8f0c9ae20ab9f37d6ce
 
 /* ---------- THEME / SUNRISE-SUNSET ---------- */
 function _regionForTheme() {
@@ -482,7 +474,6 @@ function sanitizeSettings(raw) {
   } else {
     out.smartReminders = base.smartReminders;
   }
-<<<<<<< HEAD
   const nc = (src.nightChecklist && typeof src.nightChecklist === 'object' && !Array.isArray(src.nightChecklist)) ? src.nightChecklist : {};
   out.nightChecklist = {
     date: (typeof nc.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(nc.date)) ? nc.date : '',
@@ -493,8 +484,6 @@ function sanitizeSettings(raw) {
   out.widgetPrefs = {
     enabled: Array.isArray(wp.enabled) ? wp.enabled.filter(function (w) { return allowedWidgets.indexOf(w) !== -1; }).slice(0, 8) : allowedWidgets.slice()
   };
-=======
->>>>>>> ca4756abbe657ac1e757d8f0c9ae20ab9f37d6ce
   return out;
 }
 /* История зикра: { 'ГГГГ-ММ-ДД': { total, byId: { id: число } } }.

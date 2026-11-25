@@ -16,20 +16,14 @@ function renderHadithList() {
     const fav = isFavorite(h.id);
     const star = `<button type="button" class="star-btn ${fav?'active':''}" aria-label="${fav?'Убрать из избранного':'Добавить в избранное'}: ${escAttr(h.title)}" onclick="starClick(event,'${escAttr(h.id)}','hadith')">${fav?'<svg class="ico"><use href="#i-star-filled"/></svg>':'<svg class="ico"><use href="#i-star"/></svg>'}</button>`;
     const subHtml = h.subtitle ? `<div class="c-sub">${esc(h.subtitle)}</div>` : '';
-<<<<<<< HEAD
     const arPrev = _hadithPreview(h.arabic, 2);
     const trnPrev = _hadithPreview(h.translation, 2);
     const arHtml = arPrev ? `<div class="c-ar ar-font" dir="rtl" lang="ar">${esc(arPrev)}</div>` : '';
     return `<div class="content-card" role="button" tabindex="0" onclick="openHadith('${escAttr(h.id)}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openHadith('${escAttr(h.id)}')}">${star}<div class="c-title">${esc(h.title)}</div>${subHtml}${arHtml}<div class="c-tr">${esc(trnPrev)}</div></div>`;
-=======
-    const arHtml = h.arabic ? `<div class="c-ar ar-font">${esc(h.arabic)}</div>` : '';
-    return `<div class="content-card" role="button" tabindex="0" onclick="openHadith('${escAttr(h.id)}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openHadith('${escAttr(h.id)}')}">${star}<div class="c-title">${esc(h.title)}</div>${subHtml}${arHtml}<div class="c-tr">${esc(h.translation)}</div></div>`;
->>>>>>> ca4756abbe657ac1e757d8f0c9ae20ab9f37d6ce
   }).join('');
 }
 
 function _hadithLinkify(html) {
-<<<<<<< HEAD
   var out = (typeof IqraScholars !== 'undefined' && typeof IqraScholars.linkifyScholars === 'function')
     ? IqraScholars.linkifyScholars(html)
     : html;
@@ -37,11 +31,6 @@ function _hadithLinkify(html) {
     out = IqraScholars.formatSacredTermsHtml(out);
   }
   return out;
-=======
-  return (typeof IqraScholars !== 'undefined' && typeof IqraScholars.linkifyScholars === 'function')
-    ? IqraScholars.linkifyScholars(html)
-    : html;
->>>>>>> ca4756abbe657ac1e757d8f0c9ae20ab9f37d6ce
 }
 
 function openHadith(id) {

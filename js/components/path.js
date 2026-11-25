@@ -11,7 +11,6 @@ var _cachedPathIndex = null;
 var _cachedPathSig = '';
 
 function _pathLinkify(safeHtml, opts) {
-<<<<<<< HEAD
   var out = (typeof IqraScholars !== 'undefined' && typeof IqraScholars.linkifyScholars === 'function')
     ? IqraScholars.linkifyScholars(safeHtml, opts)
     : (safeHtml == null ? '' : String(safeHtml));
@@ -28,11 +27,6 @@ function _formatPathTafsirParagraphs(text) {
   return normalized.split(/\n{2,}/).map(function (p) {
     return '<p class="tafsir-para">' + _pathLinkify(escNl(p.trim())) + '</p>';
   }).join('');
-=======
-  return (typeof IqraScholars !== 'undefined' && typeof IqraScholars.linkifyScholars === 'function')
-    ? IqraScholars.linkifyScholars(safeHtml, opts)
-    : (safeHtml == null ? '' : String(safeHtml));
->>>>>>> ca4756abbe657ac1e757d8f0c9ae20ab9f37d6ce
 }
 
 function getPathGraphContext() {
@@ -737,7 +731,6 @@ function renderPathResultCard(item) {
             '<span class="tafsir-summary-label">Тафсир</span>' +
             '<span class="tafsir-state-hint" aria-hidden="true"></span>' +
           '</summary>' +
-<<<<<<< HEAD
           '<div class="psb-tafsir-body">' + _formatPathTafsirParagraphs(item._tafsirReason) + '</div>' +
         '</details>' +
         '<div class="psb-tafsir-foot">' +
@@ -748,15 +741,6 @@ function renderPathResultCard(item) {
               '<svg class="ico ico-sm"><use href="#i-info"/></svg> Справка' +
             '</button>' +
           '</div>' +
-=======
-          '<div class="psb-tafsir-body">' + _pathLinkify(escNl(item._tafsirReason)) + '</div>' +
-        '</details>' +
-        '<div class="psb-tafsir-foot">' +
-          '<div class="psb-tafsir-src">' + _pathLinkify(esc(item._tafsirSource)) + '</div>' +
-          '<button type="button" class="btn secondary psb-scholar-btn" onclick="event.stopPropagation();openScholarInfo(\'' + escAttr(item._scholarId || 'ibn_kathir') + '\')">' +
-            '<svg class="ico ico-sm"><use href="#i-info"/></svg> Справка' +
-          '</button>' +
->>>>>>> ca4756abbe657ac1e757d8f0c9ae20ab9f37d6ce
         '</div>';
     }
 

@@ -74,16 +74,12 @@ function renderDashSmartReminder() {
     ? '<button type="button" class="btn secondary btn-inline src-action-btn" onclick="executeSmartAction(\'' + escAttr(scenario.secondaryAction.type) + '\',\'' + escAttr(scenario.secondaryAction.id) + '\')">' + esc(scenario.secondaryLabel) + '</button>'
     : '';
   var _dashLinkify = (typeof IqraScholars !== 'undefined' && typeof IqraScholars.linkifyScholars === 'function')
-<<<<<<< HEAD
     ? function (h) {
         var linked = IqraScholars.linkifyScholars(h);
         return typeof IqraScholars.formatSacredTermsHtml === 'function'
           ? IqraScholars.formatSacredTermsHtml(linked)
           : linked;
       }
-=======
-    ? IqraScholars.linkifyScholars
->>>>>>> ca4756abbe657ac1e757d8f0c9ae20ab9f37d6ce
     : function (h) { return h; };
   var _dashHadithHtml = (typeof IqraDalil !== 'undefined' && typeof IqraDalil.renderNoteBlocksHtml === 'function')
     ? IqraDalil.renderNoteBlocksHtml(scenario.hadithText, { linkify: _dashLinkify })
@@ -186,10 +182,7 @@ function renderDashboard() {
   }
 
   renderDashSmartReminder();
-<<<<<<< HEAD
   if (typeof renderDashboardWidgets === 'function') renderDashboardWidgets();
-=======
->>>>>>> ca4756abbe657ac1e757d8f0c9ae20ab9f37d6ce
 
   _dashQuote = getDailyQuote();
   const qEl = document.getElementById('dash-quote');

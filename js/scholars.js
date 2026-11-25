@@ -10,7 +10,6 @@
 (function (root) {
   var EXTRA_BIOGRAPHIES = [
     {
-<<<<<<< HEAD
       id: 'prophet_muhammad',
       name: 'Пророк Мухаммад (да благословит его Аллах и приветствует)',
       full_name: 'Абу-ль-Касим Мухаммад ибн ‘Абдуллах ибн ‘Абд аль-Мутталиб аль-Кураши аль-Хашими (да благословит его Аллах и приветствует)',
@@ -59,8 +58,6 @@
       aliases: ['ас-Са‘ди', 'Ас-Са‘ди', 'ас-Сади', 'Ас-Сади']
     },
     {
-=======
->>>>>>> ca4756abbe657ac1e757d8f0c9ae20ab9f37d6ce
       id: 'ibn_kathir',
       name: 'Ибн Касир',
       full_name: 'Абу-ль-Фида Исма‘иль ибн ‘Умар ибн Касир ад-Димашки',
@@ -1256,7 +1253,6 @@
     return parts.join('');
   }
 
-<<<<<<< HEAD
   /* Подсвечивает ключевые священные слова в уже экранированном (safe) HTML,
      не затрагивая HTML-теги, ссылки учёных (.scholar-link) и кнопки. */
   var SACRED_HIGHLIGHT_RE = new RegExp(
@@ -1297,20 +1293,14 @@
     return parts.join('');
   }
 
-=======
->>>>>>> ca4756abbe657ac1e757d8f0c9ae20ab9f37d6ce
   var api = {
     EXTRA_BIOGRAPHIES: EXTRA_BIOGRAPHIES,
     TAJWEED_GUIDE_GROUPS: TAJWEED_GUIDE_GROUPS,
     mergeBiographies: mergeBiographies,
     getScholarById: getScholarById,
     extractMentionedScholarIds: extractMentionedScholarIds,
-<<<<<<< HEAD
     linkifyScholars: linkifyScholars,
     formatSacredTermsHtml: formatSacredTermsHtml
-=======
-    linkifyScholars: linkifyScholars
->>>>>>> ca4756abbe657ac1e757d8f0c9ae20ab9f37d6ce
   };
 
   root.IqraScholars = api;
