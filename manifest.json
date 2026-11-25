@@ -12,6 +12,46 @@
   "background_color": "#050505",
   "theme_color": "#050505",
   "categories": ["books", "education", "lifestyle"],
+  "shortcuts": [
+    {
+      "name": "Ночное чтение",
+      "short_name": "Ночь",
+      "description": "Суры, дуа и тасбих перед сном",
+      "url": "./?widget=night&autostart=1"
+    },
+    {
+      "name": "Быстрый тасбих",
+      "short_name": "Тасбих",
+      "description": "Счётчик зикра в один тап",
+      "url": "./?widget=dhikr&autostart=1"
+    },
+    {
+      "name": "Дневная цель",
+      "short_name": "Цель",
+      "description": "Сводка сегодняшнего зикра",
+      "url": "./?widget=stats&autostart=1"
+    },
+    {
+      "name": "Аят и тафсир",
+      "short_name": "Коран",
+      "description": "Сура для размышления и тафсир",
+      "url": "./?widget=ayah&autostart=1"
+    }
+  ],
+  "widgets": [
+    {
+      "name": "Быстрый тасбих",
+      "short_name": "Тасбих",
+      "description": "Счётчик зикра +1 прямо с экрана Домой",
+      "tag": "iqra-dhikr-widget",
+      "ms_ac_template": "./?widget=dhikr&autostart=1",
+      "data": "./?widget=dhikr&autostart=1",
+      "type": "application/json",
+      "icons": [
+        { "src": "./assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }
+      ]
+    }
+  ],
   "icons": [
     {
       "src": "./assets/icons/icon-192.png",

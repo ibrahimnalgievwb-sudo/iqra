@@ -40,7 +40,14 @@ function defaultSettings() {
     seenGuides: {},
     readerPrefs: { showTranscription: true, pageBatch: 40 },
     prayerPrefs: { method: 'dum_rf', asrMadhhab: 'shafii', city: '', lat: null, lng: null, timezone: '' },
-    syncPrefs: { autoBackupHint: false, lastLocalSyncAt: 0 }
+    syncPrefs: { autoBackupHint: false, lastLocalSyncAt: 0 },
+    smartReminders: (typeof IqraSmartReminders !== 'undefined') ? IqraSmartReminders.defaultPrefs() : {
+      enabled: true, browserNotify: false, quietStart: '23:00', quietEnd: '05:00',
+      categories: { adhkar: true, night: true, friday: true, motivation: true },
+      mutedDate: '', dismissed: {}, notified: {}
+    },
+    nightChecklist: { date: '', done: [] },
+    widgetPrefs: { enabled: ['goal_ring', 'night_check', 'mini_tasbih', 'daily_dhikr'] }
   };
 }
 
@@ -106,16 +113,28 @@ function serializeCompactState(appState) {
   return out;
 }
 
+function _stripProtoKeys(val, depth) {
+  if (val === null || typeof val !== 'object') return val;
+  if ((depth || 0) > 40) return undefined;
+  if (Array.isArray(val)) return val.map(function (x) { return _stripProtoKeys(x, (depth || 0) + 1); });
+  var out = {};
+  Object.keys(val).forEach(function (k) {
+    if (k === '__proto__' || k === 'constructor' || k === 'prototype') return;
+    out[k] = _stripProtoKeys(val[k], (depth || 0) + 1);
+  });
+  return out;
+}
+
 function load() {
   let s = null;
-  try { const raw = localStorage.getItem(STORAGE_KEY); if (raw) s = JSON.parse(raw); } catch (e) { s = null; }
+  try { const raw = localStorage.getItem(STORAGE_KEY); if (raw) s = _stripProtoKeys(JSON.parse(raw), 0); } catch (e) { s = null; }
   if (!s) {
     const legacyKeys = ['tasbih_app_v13', 'tasbih_app_v12', 'tasbih_app_v11', 'tasbih_app_v10', 'tasbih_app_v9'];
     for (const k of legacyKeys) {
       try {
         const raw = localStorage.getItem(k);
         if (raw) {
-          const parsed = JSON.parse(raw);
+          const parsed = _stripProtoKeys(JSON.parse(raw), 0);
           if (parsed && typeof parsed === 'object') {
             s = parsed;
             break;
@@ -152,6 +171,23 @@ function load() {
   s.settings.readerPrefs = Object.assign({}, defSet.readerPrefs, (s.settings.readerPrefs && typeof s.settings.readerPrefs === 'object') ? s.settings.readerPrefs : {});
   s.settings.prayerPrefs = Object.assign({}, defSet.prayerPrefs, (s.settings.prayerPrefs && typeof s.settings.prayerPrefs === 'object') ? s.settings.prayerPrefs : {});
   s.settings.syncPrefs = Object.assign({}, defSet.syncPrefs, (s.settings.syncPrefs && typeof s.settings.syncPrefs === 'object') ? s.settings.syncPrefs : {});
+  if (typeof IqraSmartReminders !== 'undefined') {
+    s.settings.smartReminders = IqraSmartReminders.sanitizePrefs(s.settings.smartReminders);
+  } else {
+    s.settings.smartReminders = Object.assign({}, defSet.smartReminders, (s.settings.smartReminders && typeof s.settings.smartReminders === 'object') ? s.settings.smartReminders : {});
+  }
+  var nc = s.settings.nightChecklist;
+  s.settings.nightChecklist = (nc && typeof nc === 'object' && !Array.isArray(nc))
+    ? {
+        date: (typeof nc.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(nc.date)) ? nc.date : '',
+        done: Array.isArray(nc.done) ? nc.done.filter(function (x) { return typeof x === 'number' && isFinite(x) && x >= 0 && x < 50; }).slice(0, 50) : []
+      }
+    : { date: '', done: [] };
+  var wp = s.settings.widgetPrefs;
+  var allowedWidgets = ['goal_ring', 'night_check', 'mini_tasbih', 'daily_dhikr'];
+  s.settings.widgetPrefs = (wp && typeof wp === 'object' && !Array.isArray(wp) && Array.isArray(wp.enabled))
+    ? { enabled: wp.enabled.filter(function (w) { return allowedWidgets.indexOf(w) !== -1; }).slice(0, 8) }
+    : { enabled: allowedWidgets.slice() };
 
   s.reminders = Array.isArray(s.reminders) ? s.reminders : [];
   s.draft = s.draft && typeof s.draft === 'object' ? s.draft : null;
@@ -230,6 +266,14 @@ function load() {
     }
     if (Array.isArray(DEFAULT_DUAS) && DEFAULT_DUAS.length) s.duas = sync(s.duas, DEFAULT_DUAS);
     if (Array.isArray(DEFAULT_HADITHS) && DEFAULT_HADITHS.length) s.hadiths = sync(s.hadiths, DEFAULT_HADITHS);
+    if (typeof DEFAULT_TASBIHS !== 'undefined' && Array.isArray(DEFAULT_TASBIHS) && DEFAULT_TASBIHS.length && Array.isArray(s.tasbihs)) {
+      var defTasbihById = new Map(DEFAULT_TASBIHS.map(function (t) { return [t.id, t]; }));
+      s.tasbihs.forEach(function (t) {
+        if (!t || !t.id) return;
+        var defT = defTasbihById.get(t.id);
+        if (defT && defT.dalil) t.dalil = defT.dalil;
+      });
+    }
     if (s.settings) delete s.settings.sound;
   })();
 
@@ -434,8 +478,10 @@ function ayahMarker(n) {
 function debounce(fn, wait) {
   let t = null;
   return function () {
+    const ctx = this;
+    const args = arguments;
     if (t) clearTimeout(t);
-    t = setTimeout(function () { t = null; fn.apply(null, arguments); }, wait);
+    t = setTimeout(function () { t = null; fn.apply(ctx, args); }, wait);
   };
 }
 

@@ -31,8 +31,17 @@ const TAJWEED_LEGEND = [
   ['silent', 'Немая буква']
 ];
 function tajweedLegendHtml() {
-  var items = TAJWEED_LEGEND.map(function (r) { return '<span class="tl-item"><i class="tajweed-' + r[0] + '"></i><span>' + r[1] + '</span></span>'; }).join('');
-  return '<details class="tajweed-legend"><summary><span class="tl-title">Справка по таджвиду (офлайн)</span></summary><div class="tl-items">' + items + '</div><div class="tl-note">Чтение Хафс ʿан ʿАсым. Встроена проверенная офлайн-разметка (KFGQPC / Quran Tajweed), приложение её не искажает.</div></details>';
+  var items = TAJWEED_LEGEND.map(function (r) {
+    return '<button type="button" class="tl-item tl-item-btn" onclick="openTajweedGuide(\'' + escAttr(r[0]) + '\')"><i class="tajweed-' + escAttr(r[0]) + '"></i><span>' + esc(r[1]) + '</span></button>';
+  }).join('');
+  return '<details class="tajweed-legend">' +
+    '<summary><span class="tl-title">Справка по таджвиду (офлайн)</span></summary>' +
+    '<div class="tl-actions-row">' +
+      '<button type="button" class="btn secondary btn-inline tl-guide-btn" onclick="openTajweedGuide()"><svg class="ico ico-sm"><use href="#i-book"/></svg>Подробная справка по 17 правилам с примерами</button>' +
+    '</div>' +
+    '<div class="tl-items">' + items + '</div>' +
+    '<div class="tl-note">Чтение Хафс ‘ан ‘Асым (KFGQPC / расм аль-‘Усмани). Нажмите на любое правило, чтобы открыть разбор с кораническим примером.</div>' +
+  '</details>';
 }
 
 function tajweedDescription(rule) {
@@ -40,6 +49,71 @@ function tajweedDescription(rule) {
     if (TAJWEED_LEGEND[i][0] === rule) return TAJWEED_LEGEND[i][1];
   }
   return '';
+}
+
+function openTajweedGuide(initialRule) {
+  var modal = document.getElementById('modal-content');
+  var bg = document.getElementById('modal-bg');
+  if (!modal || !bg) return;
+
+  var groups = (typeof IqraScholars !== 'undefined' && Array.isArray(IqraScholars.TAJWEED_GUIDE_GROUPS))
+    ? IqraScholars.TAJWEED_GUIDE_GROUPS
+    : [];
+
+  var groupsHtml = groups.map(function (grp) {
+    var cards = (grp.rules || []).map(function (r) {
+      var activeCls = (initialRule && initialRule === r.id) ? ' is-highlighted' : '';
+      return '<div class="tg-rule-card' + activeCls + '" data-rule-id="' + escAttr(r.id) + '">' +
+        '<div class="tg-rule-top">' +
+          '<div class="tg-rule-name"><i class="tajweed-' + escAttr(r.id) + '"></i><span>' + esc(r.name) + '</span></div>' +
+          (r.timing ? '<span class="tg-timing">' + esc(r.timing) + '</span>' : '') +
+        '</div>' +
+        '<div class="tg-rule-desc">' + esc(r.summary) + '</div>' +
+        '<div class="tg-example-box">' +
+          '<div class="tajweed-example ar-font" dir="rtl" lang="ar">' + r.exampleHtml + '</div>' +
+          (r.exampleRef ? '<div class="tg-example-ref">' + esc(r.exampleRef) + '</div>' : '') +
+        '</div>' +
+      '</div>';
+    }).join('');
+    return '<section class="tg-group">' +
+      '<div class="tg-group-head">' +
+        '<h3 class="tg-group-title">' + esc(grp.title) + '</h3>' +
+        (grp.subtitle ? '<div class="tg-group-sub">' + esc(grp.subtitle) + '</div>' : '') +
+      '</div>' +
+      '<div class="tg-group-list">' + cards + '</div>' +
+    '</section>';
+  }).join('');
+
+  if (!groupsHtml) {
+    groupsHtml = '<div class="tm-list">' + TAJWEED_LEGEND.map(function (r) {
+      return '<div class="tm-item"><i class="tajweed-' + escAttr(r[0]) + '"></i><div class="tm-txt"><div class="tm-name">' + esc(r[1]) + '</div></div></div>';
+    }).join('') + '</div>';
+  }
+
+  modal.className = 'modal tajweed-guide-modal';
+  modal.innerHTML =
+    '<div class="tm-head">' +
+      '<h2 class="tm-title"><svg class="ico ico-sm"><use href="#i-book"/></svg>Справка по таджвиду (17 правил)</h2>' +
+      '<button type="button" class="tm-close" aria-label="Закрыть" onclick="closeModal()"><svg class="ico ico-sm"><use href="#i-x"/></svg></button>' +
+    '</div>' +
+    '<div class="tg-intro">Чтение по риваяту Хафс ‘ан ‘Асым. В активном режиме таджвида буквы имеют нейтральную основу, а цвета правил отображаются строго без золотого градиента и блика для точной различимости огласовок.</div>' +
+    '<div class="tg-body">' + groupsHtml + '</div>' +
+    '<button type="button" class="btn secondary tg-close-btn" onclick="closeModal()">Закрыть</button>';
+
+  bg.style.backgroundColor = '';
+  bg.style.backdropFilter = '';
+  bg.style.webkitBackdropFilter = '';
+  bg.classList.add('active');
+
+  var safeInitialRule = (initialRule && /^[a-z0-9_]+$/i.test(String(initialRule))) ? String(initialRule) : '';
+  if (safeInitialRule) {
+    requestAnimationFrame(function () {
+      var target = modal.querySelector('[data-rule-id="' + safeInitialRule + '"]');
+      if (target && typeof target.scrollIntoView === 'function') {
+        target.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      }
+    });
+  }
 }
 
 function openTajweedInfo(ayahBlock) {
@@ -66,10 +140,11 @@ function openTajweedInfo(ayahBlock) {
     seen[rule] = true;
     var name = item.textContent.trim();
     var desc = tajweedDescription(rule);
-    rows += '<div class="tm-item"><i class="tajweed-' + escAttr(rule) + '"></i>' +
+    rows += '<button type="button" class="tm-item tm-item-btn" onclick="openTajweedGuide(\'' + escAttr(rule) + '\')"><i class="tajweed-' + escAttr(rule) + '"></i>' +
       '<div class="tm-txt"><div class="tm-name">' + esc(name) + '</div>' +
       (desc ? '<div class="tm-desc">' + esc(desc) + '</div>' : '') +
-      '</div></div>';
+      '<div class="tm-more">Открыть пример в полной справке ›</div>' +
+      '</div></button>';
   });
 
   if (!rows) return;
@@ -87,7 +162,8 @@ function openTajweedInfo(ayahBlock) {
     '<div class="tm-body">' +
       '<div class="tm-ayah-label">Правила в этом аяте</div>' +
       '<div class="tm-list">' + rows + '</div>' +
-      '<div class="tm-note">Чтение Хафс ʿан ʿАсым. Встроенная офлайн-разметка таджвида.</div>' +
+      '<button type="button" class="btn secondary tm-full-guide-btn" onclick="openTajweedGuide()">Полная справка по таджвиду (17 правил)</button>' +
+      '<div class="tm-note">Чтение Хафс ‘ан ‘Асым. Встроенная офлайн-разметка таджвида.</div>' +
     '</div>';
 
   bg.style.backgroundColor = '';
@@ -97,18 +173,27 @@ function openTajweedInfo(ayahBlock) {
   bg.classList.add('active');
 }
 
+function _readerFormatSacred(safeHtml) {
+  if (typeof IqraScholars !== 'undefined' && typeof IqraScholars.formatSacredTermsHtml === 'function') {
+    return IqraScholars.formatSacredTermsHtml(safeHtml);
+  }
+  return safeHtml;
+}
+
 function _buildReadAyahHtml(item, a, idx) {
   var verseKey = '';
   if (item.type === 'surah') verseKey = item.number + ':' + (idx + 1);
+  else if (/^\d+:\d+$/.test(String(a.num || ''))) verseKey = String(a.num);
   else if (item.number && String(item.number).indexOf('-') === -1) verseKey = String(item.number);
 
+  var markerTxt = item.type === 'surah' ? ayahMarker(a.num) : '';
   return '<div class="read-ayah ' + (item.type === 'ayat' || item.type === 'ruqyah' ? 'ayat-mode' : '') + '" id="ayah-' + idx + '" data-verse-key="' + escAttr(verseKey) + '">' +
     '<div class="read-ayah-num">' + esc(a.num) + '</div>' +
-    '<div class="read-ayah-ar ar-font" data-raw="' + escAttr(a.ar) + '">' + esc(a.ar) + (item.type === 'surah' ? ' <span class="read-ayah-marker">' + ayahMarker(a.num) + '</span>' : '') + '</div>' +
+    '<div class="read-ayah-ar ar-font" data-raw="' + escAttr(a.ar) + '"' + (markerTxt ? ' data-marker="' + escAttr(markerTxt) + '"' : '') + '>' + esc(a.ar) + (markerTxt ? ' <span class="read-ayah-marker">' + markerTxt + '</span>' : '') + '</div>' +
     (a.tr ? '<div class="read-ayah-tr">' + esc(a.tr) + '</div>' : '') +
-    '<div class="read-ayah-trn">' + esc(a.trn) + '</div>' +
+    '<div class="read-ayah-trn">' + _readerFormatSacred(esc(a.trn)) + '</div>' +
     getSmartTafsirHtml(item, idx + 1) +
-    (typeof renderAyahEcosystemDetails === 'function' ? renderAyahEcosystemDetails('ayah:' + item.id + '#' + (idx + 1)) : '') +
+    (typeof renderAyahEcosystemDetails === 'function' ? renderAyahEcosystemDetails('ayah:' + item.id + '#' + (idx + 1), { inReader: true }) : '') +
     '<button class="ayah-tajweed-btn" type="button" onclick="openTajweedInfo(this.closest(\'.read-ayah\'))" aria-label="Справка по таджвиду">' +
       '<svg class="ico ico-sm"><use href="#i-info"/></svg>Таджвид' +
     '</button>' +
@@ -196,7 +281,7 @@ async function openRead(id, targetAyahIdx, dir) {
 
   var bismillahHtml = '';
   if (item.bismillah) {
-    bismillahHtml = '<div class="bismillah-card"><div class="b-ar ar-font">' + esc(item.bismillah.arabic) + '</div><div class="b-tr">' + esc(item.bismillah.transcription) + '</div><div class="b-trn">' + esc(item.bismillah.translation) + '</div></div>';
+    bismillahHtml = '<div class="bismillah-card"><div class="b-ar ar-font">' + esc(item.bismillah.arabic) + '</div><div class="b-tr">' + esc(item.bismillah.transcription) + '</div><div class="b-trn">' + _readerFormatSacred(esc(item.bismillah.translation)) + '</div></div>';
   }
   var legendHtml = tajweedLegendHtml();
   var jumpHtml = '';
@@ -212,6 +297,19 @@ async function openRead(id, targetAyahIdx, dir) {
     return _buildReadAyahHtml(item, a, idx);
   }).join('');
 
+  var linkifyFn = function (s) {
+    var out = (typeof IqraScholars !== 'undefined' && typeof IqraScholars.linkifyScholars === 'function')
+      ? IqraScholars.linkifyScholars(s)
+      : s;
+    return _readerFormatSacred(out);
+  };
+
+  var _rNoteHtml = item.note
+    ? ((typeof IqraDalil !== 'undefined' && typeof IqraDalil.renderNoteBlocksHtml === 'function')
+        ? IqraDalil.renderNoteBlocksHtml(item.note, { linkify: linkifyFn })
+        : linkifyFn(escNl(item.note)))
+    : '';
+
   container.innerHTML =
     '<div id="guide-slot-read-mode"></div>' +
     '<div class="detail-hero read-hero-title">' +
@@ -219,13 +317,13 @@ async function openRead(id, targetAyahIdx, dir) {
     '</div>' +
     legendHtml +
     jumpHtml +
-    (item.note ? '<div class="note-box"><svg class="ico ico-sm note-box-ico"><use href="#i-lightbulb"/></svg><div>' + escNl(item.note) + '</div></div>' : '') +
+    (item.note ? '<div class="note-box"><svg class="ico ico-sm note-box-ico"><use href="#i-lightbulb"/></svg><div class="note-box-body">' + _rNoteHtml + '</div></div>' : '') +
     bismillahHtml +
     '<div class="spacer-sm"></div>' +
     '<div id="read-ayahs-host">' + initialAyahsHtml + '</div>' +
     (initialCount < ayahs.length ? '<button type="button" id="read-more-ayahs-btn" class="show-all-btn" onclick="appendReadAyahBatch()">Показать следующие аяты (' + initialCount + ' из ' + ayahs.length + ')</button>' : '') +
-    (item.source ? '<div class="dh-section detail-source-block"><div class="dh-label">Источник</div><div class="dh-text muted detail-source-text">' + esc(item.source) + '</div></div>' : '') +
-    (typeof renderEcosystemSection === 'function' ? renderEcosystemSection('quran:' + item.id, { title: 'Связи в Умной книге' }) : '') +
+    (item.source ? '<div class="dh-section detail-source-block"><div class="dh-label">Источник</div><div class="dh-text muted detail-source-text">' + linkifyFn(esc(item.source)) + '</div></div>' : '') +
+    (typeof renderEcosystemSection === 'function' ? renderEcosystemSection('quran:' + item.id, { title: 'Связи в Умной книге', inReader: true }) : '') +
     transcriptionNote();
 
   if (typeof renderScreenGuideSlot === 'function') renderScreenGuideSlot('read-mode');
@@ -257,11 +355,16 @@ async function openRead(id, targetAyahIdx, dir) {
   if (typeof targetAyahIdx === 'number' && targetAyahIdx >= 0) {
     requestAnimationFrame(function () {
       var targetEl = document.getElementById('ayah-' + targetAyahIdx);
-      if (targetEl) targetEl.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      if (targetEl) {
+        targetEl.classList.add('is-target-ayah');
+        targetEl.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      }
     });
   } else if (state.settings.readScrolls && state.settings.readScrolls[id]) {
     var targetScroll = state.settings.readScrolls[id];
     requestAnimationFrame(function () { container.scrollTop = targetScroll; });
+  } else {
+    container.scrollTop = 0;
   }
   saveNavContext();
 }

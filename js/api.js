@@ -32,6 +32,34 @@ var GRAPH_EDGES = [];
 var GRAPH_THEMES = [];
 var GRAPH_SCHOLARS = [];
 
+var _UNSAFE_JSON_KEYS = { '__proto__': true, 'constructor': true, 'prototype': true };
+
+function _stripUnsafeJsonKeys(val, depth) {
+  if (val === null || typeof val !== 'object') return val;
+  if ((depth || 0) > 40) return undefined;
+  if (Array.isArray(val)) {
+    return val.map(function (item) { return _stripUnsafeJsonKeys(item, (depth || 0) + 1); });
+  }
+  var clean = {};
+  var keys = Object.keys(val);
+  for (var i = 0; i < keys.length; i++) {
+    var k = keys[i];
+    if (Object.prototype.hasOwnProperty.call(_UNSAFE_JSON_KEYS, k)) continue;
+    clean[k] = _stripUnsafeJsonKeys(val[k], (depth || 0) + 1);
+  }
+  return clean;
+}
+
+function safeJsonParseGuarded(text) {
+  var parsed = JSON.parse(text);
+  return _stripUnsafeJsonKeys(parsed, 0);
+}
+
+window.IqraJsonGuard = {
+  sanitize: _stripUnsafeJsonKeys,
+  parse: safeJsonParseGuarded
+};
+
 // Безопасная загрузка JSON, чтобы ошибка в одном файле не ломала всё приложение
 async function safeFetchJSON(url, fallback) {
   if (fallback === undefined) fallback = {};
@@ -40,7 +68,7 @@ async function safeFetchJSON(url, fallback) {
     if (!res.ok) throw new Error('HTTP ' + res.status);
     var text = await res.text();
     if (!text) return fallback;
-    return JSON.parse(text);
+    return safeJsonParseGuarded(text);
   } catch (e) {
     console.warn('[API] Ошибка загрузки/парсинга ' + url + ':', e.message);
     return fallback;
@@ -107,11 +135,14 @@ async function loadAllData() {
     if (!exists) mergedTafsirs.push(t);
   });
   DEFAULT_TAFSIRS = mergedTafsirs;
-  DEFAULT_BIOGRAPHIES = fatihaData.biographies || [];
-
+  var baseBios = fatihaData.biographies || [];
   GRAPH_EDGES = Array.isArray(edgesData) ? edgesData : (edgesData && edgesData.edges) || [];
   GRAPH_THEMES = Array.isArray(themesData) ? themesData : (themesData && themesData.themes) || [];
   GRAPH_SCHOLARS = Array.isArray(scholarsData) ? scholarsData : (scholarsData && scholarsData.scholars) || [];
+
+  DEFAULT_BIOGRAPHIES = (typeof IqraScholars !== 'undefined' && typeof IqraScholars.mergeBiographies === 'function')
+    ? IqraScholars.mergeBiographies(baseBios, GRAPH_SCHOLARS)
+    : baseBios;
 
   window.DEFAULT_QURAN = DEFAULT_QURAN;
   window.DEFAULT_DUAS = DEFAULT_DUAS;
@@ -140,6 +171,9 @@ function getTafsirForAyah(surah, ayah) {
 }
 
 function getBiographyById(id) {
+  if (typeof IqraScholars !== 'undefined' && typeof IqraScholars.getScholarById === 'function') {
+    return IqraScholars.getScholarById(id, DEFAULT_BIOGRAPHIES, GRAPH_SCHOLARS);
+  }
   if (!Array.isArray(DEFAULT_BIOGRAPHIES)) return null;
   return DEFAULT_BIOGRAPHIES.find(function (b) { return b && b.id === id; }) || null;
 }
@@ -201,10 +235,15 @@ function renderTajweedForElement(el, ayahBlock, surahMap) {
   var ayahNum = parts.length === 2 ? String(parseInt(parts[1], 10)) : '';
   var tajweedText = surahMap && ayahNum ? surahMap[ayahNum] : null;
   var raw = el.dataset.raw || '';
+  var existingMarker = el.querySelector('.read-ayah-marker');
+  var markerHtml = existingMarker
+    ? existingMarker.outerHTML
+    : (el.dataset.marker ? '<span class="read-ayah-marker">' + esc(el.dataset.marker) + '</span>' : '');
+  var markerSuffix = markerHtml ? ' ' + markerHtml : '';
 
   if (tajweedText && _isValidTajweedText(tajweedText)) {
     var result = renderTajweedHtml(tajweedText);
-    el.innerHTML = result.text;
+    el.innerHTML = result.text + markerSuffix;
     el.classList.add('has-tajweed');
     var existingRules = ayahBlock.querySelector('.ayah-tajweed-rules');
     if (existingRules) existingRules.remove();
@@ -217,7 +256,7 @@ function renderTajweedForElement(el, ayahBlock, surahMap) {
     }
     return true;
   }
-  el.innerHTML = esc(raw);
+  el.innerHTML = esc(raw) + markerSuffix;
   el.classList.remove('has-tajweed');
   return false;
 }

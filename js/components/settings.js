@@ -15,6 +15,7 @@ function openSettings() {
   document.getElementById('opt-goal-notify').checked = !!state.settings.goalNotify;
   document.querySelectorAll('#size-seg button').forEach(b=>b.classList.toggle('active', parseFloat(b.dataset.size)===state.settings.arSize));
   renderSettingsArchitecture();
+  renderSmartReminderSettings();
   renderReminders();
   showScreen('screen-settings');
 }
@@ -75,12 +76,226 @@ function setPrayerPref(field, val) {
 
 function setDailyGoal(v) { state.settings.dailyGoal = Math.max(0, Math.min(1000000, parseInt(v)||0)); save(); }
 
+/* ---------- SMART REMINDERS SETTINGS ---------- */
+function _ensureSmartPrefs() {
+  if (!state || !state.settings) return null;
+  if (typeof IqraSmartReminders !== 'undefined') {
+    state.settings.smartReminders = IqraSmartReminders.sanitizePrefs(state.settings.smartReminders);
+  } else if (!state.settings.smartReminders || typeof state.settings.smartReminders !== 'object') {
+    state.settings.smartReminders = {
+      enabled: true, browserNotify: false, quietStart: '23:00', quietEnd: '05:00',
+      categories: { adhkar: true, night: true, friday: true, motivation: true },
+      mutedDate: '', dismissed: {}, notified: {}
+    };
+  }
+  return state.settings.smartReminders;
+}
+
+function renderSmartReminderSettings() {
+  var prefs = _ensureSmartPrefs();
+  if (!prefs) return;
+  var enEl = document.getElementById('opt-smart-enabled');
+  if (enEl) enEl.checked = !!prefs.enabled;
+
+  var nfEl = document.getElementById('opt-smart-notify');
+  if (nfEl) nfEl.checked = !!prefs.browserNotify;
+
+  var qsEl = document.getElementById('smart-quiet-start');
+  if (qsEl) qsEl.value = prefs.quietStart || '23:00';
+  var qeEl = document.getElementById('smart-quiet-end');
+  if (qeEl) qeEl.value = prefs.quietEnd || '05:00';
+
+  ['adhkar', 'night', 'friday', 'motivation'].forEach(function (cat) {
+    var cb = document.getElementById('opt-smart-cat-' + cat);
+    if (cb) cb.checked = !!(prefs.categories && prefs.categories[cat]);
+  });
+
+  var wrapEl = document.getElementById('smart-reminders-controls');
+  if (wrapEl) {
+    wrapEl.style.opacity = prefs.enabled ? '1' : '0.55';
+  }
+
+  var statusEl = document.getElementById('smart-notify-status');
+  if (statusEl) {
+    if (!('Notification' in window)) {
+      statusEl.textContent = 'Браузерные уведомления недоступны в этом окружении (тихая карточка на главной продолжит работать).';
+    } else if (Notification.permission === 'denied') {
+      statusEl.textContent = 'Уведомления заблокированы в настройках браузера или системы.';
+    } else if (prefs.browserNotify && Notification.permission === 'granted') {
+      statusEl.textContent = 'Разрешено · срабатывает не чаще раза в окно, вне тихих часов.';
+    } else {
+      statusEl.textContent = 'Ненавязчивое уведомление браузера (по одному на окно времени).';
+    }
+  }
+
+  var unmuteRow = document.getElementById('smart-unmute-row');
+  if (unmuteRow) {
+    unmuteRow.style.display = (prefs.mutedDate && prefs.mutedDate === todayKey()) ? 'flex' : 'none';
+  }
+}
+
+function setSmartReminderEnabled(v) {
+  var prefs = _ensureSmartPrefs();
+  if (!prefs) return;
+  prefs.enabled = !!v;
+  save();
+  renderSmartReminderSettings();
+  if (typeof renderDashboard === 'function') renderDashboard();
+}
+
+function setSmartReminderNotify(v) {
+  var prefs = _ensureSmartPrefs();
+  if (!prefs) return;
+  if (!v) {
+    prefs.browserNotify = false;
+    save();
+    renderSmartReminderSettings();
+    return;
+  }
+  if (!('Notification' in window)) {
+    prefs.browserNotify = false;
+    save();
+    renderSmartReminderSettings();
+    if (typeof showMarkToast === 'function') showMarkToast('Уведомления браузера не поддерживаются здесь');
+    return;
+  }
+  if (Notification.permission === 'granted') {
+    prefs.browserNotify = true;
+    save();
+    renderSmartReminderSettings();
+    if (typeof checkReminders === 'function') checkReminders();
+    return;
+  }
+  if (Notification.permission === 'denied') {
+    prefs.browserNotify = false;
+    save();
+    renderSmartReminderSettings();
+    if (typeof showMarkToast === 'function') showMarkToast('Разрешите уведомления в настройках браузера', 3200);
+    return;
+  }
+  try {
+    var req = Notification.requestPermission();
+    if (req && typeof req.then === 'function') {
+      req.then(function (perm) {
+        prefs.browserNotify = (perm === 'granted');
+        save();
+        renderSmartReminderSettings();
+        if (prefs.browserNotify && typeof checkReminders === 'function') checkReminders();
+      }).catch(function () {
+        prefs.browserNotify = false;
+        save();
+        renderSmartReminderSettings();
+      });
+    }
+  } catch (e) {
+    prefs.browserNotify = false;
+    save();
+    renderSmartReminderSettings();
+  }
+}
+
+function setSmartReminderCategory(cat, v) {
+  var prefs = _ensureSmartPrefs();
+  if (!prefs || !prefs.categories) return;
+  if (Object.prototype.hasOwnProperty.call(prefs.categories, cat)) {
+    prefs.categories[cat] = !!v;
+    save();
+    if (typeof renderDashboard === 'function') renderDashboard();
+  }
+}
+
+function setSmartReminderQuiet(field, v) {
+  var prefs = _ensureSmartPrefs();
+  if (!prefs) return;
+  if (!/^\d{2}:\d{2}$/.test(String(v || ''))) return;
+  if (field === 'start') prefs.quietStart = v;
+  else if (field === 'end') prefs.quietEnd = v;
+  save();
+  if (typeof renderDashboard === 'function') renderDashboard();
+}
+
+function unmuteSmartRemindersToday() {
+  var prefs = _ensureSmartPrefs();
+  if (!prefs) return;
+  prefs.mutedDate = '';
+  prefs.dismissed = {};
+  save();
+  renderSmartReminderSettings();
+  if (typeof renderDashboard === 'function') renderDashboard();
+  if (typeof showMarkToast === 'function') showMarkToast('Умные напоминания снова активны');
+}
+
 /* ---------- REMINDERS ---------- */
-function renderReminders() { const el=document.getElementById('reminders-list'); if (!state.reminders.length) { el.innerHTML=`<div style="padding:14px 16px;color:var(--muted);font-size:13px">Пока нет напоминаний</div>`; return; } el.innerHTML = state.reminders.map((r,i)=>`<div class="reminder-row"><div class="rr-top"><input type="time" value="${esc(r.time)}" onchange="updateReminderField(${i},'time',this.value)"><label class="toggle"><input type="checkbox" ${r.on?'checked':''} onchange="toggleReminder(${i}, this.checked)"><span class="slider"></span></label><button class="del" onclick="deleteReminder(${i})" aria-label="Удалить"><svg class="ico ico-sm"><use href="#i-x"/></svg></button></div><input type="text" value="${esc(r.message||'')}" placeholder="Сообщение (необязательно)" maxlength="200" onchange="updateReminderField(${i},'message',this.value)"></div>`).join(''); }
-function addReminder() { if (state.reminders.length >= LIMITS.reminders) { showMarkToast('Максимум '+LIMITS.reminders+' напоминаний', 3200); return; } const t=document.getElementById('new-reminder-time').value; const mi=document.getElementById('new-reminder-msg'); const msg=(mi?mi.value:'').trim().slice(0,200); if (!t || !/^\d{2}:\d{2}$/.test(t)) return; state.reminders.push({time:t,on:true,lastFired:'',message:msg}); if (mi) mi.value=''; save(); renderReminders(); if ('Notification' in window && Notification.permission === 'default') { try { const p = Notification.requestPermission(); if (p && typeof p.catch === 'function') p.catch(function(){}); } catch(e) {} } }
-function updateReminderField(i, field, v) { if (field==='time') { if (!/^\d{2}:\d{2}$/.test(v)) return; state.reminders[i].time=v; } else if (field==='message') { state.reminders[i].message=String(v||'').trim().slice(0,200); } save(); }
-function toggleReminder(i,v) { state.reminders[i].on = v; save(); }
-function deleteReminder(i) { state.reminders.splice(i,1); save(); renderReminders(); }
+function renderReminders() {
+  const el = document.getElementById('reminders-list');
+  if (!el) return;
+  if (!state.reminders.length) {
+    el.innerHTML = `<div style="padding:14px 16px;color:var(--muted);font-size:13px">Пока нет напоминаний</div>`;
+    return;
+  }
+  el.innerHTML = state.reminders.map((r, i) =>
+    `<div class="reminder-row"><div class="rr-top"><input type="time" value="${esc(r.time)}" onchange="updateReminderField(${i},'time',this.value)"><label class="toggle"><input type="checkbox" ${r.on ? 'checked' : ''} onchange="toggleReminder(${i}, this.checked)"><span class="slider"></span></label><button class="del" onclick="deleteReminder(${i})" aria-label="Удалить"><svg class="ico ico-sm"><use href="#i-x"/></svg></button></div><input type="text" value="${esc(r.message || '')}" placeholder="Сообщение (необязательно)" maxlength="200" onchange="updateReminderField(${i},'message',this.value)"></div>`
+  ).join('');
+}
+function addReminder() {
+  if (state.reminders.length >= LIMITS.reminders) { showMarkToast('Максимум ' + LIMITS.reminders + ' напоминаний', 3200); return; }
+  const t = document.getElementById('new-reminder-time').value;
+  const mi = document.getElementById('new-reminder-msg');
+  const msg = (mi ? mi.value : '').trim().slice(0, 200);
+  if (!t || !/^\d{2}:\d{2}$/.test(t)) { showMarkToast('Укажите корректное время ЧЧ:ММ', 2600); return; }
+  state.reminders.push({ time: t, on: true, lastFired: '', message: msg });
+  if (mi) mi.value = '';
+  save(); renderReminders(); showMarkToast('Напоминание добавлено');
+  if ('Notification' in window && Notification.permission === 'default') {
+    try { const p = Notification.requestPermission(); if (p && typeof p.catch === 'function') p.catch(function () {}); } catch (e) {}
+  }
+}
+function setReminderPreset(hhmm, msg) {
+  if (!/^\d{2}:\d{2}$/.test(String(hhmm || ''))) return;
+  var cleanMsg = String(msg || '').trim().slice(0, 200);
+  var existing = state.reminders.find(function (r) { return r && r.time === hhmm; });
+  if (existing) {
+    existing.on = true;
+    if (cleanMsg && !existing.message) existing.message = cleanMsg;
+    showMarkToast('Напоминание на ' + hhmm + ' включено');
+  } else {
+    if (state.reminders.length >= LIMITS.reminders) {
+      showMarkToast('Максимум ' + LIMITS.reminders + ' напоминаний', 3200);
+      return;
+    }
+    state.reminders.push({ time: hhmm, on: true, lastFired: '', message: cleanMsg });
+    showMarkToast('Добавлено напоминание на ' + hhmm);
+  }
+  save();
+  renderReminders();
+  if ('Notification' in window && Notification.permission === 'default') {
+    try { const p = Notification.requestPermission(); if (p && typeof p.catch === 'function') p.catch(function () {}); } catch (e) {}
+  }
+}
+function testReminderNotification() {
+  var msg = 'Время зикра и чтения Корана (тестовое напоминание)';
+  if (typeof showReminderToastBanner === 'function') {
+    showReminderToastBanner(msg, { type: 'tab', id: 'tasbih' });
+  } else if (typeof showMarkToast === 'function') {
+    showMarkToast(msg, 3500);
+  }
+  if ('Notification' in window) {
+    if (Notification.permission === 'granted') {
+      try { new Notification('Iqra | Читай', { body: msg }); } catch (e) {}
+    } else if (Notification.permission === 'default') {
+      try {
+        Notification.requestPermission().then(function (perm) {
+          if (perm === 'granted') {
+            try { new Notification('Iqra | Читай', { body: msg }); } catch (e) {}
+          }
+        }).catch(function () {});
+      } catch (e) {}
+    }
+  }
+}
+function updateReminderField(i, field, v) { if (field === 'time') { if (!/^\d{2}:\d{2}$/.test(v)) return; state.reminders[i].time = v; } else if (field === 'message') { state.reminders[i].message = String(v || '').trim().slice(0, 200); } save(); }
+function toggleReminder(i, v) { state.reminders[i].on = v; save(); }
+function deleteReminder(i) { state.reminders.splice(i, 1); save(); renderReminders(); }
 
 /* ---------- THEME / SUNRISE-SUNSET ---------- */
 function _regionForTheme() {
@@ -254,6 +469,21 @@ function sanitizeSettings(raw) {
     autoBackupHint: bool(sp.autoBackupHint, false),
     lastLocalSyncAt: Math.floor(num(sp.lastLocalSyncAt, 0, 9999999999999, 0))
   };
+  if (typeof IqraSmartReminders !== 'undefined') {
+    out.smartReminders = IqraSmartReminders.sanitizePrefs(src.smartReminders);
+  } else {
+    out.smartReminders = base.smartReminders;
+  }
+  const nc = (src.nightChecklist && typeof src.nightChecklist === 'object' && !Array.isArray(src.nightChecklist)) ? src.nightChecklist : {};
+  out.nightChecklist = {
+    date: (typeof nc.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(nc.date)) ? nc.date : '',
+    done: Array.isArray(nc.done) ? nc.done.filter(function (n) { return typeof n === 'number' && isFinite(n) && n >= 0 && n < 50; }).map(Math.floor).slice(0, 50) : []
+  };
+  const allowedWidgets = ['goal_ring', 'night_check', 'mini_tasbih', 'daily_dhikr'];
+  const wp = (src.widgetPrefs && typeof src.widgetPrefs === 'object' && !Array.isArray(src.widgetPrefs)) ? src.widgetPrefs : {};
+  out.widgetPrefs = {
+    enabled: Array.isArray(wp.enabled) ? wp.enabled.filter(function (w) { return allowedWidgets.indexOf(w) !== -1; }).slice(0, 8) : allowedWidgets.slice()
+  };
   return out;
 }
 /* История зикра: { 'ГГГГ-ММ-ДД': { total, byId: { id: число } } }.
@@ -295,35 +525,99 @@ function sanitizeReminders(raw) {
   return out;
 }
 
-function validateImport(d) {
+function _stripUnsafeImportKeys(val, depth) {
+  if (val === null || typeof val !== 'object') return val;
+  if ((depth || 0) > 40) return undefined;
+  if (Array.isArray(val)) return val.map(function (x) { return _stripUnsafeImportKeys(x, (depth || 0) + 1); });
+  const out = {};
+  Object.keys(val).forEach(function (k) {
+    if (k === '__proto__' || k === 'constructor' || k === 'prototype') return;
+    out[k] = _stripUnsafeImportKeys(val[k], (depth || 0) + 1);
+  });
+  return out;
+}
+
+function _impCleanStr(val, maxLen) {
+  return typeof val === 'string' ? val.slice(0, maxLen || 2000) : '';
+}
+
+function _impCleanTags(raw) {
+  if (!Array.isArray(raw)) return [];
+  return raw.filter(function (x) { return typeof x === 'string'; }).map(function (x) { return x.slice(0, 80); }).slice(0, 30);
+}
+
+function validateImport(rawInput) {
+  const d = _stripUnsafeImportKeys(rawInput, 0);
   if (!d || typeof d !== 'object' || Array.isArray(d)) return null;
   if (!Array.isArray(d.tasbihs)) return null;
   const safeId = (id) => (typeof id === 'string' && /^[a-zA-Z0-9_-]{1,100}$/.test(id)) ? id : null;
   const safe = {};
-  safe.tasbihs = d.tasbihs.filter(t => t && typeof t === 'object' && typeof t.target === 'number' && isFinite(t.target) && t.target > 0).map(t => {
+  safe.tasbihs = d.tasbihs.slice(0, LIMITS.tasbihs).filter(t => t && typeof t === 'object' && typeof t.target === 'number' && isFinite(t.target) && t.target > 0).map(t => {
     const id = safeId(t.id);
     if (!id) return null;
-    const clean = Object.assign({}, t);
-    clean.id = id;
-    clean.current = (typeof t.current === 'number' && isFinite(t.current) && t.current >= 0) ? Math.floor(t.current) : 0;
-    clean.cycles = (typeof t.cycles === 'number' && isFinite(t.cycles) && t.cycles >= 0) ? Math.floor(t.cycles) : 0;
-    return clean;
+    const target = Math.min(LIMITS.targetMax, Math.max(1, Math.floor(t.target)));
+    return {
+      id: id,
+      arabic: _impCleanStr(t.arabic, 2000),
+      transcription: _impCleanStr(t.transcription, 1000),
+      translation: _impCleanStr(t.translation, 2000),
+      dalil: _impCleanStr(t.dalil, 4000),
+      target: target,
+      current: (typeof t.current === 'number' && isFinite(t.current) && t.current >= 0) ? Math.min(LIMITS.targetMax, Math.floor(t.current)) : 0,
+      cycles: (typeof t.cycles === 'number' && isFinite(t.cycles) && t.cycles >= 0) ? Math.min(LIMITS.cyclesMax, Math.floor(t.cycles)) : 0,
+      custom: t.custom === true
+    };
   }).filter(Boolean);
   safe.settings = sanitizeSettings(d.settings);
   safe.history = sanitizeHistory(d.history);
   safe.reminders = sanitizeReminders(d.reminders);
-  safe.duas = Array.isArray(d.duas) ? d.duas.filter(x => x && typeof x === 'object' && safeId(x.id)).map(x => { const c = Object.assign({}, x); c.id = safeId(x.id); return c; }) : [];
-  safe.hadiths = Array.isArray(d.hadiths) ? d.hadiths.filter(x => x && typeof x === 'object' && safeId(x.id)).map(x => { const c = Object.assign({}, x); c.id = safeId(x.id); return c; }) : [];
-  safe.migrations = (d.migrations && typeof d.migrations === 'object' && !Array.isArray(d.migrations)) ? d.migrations : {};
-  safe.draft = (d.draft && typeof d.draft === 'object') ? d.draft : null;
-  safe.favorites = Array.isArray(d.favorites) ? d.favorites.filter(x => safeId(x)) : [];
-  safe.bookmarks = Array.isArray(d.bookmarks) ? d.bookmarks.filter(function(x){
+  safe.duas = Array.isArray(d.duas) ? d.duas.slice(0, 500).filter(x => x && typeof x === 'object' && safeId(x.id)).map(x => ({
+    id: safeId(x.id),
+    title: _impCleanStr(x.title, 300),
+    subtitle: _impCleanStr(x.subtitle, 400),
+    arabic: _impCleanStr(x.arabic, 4000),
+    transcription: _impCleanStr(x.transcription, 4000),
+    translation: _impCleanStr(x.translation, 4000),
+    note: _impCleanStr(x.note, 6000),
+    source: _impCleanStr(x.source, 600),
+    tags: _impCleanTags(x.tags),
+    learned: x.learned === true
+  })) : [];
+  safe.hadiths = Array.isArray(d.hadiths) ? d.hadiths.slice(0, 500).filter(x => x && typeof x === 'object' && safeId(x.id)).map(x => ({
+    id: safeId(x.id),
+    title: _impCleanStr(x.title, 300),
+    subtitle: _impCleanStr(x.subtitle, 400),
+    arabic: _impCleanStr(x.arabic, 4000),
+    transcription: _impCleanStr(x.transcription, 4000),
+    translation: _impCleanStr(x.translation, 4000),
+    note: _impCleanStr(x.note, 6000),
+    source: _impCleanStr(x.source, 600),
+    tags: _impCleanTags(x.tags),
+    learned: x.learned === true
+  })) : [];
+  safe.migrations = _impBoolMap(d.migrations);
+  safe.draft = (d.draft && typeof d.draft === 'object' && !Array.isArray(d.draft))
+    ? {
+        arabic: _impCleanStr(d.draft.arabic, 2000),
+        transcription: _impCleanStr(d.draft.transcription, 1000),
+        translation: _impCleanStr(d.draft.translation, 2000),
+        target: (typeof d.draft.target === 'number' && isFinite(d.draft.target) && d.draft.target > 0)
+          ? Math.min(LIMITS.targetMax, Math.floor(d.draft.target))
+          : 33
+      }
+    : null;
+  safe.favorites = Array.isArray(d.favorites) ? d.favorites.slice(0, 1000).filter(x => safeId(x)) : [];
+  safe.bookmarks = Array.isArray(d.bookmarks) ? d.bookmarks.slice(0, 200).filter(function (x) {
     return x && typeof x === 'object' && safeId(x.id) && safeId(x.quranId)
-           && typeof x.ayahIdx === 'number' && x.ayahIdx >= 0;
-  }).map(function(x){
-    var c = Object.assign({}, x);
-    c.id = safeId(x.id); c.quranId = safeId(x.quranId); c.ayahIdx = Math.floor(x.ayahIdx);
-    return c;
+      && typeof x.ayahIdx === 'number' && isFinite(x.ayahIdx) && x.ayahIdx >= 0;
+  }).map(function (x) {
+    return {
+      id: safeId(x.id),
+      quranId: safeId(x.quranId),
+      ayahIdx: Math.min(300, Math.floor(x.ayahIdx)),
+      label: _impCleanStr(x.label, 80),
+      ts: (typeof x.ts === 'number' && isFinite(x.ts) && x.ts >= 0) ? Math.floor(x.ts) : Date.now()
+    };
   }) : [];
   safe.quranLearned = {};
   if (d.quranProgress && typeof d.quranProgress === 'object' && !Array.isArray(d.quranProgress)) {

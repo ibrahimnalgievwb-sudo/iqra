@@ -1,5 +1,24 @@
 "use strict";
 
+/* ============================================================
+   SCHOLAR-MODAL.JS — Единое окно справки для Пророка
+   (да благословит его Аллах и приветствует), сподвижников и учёных
+   Проект «Икра» · v460
+   ============================================================ */
+
+function _formatModalTextHtml(safeHtml, excludeId) {
+  var out = safeHtml;
+  if (typeof IqraScholars !== 'undefined') {
+    if (typeof IqraScholars.linkifyScholars === 'function') {
+      out = IqraScholars.linkifyScholars(out, { excludeId: excludeId || '' });
+    }
+    if (typeof IqraScholars.formatSacredTermsHtml === 'function') {
+      out = IqraScholars.formatSacredTermsHtml(out);
+    }
+  }
+  return out;
+}
+
 /* Сообщение внутри окна справки (вместо системного alert) */
 function _scholarNotice(text) {
   var modalContent = document.getElementById('modal-content');
@@ -8,19 +27,16 @@ function _scholarNotice(text) {
     if (typeof showMarkToast === 'function') showMarkToast(text);
     return;
   }
-  modalContent.className = 'modal';
-  modalBg.style.backgroundColor = 'rgba(0, 0, 0, 0.45)';
-  modalBg.style.backdropFilter = 'blur(8px)';
-  modalBg.style.webkitBackdropFilter = 'blur(8px)';
-  modalContent.innerHTML = `
-    <div style="width: 40px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 20px;"></div>
-    <div style="width: 64px; height: 64px; border-radius: 50%; background: var(--card2); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; border: 2px solid var(--gold-standard); color: var(--gold-accent);">
-      <svg class="ico ico-lg"><use href="#i-info"/></svg>
-    </div>
-    <h2 style="font-size: 20px; font-weight: 700; text-align: center; margin: 0 0 8px; color: var(--text);">Справка</h2>
-    <p style="font-size: 14px; line-height: 1.6; color: var(--muted); text-align: center; margin: 0;">${esc(text)}</p>
-    <button class="btn secondary" style="display: block; width: 100%; margin-top: 24px; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: 600;" onclick="closeModal()">Закрыть</button>
-  `;
+  modalContent.className = 'modal sm-notice-modal';
+  modalBg.style.backgroundColor = '';
+  modalBg.style.backdropFilter = '';
+  modalBg.style.webkitBackdropFilter = '';
+  modalContent.innerHTML =
+    '<div class="sm-drag"></div>' +
+    '<div class="sm-notice-avatar"><svg class="ico ico-lg"><use href="#i-info"/></svg></div>' +
+    '<h2 class="sm-notice-title">Справка</h2>' +
+    '<p class="sm-notice-text">' + esc(text) + '</p>' +
+    '<button type="button" class="btn secondary sm-close-btn" onclick="closeModal()">Закрыть</button>';
   modalBg.classList.add('active');
 }
 
@@ -30,12 +46,15 @@ window.openScholarInfo = function(scholarId) {
     return;
   }
 
-  let person = null;
-  if (window.DEFAULT_BIOGRAPHIES && Array.isArray(window.DEFAULT_BIOGRAPHIES)) {
+  var person = null;
+  if (typeof IqraScholars !== 'undefined' && typeof IqraScholars.getScholarById === 'function') {
+    person = IqraScholars.getScholarById(scholarId, window.DEFAULT_BIOGRAPHIES, window.GRAPH_SCHOLARS);
+  }
+  if (!person && window.DEFAULT_BIOGRAPHIES && Array.isArray(window.DEFAULT_BIOGRAPHIES)) {
     person = window.DEFAULT_BIOGRAPHIES.find(function(b) { return b && b.id === scholarId; });
   }
   if (!person && window.GRAPH_SCHOLARS && Array.isArray(window.GRAPH_SCHOLARS)) {
-    const scholar = window.GRAPH_SCHOLARS.find(function(s) { return s && s.id === scholarId; });
+    var scholar = window.GRAPH_SCHOLARS.find(function(s) { return s && s.id === scholarId; });
     if (scholar) {
       person = {
         id: scholar.id,
@@ -45,79 +64,94 @@ window.openScholarInfo = function(scholarId) {
         lifespan: scholar.lifespan || '',
         description: scholar.note || scholar.description || '',
         sources: scholar.bio_source ? [scholar.bio_source.locator || ''] : [],
-        verification_status: 'single_source'
+        verification_status: scholar.status === 'verified' ? 'cross_checked' : 'single_source'
       };
     }
   }
 
   if (!person) {
-    console.error("Не найден: " + scholarId);
     _scholarNotice("Информация об этом человеке пока недоступна в базе.");
     return;
   }
 
-  const modalContent = document.getElementById('modal-content');
-  const modalBg = document.getElementById('modal-bg');
+  var modalContent = document.getElementById('modal-content');
+  var modalBg = document.getElementById('modal-bg');
   if (!modalContent || !modalBg) return;
 
-  // Сбрасываем возможный класс tajweed-modal от предыдущей модалки,
-  // чтобы модалка учёного не унаследовала узкий glassmorphism-стиль.
-  modalContent.className = 'modal';
+  var isProphet = person.type === 'prophet' || person.id === 'prophet_muhammad';
+  modalContent.className = 'modal scholar-modal' + (isProphet ? ' is-prophet' : '');
 
-  // Премиальный полупрозрачный фон и размытие (glassmorphism)
-  modalBg.style.backgroundColor = 'rgba(0, 0, 0, 0.45)';
-  modalBg.style.backdropFilter = 'blur(8px)';
-  modalBg.style.webkitBackdropFilter = 'blur(8px)';
+  modalBg.style.backgroundColor = '';
+  modalBg.style.backdropFilter = '';
+  modalBg.style.webkitBackdropFilter = '';
 
-  const typeLabels = { 'scholar': 'Учёный', 'transmitter': 'Передатчик' };
-  const typeLabel = typeLabels[person.type] || 'Учёный';
-
-  const statusLabels = {
-    'cross_checked': 'Проверено по нескольким источникам',
-    'single_source': 'Один источник',
-    'not_found': 'Данные не найдены'
+  var typeLabels = {
+    prophet: 'Посланник Аллаха и печать пророков',
+    companion: 'Сподвижник Пророка (да благословит его Аллах и приветствует)',
+    tabii: 'Таби‘ин (поколение учеников сподвижников)',
+    scholar: 'Учёный Ахлю-с-Сунна',
+    transmitter: 'Передатчик'
   };
-  const statusLabel = statusLabels[person.verification_status] || '';
+  var typeLabel = typeLabels[person.type] || 'Учёный Ахлю-с-Сунна';
 
-  const iconUse = person.type === 'transmitter' ? '#i-info' : '#i-book';
+  var statusLabels = {
+    cross_checked: 'Проверено по классическим источникам',
+    single_source: 'Указан по источнику',
+    not_found: 'Данные уточняются'
+  };
+  var statusLabel = statusLabels[person.verification_status] || '';
+  var iconUse = isProphet
+    ? '#i-star-filled'
+    : (person.type === 'companion' ? '#i-scroll' : (person.type === 'transmitter' ? '#i-info' : '#i-book'));
 
-  let sourcesHtml = '';
+  var paragraphs = person.description
+    ? String(person.description).split(/\n{2,}/).filter(Boolean).map(function(p) {
+        return '<p class="sm-desc">' + _formatModalTextHtml(escNl(p.trim()), person.id) + '</p>';
+      }).join('')
+    : '<p class="sm-desc is-empty">Биографические данные уточняются.</p>';
+
+  var sourcesHtml = '';
   if (Array.isArray(person.sources) && person.sources.length) {
-    sourcesHtml = '<div style="margin-top:16px;font-size:12px;color:var(--muted);text-align:left;padding:10px;background:var(--card2);border-radius:8px;">' +
-      '<b style="color:var(--gold-accent);">Источники:</b>' +
-      '<ul style="margin:6px 0 0 18px;padding:0;">' +
-      person.sources.map(function(s) { return '<li style="margin-bottom:4px;">' + esc(s) + '</li>'; }).join('') +
+    sourcesHtml = '<div class="sm-sources">' +
+      '<div class="sm-sources-title">Источники биографии</div>' +
+      '<ul class="sm-sources-list">' +
+      person.sources.map(function(s) { return '<li>' + _formatModalTextHtml(esc(s), person.id) + '</li>'; }).join('') +
       '</ul>' +
       '</div>';
   }
 
-  const ecoHtml = (typeof renderEcosystemSection === 'function')
-    ? renderEcosystemSection('scholar:' + person.id, { compact: true, title: 'Связи в Умной книге' })
+  var ecoHtml = (!isProphet && typeof renderEcosystemSection === 'function')
+    ? renderEcosystemSection('scholar:' + person.id, { compact: true, title: 'Упоминания и связи в Умной книге' })
     : '';
 
-  modalContent.innerHTML = `
-    <div style="width: 40px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 20px;"></div>
-    
-    <div style="width: 64px; height: 64px; border-radius: 50%; background: var(--card2); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; border: 2px solid var(--gold-standard); color: var(--gold-accent);">
-      <svg class="ico ico-lg"><use href="${iconUse}"/></svg>
-    </div>
-    
-    <h2 style="font-size: 20px; font-weight: 700; text-align: center; margin: 0 0 4px; color: var(--text);">${esc(person.name)}</h2>
-    ${person.full_name ? '<div style="font-size: 13px; color: var(--muted); text-align: center; margin-bottom: 4px;">' + esc(person.full_name) + '</div>' : ''}
-    <div style="font-size: 13px; color: var(--gold-accent); text-align: center; font-weight: 600; margin-bottom: 6px;">${esc(typeLabel)}</div>
-    ${person.lifespan ? '<div style="font-size: 12px; color: var(--muted); text-align: center; margin-bottom: 16px;">' + esc(person.lifespan) + '</div>' : ''}
-    
-    <div style="font-size: 14px; line-height: 1.6; color: var(--text); padding-bottom: 16px; border-bottom: 1px dashed var(--border);">
-      ${person.description ? '<p style="margin:0;text-align:center;">' + esc(person.description) + '</p>' : '<p style="margin:0;text-align:center;color:var(--muted);">Биографические данные уточняются.</p>'}
-    </div>
-    
-    ${sourcesHtml}
-    ${ecoHtml ? '<div class="scholar-eco-wrap">' + ecoHtml + '</div>' : ''}
-    
-    ${statusLabel ? '<div style="font-size:11px;color:var(--muted);text-align:center;margin-top:12px;font-style:italic;">Статус проверки: ' + esc(statusLabel) + '</div>' : ''}
-    
-    <button class="btn secondary" style="display: block; width: 100%; margin-top: 24px; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: 600;" onclick="closeModal()">Закрыть</button>
-  `;
+  var openInPathBtn = (!isProphet && typeof openPathFilter === 'function')
+    ? '<button type="button" class="btn secondary sm-action-btn" onclick="closeModal({skipHistoryBack:true});openPathFilter(\'scholar\',\'' + escAttr(person.id) + '\')"><svg class="ico ico-sm"><use href="#i-compass"/></svg>Материалы в Умной книге</button>'
+    : '';
+
+  modalContent.innerHTML =
+    '<div class="sm-top">' +
+      '<div class="sm-drag"></div>' +
+      '<button type="button" class="sm-close" aria-label="Закрыть" onclick="closeModal()"><svg class="ico ico-sm"><use href="#i-x"/></svg></button>' +
+    '</div>' +
+    '<div class="sm-hero">' +
+      '<div class="sm-avatar"><svg class="ico ico-lg"><use href="' + iconUse + '"/></svg></div>' +
+      '<h2 class="sm-name">' + esc(person.name) + '</h2>' +
+      (person.full_name ? '<div class="sm-fullname">' + esc(person.full_name) + '</div>' : '') +
+      '<div class="sm-meta-row">' +
+        '<span class="sm-role">' + esc(typeLabel) + '</span>' +
+        (person.lifespan ? '<span class="sm-life">' + esc(person.lifespan) + '</span>' : '') +
+      '</div>' +
+    '</div>' +
+    '<div class="sm-scroll">' +
+      '<div class="sm-body">' + paragraphs + '</div>' +
+      sourcesHtml +
+      (ecoHtml ? '<div class="scholar-eco-wrap">' + ecoHtml + '</div>' : '') +
+      (statusLabel ? '<div class="sm-status">' + esc(statusLabel) + '</div>' : '') +
+    '</div>' +
+    '<div class="sm-actions">' +
+      openInPathBtn +
+      '<button type="button" class="btn secondary sm-close-btn" onclick="closeModal()">Закрыть</button>' +
+    '</div>';
 
   modalBg.classList.add('active');
 };

@@ -41,7 +41,7 @@ function escapeHtml(s) {
 
 /* ---------- GLOBAL STATE ---------- */
 let activeId = null, editingId = null;
-let activeDuaId = null, activeQuranId = null, activeHadithId = null, activeNightId = null;
+let activeDuaId = null, activeQuranId = null, activeQuranAyahIdx = null, activeHadithId = null, activeNightId = null;
 let quranFilter = 'all';
 let activeReadId = null;
 let _lastScreenName = null, _lastScreenTs = null;
@@ -70,20 +70,172 @@ async function requestWakeLock() { try { if ('wakeLock' in navigator) { wakeLock
 function releaseWakeLock() { try { if (wakeLock) { wakeLock.release(); wakeLock=null; } } catch(e){} }
 
 /* ---------- REMINDERS ---------- */
+function checkSmartBrowserNotification() {
+  if (typeof IqraSmartReminders === 'undefined' || !state || !state.settings) return;
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  var ctx = (typeof getSmartReminderContext === 'function')
+    ? getSmartReminderContext(new Date())
+    : {
+        now: new Date(),
+        prefs: state.settings.smartReminders,
+        onboarded: !!(state.migrations && state.migrations.onboarded),
+        todayTotal: (state.history[todayKey()] && state.history[todayKey()].total) || 0,
+        dailyGoal: state.settings.dailyGoal || 0,
+        quranLearned: state.quranProgress || {}
+      };
+  var scenario = IqraSmartReminders.selectActiveReminder(ctx);
+  if (!scenario || !IqraSmartReminders.shouldSendBrowserNotification(scenario, ctx)) return;
+
+  state.settings.smartReminders = IqraSmartReminders.sanitizePrefs(state.settings.smartReminders);
+  state.settings.smartReminders.notified[scenario.id] = IqraSmartReminders.formatDateKey(ctx.now);
+  save();
+
+  var title = scenario.notifyTitle || scenario.title;
+  var body = scenario.notifyBody || scenario.hadithText;
+  var actionStr = scenario.action ? (scenario.action.type + ':' + scenario.action.id) : '';
+  var opts = {
+    body: body,
+    icon: './assets/icons/icon-192.png',
+    badge: './assets/icons/icon-192.png',
+    tag: 'iqra-smart-' + scenario.id,
+    data: { action: actionStr }
+  };
+
+  if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+    navigator.serviceWorker.ready.then(function (reg) {
+      if (reg && typeof reg.showNotification === 'function') {
+        return reg.showNotification(title, opts);
+      }
+      throw new Error('no showNotification');
+    }).catch(function () {
+      try {
+        var n = new Notification(title, opts);
+        n.onclick = function () {
+          try { window.focus(); } catch (e) {}
+          if (actionStr && typeof executeSmartAction === 'function') {
+            var parts = actionStr.split(':');
+            executeSmartAction(parts[0], parts[1]);
+          }
+          n.close();
+        };
+      } catch (e) {}
+    });
+  } else {
+    try {
+      var n = new Notification(title, opts);
+      n.onclick = function () {
+        try { window.focus(); } catch (e) {}
+        if (actionStr && typeof executeSmartAction === 'function') {
+          var parts = actionStr.split(':');
+          executeSmartAction(parts[0], parts[1]);
+        }
+        n.close();
+      };
+    } catch (e) {}
+  }
+}
+
+var _inappReminderTimer = null;
+
+function _parseReminderMinutes(hhmm) {
+  var m = /^(\d{2}):(\d{2})$/.exec(String(hhmm || ''));
+  if (!m) return -1;
+  var h = parseInt(m[1], 10);
+  var min = parseInt(m[2], 10);
+  if (h < 0 || h > 23 || min < 0 || min > 59) return -1;
+  return h * 60 + min;
+}
+
+function isScheduledReminderDue(r, nowDate, today) {
+  if (!r || !r.on) return false;
+  var schedMin = _parseReminderMinutes(r.time);
+  if (schedMin < 0) return false;
+  if (r.lastFired === today) return false;
+  var now = nowDate instanceof Date ? nowDate : new Date();
+  var nowMin = now.getHours() * 60 + now.getMinutes();
+  return nowMin >= schedMin && (nowMin - schedMin) <= 30;
+}
+
+window.IqraReminderHelpers = {
+  isScheduledReminderDue: isScheduledReminderDue
+};
+
+function hideReminderToastBanner() {
+  var existing = document.getElementById('inapp-reminder-banner');
+  if (existing) existing.remove();
+  if (_inappReminderTimer) { clearTimeout(_inappReminderTimer); _inappReminderTimer = null; }
+}
+
+function showReminderToastBanner(msg, actionObj) {
+  hideReminderToastBanner();
+  if (!document.body) return;
+  var wrap = document.createElement('div');
+  wrap.id = 'inapp-reminder-banner';
+  wrap.className = 'inapp-reminder-banner';
+  wrap.setAttribute('role', 'status');
+  wrap.setAttribute('aria-live', 'polite');
+
+  var body = document.createElement('div');
+  body.className = 'irb-body';
+
+  var titleEl = document.createElement('div');
+  titleEl.className = 'irb-title';
+  titleEl.textContent = 'Напоминание · Iqra';
+
+  var textEl = document.createElement('div');
+  textEl.className = 'irb-text';
+  textEl.textContent = String(msg || 'Время зикра и чтения Корана');
+
+  body.appendChild(titleEl);
+  body.appendChild(textEl);
+  wrap.appendChild(body);
+
+  var acts = document.createElement('div');
+  acts.className = 'irb-actions';
+
+  if (actionObj && actionObj.type) {
+    var openBtn = document.createElement('button');
+    openBtn.type = 'button';
+    openBtn.className = 'btn secondary btn-inline irb-open';
+    openBtn.textContent = 'Открыть';
+    openBtn.onclick = function () {
+      hideReminderToastBanner();
+      if (typeof executeSmartAction === 'function') executeSmartAction(actionObj.type, actionObj.id || '');
+    };
+    acts.appendChild(openBtn);
+  }
+
+  var closeBtn = document.createElement('button');
+  closeBtn.type = 'button';
+  closeBtn.className = 'irb-close';
+  closeBtn.setAttribute('aria-label', 'Закрыть напоминание');
+  closeBtn.textContent = '×';
+  closeBtn.onclick = hideReminderToastBanner;
+  acts.appendChild(closeBtn);
+
+  wrap.appendChild(acts);
+  document.body.appendChild(wrap);
+
+  _inappReminderTimer = setTimeout(hideReminderToastBanner, 10000);
+}
+
 function checkReminders() {
   if (document.visibilityState !== 'visible') return;
   const now = new Date();
-  const hh = pad(now.getHours()) + ':' + pad(now.getMinutes());
   const k = todayKey();
+  var fired = false;
   state.reminders.forEach(r => {
-    if (!r.on) return;
-    if (r.time === hh && r.lastFired !== k) {
-      r.lastFired = k; save();
-      if ('Notification' in window && Notification.permission === 'granted') {
-        try { new Notification('Iqra | Читай', { body: r.message || 'Время зикра' }); } catch(e) {}
-      }
+    if (!isScheduledReminderDue(r, now, k)) return;
+    r.lastFired = k;
+    fired = true;
+    const msg = r.message || 'Время зикра и чтения Корана';
+    showReminderToastBanner(msg, { type: 'tab', id: 'tasbih' });
+    if ('Notification' in window && Notification.permission === 'granted') {
+      try { new Notification('Iqra | Читай', { body: msg }); } catch (e) {}
     }
   });
+  if (fired) save();
+  checkSmartBrowserNotification();
 }
 function scheduleReminders() {
   if (_reminderTimer) clearTimeout(_reminderTimer);
@@ -100,8 +252,24 @@ function showMarkToast(text, ms) {
   _toastTimer = setTimeout(function(){ el.classList.remove('show'); }, ms || 1800);
 }
 /* ---------- MODAL / CONFIRM ---------- */
+function _resetModalShell() {
+  var bg = document.getElementById('modal-bg');
+  var mc = document.getElementById('modal-content');
+  if (bg) {
+    bg.style.backgroundColor = '';
+    bg.style.backdropFilter = '';
+    bg.style.webkitBackdropFilter = '';
+  }
+  if (mc) {
+    mc.className = 'modal';
+    mc.style.removeProperty('--tafsir-scale');
+  }
+}
+
 function closeModal() { 
-  document.getElementById('modal-bg').classList.remove('active'); 
+  var bg = document.getElementById('modal-bg');
+  if (bg) bg.classList.remove('active');
+  _resetModalShell();
   if (_pendingConfirmResolve) {
     const r = _pendingConfirmResolve;
     _pendingConfirmResolve = null;
@@ -112,6 +280,7 @@ function confirmAsync(title, sub, okText, cancelText) {
   return new Promise(function(resolve) {
     okText = okText || 'Подтвердить';
     cancelText = cancelText || 'Отмена';
+    _resetModalShell();
     var html = '<h2>' + escapeHtml(title) + '</h2>' +
       (sub ? '<div style="font-size:14px;color:var(--muted);margin-bottom:20px;line-height:1.5">' + escNl(sub) + '</div>' : '') +
       '<div style="display:flex;gap:10px;">' +
@@ -128,6 +297,7 @@ function confirmAsync(title, sub, okText, cancelText) {
       var bg = document.getElementById('modal-bg');
       bg.onclick = null;
       bg.classList.remove('active');
+      _resetModalShell();
       resolve(v);
     }
     _pendingConfirmResolve = done;
@@ -141,6 +311,7 @@ function confirmAsync(title, sub, okText, cancelText) {
 
 function openDay(key) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(key)) return;
+  _resetModalShell();
   const entry = state.history[key]; const [y,m,d] = key.split('-');
   let html = `<h2>${escapeHtml(d)}.${escapeHtml(m)}.${escapeHtml(y)}</h2><div style="font-size:13px;color:var(--muted);margin-bottom:16px">${escapeHtml(formatHijri(new Date(+y, +m - 1, +d)))}</div>`;
   if (!entry || !entry.total) html += `<div style="color:var(--muted);padding:20px 0;text-align:center">В этот день счёта не было</div>`;
@@ -154,20 +325,24 @@ function openDay(key) {
 function showScreen(id) {
   var readModeEl = document.getElementById('read-mode');
   if (readModeEl && readModeEl.classList.contains('active') && typeof closeRead === 'function') {
-    closeRead();
+    closeRead({ skipHistoryBack: true });
   }
   var memModeEl = document.getElementById('memorize-mode');
   if (memModeEl && memModeEl.classList.contains('active')) {
-    memModeEl.classList.remove('active');
-    memorizeItem = null;
+    if (typeof closeMemorize === 'function') closeMemorize({ skipHistoryBack: true });
+    else {
+      memModeEl.classList.remove('active');
+      memorizeItem = null;
+    }
   }
   var searchOvEl = document.getElementById('search-overlay');
   if (searchOvEl && searchOvEl.classList.contains('active')) {
-    searchOvEl.classList.remove('active');
+    if (typeof closeSearch === 'function') closeSearch({ skipHistoryBack: true });
+    else searchOvEl.classList.remove('active');
   }
   var modalBgEl = document.getElementById('modal-bg');
   if (modalBgEl && modalBgEl.classList.contains('active') && !_pendingConfirmResolve) {
-    closeModal();
+    closeModal({ skipHistoryBack: true });
   }
   if (_lastScreenName && _lastScreenTs) {
     const dur = Math.round((Date.now() - _lastScreenTs) / 1000);
@@ -522,7 +697,26 @@ async function _boot() {
     } catch (e) {}
     initDebugMode();
     initApp();
-    if (!state.migrations.onboarded) setTimeout(startOnboarding, 200);
+    var widgetParam = '';
+    try {
+      const qs2 = new URLSearchParams(location.search);
+      widgetParam = qs2.get('widget') || '';
+      const qsAction = qs2.get('smart_action');
+      if (widgetParam && typeof renderStandaloneWidgetMode === 'function') {
+        state.migrations.onboarded = true;
+        renderStandaloneWidgetMode(widgetParam);
+      } else if (qsAction && typeof executeSmartAction === 'function') {
+        const parts = qsAction.split(':');
+        if (parts[0] && parts[1]) {
+          history.replaceState(null, '', location.pathname);
+          setTimeout(function () { executeSmartAction(parts[0], parts[1]); }, 120);
+        }
+      }
+    } catch (e) {}
+    if (!widgetParam) {
+      if (!state.migrations.onboarded) setTimeout(startOnboarding, 200);
+      else setTimeout(checkSmartBrowserNotification, 1200);
+    }
   } catch (e) {
     console.error('Ошибка загрузки данных:', e);
     var splash = document.getElementById('splash-screen');
@@ -686,6 +880,9 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.addEventListener('message', function(e) {
     if (e.data && e.data.type === 'SW_UPDATED') {
       swReload();
+    } else if (e.data && e.data.type === 'SMART_REMINDER_ACTION' && e.data.action && typeof executeSmartAction === 'function') {
+      var parts = String(e.data.action).split(':');
+      executeSmartAction(parts[0], parts[1]);
     }
   });
 }
@@ -705,19 +902,52 @@ if ('serviceWorker' in navigator) {
     var el = document.querySelector('.screen.active');
     return el ? el.id : null;
   }
-  function currentOverlay() {
-    for (var i = 0; i < ALL_OVERLAYS.length; i++) {
-      var el = document.getElementById(ALL_OVERLAYS[i]);
-      if (el && el.classList.contains('active')) return ALL_OVERLAYS[i];
-    }
-    return null;
-  }
-  function closeOverlay(name) {
+  function closeOverlay(name, opts) {
     var fn = OVERLAY_CLOSERS[name];
     if (fn && typeof window[fn] === 'function') {
-      try { window[fn](); } catch(e) {}
+      try { window[fn](opts); } catch(e) {}
     }
   }
+  function snapshotPathState() {
+    var inp = document.getElementById('path-search');
+    return {
+      mode: typeof pathMode === 'string' ? pathMode : 'all',
+      tag: activePathTag || null,
+      typeFilter: typeof pathTypeFilter === 'string' ? pathTypeFilter : 'all',
+      query: inp ? (inp.value || '') : ''
+    };
+  }
+  function restorePathState(ps) {
+    if (!ps) return;
+    pathMode = ps.mode || 'all';
+    activePathTag = ps.tag || null;
+    pathTypeFilter = ps.typeFilter || 'all';
+    pathShowAll = false;
+    var inp = document.getElementById('path-search');
+    if (inp) inp.value = ps.query || '';
+    if (typeof renderPath === 'function') renderPath();
+  }
+
+  function dismissOverlaysForNavigation(opts) {
+    var o = opts || {};
+    var searchEl = document.getElementById('search-overlay');
+    if (searchEl && searchEl.classList.contains('active')) {
+      closeOverlay('search-overlay', { skipHistoryBack: true });
+    }
+    var memEl = document.getElementById('memorize-mode');
+    if (memEl && memEl.classList.contains('active')) {
+      closeOverlay('memorize-mode', { skipHistoryBack: true });
+    }
+    var modalEl = document.getElementById('modal-bg');
+    if (!o.keepModal && modalEl && modalEl.classList.contains('active') && !_pendingConfirmResolve) {
+      closeOverlay('modal-bg', { skipHistoryBack: true });
+    }
+    var readEl = document.getElementById('read-mode');
+    if (!o.keepRead && readEl && readEl.classList.contains('active')) {
+      closeOverlay('read-mode', { skipHistoryBack: true });
+    }
+  }
+  window.dismissOverlaysForNavigation = dismissOverlaysForNavigation;
 
   try {
     var s0 = currentScreen();
@@ -727,13 +957,21 @@ if ('serviceWorker' in navigator) {
   var _showScreen = window.showScreen;
   window.showScreen = function(id) {
     if (!going) {
+      dismissOverlaysForNavigation();
       var cur = currentScreen();
       if (cur && cur !== id) {
-        var st = { screen: id };
-        var ov = currentOverlay();
-        if (ov) st.overlay = ov;
+        if (cur === 'screen-path') {
+          try {
+            var curSt = Object.assign({}, history.state || { screen: cur });
+            curSt.screen = cur;
+            curSt.pathState = snapshotPathState();
+            history.replaceState(curSt, '');
+          } catch(e) {}
+        }
+        var st = { screen: id, fromScreen: cur };
         if (activeId) st.tasbihId = activeId;
         if (activeQuranId) st.quranId = activeQuranId;
+        if (typeof activeQuranAyahIdx === 'number' && activeQuranAyahIdx >= 0) st.ayahIdx = activeQuranAyahIdx;
         if (activeDuaId) st.duaId = activeDuaId;
         if (activeHadithId) st.hadithId = activeHadithId;
         if (typeof activeNightId === 'number') st.nightId = activeNightId;
@@ -748,11 +986,31 @@ if ('serviceWorker' in navigator) {
     if (typeof orig !== 'function') return;
     window[fnName] = function() {
       if (!going) {
+        if (ovId === 'read-mode') dismissOverlaysForNavigation({ keepRead: true });
+        else if (ovId === 'search-overlay' || ovId === 'memorize-mode') dismissOverlaysForNavigation({ keepRead: false });
+        else if (ovId === 'modal-bg') dismissOverlaysForNavigation({ keepRead: true, keepModal: true });
+
+        var curSt = history.state || {};
         var st = { screen: currentScreen(), overlay: ovId };
-        if (ovId === 'read-mode' && arguments[0]) st.readQuranId = arguments[0];
-        else if (ovId === 'memorize-mode' && arguments[0] && arguments[0].id) st.memId = arguments[0].id;
-        else if (ovId === 'modal-bg' && arguments[0]) st.modalKey = arguments[0];
-        try { history.pushState(st, ''); } catch(e) {}
+        if (curSt.fromScreen) st.fromScreen = curSt.fromScreen;
+        if (curSt.quranId) st.quranId = curSt.quranId;
+        if (curSt.duaId) st.duaId = curSt.duaId;
+        if (curSt.hadithId) st.hadithId = curSt.hadithId;
+        if (curSt.tasbihId) st.tasbihId = curSt.tasbihId;
+        if (typeof curSt.nightId === 'number') st.nightId = curSt.nightId;
+
+        if (ovId === 'read-mode' && arguments[0]) {
+          st.readQuranId = arguments[0];
+          if (typeof arguments[1] === 'number' && arguments[1] >= 0) st.ayahIdx = arguments[1];
+        } else if (ovId === 'memorize-mode' && arguments[0] && arguments[0].id) {
+          st.memId = arguments[0].id;
+        } else if (ovId === 'modal-bg' && arguments[0]) {
+          st.modalKey = arguments[0];
+        }
+        try {
+          if (curSt.overlay === ovId) history.replaceState(st, '');
+          else history.pushState(st, '');
+        } catch(e) {}
       }
       return orig.apply(this, arguments);
     };
@@ -765,10 +1023,21 @@ if ('serviceWorker' in navigator) {
   function hookCloser(fnName, ovId) {
     var orig = window[fnName];
     if (typeof orig !== 'function') return;
-    window[fnName] = function() {
+    window[fnName] = function(opts) {
       var st = history.state;
       if (!going && st && st.overlay === ovId) {
-        try { history.back(); } catch(e) {}
+        if (opts && opts.skipHistoryBack) {
+          try {
+            var nextSt = Object.assign({}, st);
+            delete nextSt.overlay;
+            delete nextSt.readQuranId;
+            delete nextSt.memId;
+            delete nextSt.modalKey;
+            history.replaceState(nextSt, '');
+          } catch(e) {}
+        } else {
+          try { history.back(); } catch(e) {}
+        }
       }
       return orig.apply(this, arguments);
     };
@@ -789,10 +1058,12 @@ if ('serviceWorker' in navigator) {
         if (!el) continue;
         var isOpen = el.classList.contains('active');
         var shouldBeOpen = (ov === targetOverlay);
-        if (isOpen && !shouldBeOpen) closeOverlay(ov);
+        if (isOpen && !shouldBeOpen) closeOverlay(ov, { skipHistoryBack: true });
       }
       if (st.screen === 'screen-quran-detail' && st.quranId) {
-        if (activeQuranId !== st.quranId || currentScreen() !== 'screen-quran-detail') openQuran(st.quranId);
+        if (activeQuranId !== st.quranId || currentScreen() !== 'screen-quran-detail') {
+          openQuran(st.quranId, typeof st.ayahIdx === 'number' ? st.ayahIdx : null);
+        }
       } else if (st.screen === 'screen-dua-detail' && st.duaId) {
         if (activeDuaId !== st.duaId || currentScreen() !== 'screen-dua-detail') openDua(st.duaId);
       } else if (st.screen === 'screen-hadith-detail' && st.hadithId) {
@@ -806,6 +1077,14 @@ if ('serviceWorker' in navigator) {
         }
       } else if (st.screen && currentScreen() !== st.screen) {
         try { _showScreen.call(window, st.screen); } catch(err) {}
+        if (st.screen === 'screen-path' && st.pathState) restorePathState(st.pathState);
+        else if (st.screen === 'screen-quran' && typeof renderQuranList === 'function') renderQuranList();
+        else if (st.screen === 'screen-tasbih' && typeof renderTasbih === 'function') renderTasbih();
+        else if (st.screen === 'screen-night' && typeof renderNightList === 'function') renderNightList();
+        else if (st.screen === 'screen-library') {
+          if (typeof renderDuaList === 'function') renderDuaList();
+          if (typeof renderHadithList === 'function') renderHadithList();
+        } else if (st.screen === 'screen-cal' && typeof renderProgress === 'function') renderProgress();
       }
       if (targetOverlay) {
         var ovEl = document.getElementById(targetOverlay);
@@ -813,7 +1092,7 @@ if ('serviceWorker' in navigator) {
           if (targetOverlay === 'search-overlay') {
             openSearch();
           } else if (targetOverlay === 'read-mode' && st.readQuranId) {
-            openRead(st.readQuranId);
+            openRead(st.readQuranId, typeof st.ayahIdx === 'number' ? st.ayahIdx : null);
           } else if (targetOverlay === 'memorize-mode' && st.memId) {
             var memItem = getQuranById(st.memId) || getDuaById(st.memId) || getHadithById(st.memId);
             if (memItem) openMemorizeFor(memItem);
@@ -826,6 +1105,31 @@ if ('serviceWorker' in navigator) {
       going = false;
     }
   });
+
+  window.goTasbihList = function() {
+    if (activeId) saveNow();
+    activeId = null;
+    releaseWakeLock();
+    if (typeof renderTasbih === 'function') renderTasbih();
+    showScreen('screen-tasbih');
+  };
+
+  window.goDetailBack = function(fallbackFnName) {
+    if (currentScreen() === 'screen-counter') {
+      if (activeId) saveNow();
+      activeId = null;
+      releaseWakeLock();
+    }
+    var st = history.state;
+    if (st && st.fromScreen && st.fromScreen !== currentScreen()) {
+      try { history.back(); return; } catch(e) {}
+    }
+    if (fallbackFnName && typeof window[fallbackFnName] === 'function') {
+      window[fallbackFnName]();
+      return;
+    }
+    if (typeof goHome === 'function') goHome();
+  };
 
   window.goBack = function() {
     try { history.back(); } catch(e) {}
@@ -947,8 +1251,8 @@ document.addEventListener('click', function(e) {
     if (tag) {
       e.preventDefault();
       e.stopPropagation();
-      if (typeof closeSearch === 'function') closeSearch();
-      if (typeof closeRead === 'function') closeRead();
+      if (typeof closeSearch === 'function') closeSearch({ skipHistoryBack: true });
+      if (typeof closeRead === 'function') closeRead({ skipHistoryBack: true });
       if (typeof openPathFilter === 'function') {
         openPathFilter(null, tag);
       } else {

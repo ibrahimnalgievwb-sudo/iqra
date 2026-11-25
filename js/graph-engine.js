@@ -225,6 +225,7 @@
     if (!sourceObj) return 'ibn_kathir';
     var low = String(sourceObj).toLowerCase();
     if (low.indexOf('ибн касир') !== -1) return 'ibn_kathir';
+    if (low.indexOf('са‘ди') !== -1 || low.indexOf('сади') !== -1 || low.indexOf('as_sadi') !== -1) return 'as_sadi';
     if (Array.isArray(scholarsList)) {
       var match = scholarsList.find(function (s) {
         return s && s.name_ru && low.indexOf(s.name_ru.toLowerCase()) !== -1;
@@ -356,6 +357,204 @@
     return s;
   }
 
+  function getScholarsModule() {
+    return root.IqraScholars || (typeof globalThis !== 'undefined' ? globalThis.IqraScholars : null) || null;
+  }
+
+  function resolveScholarByKey(key, index) {
+    if (!key || !index || !index.scholarById) return null;
+    var raw = String(key).trim();
+    var clean = raw.replace(/^scholar:/, '').trim();
+    if (index.scholarById.has(clean)) return index.scholarById.get(clean);
+    var low = clean.toLowerCase();
+    var found = null;
+    index.scholarById.forEach(function (sc) {
+      if (found || !sc) return;
+      var n = String(sc.name_ru || sc.name || '').toLowerCase();
+      if (n === low) found = sc;
+    });
+    return found;
+  }
+
+  function extractMentionedScholarsForText(text, index) {
+    if (!text) return [];
+    var mod = getScholarsModule();
+    if (mod && typeof mod.extractMentionedScholarIds === 'function') {
+      return mod.extractMentionedScholarIds(text);
+    }
+    if (!index || !index.scholarById) return [];
+    var norm = normalizeSearchText(String(text).replace(/[‘’']/g, ''));
+    var out = [];
+    index.scholarById.forEach(function (sc) {
+      if (!sc || !sc.id) return;
+      var candidates = Array.isArray(sc.aliases) && sc.aliases.length
+        ? sc.aliases
+        : [sc.name_ru || sc.name || ''];
+      var hit = candidates.some(function (al) {
+        var nAl = normalizeSearchText(String(al || '').replace(/[‘’']/g, ''));
+        return nAl.length >= 4 && norm.indexOf(nAl) !== -1;
+      });
+      if (!hit) {
+        var baseName = normalizeSearchText(String(sc.name_ru || sc.name || '').replace(/[‘’']/g, ''));
+        var stem = baseName.length >= 5 ? baseName.replace(/а$/, '') : baseName;
+        if (stem.length >= 4 && norm.indexOf(stem) !== -1) hit = true;
+      }
+      if (hit) out.push(sc.id);
+    });
+    return out;
+  }
+
+  function ensureScholarLinkIndex(index) {
+    if (!index || index._scholarLinksBuilt) return index;
+    var byScholar = new Map(); // scholarId -> Map(nodeId -> { kind, id, ayahIdx, evidence, note, weight })
+    var byNode = new Map();    // nodeId -> Set(scholarId)
+
+    function link(scholarId, nodeId, info) {
+      if (!scholarId || !nodeId) return;
+      var map = byScholar.get(scholarId);
+      if (!map) {
+        map = new Map();
+        byScholar.set(scholarId, map);
+      }
+      var prev = map.get(nodeId);
+      if (!prev || (info && (info.weight || 0) > (prev.weight || 0))) {
+        map.set(nodeId, Object.assign({ nodeId: nodeId }, info || {}));
+      }
+      var set = byNode.get(nodeId);
+      if (!set) {
+        set = new Set();
+        byNode.set(nodeId, set);
+      }
+      set.add(scholarId);
+    }
+
+    (index.tafsirs || []).forEach(function (tf) {
+      if (!tf || tf.status === 'placeholder' || !tf.tafsir_text) return;
+      var authorId = scholarIdFromSource(tf.source, index.scholars);
+      var matchedAyah = index.ayahs.find(function (a) {
+        return a._surahNum === Number(tf.surah) && a._ayahNum === Number(tf.ayah);
+      });
+      if (!matchedAyah) return;
+      var ev = 'tafsir:' + authorId + '_' + tf.surah + '_' + tf.ayah;
+
+      link(authorId, matchedAyah._nodeId, {
+        kind: 'ayah',
+        evidence: ev,
+        note: 'Автор тафсира к этому аяту',
+        weight: 0.94
+      });
+
+      if (Array.isArray(tf.hadiths)) {
+        tf.hadiths.forEach(function (th) {
+          if (!th) return;
+          if (th.transmitter_id) {
+            link(th.transmitter_id, matchedAyah._nodeId, {
+              kind: 'ayah',
+              evidence: ev,
+              note: 'Передатчик хадиса в тафсире к этому аяту',
+              weight: 0.90
+            });
+          }
+          var txtMentioned = extractMentionedScholarsForText((th.text || '') + ' ' + (th.source || ''), index);
+          txtMentioned.forEach(function (sid) {
+            link(sid, matchedAyah._nodeId, {
+              kind: 'ayah',
+              evidence: ev,
+              note: 'Упоминается в хадисе тафсира к этому аяту',
+              weight: 0.86
+            });
+          });
+        });
+      }
+
+      extractMentionedScholarsForText(tf.tafsir_text, index).forEach(function (sid) {
+        link(sid, matchedAyah._nodeId, {
+          kind: 'ayah',
+          evidence: ev,
+          note: 'Упоминается в тафсире к этому аяту',
+          weight: 0.84
+        });
+      });
+    });
+
+    (index.hadiths || []).forEach(function (h) {
+      if (!h || !h.id) return;
+      var text = [h.note, h.source, h.subtitle].filter(Boolean).join(' ');
+      extractMentionedScholarsForText(text, index).forEach(function (sid) {
+        link(sid, 'hadith:' + h.id, {
+          kind: 'hadith',
+          evidence: 'hadith:' + h.id,
+          note: 'Передатчик или источник хадиса',
+          weight: 0.89
+        });
+      });
+    });
+
+    (index.duas || []).forEach(function (d) {
+      if (!d || !d.id) return;
+      var extraBody = d.id === 'ruqyah_guide' ? (d.translation || '') : '';
+      var text = [d.note, d.source, d.graded_by, extraBody].filter(Boolean).join(' ');
+      extractMentionedScholarsForText(text, index).forEach(function (sid) {
+        link(sid, 'dua:' + d.id, {
+          kind: 'dua',
+          evidence: 'dua:' + d.id,
+          note: 'Упоминается в хадисе или источнике дуа',
+          weight: 0.87
+        });
+      });
+    });
+
+    (index.tasbihs || []).forEach(function (t) {
+      if (!t || !t.id) return;
+      var text = [t.dalil, t.source].filter(Boolean).join(' ');
+      extractMentionedScholarsForText(text, index).forEach(function (sid) {
+        link(sid, 'tasbih:' + t.id, {
+          kind: 'tasbih',
+          evidence: 'tasbih:' + t.id,
+          note: 'Упоминается в далиле тасбиха',
+          weight: 0.87
+        });
+      });
+    });
+
+    (index.quran || []).forEach(function (q) {
+      if (!q || !q.id) return;
+      var text = [q.note, q.source].filter(Boolean).join(' ');
+      if (!text) return;
+      var firstNode = index.ayahByNode.has('ayah:' + q.id + '#1') ? ('ayah:' + q.id + '#1') : null;
+      if (!firstNode) return;
+      extractMentionedScholarsForText(text, index).forEach(function (sid) {
+        link(sid, firstNode, {
+          kind: 'ayah',
+          evidence: 'quran:' + q.id,
+          note: 'Упоминается в примечании или источнике суры/аята',
+          weight: 0.83
+        });
+      });
+    });
+
+    (index.edges || []).forEach(function (edge) {
+      if (!edge || !edge.from || !edge.to) return;
+      var sNode = edge.from.indexOf('scholar:') === 0 ? edge.from : (edge.to.indexOf('scholar:') === 0 ? edge.to : null);
+      if (!sNode) return;
+      var other = sNode === edge.from ? edge.to : edge.from;
+      var sid = sNode.slice(8);
+      if (other.indexOf('ayah:') === 0 || other.indexOf('hadith:') === 0 || other.indexOf('dua:') === 0 || other.indexOf('tasbih:') === 0) {
+        link(sid, other, {
+          kind: other.split(':')[0],
+          evidence: edge.evidence_source || other,
+          note: edge.evidence_note || '',
+          weight: edge.weight || 0.85
+        });
+      }
+    });
+
+    index._scholarToNodes = byScholar;
+    index._nodeToScholars = byNode;
+    index._scholarLinksBuilt = true;
+    return index;
+  }
+
   function createContextIndex(ctx) {
     var context = ctx || {};
     var quran = context.quran || [];
@@ -398,12 +597,37 @@
     PATH_MOOD_ORDER.forEach(function (m) { moodById.set(m.id.toLowerCase(), m); });
 
     var scholarById = new Map();
-    scholars.forEach(function (s) { if (s && s.id) scholarById.set(s.id, s); });
-    biographies.forEach(function (b) {
-      if (b && b.id && !scholarById.has(b.id)) {
-        scholarById.set(b.id, { id: b.id, name_ru: b.name, lifespan: b.lifespan || '' });
+    function upsertScholarEntry(entry) {
+      if (!entry || !entry.id) return;
+      var id = entry.id;
+      var existing = scholarById.get(id);
+      var normalized = {
+        id: id,
+        name: entry.name_ru || entry.name || (existing && existing.name) || id,
+        name_ru: entry.name_ru || entry.name || (existing && existing.name_ru) || id,
+        full_name: entry.full_name || (existing && existing.full_name) || '',
+        type: entry.type || (existing && existing.type) || 'scholar',
+        lifespan: entry.lifespan || (existing && existing.lifespan) || '',
+        description: entry.description || entry.note || (existing && existing.description) || '',
+        sources: (Array.isArray(entry.sources) && entry.sources.length)
+          ? entry.sources
+          : (entry.bio_source && entry.bio_source.locator ? [entry.bio_source.locator] : ((existing && existing.sources) || [])),
+        aliases: (Array.isArray(entry.aliases) && entry.aliases.length)
+          ? entry.aliases
+          : ((existing && existing.aliases) || [])
+      };
+      if (existing && existing.description && existing.description.length > normalized.description.length) {
+        normalized.description = existing.description;
       }
-    });
+      scholarById.set(id, normalized);
+    }
+
+    scholars.forEach(upsertScholarEntry);
+    biographies.forEach(upsertScholarEntry);
+    var scholarsMod = getScholarsModule();
+    if (scholarsMod && Array.isArray(scholarsMod.EXTRA_BIOGRAPHIES)) {
+      scholarsMod.EXTRA_BIOGRAPHIES.forEach(upsertScholarEntry);
+    }
 
     var edgesByNode = new Map();
     function addNodeEdge(key, edge) {
@@ -421,6 +645,29 @@
       if (edge.to !== edge.from) addNodeEdge(edge.to, edge);
     });
 
+    var canonicalGroupsByVerse = new Map();
+    var verseKeyByNode = new Map();
+    ayahs.forEach(function (a) {
+      var qObj = quranById.get(a._surahId);
+      var sa = resolveSurahAndAyah(qObj, a._ayahNum);
+      if (!sa) return;
+      var vk = sa.surah + ':' + sa.ayah;
+      verseKeyByNode.set(a._nodeId, vk);
+      var grp = canonicalGroupsByVerse.get(vk);
+      if (!grp) {
+        grp = [];
+        canonicalGroupsByVerse.set(vk, grp);
+      }
+      grp.push(a._nodeId);
+    });
+    var ayahAliasesByNode = new Map();
+    canonicalGroupsByVerse.forEach(function (grp) {
+      if (grp.length <= 1) return;
+      grp.forEach(function (nId) {
+        ayahAliasesByNode.set(nId, grp.slice());
+      });
+    });
+
     return {
       quran: quran,
       ayahs: ayahs,
@@ -434,6 +681,8 @@
       edges: edges,
       edgesByNode: edgesByNode,
       ayahByNode: ayahByNode,
+      verseKeyByNode: verseKeyByNode,
+      ayahAliasesByNode: ayahAliasesByNode,
       quranById: quranById,
       duaById: duaById,
       hadithById: hadithById,
@@ -461,8 +710,19 @@
     var s = String(nodeId || '');
     if (s.indexOf('quran:') === 0) {
       var qId = s.slice(6);
-      var list = index.ayahs.filter(function (a) { return a._surahId === qId; }).map(function (a) { return a._nodeId; });
+      var outSet = new Set();
+      index.ayahs.forEach(function (a) {
+        if (a._surahId !== qId) return;
+        outSet.add(a._nodeId);
+        if (index.ayahAliasesByNode && index.ayahAliasesByNode.has(a._nodeId)) {
+          index.ayahAliasesByNode.get(a._nodeId).forEach(function (al) { outSet.add(al); });
+        }
+      });
+      var list = Array.from(outSet);
       return list.length ? list : [s];
+    }
+    if (s.indexOf('ayah:') === 0 && index.ayahAliasesByNode && index.ayahAliasesByNode.has(s)) {
+      return index.ayahAliasesByNode.get(s).slice();
     }
     return [s];
   }
@@ -471,6 +731,7 @@
     switch (edgeType) {
       case 'hadith_explains_ayah': return isReverse ? 'Аят из хадиса' : 'Хадис разъясняет аят';
       case 'ayah_related_ayah': return 'Связанный аят';
+      case 'ayah_tasbih': return isReverse ? 'Аят с этим поминанием' : 'Тасбих по смыслу аята';
       case 'dua_hadith': return isReverse ? 'Связанное дуа' : 'Хадис о данном дуа';
       case 'dua_ayah': return isReverse ? 'Упоминается в руководстве/дуа' : 'Аят из этого раздела';
       case 'dua_tasbih': return isReverse ? 'Связанное дуа' : 'Связанный тасбих';
@@ -484,6 +745,7 @@
     var index = (ctxOrIndex && ctxOrIndex.ayahByNode) ? ctxOrIndex : createContextIndex(ctxOrIndex);
     var seedIds = expandTargetNodeIds(nodeId, index);
     var seedSet = new Set(seedIds);
+    var rawAyahTargets = new Map();
 
     var out = {
       themes: [],
@@ -534,11 +796,11 @@
     }
 
     function pushAyah(aNodeId, edge, isReverse) {
-      if (seedSet.has(aNodeId) || seenAyahs.has(aNodeId)) return;
+      if (seedSet.has(aNodeId)) return;
       var a = index.ayahByNode.get(aNodeId);
       if (!a) return;
-      seenAyahs.add(aNodeId);
-      out.ayahs.push({
+      var vk = (index.verseKeyByNode && index.verseKeyByNode.get(aNodeId)) || aNodeId;
+      var nextObj = {
         nodeId: a._nodeId,
         surahId: a._surahId,
         ayahNum: a._ayahNum,
@@ -550,7 +812,17 @@
         evidence: describePathEvidence(edge.evidence_source, index, a._surahNum, a._ayahNum),
         note: edge.evidence_note || '',
         weight: edge.weight || 0.8
-      });
+      };
+      var existing = rawAyahTargets.get(vk);
+      if (!existing) {
+        rawAyahTargets.set(vk, nextObj);
+      } else {
+        var nextIsRuqyah = nextObj.surahId.indexOf('ruqyah_') === 0;
+        var prevIsRuqyah = existing.surahId.indexOf('ruqyah_') === 0;
+        if ((nextObj.weight > existing.weight && !(nextIsRuqyah && !prevIsRuqyah)) || (prevIsRuqyah && !nextIsRuqyah)) {
+          rawAyahTargets.set(vk, nextObj);
+        }
+      }
     }
 
     function pushHadith(hNodeId, edge, isReverse) {
@@ -623,6 +895,8 @@
       });
     }
 
+    ensureScholarLinkIndex(index);
+
     var candidateEdges = [];
     var seenEdgeIdx = new Set();
 
@@ -637,6 +911,50 @@
               candidateEdges.push(eObj);
             }
           }
+        }
+      }
+
+      if (sid.indexOf('scholar:') === 0) {
+        var targetScId = sid.slice(8);
+        var linkedNodes = index._scholarToNodes ? index._scholarToNodes.get(targetScId) : null;
+        if (linkedNodes) {
+          linkedNodes.forEach(function (info, targetNodeId) {
+            if (targetNodeId.indexOf('ayah:') === 0) {
+              pushAyah(targetNodeId, {
+                type: 'tafsir_comments_ayah',
+                evidence_source: info.evidence || targetNodeId,
+                evidence_note: info.note || '',
+                weight: info.weight || 0.86
+              }, false);
+            } else if (targetNodeId.indexOf('hadith:') === 0) {
+              pushHadith(targetNodeId, {
+                type: 'hadith_explains_ayah',
+                evidence_source: info.evidence || targetNodeId,
+                evidence_note: info.note || '',
+                weight: info.weight || 0.88
+              }, false);
+            } else if (targetNodeId.indexOf('dua:') === 0) {
+              pushDua(targetNodeId, {
+                type: 'dua_hadith',
+                evidence_source: info.evidence || targetNodeId,
+                evidence_note: info.note || '',
+                weight: info.weight || 0.87
+              }, false);
+            } else if (targetNodeId.indexOf('tasbih:') === 0) {
+              pushTasbih(targetNodeId, {
+                type: 'hadith_tasbih',
+                evidence_source: info.evidence || targetNodeId,
+                evidence_note: info.note || '',
+                weight: info.weight || 0.87
+              }, false);
+            }
+          });
+        }
+      } else {
+        if (index._nodeToScholars && index._nodeToScholars.has(sid)) {
+          index._nodeToScholars.get(sid).forEach(function (scId) {
+            pushScholar(scId);
+          });
         }
       }
 
@@ -670,48 +988,6 @@
             }
           }
         }
-      } else if (sid.indexOf('scholar:') === 0) {
-        var targetScId = sid.slice(8);
-        var scObj = index.scholarById.get(targetScId);
-        var scName = scObj ? (scObj.name_ru || scObj.name || '') : '';
-        var scNorm = scName ? normalizeSearchText(scName.replace(/[‘’']/g, '')) : '';
-        var scStem = scNorm ? scNorm.replace(/а$/, '') : '';
-
-        index.tafsirs.forEach(function (tf) {
-          if (!tf || tf.status === 'placeholder' || !tf.tafsir_text) return;
-          var authorId = scholarIdFromSource(tf.source, index.scholars);
-          var hasTransmitter = Array.isArray(tf.hadiths) && tf.hadiths.some(function (th) {
-            return th && th.transmitter_id === targetScId;
-          });
-          if (authorId !== targetScId && !hasTransmitter) return;
-
-          var matchedAyah = index.ayahs.find(function (a) {
-            return a._surahNum === tf.surah && a._ayahNum === tf.ayah;
-          });
-          if (matchedAyah) {
-            pushAyah(matchedAyah._nodeId, {
-              type: 'tafsir_comments_ayah',
-              evidence_source: 'tafsir:' + authorId + '_' + tf.surah + '_' + tf.ayah,
-              evidence_note: authorId === targetScId ? 'Автор тафсира к этому аяту' : 'Передатчик хадиса в тафсире к этому аяту',
-              weight: authorId === targetScId ? 0.92 : 0.88
-            }, false);
-          }
-        });
-
-        if (scStem && scStem.length >= 4) {
-          index.hadiths.forEach(function (h) {
-            if (!h) return;
-            var srcNorm = normalizeSearchText(((h.source || '') + ' ' + (h.note || '')).replace(/[‘’']/g, ''));
-            if (srcNorm.indexOf(scStem) !== -1) {
-              pushHadith('hadith:' + h.id, {
-                type: 'hadith_explains_ayah',
-                evidence_source: 'hadith:' + h.id,
-                evidence_note: 'Упоминается в источнике или примечании хадиса',
-                weight: 0.85
-              }, false);
-            }
-          });
-        }
       }
     });
 
@@ -730,8 +1006,10 @@
       else if (other.indexOf('hadith:') === 0) pushHadith(other, edge, isReverse);
       else if (other.indexOf('dua:') === 0) pushDua(other, edge, isReverse);
       else if (other.indexOf('tasbih:') === 0) pushTasbih(other, edge, isReverse);
-      else if (other.indexOf('scholar:') === 0) pushScholar(other);
+      else if (other.indexOf('scholar:') === 0 && !seedSet.has(other)) pushScholar(other);
     });
+
+    rawAyahTargets.forEach(function (item) { out.ayahs.push(item); });
 
     out.themes.sort(function (a, b) { return b.weight - a.weight; });
     out.moods.sort(function (a, b) { return b.weight - a.weight; });
@@ -866,6 +1144,38 @@
     });
   }
 
+  function getScholarCatalog(ctxOrIndex) {
+    var index = (ctxOrIndex && ctxOrIndex.ayahByNode) ? ctxOrIndex : createContextIndex(ctxOrIndex);
+    ensureScholarLinkIndex(index);
+    var roleOrder = { companion: 1, tabii: 2, scholar: 3, transmitter: 4 };
+    var list = [];
+    index.scholarById.forEach(function (sc) {
+      if (!sc || !sc.id) return;
+      var map = index._scholarToNodes ? index._scholarToNodes.get(sc.id) : null;
+      var count = map ? map.size : 0;
+      list.push({
+        id: sc.id,
+        name: sc.name_ru || sc.name || sc.id,
+        title: sc.name_ru || sc.name || sc.id,
+        full_name: sc.full_name || '',
+        type: sc.type || 'scholar',
+        lifespan: sc.lifespan || '',
+        description: sc.description || '',
+        sources: Array.isArray(sc.sources) ? sc.sources : [],
+        aliases: Array.isArray(sc.aliases) ? sc.aliases : [],
+        count: count
+      });
+    });
+    list.sort(function (a, b) {
+      var ra = roleOrder[a.type] || 5;
+      var rb = roleOrder[b.type] || 5;
+      if (ra !== rb) return ra - rb;
+      if (b.count !== a.count) return b.count - a.count;
+      return a.name.localeCompare(b.name, 'ru');
+    });
+    return list;
+  }
+
   function itemMatchesQuery(item, normQuery, tokens) {
     if (!normQuery) return { matched: true, score: 0 };
     var titleNorm = normalizeSearchText(item._title);
@@ -874,6 +1184,7 @@
     var trNorm = normalizeSearchText(item._tr);
     var arNorm = normalizeArabicText(item._ar);
     var noteNorm = normalizeSearchText(item._note);
+    var sourceNorm = normalizeSearchText(item._source);
     var tafsirNorm = normalizeSearchText(item._tafsirReason);
     var relThemesNorm = item._relations
       ? normalizeSearchText(item._relations.themes.map(function (t) { return t.title + ' ' + t.note; }).join(' '))
@@ -881,17 +1192,23 @@
     var relMoodsNorm = item._relations
       ? normalizeSearchText(item._relations.moods.map(function (m) { return m.title + ' ' + m.note; }).join(' '))
       : '';
-    var semanticNorm = normalizeSearchText([item._semanticJustification, item._semanticNote, item._themeTitle, item._moodTitle].filter(Boolean).join(' '));
+    var relScholarsNorm = item._relations && Array.isArray(item._relations.scholars)
+      ? normalizeSearchText(item._relations.scholars.map(function (s) { return s.name; }).join(' ').replace(/[‘’']/g, ''))
+      : '';
+    var semanticNorm = normalizeSearchText([item._semanticJustification, item._semanticNote, item._themeTitle, item._moodTitle, item._scholarTitle].filter(Boolean).join(' '));
 
-    var fullHay = [titleNorm, subNorm, trnNorm, trNorm, arNorm, noteNorm, tafsirNorm, relThemesNorm, relMoodsNorm, semanticNorm]
+    var fullHay = [titleNorm, subNorm, trnNorm, trNorm, arNorm, noteNorm, sourceNorm, tafsirNorm, relThemesNorm, relMoodsNorm, relScholarsNorm, semanticNorm]
       .filter(Boolean)
-      .join(' ');
+      .join(' ')
+      .replace(/[‘’']/g, '');
 
-    var exactPhrase = fullHay.indexOf(normQuery) !== -1;
+    var cleanNormQuery = normQuery.replace(/[‘’']/g, '');
+    var exactPhrase = fullHay.indexOf(cleanNormQuery) !== -1;
     var allTokensMatch = tokens.length > 0 && tokens.every(function (tk) {
-      if (fullHay.indexOf(tk) !== -1) return true;
-      if (/^ال[\u0621-\u064A]{3,}$/.test(tk)) {
-        return fullHay.indexOf(tk.slice(2)) !== -1;
+      var cleanTk = tk.replace(/[‘’']/g, '');
+      if (fullHay.indexOf(cleanTk) !== -1) return true;
+      if (/^ال[\u0621-\u064A]{3,}$/.test(cleanTk)) {
+        return fullHay.indexOf(cleanTk.slice(2)) !== -1;
       }
       return false;
     });
@@ -903,7 +1220,8 @@
     if (arNorm && arNorm.indexOf(normQuery) !== -1) score += 45;
     if (trnNorm.indexOf(normQuery) !== -1) score += 30;
     if (trNorm.indexOf(normQuery) !== -1) score += 25;
-    if (relThemesNorm.indexOf(normQuery) !== -1 || relMoodsNorm.indexOf(normQuery) !== -1) score += 20;
+    if (relThemesNorm.indexOf(normQuery) !== -1 || relMoodsNorm.indexOf(normQuery) !== -1 || relScholarsNorm.indexOf(cleanNormQuery) !== -1) score += 20;
+    if (sourceNorm.indexOf(cleanNormQuery) !== -1) score += 16;
     if (exactPhrase) score += 15;
     if (item._semanticJustification) score += 10;
     if (item._type === 'ayah') score += 4;
@@ -933,20 +1251,27 @@
 
     var activeTheme = resolveThemeByKey(rawTag, index);
     var activeMood = resolveMoodByKey(rawTag, index);
+    var activeScholar = resolveScholarByKey(rawTag, index);
 
     var targetKind = null;
-    if (mode === 'theme') targetKind = 'theme';
+    if (mode === 'scholar' && activeScholar) targetKind = 'scholar';
+    else if (mode === 'theme') targetKind = 'theme';
     else if (mode === 'mood') targetKind = 'mood';
     else if (rawTag) {
-      if (activeMood && !activeTheme) targetKind = 'mood';
+      if (rawTag.indexOf('scholar:') === 0 && activeScholar) targetKind = 'scholar';
+      else if (activeMood && !activeTheme) targetKind = 'mood';
       else if (activeTheme && !activeMood) targetKind = 'theme';
       else if (activeMood) targetKind = 'mood';
       else if (activeTheme) targetKind = 'theme';
+      else if (activeScholar) targetKind = 'scholar';
     }
 
     var matchedTopics = [];
     var matchedMoods = [];
+    var matchedScholars = [];
     if (normQuery) {
+      var cleanQ = normQuery.replace(/[‘’']/g, '');
+      var cleanTokens = tokens.map(function (tk) { return tk.replace(/[‘’']/g, ''); });
       matchedTopics = getThemeCatalog(index).filter(function (th) {
         var h = normalizeSearchText(th.title + ' ' + (th.description || ''));
         return h.indexOf(normQuery) !== -1 || tokens.every(function (tk) { return h.indexOf(tk) !== -1; });
@@ -954,6 +1279,10 @@
       matchedMoods = getMoodCatalog(index).filter(function (m) {
         var h = normalizeSearchText(m.title + ' ' + (m.description || ''));
         return h.indexOf(normQuery) !== -1 || tokens.every(function (tk) { return h.indexOf(tk) !== -1; });
+      });
+      matchedScholars = getScholarCatalog(index).filter(function (sc) {
+        var h = normalizeSearchText([sc.name, sc.full_name].concat(sc.aliases || []).join(' ')).replace(/[‘’']/g, '');
+        return h.indexOf(cleanQ) !== -1 || cleanTokens.every(function (tk) { return h.indexOf(tk) !== -1; });
       });
     }
 
@@ -973,6 +1302,7 @@
         }
         if (!existing._themeTitle && item._themeTitle) existing._themeTitle = item._themeTitle;
         if (!existing._moodTitle && item._moodTitle) existing._moodTitle = item._moodTitle;
+        if (!existing._scholarTitle && item._scholarTitle) existing._scholarTitle = item._scholarTitle;
       }
     }
 
@@ -991,7 +1321,27 @@
       }
     }
 
-    if (rawTag && ((targetKind === 'theme' && activeTheme) || (targetKind === 'mood' && activeMood))) {
+    if (rawTag && targetKind === 'scholar' && activeScholar) {
+      var rels = getSmartBookRelations('scholar:' + activeScholar.id, index);
+      var allLinked = []
+        .concat((rels.ayahs || []).map(function (a) { return { nodeId: a.nodeId, info: a }; }))
+        .concat((rels.hadiths || []).map(function (h) { return { nodeId: 'hadith:' + h.id, info: h }; }))
+        .concat((rels.duas || []).map(function (d) { return { nodeId: 'dua:' + d.id, info: d }; }))
+        .concat((rels.tasbihs || []).map(function (t) { return { nodeId: 'tasbih:' + t.id, info: t }; }));
+
+      allLinked.forEach(function (entry) {
+        var resolved = resolveRawByNodeId(entry.nodeId, index);
+        if (!resolved) return;
+        var card = makeCardItem(resolved.kind, resolved.raw, index, {
+          _semanticJustification: entry.info.evidence || '',
+          _semanticNote: entry.info.note || entry.info.relationLabel || '',
+          _scholarTitle: activeScholar.name_ru || activeScholar.name
+        });
+        if (card) {
+          addCandidate(card, 900 + Math.round(((entry.info && entry.info.weight) || 0.85) * 100) + typeRank(card._type));
+        }
+      });
+    } else if (rawTag && ((targetKind === 'theme' && activeTheme) || (targetKind === 'mood' && activeMood))) {
       var edgeTarget = targetKind === 'theme' ? ('theme:' + activeTheme.id) : ('mood:' + activeMood.id);
       var edgeBucket = index.edgesByNode ? (index.edgesByNode.get(edgeTarget) || []) : index.edges;
       var matchingEdges = edgeBucket.filter(function (e) { return e && e.to === edgeTarget; });
@@ -1047,18 +1397,23 @@
         }
       });
     } else if (normQuery) {
+      ensureScholarLinkIndex(index);
       var everyEntry = [];
       pushAllNodes(everyEntry);
 
       everyEntry.forEach(function (entry) {
         var light = buildLightItem(entry.kind, entry.raw);
         if (!light) return;
-        // Быстрая предварительная проверка по сырым полям и привязанным рёбрам (O(1) для ~6200 несовпавших аятов)
         var prelim = itemMatchesQuery(light, normQuery, tokens);
         var edgeHits = false;
-        if (!prelim.matched && index.edgesByNode) {
-          var relEdges = index.edgesByNode.get(light._nodeId);
-          if (relEdges && relEdges.length) edgeHits = true;
+        if (!prelim.matched) {
+          if (index.edgesByNode) {
+            var relEdges = index.edgesByNode.get(light._nodeId);
+            if (relEdges && relEdges.length) edgeHits = true;
+          }
+          if (!edgeHits && index._nodeToScholars && index._nodeToScholars.has(light._nodeId)) {
+            edgeHits = true;
+          }
         }
         if (!prelim.matched && !edgeHits) return;
         var card = makeCardItem(entry.kind, entry.raw, index);
@@ -1092,8 +1447,10 @@
       items: results,
       activeTheme: targetKind === 'theme' ? activeTheme : null,
       activeMood: targetKind === 'mood' ? activeMood : null,
+      activeScholar: targetKind === 'scholar' ? activeScholar : null,
       matchedTopics: matchedTopics,
-      matchedMoods: matchedMoods
+      matchedMoods: matchedMoods,
+      matchedScholars: matchedScholars
     };
   }
 
@@ -1112,6 +1469,7 @@
     getSmartBookRelations: getSmartBookRelations,
     getThemeCatalog: getThemeCatalog,
     getMoodCatalog: getMoodCatalog,
+    getScholarCatalog: getScholarCatalog,
     queryPathItems: queryPathItems
   };
 

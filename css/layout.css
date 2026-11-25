@@ -61,7 +61,7 @@
 #onboarding .ob-dots { display: flex; gap: 6px; justify-content: center; padding: 0 0 var(--space-2); }
 
 /* === DASH HEADER === */
-.dash-header { align-items: flex-start; padding: var(--space-3) var(--space-3) var(--space-4); gap: var(--space-2); min-height: 0; }
+.dash-header { align-items: center; justify-content: flex-end; padding: var(--space-2) var(--space-3) var(--space-1); gap: var(--space-2); min-height: 48px; }
 .dash-header-left { display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1; }
 .dash-salam { font-size: var(--fs-sm); font-weight: 600; color: var(--text); line-height: 1.35; overflow-wrap: break-word; max-width: 100%; }
 .dash-hijri-gold { font-size: var(--fs-xs); font-weight: 800; letter-spacing: .2px; line-height: 1.3; min-height: 1em; }

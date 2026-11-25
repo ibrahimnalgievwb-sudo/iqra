@@ -10,6 +10,25 @@ var debouncedRenderPath = debounce(renderPath, 220);
 var _cachedPathIndex = null;
 var _cachedPathSig = '';
 
+function _pathLinkify(safeHtml, opts) {
+  var out = (typeof IqraScholars !== 'undefined' && typeof IqraScholars.linkifyScholars === 'function')
+    ? IqraScholars.linkifyScholars(safeHtml, opts)
+    : (safeHtml == null ? '' : String(safeHtml));
+  if (typeof IqraScholars !== 'undefined' && typeof IqraScholars.formatSacredTermsHtml === 'function') {
+    out = IqraScholars.formatSacredTermsHtml(out);
+  }
+  return out;
+}
+
+function _formatPathTafsirParagraphs(text) {
+  if (!text) return '';
+  var normalized = String(text).replace(/\r\n/g, '\n').trim();
+  if (!normalized) return '';
+  return normalized.split(/\n{2,}/).map(function (p) {
+    return '<p class="tafsir-para">' + _pathLinkify(escNl(p.trim())) + '</p>';
+  }).join('');
+}
+
 function getPathGraphContext() {
   return {
     quran: (typeof state !== 'undefined' && state && Array.isArray(state.quran)) ? state.quran : (window.DEFAULT_QURAN || []),
@@ -28,15 +47,20 @@ function getPathGraphContext() {
 function getPathGraphIndex() {
   if (typeof IqraGraph === 'undefined') return null;
   var ctx = getPathGraphContext();
+  var tasbihSig = ctx.tasbihs.map(function (t) {
+    return (t && t.id ? t.id : '') + ':' + (t && t.dalil ? t.dalil.length : 0);
+  }).join(',');
   var sig = [
     ctx.quran.length,
     ctx.duas.length,
     ctx.hadiths.length,
     ctx.tasbihs.length,
+    tasbihSig,
     ctx.tafsirs.length,
     ctx.edges.length,
-    ctx.themes.length
-  ].join(':');
+    ctx.themes.length,
+    ctx.biographies.length
+  ].join('|');
   if (!_cachedPathIndex || _cachedPathSig !== sig) {
     _cachedPathIndex = IqraGraph.createContextIndex(ctx);
     _cachedPathSig = sig;
@@ -64,7 +88,8 @@ function syncPathControls() {
   if (inp) {
     if (mode === 'theme') inp.placeholder = 'Уточнить внутри тем по слову или суре…';
     else if (mode === 'mood') inp.placeholder = 'Уточнить по состоянию души или слову…';
-    else inp.placeholder = 'Поиск по словам, арабскому тексту, теме…';
+    else if (mode === 'scholar') inp.placeholder = 'Поиск сподвижника, таби‘ина или учёного…';
+    else inp.placeholder = 'Поиск по словам, арабскому, теме или имени…';
   }
 
   var clearBtn = document.getElementById('path-clear-btn');
@@ -74,7 +99,7 @@ function syncPathControls() {
 }
 
 function setPathMode(mode) {
-  if (mode !== 'all' && mode !== 'theme' && mode !== 'mood') mode = 'all';
+  if (mode !== 'all' && mode !== 'theme' && mode !== 'mood' && mode !== 'scholar') mode = 'all';
   pathMode = mode;
   activePathTag = null;
   pathShowAll = false;
@@ -122,14 +147,19 @@ function togglePathShowAll() {
 function openPathFilter(mode, tag) {
   var index = getPathGraphIndex() || getPathGraphContext();
   var resolvedMode = mode;
-  if (resolvedMode !== 'all' && resolvedMode !== 'theme' && resolvedMode !== 'mood') {
-    if (tag && typeof IqraGraph !== 'undefined') {
+  if (resolvedMode !== 'all' && resolvedMode !== 'theme' && resolvedMode !== 'mood' && resolvedMode !== 'scholar') {
+    if (tag && String(tag).indexOf('scholar:') === 0) {
+      resolvedMode = 'scholar';
+    } else if (tag && typeof IqraGraph !== 'undefined') {
       var moods = IqraGraph.getMoodCatalog(index);
       var isMood = moods.some(function (m) { return m.title === tag || m.id === tag; });
       var themes = IqraGraph.getThemeCatalog(index);
       var isTheme = themes.some(function (t) { return t.title === tag || t.id === tag; });
+      var scholars = typeof IqraGraph.getScholarCatalog === 'function' ? IqraGraph.getScholarCatalog(index) : [];
+      var isScholar = scholars.some(function (s) { return s.id === tag || ('scholar:' + s.id) === tag || s.name === tag; });
       if (isMood && !isTheme) resolvedMode = 'mood';
       else if (isTheme) resolvedMode = 'theme';
+      else if (isScholar) resolvedMode = 'scholar';
       else resolvedMode = 'all';
     } else {
       resolvedMode = 'all';
@@ -137,7 +167,11 @@ function openPathFilter(mode, tag) {
   }
 
   pathMode = resolvedMode;
-  activePathTag = tag || null;
+  if (resolvedMode === 'scholar' && tag && String(tag).indexOf('scholar:') !== 0) {
+    activePathTag = 'scholar:' + tag;
+  } else {
+    activePathTag = tag || null;
+  }
   pathTypeFilter = 'all';
   pathShowAll = false;
 
@@ -175,6 +209,22 @@ function renderPathChips(ctxOrIndex) {
   }
   if (wrapper) wrapper.style.display = '';
 
+  if (mode === 'scholar' || (activePathTag && String(activePathTag).indexOf('scholar:') === 0)) {
+    var scholars = typeof IqraGraph.getScholarCatalog === 'function' ? IqraGraph.getScholarCatalog(ctxOrIndex) : [];
+    var cleanActive = activePathTag ? String(activePathTag).replace(/^scholar:/, '') : '';
+    var chipList = scholars.filter(function (s) {
+      return s.count > 0 || s.id === cleanActive;
+    }).slice(0, 18);
+    var htmlS = '<button type="button" class="path-chip ' + (!activePathTag ? 'active' : '') + '" onclick="setPathTag(null)">Все учёные</button>';
+    htmlS += chipList.map(function (sc) {
+      var tagVal = 'scholar:' + sc.id;
+      var active = activePathTag === tagVal || activePathTag === sc.id;
+      return '<button type="button" class="path-chip ' + (active ? 'active' : '') + '" onclick="togglePathChip(\'' + escAttr(tagVal) + '\')">' + esc(sc.name) + '</button>';
+    }).join('');
+    container.innerHTML = htmlS;
+    return;
+  }
+
   var isMoodMode = mode === 'mood';
   var items = isMoodMode ? IqraGraph.getMoodCatalog(ctxOrIndex) : IqraGraph.getThemeCatalog(ctxOrIndex);
   var allLabel = isMoodMode ? 'Все состояния' : 'Все темы';
@@ -189,6 +239,34 @@ function renderPathChips(ctxOrIndex) {
 }
 
 function buildPathContextBannerHtml(queryRes) {
+  if (queryRes && queryRes.activeScholar) {
+    var sc = queryRes.activeScholar;
+    var roleLabels = {
+      companion: 'Сподвижник Пророка (да благословит его Аллах и приветствует)',
+      tabii: 'Таби‘ин (поколение учеников сподвижников)',
+      scholar: 'Учёный Ахлю-с-Сунна',
+      transmitter: 'Передатчик'
+    };
+    var countSc = (queryRes.items || []).length;
+    return (
+      '<div class="path-focus-banner path-focus-scholar" style="margin-bottom:12px;">' +
+        '<div class="pfb-top">' +
+          '<span class="pfb-kicker">' + esc(roleLabels[sc.type] || 'Учёный Ахлю-с-Сунна') + '</span>' +
+          '<button type="button" class="pfb-reset" onclick="setPathTag(null)">Все учёные</button>' +
+        '</div>' +
+        '<div class="pfb-title">' + esc(sc.name_ru || sc.name) + '</div>' +
+        (sc.full_name ? '<div class="pfb-fullname">' + esc(sc.full_name) + '</div>' : '') +
+        (sc.lifespan ? '<div class="pfb-life">' + esc(sc.lifespan) + '</div>' : '') +
+        (sc.description ? '<div class="pfb-desc">' + _pathLinkify(esc(sc.description), { excludeId: sc.id }) + '</div>' : '') +
+        '<div class="pfb-actions-row">' +
+          '<span class="pfb-meta">Связанных материалов: ' + countSc + '</span>' +
+          '<button type="button" class="btn secondary btn-inline pfb-bio-btn" onclick="openScholarInfo(\'' + escAttr(sc.id) + '\')">' +
+            '<svg class="ico ico-sm"><use href="#i-info"/></svg> Полная справка и источники' +
+          '</button>' +
+        '</div>' +
+      '</div>'
+    );
+  }
   var focus = queryRes && (queryRes.activeMood || queryRes.activeTheme);
   if (!focus) return '';
   var kindLabel = queryRes.activeMood ? 'Состояние души' : 'Тема Умной книги';
@@ -200,8 +278,30 @@ function buildPathContextBannerHtml(queryRes) {
         '<button type="button" class="pfb-reset" onclick="setPathTag(null)">К обзору</button>' +
       '</div>' +
       '<div class="pfb-title">' + esc(focus.title) + '</div>' +
-      (focus.description ? '<div class="pfb-desc">' + esc(focus.description) + '</div>' : '') +
+      (focus.description ? '<div class="pfb-desc">' + _pathLinkify(esc(focus.description)) + '</div>' : '') +
       '<div class="pfb-meta">Подобрано материалов: ' + count + '</div>' +
+    '</div>'
+  );
+}
+
+function _renderScholarCard(sc) {
+  var clickPrimary = sc.count > 0
+    ? 'setPathTag(\'scholar:' + escAttr(sc.id) + '\')'
+    : 'openScholarInfo(\'' + escAttr(sc.id) + '\')';
+  return (
+    '<div class="path-catalog-card path-scholar-card" role="button" tabindex="0" onclick="' + clickPrimary + '" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();' + clickPrimary + '}">' +
+      '<div class="pcc-top">' +
+        '<span class="pcc-title">' + esc(sc.name) + '</span>' +
+        '<span class="pcc-count" title="Связанных материалов в приложении">' + sc.count + '</span>' +
+      '</div>' +
+      (sc.lifespan ? '<div class="psc-life">' + esc(sc.lifespan) + '</div>' : '') +
+      '<div class="pcc-desc psc-desc">' + esc(sc.description || sc.full_name || '') + '</div>' +
+      '<div class="psc-actions">' +
+        '<button type="button" class="psc-btn" onclick="event.stopPropagation();openScholarInfo(\'' + escAttr(sc.id) + '\')">' +
+          '<svg class="ico ico-sm"><use href="#i-info"/></svg> Справка' +
+        '</button>' +
+        (sc.count > 0 ? '<button type="button" class="psc-btn psc-btn-accent" onclick="event.stopPropagation();setPathTag(\'scholar:' + escAttr(sc.id) + '\')"><svg class="ico ico-sm"><use href="#i-compass"/></svg> Материалы (' + sc.count + ')</button>' : '') +
+      '</div>' +
     '</div>'
   );
 }
@@ -209,6 +309,34 @@ function buildPathContextBannerHtml(queryRes) {
 function renderIdlePathOverview(ctxOrIndex, mode) {
   var themes = IqraGraph.getThemeCatalog(ctxOrIndex);
   var moods = IqraGraph.getMoodCatalog(ctxOrIndex);
+  var scholars = typeof IqraGraph.getScholarCatalog === 'function' ? IqraGraph.getScholarCatalog(ctxOrIndex) : [];
+
+  if (mode === 'scholar') {
+    var groups = [
+      { key: 'companion', title: 'Сподвижники Пророка, да благословит его Аллах и приветствует (сахабы)', items: scholars.filter(function (s) { return s.type === 'companion'; }) },
+      { key: 'tabii', title: 'Таби‘ины (ученики сподвижников)', items: scholars.filter(function (s) { return s.type === 'tabii'; }) },
+      { key: 'scholar', title: 'Имамы и учёные Ахлю-с-Сунна', items: scholars.filter(function (s) { return s.type !== 'companion' && s.type !== 'tabii'; }) }
+    ];
+    return (
+      '<div class="path-catalog-section">' +
+        '<div class="pcs-head">' +
+          '<div class="pcs-title">Сподвижники, таби‘ины и учёные Ахлю-с-Сунна</div>' +
+          '<div class="pcs-sub">Проверенные биографии по классическим книгам («аль-Исаба», «Сияр а‘лям ан-нубаля» и др.) и все связанные материалы в приложении</div>' +
+        '</div>' +
+        groups.map(function (g) {
+          if (!g.items.length) return '';
+          return (
+            '<div class="path-scholar-group">' +
+              '<div class="psg-title">' + esc(g.title) + ' <span class="psg-count">' + g.items.length + '</span></div>' +
+              '<div class="path-catalog-grid path-scholar-grid">' +
+                g.items.map(_renderScholarCard).join('') +
+              '</div>' +
+            '</div>'
+          );
+        }).join('') +
+      '</div>'
+    );
+  }
 
   if (mode === 'mood') {
     return (
@@ -259,6 +387,7 @@ function renderIdlePathOverview(ctxOrIndex, mode) {
 
   var quickThemes = themes.slice(0, 6);
   var quickMoods = moods.slice(0, 6);
+  var quickScholars = scholars.filter(function (s) { return s.count > 0; }).slice(0, 6);
   return (
     '<div class="path-overview">' +
       '<div class="path-empty path-empty-smart">' +
@@ -266,7 +395,7 @@ function renderIdlePathOverview(ctxOrIndex, mode) {
           '<span class="path-bismillah-kicker">С именем Аллаха</span>' +
           '<span class="path-heart-heading">Что тревожит твоё сердце — и о чём просит душа?</span>' +
         '</div>' +
-        '<div class="pes-sub">Ищите по русским словам и арабскому тексту, переходите к темам Корана и Сунны или подбирайте тексты под состояние души.</div>' +
+        '<div class="pes-sub">Ищите по русским словам, арабскому тексту и именам учёных, переходите к темам Корана и Сунны или подбирайте тексты под состояние души.</div>' +
         '<div class="pes-group-label">Популярные темы</div>' +
         '<div class="path-fallback">' +
           quickThemes.map(function (th) {
@@ -279,21 +408,39 @@ function renderIdlePathOverview(ctxOrIndex, mode) {
             return '<button type="button" class="path-chip" onclick="openPathFilter(\'mood\',\'' + escAttr(m.title) + '\')">' + esc(m.title) + '</button>';
           }).join('') +
         '</div>' +
+        (quickScholars.length ? (
+          '<div class="pes-group-label">Сподвижники и учёные</div>' +
+          '<div class="path-fallback">' +
+            quickScholars.map(function (sc) {
+              return '<button type="button" class="path-chip" onclick="openScholarInfo(\'' + escAttr(sc.id) + '\')">' + esc(sc.name) + '</button>';
+            }).join('') +
+          '</div>'
+        ) : '') +
         '<div class="pes-mode-actions">' +
           '<button type="button" class="btn secondary btn-inline" onclick="setPathMode(\'theme\')">Все темы (' + themes.length + ')</button>' +
           '<button type="button" class="btn secondary btn-inline" onclick="setPathMode(\'mood\')">Все состояния (' + moods.length + ')</button>' +
+          '<button type="button" class="btn secondary btn-inline" onclick="setPathMode(\'scholar\')">Все учёные (' + scholars.length + ')</button>' +
         '</div>' +
       '</div>' +
     '</div>'
   );
 }
 
-function renderMatchedSuggestionsBar(matchedTopics, matchedMoods) {
+function renderMatchedSuggestionsBar(matchedTopics, matchedMoods, matchedScholars) {
   var hasT = Array.isArray(matchedTopics) && matchedTopics.length > 0;
   var hasM = Array.isArray(matchedMoods) && matchedMoods.length > 0;
-  if (!hasT && !hasM) return '';
+  var hasS = Array.isArray(matchedScholars) && matchedScholars.length > 0;
+  if (!hasT && !hasM && !hasS) return '';
 
   var chips = [];
+  if (hasS) {
+    matchedScholars.slice(0, 4).forEach(function (sc) {
+      chips.push('<button type="button" class="ecosystem-pill ecosystem-pill-scholar" onclick="openScholarInfo(\'' + escAttr(sc.id) + '\')"><svg class="ico ico-sm"><use href="#i-info"/></svg>Справка: ' + esc(sc.name) + '</button>');
+      if (sc.count > 0) {
+        chips.push('<button type="button" class="ecosystem-pill" onclick="openPathFilter(\'scholar\',\'scholar:' + escAttr(sc.id) + '\')"><svg class="ico ico-sm"><use href="#i-compass"/></svg>Материалы: ' + esc(sc.name) + ' (' + sc.count + ')</button>');
+      }
+    });
+  }
   if (hasT) {
     matchedTopics.slice(0, 4).forEach(function (th) {
       chips.push('<button type="button" class="ecosystem-pill" onclick="openPathFilter(\'theme\',\'' + escAttr(th.title) + '\')"><svg class="ico ico-sm"><use href="#i-bookmark"/></svg>Тема: ' + esc(th.title) + '</button>');
@@ -334,13 +481,20 @@ function buildEcosystemHtml(rels, opts) {
   var groupsHtml = '';
 
   if (ayahs.length) {
+    var inReader = typeof o.inReader === 'boolean'
+      ? o.inReader
+      : Boolean(typeof document !== 'undefined' && document.getElementById('read-mode') && document.getElementById('read-mode').classList.contains('active'));
     groupsHtml +=
       '<div class="ecosystem-group">' +
         '<div class="ecosystem-group-label">Аяты Корана</div>' +
         '<div class="ecosystem-pills">' +
           ayahs.slice(0, compact ? 4 : 8).map(function (a) {
-            var label = (a.refLabel ? (a.refLabel + ' · ') : '') + a.title.replace(/\s*·\s*аят\s*\d+$/i, '');
-            return '<button type="button" class="ecosystem-pill" onclick="event.stopPropagation();openQuran(\'' + escAttr(a.surahId) + '\',' + Number(a.ayahIdx || 0) + ')" title="' + escAttr(a.evidence || a.title) + '">' +
+            var cleanTitle = a.title.replace(/\s*·\s*(?:\d+:\d+|аят\s*\d+)$/i, '');
+            var label = (a.refLabel ? (a.refLabel + ' · ') : '') + cleanTitle;
+            var ayahAction = inReader
+              ? ('openRead(\'' + escAttr(a.surahId) + '\',' + Number(a.ayahIdx || 0) + ')')
+              : ('openQuran(\'' + escAttr(a.surahId) + '\',' + Number(a.ayahIdx || 0) + ')');
+            return '<button type="button" class="ecosystem-pill" onclick="event.stopPropagation();' + ayahAction + '" title="' + escAttr(a.evidence || a.title) + '">' +
               '<svg class="ico ico-sm"><use href="#i-book"/></svg>' +
               '<span>' + esc(label) + '</span>' +
             '</button>';
@@ -469,7 +623,6 @@ function renderAyahEcosystemDetails(ayahNodeId, options) {
   if (!ayahNodeId || typeof IqraGraph === 'undefined') return '';
   var index = getPathGraphIndex();
   if (!index) return '';
-  if (index.edgesByNode && !index.edgesByNode.has(ayahNodeId)) return '';
   var rels = IqraGraph.getSmartBookRelations(ayahNodeId, index);
   if (!rels) return '';
   var count =
@@ -506,14 +659,30 @@ function renderPathResultCard(item) {
   var openAction = 'openPathItem(\'' + escAttr(item._type) + '\',\'' + escAttr(openId) + '\',' + (typeof item._ayahIdx === 'number' ? item._ayahIdx : 0) + ')';
 
   var actionsHtml = '';
-  if (isAyah && item._isSurahAyah) {
+  if (isAyah) {
+    var ayahActionLabel = item._isSurahAyah ? ('Читать аят ' + esc(item._verseLabel || '')) : 'Читать в режиме чтения';
+    var secondaryLabel = item._isSurahAyah ? 'Открыть суру' : 'Открыть разбор';
     actionsHtml =
       '<div class="path-card-actions">' +
         '<button type="button" class="btn secondary btn-inline" onclick="event.stopPropagation();openRead(\'' + escAttr(item._surahId) + '\',' + Number(item._ayahIdx || 0) + ')">' +
-          '<svg class="ico ico-sm"><use href="#i-book"/></svg> Читать аят ' + esc(item._verseLabel || '') +
+          '<svg class="ico ico-sm"><use href="#i-book"/></svg> ' + ayahActionLabel +
         '</button>' +
         '<button type="button" class="btn secondary btn-inline" onclick="event.stopPropagation();openQuran(\'' + escAttr(item._surahId) + '\',' + Number(item._ayahIdx || 0) + ')">' +
-          'Открыть суру' +
+          secondaryLabel +
+        '</button>' +
+      '</div>';
+  } else if (item._type === 'hadith') {
+    actionsHtml =
+      '<div class="path-card-actions">' +
+        '<button type="button" class="btn secondary btn-inline" onclick="event.stopPropagation();openHadith(\'' + escAttr(item._id) + '\')">' +
+          '<svg class="ico ico-sm"><use href="#i-scroll"/></svg> Открыть хадис' +
+        '</button>' +
+      '</div>';
+  } else if (item._type === 'dua') {
+    actionsHtml =
+      '<div class="path-card-actions">' +
+        '<button type="button" class="btn secondary btn-inline" onclick="event.stopPropagation();openDua(\'' + escAttr(item._id) + '\')">' +
+          '<svg class="ico ico-sm"><use href="#i-dua"/></svg> Открыть дуа' +
         '</button>' +
       '</div>';
   } else if (item._type === 'tasbih') {
@@ -528,6 +697,9 @@ function renderPathResultCard(item) {
   var semanticHtml = '';
   if (item._semanticJustification || item._semanticNote || item._hasTafsir) {
     var rows = '';
+    if (item._scholarTitle) {
+      rows += '<div class="psb-row"><span class="psb-key">Учёный / сподвижник:</span> ' + esc(item._scholarTitle) + '</div>';
+    }
     if (item._themeTitle) {
       rows += '<div class="psb-row"><span class="psb-key">Тема:</span> ' + esc(item._themeTitle) + '</div>';
     }
@@ -535,26 +707,40 @@ function renderPathResultCard(item) {
       rows += '<div class="psb-row"><span class="psb-key">Состояние:</span> ' + esc(item._moodTitle) + '</div>';
     }
     if (item._semanticJustification) {
-      rows += '<div class="psb-row"><span class="psb-key">Основание:</span> ' + esc(item._semanticJustification) + '</div>';
+      rows += '<div class="psb-row"><span class="psb-key">Основание:</span> ' + _pathLinkify(esc(item._semanticJustification)) + '</div>';
     }
     if (item._semanticNote) {
-      rows += '<div class="psb-note">' + esc(item._semanticNote) + '</div>';
+      rows += '<div class="psb-note">' + _pathLinkify(esc(item._semanticNote)) + '</div>';
     }
 
     var tafsirBlock = '';
     if (item._hasTafsir) {
+      var refParts = String(item._verseLabel || '').split(':');
+      var tSurah = refParts.length === 2 ? parseInt(refParts[0], 10) : 0;
+      var tAyah = refParts.length === 2 ? parseInt(refParts[1], 10) : 0;
+      var openTafsirReaderBtn = (tSurah && tAyah && typeof openTafsirReader === 'function')
+        ? '<button type="button" class="btn secondary psb-scholar-btn" onclick="event.stopPropagation();openTafsirReader(' + tSurah + ',' + tAyah + ')">' +
+            '<svg class="ico ico-sm"><use href="#i-eye"/></svg> Крупно' +
+          '</button>'
+        : '';
       tafsirBlock =
         '<details class="tafsir-card psb-tafsir">' +
-          '<summary class="psb-tafsir-sum">' +
-            '<svg class="ico ico-sm"><use href="#i-book"/></svg> Показать тафсир' +
+          '<summary class="psb-tafsir-sum" aria-expanded="false" onclick="if(typeof toggleTafsirDisclosure===\'function\'){toggleTafsirDisclosure(this,event);}else{event.stopPropagation();}">' +
+            '<span class="tafsir-arrow" aria-hidden="true"></span>' +
+            '<svg class="ico ico-sm" aria-hidden="true"><use href="#i-book"/></svg>' +
+            '<span class="tafsir-summary-label">Тафсир</span>' +
+            '<span class="tafsir-state-hint" aria-hidden="true"></span>' +
           '</summary>' +
-          '<div class="psb-tafsir-body">' + escNl(item._tafsirReason) + '</div>' +
+          '<div class="psb-tafsir-body">' + _formatPathTafsirParagraphs(item._tafsirReason) + '</div>' +
         '</details>' +
         '<div class="psb-tafsir-foot">' +
-          '<div class="psb-tafsir-src">' + esc(item._tafsirSource) + '</div>' +
-          '<button type="button" class="btn secondary psb-scholar-btn" onclick="event.stopPropagation();openScholarInfo(\'' + escAttr(item._scholarId || 'ibn_kathir') + '\')">' +
-            '<svg class="ico ico-sm"><use href="#i-info"/></svg> Справка' +
-          '</button>' +
+          '<div class="psb-tafsir-src">' + _pathLinkify(esc(item._tafsirSource)) + '</div>' +
+          '<div class="tafsir-foot-actions">' +
+            openTafsirReaderBtn +
+            '<button type="button" class="btn secondary psb-scholar-btn" onclick="event.stopPropagation();openScholarInfo(\'' + escAttr(item._scholarId || 'ibn_kathir') + '\')">' +
+              '<svg class="ico ico-sm"><use href="#i-info"/></svg> Справка' +
+            '</button>' +
+          '</div>' +
         '</div>';
     }
 
@@ -585,7 +771,7 @@ function renderPathResultCard(item) {
         refBadge +
       '</div>' +
       '<div class="c-title">' + esc(item._title) + '</div>' +
-      (item._sub ? '<div class="c-sub">' + esc(item._sub) + '</div>' : '') +
+      (item._sub ? '<div class="c-sub">' + _pathLinkify(esc(item._sub)) + '</div>' : '') +
       (item._ar ? '<div class="c-ar ar-font">' + esc(item._ar) + '</div>' : '') +
       (item._trn ? '<div class="c-tr">' + esc(item._trn) + '</div>' : '') +
       ((item._tr && item._trn && item._type === 'tasbih') ? '<div class="c-sub" style="margin-top:6px;">' + esc(item._tr) + '</div>' : '') +
@@ -701,7 +887,7 @@ function renderPath() {
   if (ctxBannerEl) ctxBannerEl.innerHTML = '';
 
   var bannerHtml = buildPathContextBannerHtml(queryRes);
-  var matchedBar = renderMatchedSuggestionsBar(queryRes.matchedTopics, queryRes.matchedMoods);
+  var matchedBar = renderMatchedSuggestionsBar(queryRes.matchedTopics, queryRes.matchedMoods, queryRes.matchedScholars);
   var finalItems = queryRes.items || [];
 
   if (!finalItems.length) {
@@ -713,7 +899,7 @@ function renderPath() {
           (typeFilter !== 'all' ? '<button type="button" class="path-chip active" onclick="setPathTypeFilter(\'all\')">Показать всё</button>' : '') +
           '<button type="button" class="path-chip" onclick="openPathFilter(\'mood\',\'Тревога\')">Тревога</button>' +
           '<button type="button" class="path-chip" onclick="openPathFilter(\'theme\',\'Единобожие\')">Единобожие</button>' +
-          '<button type="button" class="path-chip" onclick="openPathFilter(\'theme\',\'Защита Аллаха\')">Защита Аллаха</button>' +
+          '<button type="button" class="path-chip" onclick="openPathFilter(\'scholar\',\'scholar:ibn_kathir\')">Ибн Касир</button>' +
           '<button type="button" class="path-chip" onclick="switchTab(\'quran\')">Открыть Коран</button>' +
         '</div>' +
       '</div>';

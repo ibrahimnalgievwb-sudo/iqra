@@ -57,4 +57,5 @@ function finishOnboarding() {
   state.migrations.onboarded = true;
   saveNow();
   if (typeof renderScreenGuideSlot === 'function') renderScreenGuideSlot('dashboard');
+  if (typeof renderDashboard === 'function') renderDashboard();
 }

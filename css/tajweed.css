@@ -7,6 +7,7 @@
 /* === D1.1: канонический tajweed-span === */
 span[class*="tajweed-"] {
   background: none;
+  -webkit-text-fill-color: currentColor;
   text-shadow: inherit;
 }
 
@@ -201,8 +202,8 @@ span[class^="tajweed-"] {
    читаются чисто, а нетронутые буквы не спорят с оранжевым и лаймовым.
    Если таджвид не загрузился, класс снимается и текст остаётся золотым.
    ============================================================ */
-.read-ayah-ar.has-tajweed { color: var(--tajweed-base); text-shadow: none; }
-.read-ayah-ar.has-tajweed span[class*="tajweed-"] { text-shadow: none; }
+.read-ayah-ar.has-tajweed { color: var(--tajweed-base); -webkit-text-fill-color: currentColor; background: none; text-shadow: none; }
+.read-ayah-ar.has-tajweed span[class*="tajweed-"] { -webkit-text-fill-color: currentColor; text-shadow: none; }
 
 /* Точки легенды под аятом берут цвет правила из темы, а не из JSON. */
 .ayah-tajweed-rules .rule-item i[class*="tajweed-"] { background: currentColor; }

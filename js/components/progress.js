@@ -27,7 +27,7 @@ function _progMatch(title) {
   return String(title || '').toLowerCase().indexOf(_progFilter) >= 0;
 }
 function _progSearchHtml() {
-  return '<div style="padding:0 0 12px;"><div class="search-wrap"><input type="text" id="prog-search-input" placeholder="Поиск по списку..." value="' + escAttr(_progFilter) + '" oninput="setProgFilter(this.value)"></div></div>';
+  return '<div class="prog-search-row"><div class="search-wrap"><input type="text" id="prog-search-input" placeholder="Поиск по списку..." value="' + escAttr(_progFilter) + '" oninput="setProgFilter(this.value)"></div></div>';
 }
 
 function renderProgressFavorites() {
@@ -53,6 +53,16 @@ function renderProgressFavorites() {
   body.innerHTML = html;
 }
 
+function _getNightProgressSummary() {
+  const total = (typeof NIGHT_ORDER !== 'undefined' && Array.isArray(NIGHT_ORDER)) ? NIGHT_ORDER.length : 0;
+  const today = (typeof todayKey === 'function') ? todayKey() : '';
+  const cl = (state && state.settings && state.settings.nightChecklist && state.settings.nightChecklist.date === today && Array.isArray(state.settings.nightChecklist.done))
+    ? state.settings.nightChecklist.done
+    : [];
+  const validDone = cl.filter(idx => typeof idx === 'number' && idx >= 0 && idx < total);
+  return { done: validDone.length, total: total };
+}
+
 function renderProgressOverview() {
   const body = document.getElementById('prog-body');
   let totalAll = 0, daysWithDhikr = 0, bestDay = 0, bestDayKey = '';
@@ -64,24 +74,31 @@ function renderProgressOverview() {
   const learnedQuran = state.quran.filter(q => q.learned).length; const totalQuran = state.quran.length;
   const learnedDuas = state.duas.filter(d => d.learned).length; const totalDuas = state.duas.length;
   const learnedHadiths = state.hadiths.filter(h => h.learned).length; const totalHadiths = state.hadiths.length;
+  const nightSum = _getNightProgressSummary();
+  const bookmarksCount = Array.isArray(state.bookmarks) ? state.bookmarks.length : 0;
+
   body.innerHTML = `
-    <div class="stat-card" style="grid-column: span 2; background:linear-gradient(135deg, rgba(var(--accent-rgb), .15), rgba(var(--accent-rgb), .05));">
+    <div class="stat-card prog-today-card">
       <div class="sc-label">Сегодня</div>
-      <div style="display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;"><div class="sc-value" style="font-size:44px;">${todayTotal}</div><div style="font-size:15px; color:var(--muted); font-weight:500;">/ ${goal} · ${goalPct}%</div></div>
-      <div style="margin-top:10px; height:6px; background:var(--card2); border-radius:3px; overflow:hidden;"><div style="transform: scaleX(${goalPct/100}); transform-origin: left center; width: 100%; height:100%; background:var(--accent); border-radius:3px;"></div></div>
+      <div class="prog-today-row">
+        <div class="sc-value prog-today-val">${todayTotal}</div>
+        <div class="prog-today-goal">/ ${goal} · ${goalPct}%</div>
+      </div>
+      <div class="prog-goal-track"><div class="prog-goal-fill" style="transform: scaleX(${(goalPct / 100).toFixed(4)})"></div></div>
     </div>
-      <div class="stat-grid">
+    <div class="stat-grid">
       <div class="stat-card"><div class="sc-label">Всего зикра</div><div class="sc-value">${totalAll}</div><div class="sc-sub">за всё время</div></div>
-      <div class="stat-card"><div class="sc-label">Серия</div><div class="sc-value">${calculateStreak()} <svg class="ico ico-sm" style="color:var(--gold-accent);vertical-align:-2px"><use href="#i-flame"/></svg></div><div class="sc-sub">дней подряд</div></div>
+      <div class="stat-card"><div class="sc-label">Серия</div><div class="sc-value">${calculateStreak()} <svg class="ico ico-sm prog-flame-ico"><use href="#i-flame"/></svg></div><div class="sc-sub">дней подряд</div></div>
       <div class="stat-card"><div class="sc-label">Среднее в день</div><div class="sc-value">${avg}</div><div class="sc-sub">за активный день</div></div>
       <div class="stat-card"><div class="sc-label">Лучший день</div><div class="sc-value">${bestDay}</div><div class="sc-sub">${bestDayKey ? formatDateShort(bestDayKey) : '—'}</div></div>
-      <div class="stat-card"><div class="sc-label">Тасбихов создано</div><div class="sc-value">${state.tasbihs.length}</div><div class="sc-sub">в списке</div></div>
+      <button type="button" class="stat-card stat-card-btn" onclick="switchTab('night')"><div class="sc-label">Ночное чтение</div><div class="sc-value">${nightSum.done} / ${nightSum.total}</div><div class="sc-sub">чеклист сегодня</div></button>
+      <button type="button" class="stat-card stat-card-btn" onclick="setProgTab('favorites')"><div class="sc-label">Закладки</div><div class="sc-value">${bookmarksCount}</div><div class="sc-sub">сохранено при чтении</div></button>
     </div>
     <div class="settings-group">
       <div class="progress-section-title">Заучивание</div>
-      <div class="learned-item"><div><div class="li-title">Суры и аяты</div><div class="li-sub">${learnedQuran} из ${totalQuran} выучено</div></div><div style="font-size:15px; font-weight:700; color:var(--accent);">${totalQuran > 0 ? Math.round((learnedQuran/totalQuran)*100) : 0}%</div></div>
-      <div class="learned-item"><div><div class="li-title">Дуа</div><div class="li-sub">${learnedDuas} из ${totalDuas} выучено</div></div><div style="font-size:15px; font-weight:700; color:var(--accent);">${totalDuas > 0 ? Math.round((learnedDuas/totalDuas)*100) : 0}%</div></div>
-      <div class="learned-item"><div><div class="li-title">Хадисы</div><div class="li-sub">${learnedHadiths} из ${totalHadiths} изучено</div></div><div style="font-size:15px; font-weight:700; color:var(--accent);">${totalHadiths > 0 ? Math.round((learnedHadiths/totalHadiths)*100) : 0}%</div></div>
+      <button type="button" class="learned-item learned-item-fullbtn" onclick="setProgTab('learned')"><div><div class="li-title">Суры и аяты</div><div class="li-sub">${learnedQuran} из ${totalQuran} выучено</div></div><div class="prog-pct-badge">${totalQuran > 0 ? Math.round((learnedQuran/totalQuran)*100) : 0}%</div></button>
+      <button type="button" class="learned-item learned-item-fullbtn" onclick="setProgTab('learned')"><div><div class="li-title">Дуа</div><div class="li-sub">${learnedDuas} из ${totalDuas} выучено</div></div><div class="prog-pct-badge">${totalDuas > 0 ? Math.round((learnedDuas/totalDuas)*100) : 0}%</div></button>
+      <button type="button" class="learned-item learned-item-fullbtn" onclick="setProgTab('learned')"><div><div class="li-title">Хадисы</div><div class="li-sub">${learnedHadiths} из ${totalHadiths} изучено</div></div><div class="prog-pct-badge">${totalHadiths > 0 ? Math.round((learnedHadiths/totalHadiths)*100) : 0}%</div></button>
     </div>
   `;
 }
@@ -113,11 +130,11 @@ function renderProgressCalendar() {
   const maxV = Math.max(1, ...daily);
   const today = new Date();
   /* D-06: bar-chart via transform: scaleY */
-  let bars = daily.map((v,i)=>{ const h=v>0?Math.max(4,(v/maxV)*100):2; const isToday=(today.getFullYear()===y && today.getMonth()===m && today.getDate()===i+1); return `<div class="bar ${isToday?'today':''}" style="transform:scaleY(${(h/100).toFixed(4)});transform-origin:bottom center;height:100%"></div>`; }).join('');
+  let bars = daily.map((v,i)=>{ const h=v>0?Math.max(4,(v/maxV)*100):2; const isToday=(today.getFullYear()===y && today.getMonth()===m && today.getDate()===i+1); return `<div class="bar ${isToday?'today':''}" style="transform:scaleY(${(h/100).toFixed(4)})"></div>`; }).join('');
   let labels = '';
   for (let d=1; d<=daily.length; d++) { if (d===1 || d%5===0 || d===daily.length) labels += `<span>${d}</span>`; else labels += `<span></span>`; }
   body.innerHTML = `
-    <div class="cal-header"><div><div class="month">${MONTHS[m]} ${y}</div><div style="font-size:12px;color:var(--muted);margin-top:2px">${formatHijri(new Date(y, m, 15))}</div></div><div class="cal-nav"><button onclick="shiftMonth(-1)" aria-label="Предыдущий месяц"><svg class="ico"><use href="#i-chevron-left"/></svg></button><button onclick="shiftMonth(1)" aria-label="Следующий месяц"><svg class="ico"><use href="#i-chevron-right"/></svg></button></div></div>
+    <div class="cal-header"><div><div class="month">${MONTHS[m]} ${y}</div><div class="prog-hijri-sub">${formatHijri(new Date(y, m, 15))}</div></div><div class="cal-nav"><button type="button" onclick="shiftMonth(-1)" aria-label="Предыдущий месяц"><svg class="ico"><use href="#i-chevron-left"/></svg></button><button type="button" onclick="shiftMonth(1)" aria-label="Следующий месяц"><svg class="ico"><use href="#i-chevron-right"/></svg></button></div></div>
     <div class="cal-grid">${html}</div>
      <div class="cal-summary">
       <div class="stat"><div class="label">Всего за месяц</div><div class="value">${monthTotal}</div></div>
@@ -135,9 +152,27 @@ function renderProgressLearned() {
   const learnedDuas = state.duas.filter(d => d.learned && _progMatch(d.title));
   const learnedHadiths = state.hadiths.filter(h => h.learned && _progMatch(h.title));
   let html = _progSearchHtml();
-  if (learnedQuran.length) { html += `<div class="settings-group"><div class="progress-section-title">Выученные суры и аяты</div>`; learnedQuran.forEach(q => { html += `<div class="learned-item"><div><div class="li-title">${esc(q.title)}</div><div class="li-sub">${q.learnedAt ? formatDateShort(q.learnedAt) : ''}</div></div><div class="li-check"><svg class="ico ico-sm"><use href="#i-check"/></svg></div></div>`; }); html += `</div>`; }
-  if (learnedDuas.length) { html += `<div class="settings-group"><div class="progress-section-title">Выученные дуа</div>`; learnedDuas.forEach(d => { html += `<div class="learned-item"><div><div class="li-title">${esc(d.title)}</div></div><div class="li-check"><svg class="ico ico-sm"><use href="#i-check"/></svg></div></div>`; }); html += `</div>`; }
-  if (learnedHadiths.length) { html += `<div class="settings-group"><div class="progress-section-title">Изученные хадисы</div>`; learnedHadiths.forEach(h => { html += `<div class="learned-item"><div><div class="li-title">${esc(h.title)}</div></div><div class="li-check"><svg class="ico ico-sm"><use href="#i-check"/></svg></div></div>`; }); html += `</div>`; }
+  if (learnedQuran.length) {
+    html += `<div class="settings-group"><div class="progress-section-title">Выученные суры и аяты</div>`;
+    learnedQuran.forEach(q => {
+      html += `<button type="button" class="learned-item learned-item-fullbtn" onclick="openQuran('${escAttr(q.id)}')"><div><div class="li-title">${esc(q.title)}</div><div class="li-sub">${q.learnedAt ? esc(formatDateShort(q.learnedAt)) : esc(q.subtitle||'')}</div></div><div class="li-check"><svg class="ico ico-sm"><use href="#i-check"/></svg></div></button>`;
+    });
+    html += `</div>`;
+  }
+  if (learnedDuas.length) {
+    html += `<div class="settings-group"><div class="progress-section-title">Выученные дуа</div>`;
+    learnedDuas.forEach(d => {
+      html += `<button type="button" class="learned-item learned-item-fullbtn" onclick="openDua('${escAttr(d.id)}')"><div><div class="li-title">${esc(d.title)}</div>${d.subtitle ? `<div class="li-sub">${esc(d.subtitle)}</div>` : ''}</div><div class="li-check"><svg class="ico ico-sm"><use href="#i-check"/></svg></div></button>`;
+    });
+    html += `</div>`;
+  }
+  if (learnedHadiths.length) {
+    html += `<div class="settings-group"><div class="progress-section-title">Изученные хадисы</div>`;
+    learnedHadiths.forEach(h => {
+      html += `<button type="button" class="learned-item learned-item-fullbtn" onclick="openHadith('${escAttr(h.id)}')"><div><div class="li-title">${esc(h.title)}</div>${h.subtitle ? `<div class="li-sub">${esc(h.subtitle)}</div>` : ''}</div><div class="li-check"><svg class="ico ico-sm"><use href="#i-check"/></svg></div></button>`;
+    });
+    html += `</div>`;
+  }
   if (!learnedQuran.length && !learnedDuas.length && !learnedHadiths.length) {
     html += '<div class="empty">Пока ничего не выучено.<br>Начните с раздела «Коран» или «Дуа».</div>';
   }

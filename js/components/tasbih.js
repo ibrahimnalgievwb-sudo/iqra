@@ -41,25 +41,27 @@ function renderTasbih() {
       if (q) { lrItem = q; lrLabel = 'Продолжить чтение'; }
     }
     if (lrItem) {
-      const card = document.createElement('div');
-      card.className = 'continue-card';
+      const card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'continue-card continue-card-btn';
       card.addEventListener('click', () => openRead(lrItem.id));
-      
+
       const lbl = document.createElement('div');
       lbl.className = 'cc-label';
       lbl.textContent = lrLabel;
-      
+
       const title = document.createElement('div');
       title.className = 'cc-title';
       title.textContent = lrItem.title;
-      
-      const sub = document.createElement('div');
-      sub.className = 'cc-sub';
-      sub.textContent = lrItem.subtitle || '';
-      
+
       card.appendChild(lbl);
       card.appendChild(title);
-      card.appendChild(sub);
+      if (lrItem.subtitle) {
+        const sub = document.createElement('div');
+        sub.className = 'cc-sub';
+        sub.textContent = lrItem.subtitle;
+        card.appendChild(sub);
+      }
       contSlot.appendChild(card);
     }
   }
@@ -246,10 +248,15 @@ function openCounter(id) {
   const dalilEl = document.getElementById('c-dalil');
   if (dalilEl) {
     if (t.dalil) {
-      dalilEl.style.display = 'flex';
-      dalilEl.innerHTML = '<svg class="ico ico-sm" style="flex-shrink:0;color:var(--accent2)"><use href="#i-lightbulb"/></svg><div><b>Далиль (доказательство из Сунны):</b><br>' + esc(t.dalil) + '</div>';
+      var linkifyFn = (typeof IqraScholars !== 'undefined' && typeof IqraScholars.linkifyScholars === 'function')
+        ? IqraScholars.linkifyScholars
+        : function (h) { return h; };
+      if (typeof IqraDalil !== 'undefined' && typeof IqraDalil.renderDalilDisclosureHtml === 'function') {
+        dalilEl.innerHTML = IqraDalil.renderDalilDisclosureHtml(t.dalil, { linkify: linkifyFn, open: false });
+      } else {
+        dalilEl.innerHTML = '<details class="dalil-disclosure"><summary class="dalil-summary"><span class="dalil-summary-main"><svg class="ico ico-sm dalil-ico" aria-hidden="true"><use href="#i-lightbulb"/></svg><span class="dalil-title">Далиль (довод из Сунны)</span></span><span class="dalil-summary-meta"><span class="dalil-arrow" aria-hidden="true"></span></span></summary><div class="dalil-body"><div class="dalil-hadith-card"><div class="dalil-hadith-text">' + linkifyFn(escNl(t.dalil)) + '</div></div></div></details>';
+      }
     } else {
-      dalilEl.style.display = 'none';
       dalilEl.innerHTML = '';
     }
   }
@@ -330,5 +337,5 @@ function cancelForm() { if (activeId) showScreen('screen-counter'); else { rende
 function stepTarget(d){ const el=document.getElementById('f-target'); el.value=Math.max(1,(parseInt(el.value)||1)+d); updatePreview(); }
 function saveForm() { const arabic=document.getElementById('f-ar').value.trim().slice(0,LIMITS.textLen); const transcription=document.getElementById('f-tr').value.trim().slice(0,LIMITS.textLen); const translation=document.getElementById('f-trn').value.trim().slice(0,LIMITS.textLen); const target=Math.max(1,Math.min(LIMITS.targetMax,parseInt(document.getElementById('f-target').value)||33)); if (!arabic && !transcription && !translation) { showMarkToast('Заполните хотя бы одно поле', 3200); return; } if (editingId) { const t=getById(editingId); t.arabic=arabic; t.transcription=transcription; t.translation=translation; t.target=target; if (t.current>target) { t.current=0; t.cycles=0; } } else {
     if (state.tasbihs.length >= LIMITS.tasbihs) { showMarkToast('Максимум ' + LIMITS.tasbihs + ' тасбихов. Удалите старые.', 3200); return; }
-    state.tasbihs.push({id:'u'+Date.now(),arabic,transcription,translation,target,current:0,cycles:0}); } state.draft=null; save(); if (state.settings.vibrate && navigator.vibrate) navigator.vibrate(15); showMarkToast('Сохранено'); if (activeId) openCounter(activeId); else { renderTasbih(); showScreen('screen-tasbih'); } }
+    state.tasbihs.push({id:'u'+Date.now(),arabic,transcription,translation,target,current:0,cycles:0,custom:true}); } state.draft=null; save(); if (state.settings.vibrate && navigator.vibrate) navigator.vibrate(15); showMarkToast('Сохранено'); if (activeId) openCounter(activeId); else { renderTasbih(); showScreen('screen-tasbih'); } }
 async function deleteCurrent() {   if (!editingId) return;   if (!await confirmAsync('Удалить тасбих?', 'Это действие нельзя отменить.', 'Удалить', 'Отмена')) return;   state.tasbihs = state.tasbihs.filter(t => t.id !== editingId);   save(); activeId = null; editingId = null; renderTasbih(); showScreen('screen-tasbih'); }
