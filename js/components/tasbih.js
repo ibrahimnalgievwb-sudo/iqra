@@ -26,7 +26,7 @@ function renderTasbih() {
   const goalSlot = document.getElementById('daily-goal-slot');
   if (goal > 0) {
     /* D-06: dg-bar via transform: scaleX */
-    goalSlot.innerHTML = `<div class="daily-goal"><div class="dg-top"><div class="dg-label">Сегодня</div><div class="dg-num">${done} <span>/ ${goal}</span></div></div><div class="dg-bar"><div style="transform: scaleX(${(pct/100).toFixed(4)}); transform-origin: left center; width: 100%;"></div></div></div>`;
+    goalSlot.innerHTML = `<div class="daily-goal"><div class="dg-top"><div class="dg-label">Сегодня</div><div class="dg-num">${done} <span>/ ${goal}</span></div></div><div class="dg-bar"><div style="transform: scaleX(${(pct/100).toFixed(4)})"></div></div></div>`;
   } else {
     goalSlot.innerHTML = '';
   }
@@ -183,7 +183,7 @@ function cardPointerDown(e) {
 
 function cardPointerMove(e) {
   if (!dragEl) {
-    if (dragHoldTimer && Math.abs(e.clientY - dragStartY) > 8) { 
+    if (dragHoldTimer && (Math.abs(e.clientY - dragStartY) > 8 || Math.abs(e.clientX - dragStartX) > 8)) { 
       clearTimeout(dragHoldTimer); 
       dragHoldTimer = null; 
     }
@@ -240,7 +240,8 @@ function openCounter(id) {
   const t = getById(id);
   if (!t) return;
   try { localStorage.setItem('iqra_last_tasbih', id); } catch(e) {}
-  trackEvent('tasbih/' + id, 'Тасбих: ' + id);
+  var safeTrackId = t.custom ? 'custom' : id;
+  trackEvent('tasbih/' + safeTrackId, 'Тасбих: ' + safeTrackId);
   document.getElementById('c-ar').textContent = t.arabic;
   document.getElementById('c-tr').textContent = t.transcription;
   document.getElementById('c-trn').textContent = t.translation;
@@ -316,6 +317,7 @@ function tap(e) {
 function showNextToast() { const idx=state.tasbihs.findIndex(x=>x.id===activeId); const next=state.tasbihs[idx+1]; if (!next) return; const toast=document.getElementById('next-toast'); document.getElementById('nt-name').textContent=next.transcription||next.translation||'—'; document.getElementById('nt-ar').textContent=next.arabic||''; toast.classList.add('show'); clearTimeout(nextToastTimer); nextToastTimer=setTimeout(()=>toast.classList.remove('show'),5000); }
 function goNext() { const idx=state.tasbihs.findIndex(x=>x.id===activeId); const next=state.tasbihs[idx+1]; document.getElementById('next-toast').classList.remove('show'); if (next) openCounter(next.id); }
 function shareCurrent(e) { if (e) e.stopPropagation(); if (activeId) shareItem('tasbih', activeId); }
+function copyCurrent(e) { if (e) e.stopPropagation(); if (activeId && typeof copyLibraryItem === 'function') copyLibraryItem('tasbih', activeId); }
 
 async function resetCurrent(e) {   
   if (e) e.stopPropagation();   
@@ -332,10 +334,44 @@ function editCurrent(e) { if (e) e.stopPropagation(); if (activeId) openForm(act
 function renderPresets() { document.getElementById('presets').innerHTML = PRESETS.map((p,i)=>`<button type="button" class="preset-chip" onclick="applyPreset(${i})">${esc((p.tr||'').slice(0,30))}</button>`).join(''); }
 function applyPreset(i) { const p=PRESETS[i]; document.getElementById('f-ar').value=p.ar; document.getElementById('f-tr').value=p.tr; document.getElementById('f-trn').value=p.trn; document.getElementById('f-target').value=p.target; updatePreview(); }
 function updatePreview() { document.getElementById('pv-ar').textContent=document.getElementById('f-ar').value; document.getElementById('pv-tr').textContent=document.getElementById('f-tr').value; document.getElementById('pv-trn').textContent=document.getElementById('f-trn').value; state.draft={ar:document.getElementById('f-ar').value.slice(0,LIMITS.textLen),tr:document.getElementById('f-tr').value.slice(0,LIMITS.textLen),trn:document.getElementById('f-trn').value.slice(0,LIMITS.textLen),target:document.getElementById('f-target').value}; save(); }
-function openForm(id) { editingId=id||null; const t=id?getById(id):null; document.getElementById('form-title').textContent=id?'Редактировать':'Новый Тасбих'; let ar='',tr='',trn='',target=33; if (t) { ar=t.arabic; tr=t.transcription; trn=t.translation; target=t.target; } else if (state.draft) { ar=state.draft.ar||''; tr=state.draft.tr||''; trn=state.draft.trn||''; target=state.draft.target||33; } document.getElementById('f-ar').value=ar; document.getElementById('f-tr').value=tr; document.getElementById('f-trn').value=trn; document.getElementById('f-target').value=target; document.getElementById('btn-delete').style.display=id?'block':'none'; updatePreview(); showScreen('screen-form'); }
+function openForm(id) { editingId=id||null; const t=id?getById(id):null; document.getElementById('form-title').textContent=id?'Редактировать':'Новый Тасбих'; let ar='',tr='',trn='',target=33; if (t) { ar=t.arabic; tr=t.transcription; trn=t.translation; target=t.target; } else if (state.draft) { ar=state.draft.ar||''; tr=state.draft.tr||''; trn=state.draft.trn||''; target=state.draft.target||33; } document.getElementById('f-ar').value=ar; document.getElementById('f-tr').value=tr; document.getElementById('f-trn').value=trn; document.getElementById('f-target').value=target; document.querySelectorAll('.target-preset-chip').forEach(function (b) { b.classList.toggle('active', parseInt(b.dataset.targetPreset, 10) === parseInt(target, 10)); }); document.getElementById('btn-delete').style.display=id?'block':'none'; updatePreview(); showScreen('screen-form'); }
 function cancelForm() { if (activeId) showScreen('screen-counter'); else { renderTasbih(); showScreen('screen-tasbih'); } }
 function stepTarget(d){ const el=document.getElementById('f-target'); el.value=Math.max(1,(parseInt(el.value)||1)+d); updatePreview(); }
+function setTargetPreset(n) {
+  const el = document.getElementById('f-target');
+  const val = Math.max(1, parseInt(n, 10) || 33);
+  if (el) { el.value = val; updatePreview(); }
+  document.querySelectorAll('.target-preset-chip').forEach(function (b) {
+    b.classList.toggle('active', parseInt(b.dataset.targetPreset, 10) === val);
+  });
+}
 function saveForm() { const arabic=document.getElementById('f-ar').value.trim().slice(0,LIMITS.textLen); const transcription=document.getElementById('f-tr').value.trim().slice(0,LIMITS.textLen); const translation=document.getElementById('f-trn').value.trim().slice(0,LIMITS.textLen); const target=Math.max(1,Math.min(LIMITS.targetMax,parseInt(document.getElementById('f-target').value)||33)); if (!arabic && !transcription && !translation) { showMarkToast('Заполните хотя бы одно поле', 3200); return; } if (editingId) { const t=getById(editingId); t.arabic=arabic; t.transcription=transcription; t.translation=translation; t.target=target; if (t.current>target) { t.current=0; t.cycles=0; } } else {
     if (state.tasbihs.length >= LIMITS.tasbihs) { showMarkToast('Максимум ' + LIMITS.tasbihs + ' тасбихов. Удалите старые.', 3200); return; }
     state.tasbihs.push({id:'u'+Date.now(),arabic,transcription,translation,target,current:0,cycles:0,custom:true}); } state.draft=null; save(); if (state.settings.vibrate && navigator.vibrate) navigator.vibrate(15); showMarkToast('Сохранено'); if (activeId) openCounter(activeId); else { renderTasbih(); showScreen('screen-tasbih'); } }
 async function deleteCurrent() {   if (!editingId) return;   if (!await confirmAsync('Удалить тасбих?', 'Это действие нельзя отменить.', 'Удалить', 'Отмена')) return;   state.tasbihs = state.tasbihs.filter(t => t.id !== editingId);   save(); activeId = null; editingId = null; renderTasbih(); showScreen('screen-tasbih'); }
+
+(function _bindTasbihSpaceShortcut() {
+  if (typeof document === 'undefined' || !document.addEventListener) return;
+  document.addEventListener('keydown', function (e) {
+    if (e.code !== 'Space' && e.key !== ' ') return;
+    var scr = document.getElementById('screen-counter');
+    if (!scr || !scr.classList.contains('active')) return;
+    var modalBg = document.getElementById('modal-bg');
+    var searchOv = document.getElementById('search-overlay');
+    if ((modalBg && modalBg.classList.contains('active')) || (searchOv && searchOv.classList.contains('active'))) return;
+    var target = e.target;
+    if (target) {
+      var tag = target.tagName;
+      if (tag === 'BUTTON' || tag === 'A' || tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || tag === 'SUMMARY' || tag === 'DETAILS') return;
+      if (target.closest && target.closest('button, a, summary, details, [data-click="@stop"]')) return;
+    }
+    var area = document.getElementById('counter-area');
+    if (!area || !activeId) return;
+    e.preventDefault();
+    var rect = area.getBoundingClientRect();
+    tap({ clientX: rect.left + rect.width / 2, clientY: rect.top + rect.height / 2 });
+  });
+})();
+
+window.copyCurrent = copyCurrent;
+window.setTargetPreset = setTargetPreset;

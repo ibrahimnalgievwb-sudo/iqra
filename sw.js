@@ -1,12 +1,17 @@
-const SW_VERSION   = 'iqra-v463'; /* МЕНЯЙ ВЕРСИЮ ТОЛЬКО ЗДЕСЬ */
+const SW_VERSION   = 'iqra-v468'; /* МЕНЯЙ ВЕРСИЮ ТОЛЬКО ЗДЕСЬ */
 const SW_VER_SHORT = SW_VERSION.replace(/^iqra-/, '');
 const CACHE_STATIC = 'iqra-static-' + SW_VER_SHORT;
 const CACHE_DATA   = 'iqra-data-'   + SW_VER_SHORT;
 const CACHE_FONTS  = 'iqra-fonts-'  + SW_VER_SHORT;
 
+const SW_BASE_URL  = new URL('./', self.location.href);
+const SW_BASE_PATH = SW_BASE_URL.pathname.endsWith('/') ? SW_BASE_URL.pathname : (SW_BASE_URL.pathname + '/');
+
+/* Контур 1 — Core Cache: оболочка интерфейса, стили, скрипты, базовые иконки */
 const PRECACHE_STATIC = [
   './',
   './index.html',
+  './privacy.html',
   './manifest.json',
   './css/fonts.css',
   './css/variables.css',
@@ -51,44 +56,16 @@ const PRECACHE_STATIC = [
   './assets/icons/apple-touch-icon.png'
 ];
 
-const PRECACHE_DATA = [
-  './data/quran.json',
-  './data/duas.json',
-  './data/hadiths.json',
-  './data/tasbihs.json',
-  './data/knowledge-base.json',
-  './data/tafsirs.json',
-  './data/tafsirs_fatiha.json',
-  './data/graph/edges.json',
-  './data/graph/themes.json',
-  './data/graph/scholars.json',
-  './data/tajweed/manifest.json',
-  './data/tajweed/chunk_01.json',
-  './data/tajweed/chunk_02.json',
-  './data/tajweed/chunk_03.json',
-  './data/tajweed/chunk_04.json',
-  './data/tajweed/chunk_05.json',
-  './data/tajweed/chunk_06.json',
-  './data/tajweed/chunk_07.json',
-  './data/tajweed/chunk_08.json',
-  './data/tajweed/chunk_09.json',
-  './data/tajweed/chunk_10.json',
-  './data/tajweed/chunk_11.json',
-  './data/tajweed/chunk_12.json'
-];
+/* Контур 2 — Data Runtime Cache (CACHE_DATA):
+   Файлы контента из ./data/ (суры, хадисы, дуа, тафсиры, граф, чанки таджвида)
+   не загружаются заранее при установке, а кэшируются лениво по мере открытия. */
 
 self.addEventListener('install', (event) => {
   event.waitUntil((async () => {
     const cacheS = await caches.open(CACHE_STATIC);
-    const cacheD = await caches.open(CACHE_DATA);
     await Promise.all(
       PRECACHE_STATIC.map((url) =>
         cacheS.add(url).catch((e) => console.warn('[SW] precache static skip:', url, e && e.message))
-      )
-    );
-    await Promise.all(
-      PRECACHE_DATA.map((url) =>
-        cacheD.add(url).catch((e) => console.warn('[SW] precache data skip:', url, e && e.message))
       )
     );
   })());
@@ -96,6 +73,8 @@ self.addEventListener('install', (event) => {
 
 self.addEventListener('activate', (event) => {
   event.waitUntil((async () => {
+    /* Миграция старых версий: удаляем только устаревшие кэши SW,
+       не затрагивая localStorage и IndexedDB пользователей. */
     const keys = await caches.keys();
     const ownedCachePattern = /^iqra-(static|data|fonts)-/;
     await Promise.all(
@@ -133,7 +112,8 @@ self.addEventListener('notificationclick', (event) => {
       }
     }
     if (self.clients.openWindow) {
-      const targetUrl = action ? ('./?smart_action=' + encodeURIComponent(action)) : './';
+      const relTarget = action ? ('./?smart_action=' + encodeURIComponent(action)) : './';
+      const targetUrl = new URL(relTarget, self.location.href).href;
       await self.clients.openWindow(targetUrl);
     }
   })());
@@ -146,6 +126,12 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(req.url);
   const isSameOrigin = url.origin === self.location.origin;
 
+  /* Исключаем /.well-known/ (assetlinks.json, apple-app-site-association)
+     для прямой отдачи сервером верификационных файлов Google Play и Apple. */
+  if (url.pathname.indexOf('/.well-known/') !== -1) {
+    return;
+  }
+
   if (url.hostname === 'api.alquran.cloud' || url.hostname === 'api.quran.foundation') {
     event.respondWith(networkFirst(req));
     return;
@@ -155,7 +141,8 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  if (isSameOrigin && url.pathname.indexOf('/data/') !== -1) {
+  /* Контур 2 — ленивое runtime-кэширование контента из data/ в CACHE_DATA */
+  if (isSameOrigin && (url.pathname.indexOf(SW_BASE_PATH + 'data/') === 0 || url.pathname.indexOf('/data/') !== -1)) {
     event.respondWith(staleWhileRevalidate(req, CACHE_DATA));
     return;
   }
@@ -218,8 +205,8 @@ async function networkFirstNavigation(req) {
     const cache = await caches.open(CACHE_STATIC);
     const cached =
       (await cache.match(req)) ||
-      (await cache.match('./index.html')) ||
-      (await cache.match('./'));
+      (await cache.match(new URL('./index.html', self.location.href).href)) ||
+      (await cache.match(new URL('./', self.location.href).href));
     if (cached) return cached;
     return new Response('<!doctype html><meta charset="utf-8"><title>Offline</title><p>Приложение недоступно офлайн.</p>', {
       headers: { 'Content-Type': 'text/html; charset=utf-8' },

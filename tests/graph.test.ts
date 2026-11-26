@@ -219,8 +219,8 @@ test('Arabic normalization search & Russian search work cleanly', () => {
 test('Bidirectional relations work symmetrically from scholar, hadith, dua, and ayah', () => {
   const ikRel = IqraGraph.getSmartBookRelations('scholar:ibn_kathir', index);
   assert.ok(ikRel.ayahs.length >= 7, 'Ibn Kathir should link to Al-Fatiha and verified tafsirs');
-  const sadiRel = IqraGraph.getSmartBookRelations('scholar:as_sadi', index);
-  assert.ok(sadiRel && Array.isArray(sadiRel.ayahs), 'as_sadi scholar node resolves cleanly');
+  assert.equal(index.scholarById.has('as_sadi'), false, 'as_sadi must be excluded for RF Minjust FSEM #5162 compliance');
+  assert.ok(ikRel.ayahs.length >= 200, 'Ibn Kathir must cover curated tafsirs cleanly');
 
   const ruqyahRel = IqraGraph.getSmartBookRelations('dua:ruqyah_guide', index);
   assert.ok(ruqyahRel.hadiths.some((h: any) => h.id === 'h_ayat_kursi'));

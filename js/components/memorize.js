@@ -55,6 +55,23 @@ function jumpMemorize(stepIdx) {
   renderMemorize();
 }
 
+function setMemorizePhase(phase) {
+  if (!memorizeItem || !memorizeAyahs.length) return;
+  var next = (phase === 'test') ? 'test' : 'learn';
+  if (memorizePhase === next) return;
+  memorizePhase = next;
+  memorizeRevealed = false;
+  memorizeHintWords = 0;
+  renderMemorize();
+}
+
+function resetMemorizeHints() {
+  if (!memorizeItem || !memorizeAyahs.length) return;
+  memorizeRevealed = false;
+  memorizeHintWords = 0;
+  renderMemorize();
+}
+
 function renderMemorize() {
   if (!memorizeItem) return;
   const total = memorizeAyahs.length;
@@ -66,6 +83,11 @@ function renderMemorize() {
   var pb = document.getElementById('mem-progress-bar');
   if (pb) pb.style.transform = 'scaleX(' + (pct / 100) + ')';
   const phaseLabel = memorizePhase === 'learn' ? 'Заучивание' : 'Проверка';
+  const phaseSegHtml =
+    '<div class="seg mem-phase-seg" role="tablist" aria-label="Режим заучивания">' +
+      '<button type="button" role="tab" aria-selected="' + (memorizePhase === 'learn' ? 'true' : 'false') + '" class="' + (memorizePhase === 'learn' ? 'active' : '') + '" onclick="setMemorizePhase(\'learn\')">Изучение</button>' +
+      '<button type="button" role="tab" aria-selected="' + (memorizePhase === 'test' ? 'true' : 'false') + '" class="' + (memorizePhase === 'test' ? 'active' : '') + '" onclick="setMemorizePhase(\'test\')">Проверка</button>' +
+    '</div>';
   const stepInfo = '<div class="mem-step"><span>' + phaseLabel + ' · Аят ' + (memorizeStep + 1) + ' из ' + total + '</span><span class="phase">' + (memorizePhase === 'learn' ? 'изучаем' : 'проверяем') + '</span></div>';
 
   var stepNavHtml = '';
@@ -81,7 +103,7 @@ function renderMemorize() {
   let body = '';
   if (memorizePhase === 'learn') {
     var tafsirHtml = (typeof getSmartTafsirHtml === 'function') ? getSmartTafsirHtml(memorizeItem, memorizeStep + 1) : '';
-    body = stepInfo + stepNavHtml +
+    body = phaseSegHtml + stepInfo + stepNavHtml +
       '<div class="mem-block"><div class="mb-label">Арабский</div><div class="mb-ar ar-font" dir="rtl" lang="ar">' + esc(a.ar) + '</div></div>' +
       (a.tr ? '<div class="mem-block"><div class="mb-label">Транскрипция</div><div class="mb-text">' + esc(a.tr) + '</div></div>' : '') +
       '<div class="mem-block"><div class="mb-label">Перевод</div><div class="mb-text">' + _memorizeFormatText(a.trn) + '</div></div>' +
@@ -92,14 +114,14 @@ function renderMemorize() {
     var allHinted = words.length > 0 && memorizeHintWords >= words.length;
     var isShownAll = memorizeRevealed || allHinted;
     var hintLabel = memorizeHintWords === 0 ? 'Подсказка (2 слова)' : 'Ещё +2 слова (' + Math.min(words.length, memorizeHintWords) + '/' + words.length + ')';
-    var controlsHtml = isShownAll
-      ? ''
-      : '<div class="mem-hint-actions">' +
-          (words.length > 2 ? '<button type="button" class="mem-hint-btn" onclick="revealMemorizeHint()"><svg class="ico ico-sm"><use href="#i-lightbulb"/></svg><span>' + esc(hintLabel) + '</span></button>' : '') +
-          '<button type="button" class="mem-reveal-btn" onclick="revealMemorize()"><svg class="ico ico-sm"><use href="#i-eye"/></svg><span>Показать целиком</span></button>' +
-        '</div>';
+    var hasAnyShown = isShownAll || memorizeHintWords > 0;
+    var controlsHtml = '<div class="mem-hint-actions">' +
+      (!isShownAll && words.length > 2 ? '<button type="button" class="mem-hint-btn" onclick="revealMemorizeHint()"><svg class="ico ico-sm"><use href="#i-lightbulb"/></svg><span>' + esc(hintLabel) + '</span></button>' : '') +
+      (!isShownAll ? '<button type="button" class="mem-reveal-btn" onclick="revealMemorize()"><svg class="ico ico-sm"><use href="#i-eye"/></svg><span>Показать целиком</span></button>' : '') +
+      (hasAnyShown ? '<button type="button" class="mem-reset-btn" onclick="resetMemorizeHints()"><svg class="ico ico-sm"><use href="#i-rotate-ccw"/></svg><span>Спрятать обратно</span></button>' : '') +
+    '</div>';
     var arStateLabel = isShownAll ? '· открыт' : (memorizeHintWords > 0 ? '· подсказка' : '· вспомни');
-    body = stepInfo + stepNavHtml +
+    body = phaseSegHtml + stepInfo + stepNavHtml +
       '<div class="mem-block"><div class="mb-label">Перевод (подсказка)</div><div class="mb-text">' + _memorizeFormatText(a.trn) + '</div></div>' +
       '<div class="mem-block"><div class="mb-label">Арабский ' + arStateLabel + '</div>' +
         _buildMemorizeArabicHtml(a.ar, isShownAll, memorizeHintWords) +
@@ -169,6 +191,22 @@ function closeMemorize() {
   saveNavContext();
 }
 
+(function _bindMemorizeKeys() {
+  if (typeof document === 'undefined' || !document.addEventListener) return;
+  document.addEventListener('keydown', function (e) {
+    var mode = document.getElementById('memorize-mode');
+    if (!mode || !mode.classList.contains('active')) return;
+    var modalBg = document.getElementById('modal-bg');
+    if (modalBg && modalBg.classList.contains('active')) return;
+    var tag = e.target && e.target.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+    if (e.key === 'ArrowRight') { e.preventDefault(); memNext(); }
+    else if (e.key === 'ArrowLeft') { e.preventDefault(); memPrev(); }
+  });
+})();
+
 window.revealMemorizeHint = revealMemorizeHint;
 window.jumpMemorize = jumpMemorize;
+window.setMemorizePhase = setMemorizePhase;
+window.resetMemorizeHints = resetMemorizeHints;
 window._buildMemorizeArabicHtml = _buildMemorizeArabicHtml;

@@ -8,7 +8,22 @@
    ============================================================ */
 
 const STORAGE_KEY = 'iqra_data';
-const APP_URL = 'https://ibrahimnalgievwb-sudo.github.io/iqra/';
+function getAppShareUrl() {
+  if (typeof getIqraBaseUrl === 'function') {
+    var b = getIqraBaseUrl();
+    if (b && b !== './') return b;
+  }
+  try {
+    if (typeof document !== 'undefined' && document.baseURI) {
+      return new URL('./', document.baseURI).href;
+    }
+    if (typeof location !== 'undefined' && location.href) {
+      return new URL('./', location.href).href;
+    }
+  } catch (e) {}
+  return './';
+}
+const APP_URL = getAppShareUrl();
 
 const BACKUP_SCHEMA = 3;
 const LIMITS = { tasbihs: 1000, history: 10000, historyDays: 365, reminders: 50, textLen: 1000, idLen: 100, targetMax: 100000, cyclesMax: 1000000 };
@@ -33,6 +48,7 @@ function defaultSettings() {
     vibrate: true,
     goalNotify: false,
     tajweedMode: false,
+    analytics: true,
     lastRead: null,
     lastScreen: null,
     readScrolls: {},
@@ -161,6 +177,7 @@ function load() {
   var defSet = defaultSettings();
   s.settings = Object.assign(defSet, s.settings || {});
   if (typeof s.settings.tajweedMode !== 'boolean') s.settings.tajweedMode = false;
+  if (typeof s.settings.analytics !== 'boolean') s.settings.analytics = true;
   if (s.settings.theme === 'night') s.settings.theme = 'dark';
   if (s.settings.lastRead && !s.settings.lastRead.type && s.settings.lastRead.quranId) {
     s.settings.lastRead = { type: 'quran', id: s.settings.lastRead.quranId, ts: s.settings.lastRead.ts || Date.now() };

@@ -20,12 +20,20 @@ function setProgFilter(v) {
   _progFilter = (v || '').toLowerCase().trim();
   renderProgress();
   var newInp = document.getElementById('prog-search-input');
-  if (newInp) { newInp.focus(); try { newInp.setSelectionRange(pos, pos); } catch(e){} }
+  if (newInp && typeof newInp.focus === 'function') { newInp.focus(); try { newInp.setSelectionRange(pos, pos); } catch(e){} }
 }
 function _progMatch(title) {
   if (!_progFilter) return true;
   return String(title || '').toLowerCase().indexOf(_progFilter) >= 0;
 }
+function clearProgFilter() {
+  _progFilter = '';
+  renderProgress();
+  var newInp = document.getElementById('prog-search-input');
+  if (newInp && typeof newInp.focus === 'function') newInp.focus();
+}
+window.clearProgFilter = clearProgFilter;
+
 function _progSearchHtml() {
   return '<div class="prog-search-row"><div class="search-wrap"><input type="text" id="prog-search-input" placeholder="Поиск по списку..." value="' + escAttr(_progFilter) + '" oninput="setProgFilter(this.value)"></div></div>';
 }
@@ -48,7 +56,9 @@ function renderProgressFavorites() {
   if (favD.length) { html += `<div class="settings-group"><div class="progress-section-title">Дуа</div>`; favD.forEach(d => { html += `<button type="button" class="learned-item learned-item-fullbtn" onclick="openDua('${escAttr(d.id)}')"><div><div class="li-title">${esc(d.title)}</div><div class="li-sub">${esc(d.subtitle||'')}</div></div><div class="li-check"><svg class="ico ico-sm"><use href="#i-star-filled"/></svg></div></button>`; }); html += `</div>`; }
   if (favH.length) { html += `<div class="settings-group"><div class="progress-section-title">Хадисы</div>`; favH.forEach(h => { html += `<button type="button" class="learned-item learned-item-fullbtn" onclick="openHadith('${escAttr(h.id)}')"><div><div class="li-title">${esc(h.title)}</div><div class="li-sub">${esc(h.subtitle||'')}</div></div><div class="li-check"><svg class="ico ico-sm"><use href="#i-star-filled"/></svg></div></button>`; }); html += `</div>`; }
   if (!bms.length && !favQ.length && !favD.length && !favH.length) {
-    html += '<div class="empty">Пока пусто.<br>Нажимайте на звезду на карточках и добавляйте закладки в режиме чтения.</div>';
+    html += _progFilter
+      ? '<div class="empty">По запросу ничего не найдено<div class="spacer-sm"></div><button type="button" class="btn secondary btn-inline" onclick="clearProgFilter()">Сбросить поиск</button></div>'
+      : '<div class="empty">Пока пусто.<br>Нажимайте на звезду на карточках и добавляйте закладки в режиме чтения.</div>';
   }
   body.innerHTML = html;
 }
@@ -174,7 +184,9 @@ function renderProgressLearned() {
     html += `</div>`;
   }
   if (!learnedQuran.length && !learnedDuas.length && !learnedHadiths.length) {
-    html += '<div class="empty">Пока ничего не выучено.<br>Начните с раздела «Коран» или «Дуа».</div>';
+    html += _progFilter
+      ? '<div class="empty">По запросу ничего не найдено<div class="spacer-sm"></div><button type="button" class="btn secondary btn-inline" onclick="clearProgFilter()">Сбросить поиск</button></div>'
+      : '<div class="empty">Пока ничего не выучено.<br>Начните с раздела «Коран» или «Дуа».</div>';
   }
   body.innerHTML = html;
 }

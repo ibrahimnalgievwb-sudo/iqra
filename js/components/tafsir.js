@@ -256,12 +256,19 @@ function _buildTafsirCopyText(surah, ayah) {
 function copyTafsirReader(surah, ayah) {
   var text = _buildTafsirCopyText(surah, ayah);
   if (!text) return false;
+  var msg = 'Тафсир скопирован';
   if (typeof copyToClipboard === 'function') {
-    copyToClipboard(text);
+    copyToClipboard(text, msg);
+    if (copyToClipboard.length < 2 && typeof showMarkToast === 'function') {
+      showMarkToast(msg);
+    }
   } else if (typeof navigator !== 'undefined' && navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(text).catch(function () {});
+    navigator.clipboard.writeText(text).then(function () {
+      if (typeof showMarkToast === 'function') showMarkToast(msg);
+    }).catch(function () {});
+  } else if (typeof showMarkToast === 'function') {
+    showMarkToast(msg);
   }
-  if (typeof showMarkToast === 'function') showMarkToast('Тафсир скопирован');
   return true;
 }
 

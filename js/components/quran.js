@@ -134,7 +134,10 @@ function _buildQuranDetailAyahHtml(item, a, idx) {
     '<div class="read-ayah-trn">' + _quranFormatSacred(esc(a.trn)) + '</div>' +
     getSmartTafsirHtml(item, idx + 1) +
     (typeof renderAyahEcosystemDetails === 'function' ? renderAyahEcosystemDetails('ayah:' + item.id + '#' + (idx + 1), { inReader: false }) : '') +
-    '<button type="button" class="ayah-share-btn" onclick="shareAyah(\'' + escAttr(item.id) + '\',' + idx + ')"><svg class="ico ico-sm"><use href="#i-upload"/></svg>Поделиться аятом</button>' +
+    '<div class="ayah-actions-row">' +
+      '<button type="button" class="ayah-copy-btn" onclick="copyAyah(\'' + escAttr(item.id) + '\',' + idx + ')" aria-label="Скопировать аят ' + escAttr(a.num) + '"><svg class="ico ico-sm"><use href="#i-copy"/></svg>Скопировать</button>' +
+      '<button type="button" class="ayah-share-btn" onclick="shareAyah(\'' + escAttr(item.id) + '\',' + idx + ')"><svg class="ico ico-sm"><use href="#i-upload"/></svg>Поделиться аятом</button>' +
+    '</div>' +
   '</div>';
 }
 
@@ -187,6 +190,8 @@ function openQuran(id, targetAyahIdx, keepLimit) {
     st.classList.toggle('starred', fav);
   }
   var el = document.getElementById('quran-detail-content');
+  var showTr = !(typeof state !== 'undefined' && state && state.settings && state.settings.readerPrefs && state.settings.readerPrefs.showTranscription === false);
+  el.classList.toggle('is-hide-transcription', !showTr);
   var bismillahHtml = '';
   if (item.bismillah) {
     bismillahHtml = '<div class="bismillah-card"><div class="b-ar ar-font">' + esc(item.bismillah.arabic) + '</div><div class="b-tr">' + esc(item.bismillah.transcription) + '</div><div class="b-trn">' + _quranFormatSacred(esc(item.bismillah.translation)) + '</div></div>';
@@ -196,7 +201,7 @@ function openQuran(id, targetAyahIdx, keepLimit) {
   if (ayahs.length >= 15) {
     jumpHtml = '<div class="ayah-jumper">' +
       '<label for="qd-ayah-jump" class="aj-label">Перейти к аяту (1–' + ayahs.length + '):</label>' +
-      '<input id="qd-ayah-jump" class="aj-input" type="number" min="1" max="' + ayahs.length + '" inputmode="numeric" placeholder="№">' +
+      '<input id="qd-ayah-jump" class="aj-input" type="number" min="1" max="' + ayahs.length + '" inputmode="numeric" placeholder="№" onkeydown="if(event.key===\'Enter\'){event.preventDefault();jumpQuranDetailAyah(this.value);}">' +
       '<button type="button" class="btn secondary btn-inline aj-btn" onclick="jumpQuranDetailAyah(document.getElementById(\'qd-ayah-jump\').value)">Перейти</button>' +
     '</div>';
   }

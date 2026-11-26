@@ -13,6 +13,8 @@ function openSettings() {
   document.getElementById('opt-wake').checked = state.settings.wakeLock;
   document.getElementById('opt-vibrate').checked = state.settings.vibrate;
   document.getElementById('opt-goal-notify').checked = !!state.settings.goalNotify;
+  var optAn = document.getElementById('opt-analytics');
+  if (optAn) optAn.checked = state.settings.analytics !== false;
   document.querySelectorAll('#size-seg button').forEach(b=>b.classList.toggle('active', parseFloat(b.dataset.size)===state.settings.arSize));
   renderSettingsArchitecture();
   renderSmartReminderSettings();
@@ -56,7 +58,7 @@ function renderSettingsArchitecture() {
       '</div>' +
       '<div class="plan-block plan-block--future">' +
         '<div class="plan-head"><div class="plan-name">Икра+ (готовится)</div><span class="plan-status">В разработке</span></div>' +
-        '<div class="plan-desc">Опциональные личные инструменты для углублённого заучивания и планирования. Все тексты Корана и Сунны никогда не закроются подпиской.</div>' +
+        '<div class="plan-desc">Опциональные инструменты обучения с нуля, планирования, трекера Када, постов Сунны, энциклопедии, дневника и облачного бэкапа. Тексты Корана и Сунны и подсветка таджвида при чтении навсегда остаются бесплатными.</div>' +
         renderCapList(plusCaps) +
       '</div>';
   }
@@ -75,6 +77,14 @@ function setPrayerPref(field, val) {
 }
 
 function setDailyGoal(v) { state.settings.dailyGoal = Math.max(0, Math.min(1000000, parseInt(v)||0)); save(); }
+function setAnalyticsPref(v) {
+  if (!state || !state.settings) return;
+  state.settings.analytics = !!v;
+  saveNow();
+  if (typeof showMarkToast === 'function') {
+    showMarkToast(state.settings.analytics ? 'Обезличенная статистика включена' : 'Обезличенная статистика отключена');
+  }
+}
 
 /* ---------- SMART REMINDERS SETTINGS ---------- */
 function _ensureSmartPrefs() {
@@ -447,6 +457,7 @@ function sanitizeSettings(raw) {
   out.dailyGoal = Math.floor(num(src.dailyGoal, 0, 1000000, base.dailyGoal));
   ['autoNext', 'wakeLock', 'vibrate', 'goalNotify'].forEach(function (k) { out[k] = bool(src[k], base[k]); });
   out.tajweedMode = bool(src.tajweedMode, false);
+  out.analytics = bool(src.analytics, true);
   const lr = src.lastRead;
   out.lastRead = (lr && typeof lr === 'object' && ['quran', 'dua', 'hadith'].indexOf(lr.type) >= 0 && _impSafeId(lr.id))
     ? { type: lr.type, id: lr.id, ts: (typeof lr.ts === 'number' && isFinite(lr.ts)) ? lr.ts : Date.now() } : null;

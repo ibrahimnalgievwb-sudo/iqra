@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ru" translate="no" class="privacy-page-html">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none';">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#F7F5EF">
+<meta name="color-scheme" content="light dark">
+<title>Политика конфиденциальности · Iqra | Читай</title>
+<meta name="description" content="Политика конфиденциальности приложения Iqra: хранение данных на устройстве, обезличенная статистика без ПДн (152-ФЗ) и защита текста Корана (114-ФЗ).">
+<link rel="icon" type="image/png" href="./assets/icons/favicon.png">
+<link rel="apple-touch-icon" href="./assets/icons/apple-touch-icon.png">
+<script>
+(function(){
+  try {
+    var theme = 'auto';
+    var raw = localStorage.getItem('iqra_data');
+    if (raw) {
+      try {
+        var d = JSON.parse(raw);
+        if (d && d.settings && d.settings.theme) theme = d.settings.theme;
+      } catch(e) {}
+    }
+    if (theme === 'night') theme = 'dark';
+    if (theme === 'auto') {
+      theme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+    }
+    document.documentElement.setAttribute('data-theme', theme);
+  } catch(e) {
+    document.documentElement.setAttribute('data-theme', 'light');
+  }
+})();
+</script>
+<link rel="stylesheet" href="./css/fonts.css">
+<link rel="stylesheet" href="./css/variables.css">
+<link rel="stylesheet" href="./css/base.css">
+<link rel="stylesheet" href="./css/components.css">
+<link rel="stylesheet" href="./css/polish.css">
+</head>
+<body class="privacy-page-body">
+  <main class="privacy-shell">
+    <header class="privacy-header">
+      <a href="./" class="btn secondary btn-inline privacy-back-btn" aria-label="Вернуться в приложение">← В приложение</a>
+      <img src="./assets/icons/logo.svg" alt="Iqra" class="privacy-logo" width="40" height="40">
+    </header>
+
+    <section class="privacy-card">
+      <div class="privacy-kicker">Iqra | Читай</div>
+      <h1 class="privacy-title">Политика конфиденциальности</h1>
+      <p class="privacy-lead">Приложение «Iqra | Читай» создано для чтения Священного Корана, поминаний Аллаха и изучения достоверных исламских знаний. Мы не регистрируем пользователей, не собираем персональные данные и храним ваши личные записи только на вашем устройстве.</p>
+
+      <article class="privacy-section">
+        <h2>1. Кратко: что хранится и что собирается</h2>
+        <ul class="privacy-list">
+          <li><b>Только на вашем устройстве (никуда не отправляется):</b> прогресс чтения и заучивания, счётчики тасбиха, закладки, избранное, личные зикры, напоминания и настройки темы/шрифта (<code>localStorage</code> и кэш Service Worker).</li>
+          <li><b>Обезличенная статистика (Umami):</b> общие агрегированные счётчики посещения вкладок и использования стандартных функций (какие суры/разделы открываются чаще, обобщённый тип устройства и страна), без записи параметров URL и хешей.</li>
+          <li><b>Не собирается и не передаётся:</b> файлы cookie, рекламные трекеры, исходные IP-адреса, ФИО, телефон, email, адрес, контакты, точная геолокация, поисковые запросы и тексты ваших личных зикров.</li>
+        </ul>
+      </article>
+
+      <article class="privacy-section">
+        <h2>2. Отсутствие персональных данных (№ 152-ФЗ)</h2>
+        <p>Приложение не требует регистрации или авторизации, не формирует профили пользователей и не обрабатывает персональные данные в смысле Федерального закона РФ от 27.07.2006 № 152-ФЗ «О персональных данных». Используемый сервис статистики <b>Umami</b> работает без файлов cookie и без сохранения идентификаторов личности, собирая исключительно обезличенную агрегированную статистику. В силу отсутствия обработки персональных данных отдельное соглашение или согласие на обработку ПДн не требуется. Вы в любой момент можете полностью отключить статистику в разделе <b>Настройки → Обезличенная статистика (Umami)</b> либо через режим браузера «Не отслеживать» (Do Not Track).</p>
+      </article>
+
+      <article class="privacy-section">
+        <h2>3. Офлайн-работа и сетевые запросы</h2>
+        <p>При наличии сети приложение загружает статические файлы сур, переводов, хадисов и таджвида со своего хостинга для последующей работы офлайн. Встроенная диагностика таджвида (только при ручном запуске разработчиком) может обращаться к публичному API Корана без передачи данных пользователя.</p>
+      </article>
+
+      <article class="privacy-section">
+        <h2>4. Правовая защита Корана и открытые источники</h2>
+        <p><b>Весь арабский текст Священного Корана и его прямой перевод смыслов</b> публикуются из проверенных открытых источников без искажений и подпадают под действие законодательства о защите священных писаний, включая <b>статью 3.1 Федерального закона РФ от 25.07.2002 № 114-ФЗ «О противодействии экстремистской деятельности»</b>, согласно которой Коран, его содержание и цитаты из него не могут быть признаны экстремистскими материалами.</p>
+        <p style="margin-top:8px;">Используемые открытые источники: арабский текст Корана в начертании Мединского мусхафа (Хафс ан Асим / Tanzil Uthmani) и разметка таджвида (Hafs V4), прямой перевод смыслов Корана Э. Кулиева, достоверные сборники хадисов (аль-Бухари, Муслим, ат-Тирмизи, Абу Дауд, ан-Насаи, Ибн Маджа) и тафсир Ибн Касира.</p>
+      </article>
+
+      <article class="privacy-section">
+        <h2>5. Полный контроль и удаление данных</h2>
+        <p>Вы полностью распоряжаетесь своими локальными записями. В разделе <b>Настройки → Данные</b> можно в любой момент сохранить резервную копию (JSON или CSV) либо полностью очистить все данные на устройстве кнопкой «Сбросить всё».</p>
+      </article>
+
+      <div class="privacy-footer">
+        <a href="./" class="btn privacy-home-btn">Вернуться в «Iqra | Читай»</a>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

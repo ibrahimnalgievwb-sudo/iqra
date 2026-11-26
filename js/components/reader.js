@@ -7,6 +7,80 @@
 
 var READ_AYAH_BATCH = 60;
 var _readRenderState = { id: null, ayahs: [], item: null, renderedCount: 0, surahMap: null };
+var _READER_AR_SIZES = [0.85, 1, 1.2, 1.45];
+var _READER_AR_LABELS = { '0.85': 'S', '1': 'M', '1.2': 'L', '1.45': 'XL' };
+
+function _getReaderArSize() {
+  var raw = (typeof state !== 'undefined' && state && state.settings && typeof state.settings.arSize === 'number')
+    ? state.settings.arSize
+    : 1;
+  var best = 1;
+  var bestDiff = Infinity;
+  _READER_AR_SIZES.forEach(function (v) {
+    var d = Math.abs(v - raw);
+    if (d < bestDiff) { bestDiff = d; best = v; }
+  });
+  return best;
+}
+
+function _shouldShowReaderTranscription() {
+  if (typeof state === 'undefined' || !state || !state.settings || !state.settings.readerPrefs) return true;
+  return state.settings.readerPrefs.showTranscription !== false;
+}
+
+function _syncReaderToolbarState() {
+  var showTr = _shouldShowReaderTranscription();
+  var readBody = document.getElementById('read-body');
+  if (readBody) readBody.classList.toggle('is-hide-transcription', !showTr);
+  var qDetailBody = document.getElementById('quran-detail-content');
+  if (qDetailBody) qDetailBody.classList.toggle('is-hide-transcription', !showTr);
+
+  var trBtn = document.getElementById('read-tr-btn');
+  if (trBtn) {
+    trBtn.classList.toggle('active', showTr);
+    trBtn.setAttribute('aria-pressed', showTr ? 'true' : 'false');
+  }
+
+  var curScale = _getReaderArSize();
+  var idx = _READER_AR_SIZES.indexOf(curScale);
+  var valEl = document.getElementById('read-size-val');
+  if (valEl) valEl.textContent = _READER_AR_LABELS[String(curScale)] || 'M';
+  var decBtn = document.getElementById('read-size-dec');
+  if (decBtn) decBtn.disabled = idx <= 0;
+  var incBtn = document.getElementById('read-size-inc');
+  if (incBtn) incBtn.disabled = idx >= _READER_AR_SIZES.length - 1;
+}
+
+function toggleReaderTranscription() {
+  if (typeof state === 'undefined' || !state) return;
+  if (!state.settings) state.settings = {};
+  if (!state.settings.readerPrefs || typeof state.settings.readerPrefs !== 'object') {
+    state.settings.readerPrefs = { showTranscription: true, pageBatch: 40 };
+  }
+  var next = state.settings.readerPrefs.showTranscription === false;
+  state.settings.readerPrefs.showTranscription = next;
+  if (typeof save === 'function') save();
+  _syncReaderToolbarState();
+  if (typeof showMarkToast === 'function') {
+    showMarkToast(next ? 'Транскрипция показана' : 'Транскрипция скрыта');
+  }
+}
+
+function stepReaderArSize(delta) {
+  var cur = _getReaderArSize();
+  var idx = _READER_AR_SIZES.indexOf(cur);
+  if (idx < 0) idx = 1;
+  var nextIdx = Math.max(0, Math.min(_READER_AR_SIZES.length - 1, idx + (delta > 0 ? 1 : -1)));
+  var nextSize = _READER_AR_SIZES[nextIdx];
+  if (typeof setArSize === 'function') {
+    setArSize(nextSize);
+  } else if (typeof state !== 'undefined' && state && state.settings) {
+    state.settings.arSize = nextSize;
+    if (document.documentElement) document.documentElement.style.setProperty('--ar-scale', nextSize);
+    if (typeof save === 'function') save();
+  }
+  _syncReaderToolbarState();
+}
 
 function readPrevSurah() {
   if (!activeReadId) return;
@@ -194,10 +268,15 @@ function _buildReadAyahHtml(item, a, idx) {
     '<div class="read-ayah-trn">' + _readerFormatSacred(esc(a.trn)) + '</div>' +
     getSmartTafsirHtml(item, idx + 1) +
     (typeof renderAyahEcosystemDetails === 'function' ? renderAyahEcosystemDetails('ayah:' + item.id + '#' + (idx + 1), { inReader: true }) : '') +
-    '<button class="ayah-tajweed-btn" type="button" onclick="openTajweedInfo(this.closest(\'.read-ayah\'))" aria-label="Справка по таджвиду">' +
-      '<svg class="ico ico-sm"><use href="#i-info"/></svg>Таджвид' +
-    '</button>' +
-    '<button type="button" class="ayah-share-btn" onclick="shareAyah(\'' + escAttr(item.id) + '\',' + idx + ')"><svg class="ico ico-sm"><use href="#i-upload"/></svg>Поделиться аятом</button>' +
+    '<div class="ayah-actions-row">' +
+      '<button class="ayah-tajweed-btn" type="button" onclick="openTajweedInfo(this.closest(\'.read-ayah\'))" aria-label="Справка по таджвиду">' +
+        '<svg class="ico ico-sm"><use href="#i-info"/></svg>Таджвид' +
+      '</button>' +
+      '<button type="button" class="ayah-copy-btn" onclick="copyAyah(\'' + escAttr(item.id) + '\',' + idx + ')" aria-label="Скопировать аят ' + escAttr(a.num) + '">' +
+        '<svg class="ico ico-sm"><use href="#i-copy"/></svg>Скопировать' +
+      '</button>' +
+      '<button type="button" class="ayah-share-btn" onclick="shareAyah(\'' + escAttr(item.id) + '\',' + idx + ')"><svg class="ico ico-sm"><use href="#i-upload"/></svg>Поделиться аятом</button>' +
+    '</div>' +
   '</div>';
 }
 
@@ -288,7 +367,7 @@ async function openRead(id, targetAyahIdx, dir) {
   if (ayahs.length >= 15) {
     jumpHtml = '<div class="ayah-jumper">' +
       '<label for="rm-ayah-jump" class="aj-label">Аят (1–' + ayahs.length + '):</label>' +
-      '<input id="rm-ayah-jump" class="aj-input" type="number" min="1" max="' + ayahs.length + '" inputmode="numeric" placeholder="№">' +
+      '<input id="rm-ayah-jump" class="aj-input" type="number" min="1" max="' + ayahs.length + '" inputmode="numeric" placeholder="№" onkeydown="if(event.key===\'Enter\'){event.preventDefault();jumpToReadAyah(this.value);}">' +
       '<button type="button" class="btn secondary btn-inline aj-btn" onclick="jumpToReadAyah(document.getElementById(\'rm-ayah-jump\').value)">Перейти</button>' +
     '</div>';
   }
@@ -310,11 +389,28 @@ async function openRead(id, targetAyahIdx, dir) {
         : linkifyFn(escNl(item.note)))
     : '';
 
+  var showTr = _shouldShowReaderTranscription();
+  var curScale = _getReaderArSize();
+  var curIdx = _READER_AR_SIZES.indexOf(curScale);
+  var scaleLabel = _READER_AR_LABELS[String(curScale)] || 'M';
+  var toolbarHtml =
+    '<div class="read-toolbar" id="read-toolbar" role="toolbar" aria-label="Настройки чтения">' +
+      '<div class="rt-size-group" aria-label="Размер арабского шрифта">' +
+        '<button type="button" class="rt-btn rt-step" id="read-size-dec" onclick="stepReaderArSize(-1)" aria-label="Уменьшить арабский шрифт"' + (curIdx <= 0 ? ' disabled' : '') + '>A-</button>' +
+        '<span class="rt-size-val" id="read-size-val">' + scaleLabel + '</span>' +
+        '<button type="button" class="rt-btn rt-step" id="read-size-inc" onclick="stepReaderArSize(1)" aria-label="Увеличить арабский шрифт"' + (curIdx >= _READER_AR_SIZES.length - 1 ? ' disabled' : '') + '>A+</button>' +
+      '</div>' +
+      '<button type="button" class="rt-btn rt-toggle' + (showTr ? ' active' : '') + '" id="read-tr-btn" aria-pressed="' + (showTr ? 'true' : 'false') + '" onclick="toggleReaderTranscription()">Транскр.</button>' +
+      '<button type="button" class="rt-btn rt-guide" onclick="openTajweedGuide()"><svg class="ico ico-sm"><use href="#i-book"/></svg>Таджвид</button>' +
+    '</div>';
+
+  container.classList.toggle('is-hide-transcription', !showTr);
   container.innerHTML =
     '<div id="guide-slot-read-mode"></div>' +
     '<div class="detail-hero read-hero-title">' +
       '<div class="dh-title read-hero-heading">' + esc(item.title) + '</div>' +
     '</div>' +
+    toolbarHtml +
     legendHtml +
     jumpHtml +
     (item.note ? '<div class="note-box"><svg class="ico ico-sm note-box-ico"><use href="#i-lightbulb"/></svg><div class="note-box-body">' + _rNoteHtml + '</div></div>' : '') +
@@ -425,3 +521,8 @@ function openBookmark(bmId) {
   if (!getQuranById(bm.quranId)) { showMarkToast('Текст недоступен'); return; }
   openRead(bm.quranId, bm.ayahIdx);
 }
+
+window.toggleReaderTranscription = toggleReaderTranscription;
+window.stepReaderArSize = stepReaderArSize;
+window.openTajweedGuide = openTajweedGuide;
+window.openTajweedInfo = openTajweedInfo;

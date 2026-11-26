@@ -48,7 +48,30 @@
 })();
 </script>
 
-<script async src="https://cloud.umami.is/script.js" data-website-id="ccc49755-faf3-4ad6-993c-9f8be18a1746"></script>
+<script>
+(function(){
+  try {
+    if (navigator.doNotTrack === '1' || window.doNotTrack === '1') return;
+    var enabled = true;
+    var raw = localStorage.getItem('iqra_data');
+    if (raw) {
+      try {
+        var d = JSON.parse(raw);
+        if (d && d.settings && d.settings.analytics === false) enabled = false;
+      } catch(e) {}
+    }
+    if (!enabled) return;
+    var s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://cloud.umami.is/script.js';
+    s.setAttribute('data-website-id', 'ccc49755-faf3-4ad6-993c-9f8be18a1746');
+    s.setAttribute('data-do-not-track', 'true');
+    s.setAttribute('data-exclude-search', 'true');
+    s.setAttribute('data-exclude-hash', 'true');
+    document.head.appendChild(s);
+  } catch(e) {}
+})();
+</script>
 
 <script>
 (function () {
@@ -222,6 +245,7 @@
   <div class="header">
     <button class="icon-btn ghost" data-click='[["goDetailBack","goTasbihList"]]' aria-label="Назад"><svg class="ico"><use href="#i-arrow-left"/></svg></button>
     <div style="display:flex;gap:6px">
+      <button class="icon-btn ghost" data-click='[["copyCurrent",{"$":"event"}]]' aria-label="Скопировать"><svg class="ico"><use href="#i-copy"/></svg></button>
       <button class="icon-btn ghost" data-click='[["shareCurrent",{"$":"event"}]]' aria-label="Поделиться"><svg class="ico"><use href="#i-upload"/></svg></button>
       <button class="icon-btn ghost" data-click='[["resetCurrent",{"$":"event"}]]' aria-label="Сбросить"><svg class="ico"><use href="#i-rotate-ccw"/></svg></button>
       <button class="icon-btn ghost" data-click='[["editCurrent",{"$":"event"}]]' aria-label="Редактировать"><svg class="ico"><use href="#i-edit"/></svg></button>
@@ -277,6 +301,12 @@
         <button type="button" data-click='[["stepTarget",-1]]' aria-label="Минус"><svg class="ico"><use href="#i-minus"/></svg></button>
         <input id="f-target" type="number" inputmode="numeric" value="33" min="1" max="100000">
         <button type="button" data-click='[["stepTarget",1]]' aria-label="Плюс"><svg class="ico"><use href="#i-plus"/></svg></button>
+      </div>
+      <div class="target-presets" role="group" aria-label="Быстрый выбор цели">
+        <button type="button" class="target-preset-chip" data-target-preset="33" data-click='[["setTargetPreset",33]]'>33</button>
+        <button type="button" class="target-preset-chip" data-target-preset="99" data-click='[["setTargetPreset",99]]'>99</button>
+        <button type="button" class="target-preset-chip" data-target-preset="100" data-click='[["setTargetPreset",100]]'>100</button>
+        <button type="button" class="target-preset-chip" data-target-preset="1000" data-click='[["setTargetPreset",1000]]'>1000</button>
       </div>
     </div>
     <button class="btn" data-click='[["saveForm"]]'>Сохранить</button>
@@ -408,11 +438,16 @@
     <div class="header-actions"><button type="button" class="icon-btn ghost" data-click='[["toggleScreenGuide","library"]]' aria-label="Справка по библиотеке"><span class="guide-help-glyph">?</span></button><button type="button" class="icon-btn ghost" data-click='[["openSearch"]]' aria-label="Поиск"><svg class="ico"><use href="#i-search"/></svg></button></div>
   </div>
   <div style="padding: 0 16px;"><div id="guide-slot-library"></div></div>
-  <div style="padding: 0 16px 12px;">
+  <div class="library-controls" id="library-controls">
     <div class="seg" style="width:100%;">
       <button class="active" id="lib-tab-dua" data-click='[["setLibraryTab","dua"]]'>Дуа</button>
       <button id="lib-tab-hadith" data-click='[["setLibraryTab","hadith"]]'>Хадисы</button>
     </div>
+    <div class="search-wrap library-search-wrap">
+      <input id="library-search" type="text" placeholder="Поиск по дуа…" data-input='[["debouncedRenderLibrary"]]' autocomplete="off">
+      <button type="button" class="library-clear-btn" id="library-clear-btn" aria-label="Очистить поиск в библиотеке" data-click='[["clearLibrarySearch"]]' style="display:none;"><svg class="ico ico-sm"><use href="#i-x"/></svg></button>
+    </div>
+    <div class="search-filters library-filter-chips" id="library-filter-chips"></div>
   </div>
   <div class="content-list" id="library-dua-list" style="display:flex; flex-direction:column; padding-top: 0;"></div>
   <div class="content-list" id="library-hadith-list" style="display:none; flex-direction:column; padding-top: 0;"></div>
@@ -558,6 +593,20 @@
     <div class="settings-group">
       <div class="sg-title">Планы и развитие проекта</div>
       <div id="plans-overview-slot" class="plans-overview"></div>
+      <div class="setting-row">
+        <div>
+          <div class="lbl">Обезличенная статистика (Umami)</div>
+          <div class="sub">Общие счётчики разделов без cookies, IP-адресов и персональных данных</div>
+        </div>
+        <label class="toggle"><input type="checkbox" id="opt-analytics" data-change='[["setAnalyticsPref",{"$":"checked"}]]'><span class="slider"></span></label>
+      </div>
+      <div class="setting-row setting-col plans-legal-meta">
+        <div>
+          <div class="lbl">Открытые источники текстов и защита</div>
+          <div class="sub plans-sources-sub">Арабский текст Корана (Мединский мусхаф / Tanzil Uthmani) и разметка таджвида (Hafs V4), прямой перевод смыслов Э. Кулиева, достоверные сборники хадисов (аль-Бухари, Муслим, ат-Тирмизи, Абу Дауд, ан-Насаи, Ибн Маджа), тафсир Ибн Касира. Весь текст Корана и его прямой перевод защищены ст. 3.1 ФЗ-114.</div>
+        </div>
+        <a class="plans-privacy-link" href="./privacy.html">Политика конфиденциальности</a>
+      </div>
     </div>
     <div class="settings-group">
       <div class="sg-title">Данные</div>

@@ -13,6 +13,19 @@ function openFavorites() {
   switchTab('cal');
 }
 
+function _shareAppUrl() {
+  if (typeof getAppShareUrl === 'function') {
+    var dyn = getAppShareUrl();
+    if (dyn && dyn !== './') return dyn;
+  }
+  if (typeof APP_URL === 'string' && APP_URL && APP_URL !== './') return APP_URL;
+  if (typeof getIqraBaseUrl === 'function') {
+    var b = getIqraBaseUrl();
+    if (b && b !== './') return b;
+  }
+  return '';
+}
+
 function buildShareText(item) {
   var parts = [];
   if (item.title) parts.push(item.title);
@@ -22,7 +35,8 @@ function buildShareText(item) {
   if (item.translation) parts.push(item.translation);
   if (item.source) parts.push(item.source);
   parts.push('— Iqra | Читай');
-  parts.push(APP_URL);
+  var shareUrl = _shareAppUrl();
+  if (shareUrl) parts.push(shareUrl);
   return parts.join('\n\n');
 }
 
@@ -42,7 +56,8 @@ function buildShareTextSurah(item) {
   if (item.type === 'surah') label += ' · аяты 1-' + ayahs.length;
   else if (item.number) label += ' · ' + item.number;
   parts.push(label);
-  parts.push(APP_URL);
+  var shareUrl = _shareAppUrl();
+  if (shareUrl) parts.push(shareUrl);
   return parts.join('\n\n');
 }
 
@@ -59,8 +74,36 @@ function buildShareTextAyah(item, ayahIdx) {
   if (item.type === 'surah') label += ' · аят ' + a.num;
   else if (item.number) label += ' · ' + item.number;
   parts.push(label);
-  parts.push(APP_URL);
+  var shareUrl = _shareAppUrl();
+  if (shareUrl) parts.push(shareUrl);
   return parts.join('\n\n');
+}
+
+function copyAyah(itemId, ayahIdx) {
+  var item = getQuranById(itemId);
+  if (!item) return;
+  var text = buildShareTextAyah(item, ayahIdx);
+  if (typeof trackEvent === 'function') {
+    trackEvent('copy_ayah/' + itemId + '/' + ayahIdx, 'Копия аята: ' + item.title);
+  }
+  copyToClipboard(text, 'Аят скопирован');
+}
+
+function copyLibraryItem(type, id) {
+  var item = null;
+  var msg = 'Скопировано в буфер';
+  if (type === 'quran') { item = getQuranById(id); msg = 'Сура скопирована'; }
+  else if (type === 'dua') { item = getDuaById(id); msg = 'Дуа скопировано'; }
+  else if (type === 'hadith') { item = getHadithById(id); msg = 'Хадис скопирован'; }
+  else if (type === 'tasbih') { item = getById(id); msg = 'Тасбих скопирован'; }
+  if (!item) return;
+  var text = (type === 'quran') ? buildShareTextSurah(item) : buildShareText(item);
+  if (typeof trackEvent === 'function') {
+    var safeCopyId = (type === 'tasbih' && item.custom) ? 'custom' : id;
+    var safeCopyTitle = (type === 'tasbih' && item.custom) ? 'пользовательский зикр' : (item.title || item.transcription || id);
+    trackEvent('copy/' + type + '/' + safeCopyId, 'Копия: ' + safeCopyTitle);
+  }
+  copyToClipboard(text, msg);
 }
 
 function shareAyah(itemId, ayahIdx) {
@@ -74,7 +117,7 @@ function shareAyah(itemId, ayahIdx) {
       .catch(function() {});
     return;
   }
-  copyToClipboard(text);
+  copyToClipboard(text, 'Аят скопирован');
 }
 
 function shareItem(type, id) {
@@ -86,28 +129,32 @@ function shareItem(type, id) {
   if (!item) return;
   var text = (type === 'quran') ? buildShareTextSurah(item) : buildShareText(item);
   var title = item.title || item.transcription || 'Iqra | Читай';
+  var safeShareId = (type === 'tasbih' && item.custom) ? 'custom' : id;
+  var safeShareTitle = (type === 'tasbih' && item.custom) ? 'пользовательский зикр' : title;
   if (navigator.share) {
     navigator.share({ title: title, text: text }).then(function() {
-      trackEvent('share/' + type + '/' + id, 'Репост: ' + title);
+      trackEvent('share/' + type + '/' + safeShareId, 'Репост: ' + safeShareTitle);
     }).catch(function() {});
     return;
   }
   copyToClipboard(text);
 }
 
-function copyToClipboard(text) {
+function copyToClipboard(text, successMsg) {
+  var msg = successMsg || 'Скопировано в буфер';
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(text).then(function() {
-      showMarkToast('Скопировано в буфер');
+      if (typeof showMarkToast === 'function') showMarkToast(msg);
     }).catch(function() {
-      legacyCopy(text);
+      legacyCopy(text, msg);
     });
     return;
   }
-  legacyCopy(text);
+  legacyCopy(text, msg);
 }
 
-function legacyCopy(text) {
+function legacyCopy(text, successMsg) {
+  var msg = successMsg || 'Скопировано в буфер';
   try {
     var ta = document.createElement('textarea');
     ta.value = text;
@@ -118,8 +165,12 @@ function legacyCopy(text) {
     ta.select();
     var ok = document.execCommand('copy');
     document.body.removeChild(ta);
-    showMarkToast(ok ? 'Скопировано в буфер' : 'Не удалось скопировать');
+    if (typeof showMarkToast === 'function') showMarkToast(ok ? msg : 'Не удалось скопировать');
   } catch (e) {
-    showMarkToast('Не удалось скопировать');
+    if (typeof showMarkToast === 'function') showMarkToast('Не удалось скопировать');
   }
 }
+
+window.copyAyah = copyAyah;
+window.copyLibraryItem = copyLibraryItem;
+window.copyToClipboard = copyToClipboard;

@@ -212,19 +212,23 @@ function openWidgetsModal() {
     '</div>';
   }).join('');
 
-  var baseHref = '';
-  try {
-    baseHref = location.origin + location.pathname;
-  } catch (e) { baseHref = './'; }
-
   var standaloneHtml = STANDALONE_WIDGETS.map(function (sw) {
-    var fullUrl = sw.url.replace(/^\.\//, baseHref.replace(/\/index\.html$/, '/') );
+    var fullUrl = sw.url;
+    try {
+      if (typeof iqraResolveUrl === 'function') {
+        fullUrl = iqraResolveUrl(sw.url);
+      } else if (typeof document !== 'undefined' && document.baseURI) {
+        fullUrl = new URL(sw.url, document.baseURI).href;
+      } else if (typeof location !== 'undefined' && location.href) {
+        fullUrl = new URL(sw.url, location.href).href;
+      }
+    } catch (e) {}
     return '<div class="wm-shortcut-card">' +
       '<div class="wm-sc-title">' + esc(sw.title) + '</div>' +
       '<div class="wm-sc-desc">' + esc(sw.desc) + '</div>' +
       '<div class="wm-sc-actions">' +
         '<button type="button" class="btn secondary btn-inline" onclick="closeModal();renderStandaloneWidgetMode(\'' + escAttr(sw.id) + '\')">Открыть виджет</button>' +
-        '<button type="button" class="btn secondary btn-inline" onclick="copyToClipboard(\'' + escAttr(fullUrl) + '\');showMarkToast(\'Ссылка скопирована\')">Копировать URL</button>' +
+        '<button type="button" class="btn secondary btn-inline" onclick="copyToClipboard(\'' + escAttr(fullUrl) + '\',\'Ссылка скопирована\')">Копировать URL</button>' +
       '</div>' +
     '</div>';
   }).join('');

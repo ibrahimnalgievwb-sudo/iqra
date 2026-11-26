@@ -225,7 +225,6 @@
     if (!sourceObj) return 'ibn_kathir';
     var low = String(sourceObj).toLowerCase();
     if (low.indexOf('ибн касир') !== -1) return 'ibn_kathir';
-    if (low.indexOf('са‘ди') !== -1 || low.indexOf('сади') !== -1 || low.indexOf('as_sadi') !== -1) return 'as_sadi';
     if (Array.isArray(scholarsList)) {
       var match = scholarsList.find(function (s) {
         return s && s.name_ru && low.indexOf(s.name_ru.toLowerCase()) !== -1;

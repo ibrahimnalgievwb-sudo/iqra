@@ -82,6 +82,15 @@ function toggleNightChecklist(idx, fromDetail) {
   }
 }
 
+function resetNightChecklistToday() {
+  var cl = _getNightChecklist();
+  cl.done = [];
+  if (typeof save === 'function') save();
+  renderNightList();
+  if (typeof showMarkToast === 'function') showMarkToast('Вечерний список очищен');
+}
+window.resetNightChecklistToday = resetNightChecklistToday;
+
 function renderNightList() {
   var el = document.getElementById('night-list');
   if (!el) return;
@@ -94,7 +103,7 @@ function renderNightList() {
 
   var doneCount = validEntries.filter(function (v) { return _isNightIdxDone(v.idx); }).length;
   var totalCount = validEntries.length;
-  var pct = totalCount ? Math.round((doneCount / totalCount) * 100) : 0;
+  var ratio = totalCount ? Math.min(1, Math.max(0, doneCount / totalCount)) : 0;
 
   var introText =
     '<b>Что читать перед сном по достоверным хадисам</b><br>' +
@@ -108,9 +117,13 @@ function renderNightList() {
     '<div class="night-progress-card">' +
       '<div class="npc-top">' +
         '<span class="npc-label">Вечерний прогресс сегодня</span>' +
-        '<span class="npc-val">' + doneCount + ' из ' + totalCount + '</span>' +
+        '<span class="npc-actions">' +
+          '<span class="npc-val">' + doneCount + ' из ' + totalCount + '</span>' +
+          (doneCount > 0 ? '<button type="button" class="npc-reset-btn" onclick="resetNightChecklistToday()" aria-label="Сбросить вечерний прогресс">Сбросить</button>' : '') +
+        '</span>' +
       '</div>' +
-      '<div class="npc-bar"><div class="npc-bar-fill" style="width:' + pct + '%"></div></div>' +
+      '<div class="npc-bar"><div class="npc-bar-fill" style="transform:scaleX(' + ratio.toFixed(4) + ')"></div></div>' +
+      (doneCount === totalCount && totalCount > 0 ? '<div class="night-done-banner"><svg class="ico ico-sm"><use href="#i-check"/></svg><span>Вечернее чтение полностью завершено сегодня. Да примет Аллах!</span></div>' : '') +
     '</div>';
 
   validEntries.forEach(function (v) {

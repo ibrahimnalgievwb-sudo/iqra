@@ -5,8 +5,42 @@
    Проект «Икра» · v450
    ============================================================ */
 
+/* ---------- BASE_URL (работает и на /iqra/, и на корневом /, и в Capacitor) ---------- */
+function getIqraBaseUrl() {
+  try {
+    if (typeof document !== 'undefined' && document.baseURI) {
+      return new URL('./', document.baseURI).href;
+    }
+    if (typeof location !== 'undefined' && location.href) {
+      return new URL('./', location.href).href;
+    }
+  } catch (e) {}
+  return './';
+}
+
+function iqraResolveUrl(relPath) {
+  var raw = String(relPath == null ? './' : relPath);
+  if (/^(https?:|data:|blob:)/i.test(raw)) return raw;
+  var clean = raw.replace(/^\/+/, './');
+  var base = getIqraBaseUrl();
+  try {
+    if (base && base !== './') {
+      return new URL(clean, base).href;
+    }
+  } catch (e) {}
+  return clean;
+}
+
+var BASE_URL = getIqraBaseUrl();
+window.IQRA_BASE_URL = BASE_URL;
+window.getIqraBaseUrl = getIqraBaseUrl;
+window.iqraResolveUrl = iqraResolveUrl;
+
 function trackEvent(name, title) {
   try {
+    if (typeof navigator !== 'undefined' && navigator.doNotTrack === '1') return;
+    if (typeof window !== 'undefined' && window.doNotTrack === '1') return;
+    if (typeof state !== 'undefined' && state && state.settings && state.settings.analytics === false) return;
     if (window.umami && typeof window.umami.track === 'function') {
       window.umami.track(String(name).slice(0, 100), { title: String(title || name).slice(0, 200) });
     }
@@ -77,16 +111,16 @@ async function safeFetchJSON(url, fallback) {
 
 async function loadAllData() {
   var results = await Promise.all([
-    safeFetchJSON('./data/tasbihs.json', { defaults: [], presets: [] }),
-    safeFetchJSON('./data/duas.json', { duas: [] }),
-    safeFetchJSON('./data/hadiths.json', { hadiths: [] }),
-    safeFetchJSON('./data/quran.json', { quran: [] }),
-    safeFetchJSON('./data/knowledge-base.json', {}),
-    safeFetchJSON('./data/tafsirs.json', { tafsirs: [] }),
-    safeFetchJSON('./data/tafsirs_fatiha.json', { tafsirs: [], biographies: [] }),
-    safeFetchJSON('./data/graph/edges.json', []),
-    safeFetchJSON('./data/graph/themes.json', []),
-    safeFetchJSON('./data/graph/scholars.json', { scholars: [] })
+    safeFetchJSON(iqraResolveUrl('./data/tasbihs.json'), { defaults: [], presets: [] }),
+    safeFetchJSON(iqraResolveUrl('./data/duas.json'), { duas: [] }),
+    safeFetchJSON(iqraResolveUrl('./data/hadiths.json'), { hadiths: [] }),
+    safeFetchJSON(iqraResolveUrl('./data/quran.json'), { quran: [] }),
+    safeFetchJSON(iqraResolveUrl('./data/knowledge-base.json'), {}),
+    safeFetchJSON(iqraResolveUrl('./data/tafsirs.json'), { tafsirs: [] }),
+    safeFetchJSON(iqraResolveUrl('./data/tafsirs_fatiha.json'), { tafsirs: [], biographies: [] }),
+    safeFetchJSON(iqraResolveUrl('./data/graph/edges.json'), []),
+    safeFetchJSON(iqraResolveUrl('./data/graph/themes.json'), []),
+    safeFetchJSON(iqraResolveUrl('./data/graph/scholars.json'), { scholars: [] })
   ]);
 
   var tasbihsData = results[0];
@@ -190,7 +224,7 @@ function _isValidTajweedText(text) {
 
 function _loadTajweedManifest() {
   if (!_tajweedManifestPromise) {
-    _tajweedManifestPromise = safeFetchJSON(TAJWEED_MANIFEST_URL, null);
+    _tajweedManifestPromise = safeFetchJSON(iqraResolveUrl(TAJWEED_MANIFEST_URL), null);
   }
   return _tajweedManifestPromise;
 }
@@ -205,7 +239,7 @@ async function fetchTajweedSurah(surahNumber) {
   if (!chunkFile) return null;
 
   if (!_tajweedChunkCache[chunkFile]) {
-    _tajweedChunkCache[chunkFile] = safeFetchJSON('./data/tajweed/' + chunkFile, null);
+    _tajweedChunkCache[chunkFile] = safeFetchJSON(iqraResolveUrl('./data/tajweed/' + chunkFile), null);
   }
   var chunkData = await _tajweedChunkCache[chunkFile];
   if (!chunkData || !chunkData.surahs) return null;

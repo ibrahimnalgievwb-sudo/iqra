@@ -93,10 +93,11 @@ function checkSmartBrowserNotification() {
   var title = scenario.notifyTitle || scenario.title;
   var body = scenario.notifyBody || scenario.hadithText;
   var actionStr = scenario.action ? (scenario.action.type + ':' + scenario.action.id) : '';
+  var iconUrl = (typeof iqraResolveUrl === 'function') ? iqraResolveUrl('./assets/icons/icon-192.png') : './assets/icons/icon-192.png';
   var opts = {
     body: body,
-    icon: './assets/icons/icon-192.png',
-    badge: './assets/icons/icon-192.png',
+    icon: iconUrl,
+    badge: iconUrl,
     tag: 'iqra-smart-' + scenario.id,
     data: { action: actionStr }
   };
@@ -392,12 +393,82 @@ function setNav(tab) {
     else b.removeAttribute('aria-current');
   });
 }
+var _activeLibraryTab = 'dua';
+
+function renderLibraryFilterChips(tab) {
+  var chipsEl = document.getElementById('library-filter-chips');
+  if (!chipsEl) return;
+  var curTab = tab || _activeLibraryTab || 'dua';
+  if (curTab === 'dua') {
+    var dCur = (typeof _duaFilter === 'string' && _duaFilter) ? _duaFilter : 'all';
+    var dOpts = [
+      ['all', 'Все'],
+      ['protection', 'Защита и рукья'],
+      ['heart', 'Сердце и покаяние'],
+      ['learned', 'Выученные']
+    ];
+    chipsEl.innerHTML = dOpts.map(function (o) {
+      return '<button type="button" class="filter-chip' + (dCur === o[0] ? ' active' : '') + '" data-lib-filter="' + o[0] + '" data-click=\'[["setDuaFilter","' + o[0] + '"]]\'>' + o[1] + '</button>';
+    }).join('');
+  } else {
+    var hCur = (typeof _hadithFilter === 'string' && _hadithFilter) ? _hadithFilter : 'all';
+    var hOpts = [
+      ['all', 'Все'],
+      ['quran', 'О Коране'],
+      ['adhkar', 'Зикр и дуа'],
+      ['night', 'Перед сном'],
+      ['learned', 'Изученные']
+    ];
+    chipsEl.innerHTML = hOpts.map(function (o) {
+      return '<button type="button" class="filter-chip' + (hCur === o[0] ? ' active' : '') + '" data-lib-filter="' + o[0] + '" data-click=\'[["setHadithFilter","' + o[0] + '"]]\'>' + o[1] + '</button>';
+    }).join('');
+  }
+}
+
+function _syncLibraryControls(tab) {
+  var inp = document.getElementById('library-search');
+  var clr = document.getElementById('library-clear-btn');
+  if (inp) {
+    inp.placeholder = tab === 'hadith' ? 'Поиск по хадисам…' : 'Поиск по дуа…';
+    if (clr) clr.style.display = (inp.value && inp.value.trim()) ? 'flex' : 'none';
+  }
+  renderLibraryFilterChips(tab);
+}
+
+var debouncedRenderLibrary = debounce(function () {
+  var inp = document.getElementById('library-search');
+  var clr = document.getElementById('library-clear-btn');
+  if (clr) clr.style.display = (inp && inp.value && inp.value.trim()) ? 'flex' : 'none';
+  if (_activeLibraryTab === 'hadith') {
+    if (typeof renderHadithList === 'function') renderHadithList();
+  } else {
+    if (typeof renderDuaList === 'function') renderDuaList();
+  }
+}, 180);
+
+function clearLibrarySearch() {
+  var inp = document.getElementById('library-search');
+  var clr = document.getElementById('library-clear-btn');
+  if (inp) inp.value = '';
+  if (clr) clr.style.display = 'none';
+  if (typeof _duaFilter !== 'undefined') _duaFilter = 'all';
+  if (typeof _hadithFilter !== 'undefined') _hadithFilter = 'all';
+  renderLibraryFilterChips(_activeLibraryTab);
+  if (_activeLibraryTab === 'hadith') {
+    if (typeof renderHadithList === 'function') renderHadithList();
+  } else {
+    if (typeof renderDuaList === 'function') renderDuaList();
+  }
+}
+
 function setLibraryTab(tab) {
-  document.getElementById('lib-tab-dua').classList.toggle('active', tab === 'dua');
-  document.getElementById('lib-tab-hadith').classList.toggle('active', tab === 'hadith');
-  document.getElementById('library-dua-list').style.display = tab === 'dua' ? 'flex' : 'none';
-  document.getElementById('library-hadith-list').style.display = tab === 'hadith' ? 'flex' : 'none';
-  if (tab === 'dua') renderDuaList();
+  _activeLibraryTab = (tab === 'hadith') ? 'hadith' : 'dua';
+  document.getElementById('lib-tab-dua').classList.toggle('active', _activeLibraryTab === 'dua');
+  document.getElementById('lib-tab-hadith').classList.toggle('active', _activeLibraryTab === 'hadith');
+  document.getElementById('library-dua-list').style.display = _activeLibraryTab === 'dua' ? 'flex' : 'none';
+  document.getElementById('library-hadith-list').style.display = _activeLibraryTab === 'hadith' ? 'flex' : 'none';
+  _syncLibraryControls(_activeLibraryTab);
+  if (_activeLibraryTab === 'dua') renderDuaList();
   else renderHadithList();
 }
 async function switchTab(tab) {
@@ -1236,9 +1307,9 @@ window.addEventListener('appinstalled', () => {
     if (!state || !state.settings || !state.settings.vibrate) return;
     if (!navigator.vibrate) return;
     var t = e.target && e.target.closest && e.target.closest(
-      '.btn, .icon-btn, .path-chip, .nav button, .filter-chip, .preset-chip, ' +
+      '.btn, .icon-btn, .path-chip, .nav button, .filter-chip, .preset-chip, .target-preset-chip, ' +
       '.cal-day, .fab, .dash-grid-item, .dash-quick, .content-card, .continue-card, ' +
-      '.ob-option, .ayah-share-btn, .star-btn, .show-all-btn, .fs-bottom-nav button'
+      '.ob-option, .ayah-share-btn, .ayah-copy-btn, .star-btn, .show-all-btn, .fs-bottom-nav button'
     );
     if (t) navigator.vibrate(8);
   }, { passive: true });

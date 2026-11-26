@@ -29,7 +29,11 @@
     'dismissInstall', 'runTajweedDiagnostics', 'copyDebugOutput',
     'testScreenTajweed', 'dashQuoteTap', 'openWidgetsModal',
     'cycleSmartReminder', 'dismissSmartReminderToday', 'openTafsirReader',
-    'copyTafsirReader', 'revealMemorizeHint', 'jumpMemorize'
+    'copyTafsirReader', 'revealMemorizeHint', 'jumpMemorize',
+    'copyCurrent', 'setTargetPreset', 'debouncedRenderLibrary', 'clearLibrarySearch',
+    'setDuaFilter', 'setHadithFilter', 'toggleReaderTranscription', 'stepReaderArSize',
+    'setMemorizePhase', 'resetMemorizeHints', 'resetNightChecklistToday',
+    'clearProgFilter', 'copyAyah', 'copyLibraryItem', 'setAnalyticsPref'
   ]);
 
   var ALLOWED_CLICK_TARGETS = {
