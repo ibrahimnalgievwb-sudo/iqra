@@ -14,11 +14,14 @@ function getAppShareUrl() {
     if (b && b !== './') return b;
   }
   try {
-    if (typeof document !== 'undefined' && document.baseURI) {
-      return new URL('./', document.baseURI).href;
-    }
-    if (typeof location !== 'undefined' && location.href) {
-      return new URL('./', location.href).href;
+    var rawUri = (typeof document !== 'undefined' && document.baseURI) ? document.baseURI : (typeof location !== 'undefined' ? location.href : '');
+    if (rawUri) {
+      var u = new URL(rawUri);
+      if (!u.pathname.endsWith('/') && !/\.[a-zA-Z0-9]+$/.test(u.pathname)) {
+        u.pathname += '/';
+        return u.href;
+      }
+      return new URL('./', u.href).href;
     }
   } catch (e) {}
   return './';

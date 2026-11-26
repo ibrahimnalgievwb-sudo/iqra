@@ -58,16 +58,23 @@ button:active, .btn:active, .icon-btn:active, .star-btn:active, .filter-chip:act
 html { height:100%; overflow:hidden; }
 body {
   height:100%;
+  min-height:100%;
+  height:100dvh;
   display:flex;
   flex-direction:column;
   overflow:hidden;
-  padding-top: env(safe-area-inset-top);
+  padding-top: env(safe-area-inset-top, 0px);
   padding-bottom: 0;
-  padding-left: var(--safe-left);
-  padding-right: var(--safe-right);
+  padding-left: var(--safe-left, 0px);
+  padding-right: var(--safe-right, 0px);
+  box-sizing: border-box;
 }
-html.is-ios body { height:100vh; }
-html:not(.is-ios) body { height:100dvh; }
+@supports (-webkit-touch-callout: none) {
+  body {
+    height: -webkit-fill-available;
+    height: 100dvh;
+  }
+}
 
 /* ---------- FORM ELEMENT RESET ---------- */
 button, input, textarea, select { font-family:inherit; color:inherit; }

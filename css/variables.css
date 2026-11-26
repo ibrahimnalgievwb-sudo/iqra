@@ -4,7 +4,7 @@
    ============================================================ */
 
 :root {   
-  --ar-scale: 1; --radius: 18px; --radius-lg: 22px; --radius-sm: 12px; --nav-safe: env(safe-area-inset-bottom, 0px); --nav-height: 52px;   
+  --ar-scale: 1; --radius: 18px; --radius-lg: 22px; --radius-sm: 12px; --nav-safe: env(safe-area-inset-bottom, 0px); --nav-height: 64px;   
   --dur-fast: 120ms; --dur-base: 220ms; --dur-slow: 380ms;   
   --ease-out: cubic-bezier(.16,1,.3,1); --ease-in-out: cubic-bezier(.4,0,.2,1); --ease-bounce: cubic-bezier(.34,1.56,.64,1);   
   --shadow-sm: 0 1px 2px rgba(0,0,0,.06), 0 1px 3px rgba(0,0,0,.08);   
@@ -107,7 +107,7 @@
 }
 
 @media (max-width: 360px) {
-  :root { --nav-height: 46px; }
+  :root { --nav-height: 56px; }
 }
 
 
@@ -116,7 +116,7 @@
    Золото текста остаётся сплошным цветом: без текстовых градиентов.
    ============================================================ */
 :root {
-  --nav-height: 72px;
+  --nav-height: 64px;
   --card-outline: rgba(145, 109, 35, 0.18);
   --card-shadow: 0 8px 24px rgba(48, 37, 16, 0.055), 0 1px 2px rgba(48, 37, 16, 0.035);
   --nav-active-surface: rgba(191, 149, 63, 0.11);

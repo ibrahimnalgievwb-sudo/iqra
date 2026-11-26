@@ -655,7 +655,13 @@ function importData(e) {
   const r = new FileReader();
   r.onload = async () => {
     let parsed;
-    try { parsed = JSON.parse(r.result); } catch(err) { showMarkToast('Файл повреждён', 3200); e.target.value = ''; return; }
+    try {
+      parsed = (typeof safeJsonParseGuarded === 'function') ? safeJsonParseGuarded(r.result) : JSON.parse(r.result);
+    } catch(err) {
+      showMarkToast('Файл повреждён', 3200);
+      e.target.value = '';
+      return;
+    }
     const validated = validateImport(parsed);
     if (!validated) { showMarkToast('Файл не похож на резервную копию', 3200); e.target.value = ''; return; }
     if (!await confirmAsync('Импорт данных?', 'Текущие данные будут полностью заменены.', 'Импортировать', 'Отмена')) { e.target.value = ''; return; }

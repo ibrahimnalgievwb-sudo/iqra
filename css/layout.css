@@ -18,9 +18,9 @@
 .header h1 { font-family:"Inter", system-ui, sans-serif; font-size: var(--fs-lg); font-weight: 600; margin:0; letter-spacing:-.02em; line-height:1.2; }
 
 /* === SCROLL CONTAINERS === */
-.list, .form, .cal, .settings { flex:1; overflow-y:auto; min-height:0; padding:0 var(--space-3) calc(var(--space-4) + var(--nav-height) + env(safe-area-inset-bottom, 0px)); -webkit-overflow-scrolling:touch; min-width:0; width:100%; max-width:100%; box-sizing:border-box; }
-.content-list { flex:1; overflow-y:auto; min-height:0; padding:0 var(--space-3) calc(var(--space-4) + var(--nav-height) + env(safe-area-inset-bottom, 0px)); -webkit-overflow-scrolling:touch; min-width:0; width:100%; max-width:100%; box-sizing:border-box; }
-.detail-body { padding:0 var(--space-4) calc(var(--space-4) + var(--nav-height) + env(safe-area-inset-bottom, 0px)); flex:1; overflow-y:auto; min-height:0; -webkit-overflow-scrolling:touch; min-width:0; width:100%; max-width:100%; box-sizing:border-box; }
+.list, .form, .cal, .settings { flex:1; overflow-y:auto; min-height:0; padding:0 var(--space-3) calc(var(--space-4) + var(--nav-height) + var(--safe-bottom) + 18px); -webkit-overflow-scrolling:touch; min-width:0; width:100%; max-width:100%; box-sizing:border-box; }
+.content-list { flex:1; overflow-y:auto; min-height:0; padding:0 var(--space-3) calc(var(--space-4) + var(--nav-height) + var(--safe-bottom) + 18px); -webkit-overflow-scrolling:touch; min-width:0; width:100%; max-width:100%; box-sizing:border-box; }
+.detail-body { padding:0 var(--space-4) calc(var(--space-4) + var(--nav-height) + var(--safe-bottom) + 18px); flex:1; overflow-y:auto; min-height:0; -webkit-overflow-scrolling:touch; min-width:0; width:100%; max-width:100%; box-sizing:border-box; }
 
 .home-controls { display:flex; gap: var(--space-2); margin-bottom: var(--space-2); flex-wrap:wrap; }
 #cards-container { min-height:24px; }
@@ -31,7 +31,7 @@
 .top-progress > div { height:100%; width:100%; transform: scaleX(0); transform-origin: left center; background: var(--gold-standard); transition: transform .3s ease; }
 
 /* === COUNTER === */
-.counter { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; padding: var(--space-4) var(--space-3) calc(var(--space-4) + var(--nav-height) + env(safe-area-inset-bottom, 0px)); text-align:center; position:relative; cursor:pointer; overflow-x:hidden; overflow-y:auto; -webkit-overflow-scrolling:touch; min-height:0; min-width:0; width:100%; max-width:100%; box-sizing:border-box; }
+.counter { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; padding: var(--space-4) var(--space-3) calc(var(--space-4) + var(--nav-height) + var(--safe-bottom) + 18px); text-align:center; position:relative; cursor:pointer; overflow-x:hidden; overflow-y:auto; -webkit-overflow-scrolling:touch; min-height:0; min-width:0; width:100%; max-width:100%; box-sizing:border-box; }
 
 /* === FULLSCREEN === */
 .fullscreen { position:fixed; inset:0; background:var(--bg); z-index:10000; display:none; flex-direction:column; padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
@@ -195,10 +195,11 @@
   isolation: isolate;
   width: 100%;
   max-width: 720px;
-  height: calc(72px + var(--safe-bottom));
+  min-height: calc(62px + var(--safe-bottom));
+  height: auto;
   margin: 0 auto;
-  padding: 8px max(12px, var(--safe-left)) calc(8px + var(--safe-bottom)) max(12px, var(--safe-right));
-  gap: clamp(4px, 1.4vw, 10px);
+  padding: 6px max(8px, var(--safe-left)) max(6px, var(--safe-bottom)) max(8px, var(--safe-right));
+  gap: clamp(2px, 1.2vw, 8px);
   background: var(--nav-surface);
   border: 1px solid var(--nav-border);
   border-bottom: 0;
@@ -206,6 +207,7 @@
   box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.045);
   backdrop-filter: blur(22px) saturate(1.15);
   -webkit-backdrop-filter: blur(22px) saturate(1.15);
+  overflow: visible;
 }
 
 .nav button {
@@ -216,39 +218,43 @@
   position: relative;
   flex: 1 1 0%;
   min-width: 0;
-  min-height: 52px;
-  padding: 6px 3px 7px;
-  gap: 5px;
+  min-height: 48px;
+  padding: 4px 2px 4px;
+  gap: 3px;
   border: 1px solid transparent;
-  border-radius: 15px;
+  border-radius: 14px;
   background: transparent;
   color: var(--nav-muted);
   opacity: 1;
   transition: color var(--dur-base) var(--ease-out), background var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+  box-sizing: border-box;
+  overflow: visible;
 }
 
 .nav button .ico {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   background: none;
   box-shadow: none;
   fill: none;
   stroke: currentColor;
   stroke-width: 1.75;
   opacity: 0.96;
+  flex-shrink: 0;
   transition: transform var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out);
 }
 
 .nav button .nav-label {
   max-width: 100%;
   color: currentColor;
-  font-size: clamp(10px, 2.5vw, 11px);
+  font-size: clamp(10px, 2.7vw, 11px);
   font-weight: 600;
-  letter-spacing: 0;
-  line-height: 1.1;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-align: center;
 }
 
 .nav button.active {
@@ -262,9 +268,9 @@
 .nav button.active::before {
   content: "";
   position: absolute;
-  top: 3px;
+  top: 2px;
   left: 50%;
-  width: 17px;
+  width: 16px;
   height: 2px;
   border-radius: 2px;
   background: var(--gold-standard);
@@ -344,10 +350,10 @@
 }
 
 @media (max-width: 360px) {
-  .nav { padding-left: 8px; padding-right: 8px; gap: 2px; }
-  .nav button { min-height: 50px; padding-inline: 1px; }
-  .nav button .ico { width: 22px; height: 22px; }
-  .nav button .nav-label { font-size: 9px; }
+  .nav { padding: 4px max(4px, var(--safe-left)) max(4px, var(--safe-bottom)) max(4px, var(--safe-right)); gap: 2px; }
+  .nav button { min-height: 46px; padding: 3px 1px 3px; gap: 2px; }
+  .nav button .ico { width: 20px; height: 20px; }
+  .nav button .nav-label { font-size: 9.5px; }
   .header { padding-inline: 12px; }
 }
 

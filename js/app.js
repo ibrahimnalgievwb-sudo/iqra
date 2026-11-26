@@ -21,12 +21,23 @@ function escapeHtml(s) {
   if (isIOS) document.documentElement.classList.add('is-ios');
 })();
 
-/* ---------- ANDROID VIEWPORT HEIGHT FIX ---------- */
-(function fixAndroidViewportHeight(){
-  if (document.documentElement.classList.contains('is-ios')) return;
+/* ---------- VIEWPORT RESIZE HELPER ---------- */
+(function fixViewportHeight(){
+  var supportsDvh = false;
+  try {
+    supportsDvh = (typeof CSS !== 'undefined' && typeof CSS.supports === 'function') && CSS.supports('height', '100dvh');
+  } catch(e) {}
+  if (supportsDvh) return;
   function syncHeight(){
     if (!document.body) return;
-    document.body.style.height = window.innerHeight + 'px';
+    if (window.visualViewport) {
+      document.body.style.height = window.visualViewport.height + 'px';
+    } else {
+      document.body.style.height = window.innerHeight + 'px';
+    }
+  }
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', syncHeight, { passive: true });
   }
   window.addEventListener('resize', syncHeight, { passive: true });
   window.addEventListener('orientationchange', syncHeight, { passive: true });
@@ -35,8 +46,6 @@ function escapeHtml(s) {
   } else {
     syncHeight();
   }
-  window.addEventListener('load', syncHeight);
-  setTimeout(syncHeight, 50);
 })();
 
 /* ---------- GLOBAL STATE ---------- */

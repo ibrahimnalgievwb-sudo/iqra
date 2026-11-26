@@ -687,6 +687,15 @@ test('Dual-domain compatibility: BASE_URL resolution, manifest.json, two-tier sw
   assert.ok(privacyHtml.includes('href="./"'));
   assert.ok(privacyHtml.includes('./css/variables.css'));
   assert.equal(/["']\/(assets|css|js|iqra)\//.test(privacyHtml), false);
+
+  // 6. v469 SW version, CNAME e-iqra.ru, canonical, and nav bar anti-clipping geometry
+  assert.ok(swJs.includes("SW_VERSION   = 'iqra-v469'"), 'SW_VERSION must be iqra-v469');
+  const cnameContent = fs.readFileSync(path.join(IQRA_ROOT, 'CNAME'), 'utf8').trim();
+  assert.equal(cnameContent, 'e-iqra.ru', 'CNAME must point to e-iqra.ru');
+  assert.ok(indexHtml.includes('https://e-iqra.ru/'), 'index.html must include canonical url e-iqra.ru');
+  const layoutCss = fs.readFileSync(path.join(IQRA_ROOT, 'css/layout.css'), 'utf8');
+  assert.ok(layoutCss.includes('min-height: calc(62px + var(--safe-bottom))'), 'nav bar must use flexible min-height');
+  assert.ok(layoutCss.includes('overflow: visible'), 'nav bar must not clip child elements');
 });
 
 test('Iqra+ roadmap includes all 9 planned projects from prompts and renders them in Settings Plans overview', () => {

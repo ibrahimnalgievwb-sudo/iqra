@@ -1,4 +1,4 @@
-const SW_VERSION   = 'iqra-v468'; /* МЕНЯЙ ВЕРСИЮ ТОЛЬКО ЗДЕСЬ */
+const SW_VERSION   = 'iqra-v469'; /* МЕНЯЙ ВЕРСИЮ ТОЛЬКО ЗДЕСЬ */
 const SW_VER_SHORT = SW_VERSION.replace(/^iqra-/, '');
 const CACHE_STATIC = 'iqra-static-' + SW_VER_SHORT;
 const CACHE_DATA   = 'iqra-data-'   + SW_VER_SHORT;
@@ -199,7 +199,7 @@ async function networkFirst(req) {
 async function networkFirstNavigation(req) {
   try {
     const res = await fetch(req);
-    if (res && res.ok) return res;
+    if (res && (res.ok || res.type === 'opaqueredirect' || (res.status >= 300 && res.status < 400))) return res;
     throw new Error('non-ok');
   } catch (e) {
     const cache = await caches.open(CACHE_STATIC);
