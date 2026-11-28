@@ -72,7 +72,9 @@ function _setNightIdxDone(idx, val) {
 function toggleNightChecklist(idx, fromDetail) {
   var nextVal = !_isNightIdxDone(idx);
   _setNightIdxDone(idx, nextVal);
-  if (state && state.settings && state.settings.vibrate && navigator.vibrate) {
+  if (typeof IqraPlatform !== 'undefined' && typeof IqraPlatform.safeVibrate === 'function') {
+    IqraPlatform.safeVibrate(nextVal ? [15, 25, 15] : 10);
+  } else if (state && state.settings && state.settings.vibrate && typeof navigator !== 'undefined' && navigator.vibrate) {
     navigator.vibrate(nextVal ? [15, 25, 15] : 10);
   }
   if (fromDetail) {
@@ -207,7 +209,9 @@ function tapFatimaNightTasbih(idx) {
 
   var totalAfter = _fatimaStageCounts[0] + _fatimaStageCounts[1] + _fatimaStageCounts[2];
   if (typeof addToHistory === 'function') addToHistory('fatima_tasbih', 1);
-  if (state && state.settings && state.settings.vibrate && navigator.vibrate) {
+  if (typeof IqraPlatform !== 'undefined' && typeof IqraPlatform.safeVibrate === 'function') {
+    IqraPlatform.safeVibrate(totalAfter === 100 ? [25, 45, 25] : 10);
+  } else if (state && state.settings && state.settings.vibrate && typeof navigator !== 'undefined' && navigator.vibrate) {
     navigator.vibrate(totalAfter === 100 ? [25, 45, 25] : 10);
   }
   if (totalAfter === 100) {
@@ -256,7 +260,7 @@ function openNight(idx) {
         : '';
       return '<div class="read-ayah ' + (item.type === 'ayat' ? 'ayat-mode' : '') + '">' +
         '<div class="read-ayah-num">' + esc(a.num) + '</div>' +
-        '<div class="read-ayah-ar ar-font" dir="rtl" lang="ar">' + esc(a.ar) + (item.type === 'surah' ? ' <span class="read-ayah-marker">' + ayahMarker(a.num) + '</span>' : '') + '</div>' +
+        '<div class="read-ayah-ar ar-font" dir="rtl" lang="ar">' + esc(a.ar) + (item.type === 'surah' ? '\u00A0<span class="read-ayah-marker">' + ayahMarker(a.num) + '</span>' : '') + '</div>' +
         (a.tr ? '<div class="read-ayah-tr">' + esc(a.tr) + '</div>' : '') +
         '<div class="read-ayah-trn">' + _nightLinkify(esc(a.trn)) + '</div>' +
         tafsirHtml +

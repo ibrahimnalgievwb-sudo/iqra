@@ -13,6 +13,32 @@ function escapeHtml(s) {
   });
 }
 
+function _appSafeVibrate(pattern) {
+  if (typeof IqraPlatform !== 'undefined' && typeof IqraPlatform.safeVibrate === 'function') {
+    return IqraPlatform.safeVibrate(pattern);
+  }
+  try {
+    if (typeof state !== 'undefined' && state && state.settings && state.settings.vibrate && typeof navigator !== 'undefined' && navigator.vibrate) {
+      return !!navigator.vibrate(pattern);
+    }
+  } catch (e) {}
+  return false;
+}
+
+function _appSafeStoreGet(key) {
+  if (typeof IqraPlatform !== 'undefined' && IqraPlatform.safeStorage) {
+    return IqraPlatform.safeStorage.getItem(key);
+  }
+  try { return typeof localStorage !== 'undefined' ? localStorage.getItem(key) : null; } catch (e) { return null; }
+}
+
+function _appSafeStoreSet(key, val) {
+  if (typeof IqraPlatform !== 'undefined' && IqraPlatform.safeStorage) {
+    return IqraPlatform.safeStorage.setItem(key, val);
+  }
+  try { if (typeof localStorage !== 'undefined') localStorage.setItem(key, val); return true; } catch (e) { return false; }
+}
+
 /* ---------- iOS DETECTION ---------- */
 (function(){
   var ua = navigator.userAgent || '';
@@ -302,7 +328,7 @@ function confirmAsync(title, sub, okText, cancelText) {
     document.getElementById('modal-bg').classList.add('active');
     
     function done(v) {
-      if (state.settings.vibrate && navigator.vibrate) navigator.vibrate(10);
+      _appSafeVibrate(10);
       _pendingConfirmResolve = null;
       var bg = document.getElementById('modal-bg');
       bg.onclick = null;
@@ -482,7 +508,7 @@ function setLibraryTab(tab) {
 }
 async function switchTab(tab) {
   trackEvent('tab/' + tab, 'Вкладка: ' + tab);
-  if (state.settings.vibrate && navigator.vibrate) navigator.vibrate(10);
+  _appSafeVibrate(10);
 
   if (tab === 'dashboard') {
     renderDashboard();
@@ -780,14 +806,17 @@ async function _boot() {
     var widgetParam = '';
     try {
       const qs2 = new URLSearchParams(location.search);
-      widgetParam = qs2.get('widget') || '';
-      const qsAction = qs2.get('smart_action');
+      const rawWidget = qs2.get('widget') || '';
+      const allowedWidgets = ['dhikr', 'night', 'stats', 'ayah'];
+      widgetParam = allowedWidgets.indexOf(rawWidget) !== -1 ? rawWidget : '';
+      const qsAction = qs2.get('smart_action') || '';
       if (widgetParam && typeof renderStandaloneWidgetMode === 'function') {
         state.migrations.onboarded = true;
         renderStandaloneWidgetMode(widgetParam);
       } else if (qsAction && typeof executeSmartAction === 'function') {
         const parts = qsAction.split(':');
-        if (parts[0] && parts[1]) {
+        const allowedTypes = ['read', 'counter', 'dua', 'hadith', 'night', 'tab'];
+        if (parts.length === 2 && allowedTypes.indexOf(parts[0]) !== -1 && /^[a-zA-Z0-9_-]{1,80}$/.test(parts[1])) {
           history.replaceState(null, '', location.pathname);
           setTimeout(function () { executeSmartAction(parts[0], parts[1]); }, 120);
         }
@@ -1220,7 +1249,7 @@ if ('serviceWorker' in navigator) {
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
-  if (!localStorage.getItem('iqra_install_dismissed')) {
+  if (!_appSafeStoreGet('iqra_install_dismissed')) {
     setTimeout(() => {
       const b = document.getElementById('install-banner');
       if (b) b.classList.add('show');
@@ -1231,7 +1260,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
   const ua = navigator.userAgent || '';
   const isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
   const isStandalone = window.navigator.standalone === true || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
-  if (isIOS && !isStandalone && !localStorage.getItem('iqra_install_dismissed')) {
+  if (isIOS && !isStandalone && !_appSafeStoreGet('iqra_install_dismissed')) {
     setTimeout(() => {
       const b = document.getElementById('install-banner');
       if (!b) return;
@@ -1249,7 +1278,7 @@ function installPWA() {
   const b = document.getElementById('install-banner');
   if (b) b.classList.remove('show');
   if (!deferredPrompt) {
-    try { localStorage.setItem('iqra_install_dismissed', '1'); } catch(e) {}
+    _appSafeStoreSet('iqra_install_dismissed', '1');
     return;
   }
   deferredPrompt.prompt();
@@ -1261,12 +1290,12 @@ function installPWA() {
 function dismissInstall() {
   const b = document.getElementById('install-banner');
   if (b) b.classList.remove('show');
-  try { localStorage.setItem('iqra_install_dismissed', '1'); } catch(e) {}
+  _appSafeStoreSet('iqra_install_dismissed', '1');
 }
 window.addEventListener('appinstalled', () => {
   const b = document.getElementById('install-banner');
   if (b) b.classList.remove('show');
-  try { localStorage.setItem('iqra_install_dismissed', '1'); } catch(e) {}
+  _appSafeStoreSet('iqra_install_dismissed', '1');
 });
 
 /* ---------- STRUCTURE / INLINE CHECKS ---------- */
@@ -1300,27 +1329,44 @@ window.addEventListener('appinstalled', () => {
   var body = document.getElementById('read-body');
   if (!body) return;
   var lastY = 0;
+  function setChromeHidden(hidden) {
+    var rm = document.getElementById('read-mode');
+    if (!rm) return;
+    var header = rm.querySelector('.fs-header');
+    var bnav = rm.querySelector('.fs-bottom-nav');
+    if (header) header.classList.toggle('fs-header-hidden', !!hidden);
+    if (bnav) bnav.classList.toggle('fs-nav-hidden', !!hidden);
+  }
   body.addEventListener('scroll', function() {
-    var header = document.querySelector('#read-mode .fs-header');
-    if (!header) return;
     var y = body.scrollTop;
-    if (y > 60 && y > lastY) header.classList.add('fs-header-hidden');
-    else if (y < lastY - 8 || y < 60) header.classList.remove('fs-header-hidden');
+    if (y > 60 && y > lastY) setChromeHidden(true);
+    else if (y < lastY - 8 || y < 60) setChromeHidden(false);
     lastY = y;
   }, { passive: true });
+  body.addEventListener('click', function(e) {
+    var rm = document.getElementById('read-mode');
+    if (!rm || !rm.classList.contains('active')) return;
+    if (window.getSelection && String(window.getSelection()).trim().length > 0) return;
+    var t = e.target;
+    if (t && t.closest && t.closest('button, a, input, select, textarea, label, summary, details, .ayah-actions-row, .read-toolbar, .read-audio-bar, .ayah-jumper, .tajweed-legend')) return;
+    var header = rm.querySelector('.fs-header');
+    var isHidden = !!(header && header.classList.contains('fs-header-hidden'));
+    if (body.scrollTop > 60 || isHidden) {
+      setChromeHidden(!isHidden);
+    }
+  });
 })();
 
 /* ---------- HAPTIC ---------- */
 (function initHaptic() {
   document.addEventListener('click', function(e) {
     if (!state || !state.settings || !state.settings.vibrate) return;
-    if (!navigator.vibrate) return;
     var t = e.target && e.target.closest && e.target.closest(
       '.btn, .icon-btn, .path-chip, .nav button, .filter-chip, .preset-chip, .target-preset-chip, ' +
       '.cal-day, .fab, .dash-grid-item, .dash-quick, .content-card, .continue-card, ' +
-      '.ob-option, .ayah-share-btn, .ayah-copy-btn, .star-btn, .show-all-btn, .fs-bottom-nav button'
+      '.ob-option, .ayah-share-btn, .ayah-copy-btn, .ayah-play-btn, .rt-btn, .star-btn, .show-all-btn, .fs-bottom-nav button'
     );
-    if (t) navigator.vibrate(8);
+    if (t) _appSafeVibrate(8);
   }, { passive: true });
 })();
 

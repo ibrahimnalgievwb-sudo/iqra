@@ -59,6 +59,7 @@ html { height:100%; overflow:hidden; }
 body {
   height:100%;
   min-height:100%;
+  height:100vh;
   height:100dvh;
   display:flex;
   flex-direction:column;
@@ -100,7 +101,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   font-kerning: normal;
   font-synthesis: none;
   font-weight: 500;
-  line-height: 2;
+  line-height: 2.1;
   letter-spacing: normal;
   word-spacing: normal;
   word-break: normal;
@@ -121,7 +122,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 
 /* Цветовые spans таджвида сохраняют свои цвета и получают ту же тень. */
 .ar-font span[class*="tajweed-"], .read-ayah-ar span[class*="tajweed-"] {
-  font-weight: 500; line-height: 2; text-shadow: inherit; background: none; -webkit-text-fill-color: currentColor;
+  font-weight: 500; line-height: 2.1; text-shadow: inherit; background: none; -webkit-text-fill-color: currentColor;
 }
 
 /* ---------- HERO-БЛИК (вариант B) ----------
@@ -210,6 +211,18 @@ html, body { line-height: 1.52; font-kerning: normal; font-optical-sizing: auto;
   font-weight: 500;
 }
 
+@keyframes iqra-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.iqra-skeleton {
+  border-radius: 12px;
+  background: linear-gradient(90deg, var(--card2) 25%, rgba(212, 175, 55, 0.12) 50%, var(--card2) 75%);
+  background-size: 200% 100%;
+  animation: iqra-shimmer 1.6s linear infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto !important; }
+  .iqra-skeleton { animation: none !important; background: var(--card2); }
 }

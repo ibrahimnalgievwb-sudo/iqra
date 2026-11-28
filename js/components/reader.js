@@ -5,10 +5,58 @@
    Проект «Икра» · v450
    ============================================================ */
 
-var READ_AYAH_BATCH = 60;
+var READ_AYAH_BATCH = 30;
 var _readRenderState = { id: null, ayahs: [], item: null, renderedCount: 0, surahMap: null };
 var _READER_AR_SIZES = [0.85, 1, 1.2, 1.45];
 var _READER_AR_LABELS = { '0.85': 'S', '1': 'M', '1.2': 'L', '1.45': 'XL' };
+var _readOpenSeq = 0;
+var _readAbortCtrl = null;
+var _readSentinelObs = null;
+var _readPrefetchIdleId = 0;
+
+function _disconnectReaderAsync() {
+  if (_readSentinelObs) {
+    try { _readSentinelObs.disconnect(); } catch (e) {}
+    _readSentinelObs = null;
+  }
+  if (_readAbortCtrl) {
+    try { _readAbortCtrl.abort(); } catch (e) {}
+    _readAbortCtrl = null;
+  }
+  if (_readPrefetchIdleId) {
+    if (typeof IqraPlatform !== 'undefined' && typeof IqraPlatform.cancelSafeIdleCallback === 'function') {
+      IqraPlatform.cancelSafeIdleCallback(_readPrefetchIdleId);
+    } else {
+      try { clearTimeout(_readPrefetchIdleId); } catch (e) {}
+    }
+    _readPrefetchIdleId = 0;
+  }
+}
+
+function _bindReadScrollSentinel(container) {
+  if (_readSentinelObs) {
+    try { _readSentinelObs.disconnect(); } catch (e) {}
+    _readSentinelObs = null;
+  }
+  if (typeof document === 'undefined' || typeof IntersectionObserver !== 'function') return;
+  var sentinel = document.getElementById('read-more-sentinel');
+  if (!sentinel) return;
+  try {
+    _readSentinelObs = new IntersectionObserver(function (entries) {
+      for (var i = 0; i < entries.length; i++) {
+        if (entries[i].isIntersecting) {
+          if (_readRenderState && _readRenderState.renderedCount < _readRenderState.ayahs.length) {
+            appendReadAyahBatch();
+          }
+          break;
+        }
+      }
+    }, { root: container || null, rootMargin: '600px 0px' });
+    _readSentinelObs.observe(sentinel);
+  } catch (e) {
+    _readSentinelObs = null;
+  }
+}
 
 function _getReaderArSize() {
   var raw = (typeof state !== 'undefined' && state && state.settings && typeof state.settings.arSize === 'number')
@@ -261,14 +309,18 @@ function _buildReadAyahHtml(item, a, idx) {
   else if (item.number && String(item.number).indexOf('-') === -1) verseKey = String(item.number);
 
   var markerTxt = item.type === 'surah' ? ayahMarker(a.num) : '';
+  var playBtnHtml = item.type === 'surah'
+    ? '<button type="button" class="ayah-play-btn" onclick="playAyahAudio(\'' + escAttr(item.id) + '\',' + idx + ')" aria-label="Слушать аят ' + escAttr(a.num) + '"><svg class="ico ico-sm"><use href="#i-play"/></svg>Слушать</button>'
+    : '';
   return '<div class="read-ayah ' + (item.type === 'ayat' || item.type === 'ruqyah' ? 'ayat-mode' : '') + '" id="ayah-' + idx + '" data-verse-key="' + escAttr(verseKey) + '">' +
     '<div class="read-ayah-num">' + esc(a.num) + '</div>' +
-    '<div class="read-ayah-ar ar-font" data-raw="' + escAttr(a.ar) + '"' + (markerTxt ? ' data-marker="' + escAttr(markerTxt) + '"' : '') + '>' + esc(a.ar) + (markerTxt ? ' <span class="read-ayah-marker">' + markerTxt + '</span>' : '') + '</div>' +
+    '<div class="read-ayah-ar ar-font" data-raw="' + escAttr(a.ar) + '"' + (markerTxt ? ' data-marker="' + escAttr(markerTxt) + '"' : '') + '>' + esc(a.ar) + (markerTxt ? '\u00A0<span class="read-ayah-marker">' + markerTxt + '</span>' : '') + '</div>' +
     (a.tr ? '<div class="read-ayah-tr">' + esc(a.tr) + '</div>' : '') +
     '<div class="read-ayah-trn">' + _readerFormatSacred(esc(a.trn)) + '</div>' +
     getSmartTafsirHtml(item, idx + 1) +
     (typeof renderAyahEcosystemDetails === 'function' ? renderAyahEcosystemDetails('ayah:' + item.id + '#' + (idx + 1), { inReader: true }) : '') +
     '<div class="ayah-actions-row">' +
+      playBtnHtml +
       '<button class="ayah-tajweed-btn" type="button" onclick="openTajweedInfo(this.closest(\'.read-ayah\'))" aria-label="Справка по таджвиду">' +
         '<svg class="ico ico-sm"><use href="#i-info"/></svg>Таджвид' +
       '</button>' +
@@ -307,16 +359,26 @@ async function appendReadAyahBatch(nextCount) {
   }
   var temp = document.createElement('div');
   temp.innerHTML = html;
-  var appendedNodes = Array.prototype.slice.call(temp.children);
-  appendedNodes.forEach(function (n) { listHost.appendChild(n); });
+  var appendedNodes = temp.children ? Array.prototype.slice.call(temp.children) : [];
+  if (appendedNodes.length) {
+    appendedNodes.forEach(function (n) { listHost.appendChild(n); });
+  } else if (typeof listHost.insertAdjacentHTML === 'function') {
+    listHost.insertAdjacentHTML('beforeend', html);
+  } else {
+    listHost.innerHTML = (listHost.innerHTML || '') + html;
+  }
   st.renderedCount = endIdx;
 
-  if (moreBtn) {
-    if (st.renderedCount >= st.ayahs.length) {
-      moreBtn.remove();
-    } else {
-      moreBtn.textContent = 'Показать следующие аяты (' + st.renderedCount + ' из ' + st.ayahs.length + ')';
+  if (st.renderedCount >= st.ayahs.length) {
+    if (moreBtn) moreBtn.remove();
+    var sent = document.getElementById('read-more-sentinel');
+    if (sent) sent.remove();
+    if (_readSentinelObs) {
+      try { _readSentinelObs.disconnect(); } catch (e) {}
+      _readSentinelObs = null;
     }
+  } else if (moreBtn) {
+    moreBtn.textContent = 'Показать следующие аяты (' + st.renderedCount + ' из ' + st.ayahs.length + ')';
   }
 
   if (st.surahMap && typeof renderTajweedForElement === 'function') {
@@ -336,12 +398,240 @@ async function jumpToReadAyah(ayahNumVal) {
   if (targetIdx >= st.renderedCount) {
     await appendReadAyahBatch((targetIdx + 20) - st.renderedCount);
   }
+  var host = document.getElementById('read-ayahs-host');
+  if (host) {
+    host.querySelectorAll('.read-ayah.is-target-ayah').forEach(function (node) {
+      node.classList.remove('is-target-ayah');
+    });
+  }
+  var jumpInput = document.getElementById('rm-ayah-jump');
+  if (jumpInput) jumpInput.value = String(num);
   var el = document.getElementById('ayah-' + targetIdx);
-  if (el) el.scrollIntoView({ block: 'start', behavior: 'smooth' });
+  if (el) {
+    el.classList.add('is-target-ayah');
+    el.scrollIntoView({ block: 'start', behavior: 'smooth' });
+  }
+}
+
+function _tocArabicSnippet(arText, maxWords) {
+  var clean = String(arText || '').replace(/\s+/g, ' ').trim();
+  if (!clean) return '';
+  var words = clean.split(' ');
+  var limit = maxWords || 6;
+  if (words.length <= limit) return clean;
+  return words.slice(0, limit).join(' ') + ' …';
+}
+
+function _tocTextSnippet(txt, maxLen) {
+  var clean = String(txt || '').replace(/\s+/g, ' ').trim();
+  if (!clean) return '';
+  var limit = maxLen || 96;
+  if (clean.length <= limit) return clean;
+  return clean.slice(0, limit - 1).trimEnd() + '…';
+}
+
+function buildSurahTocData(item, ayahs, opts) {
+  var list = Array.isArray(ayahs) ? ayahs : [];
+  var total = list.length;
+  var options = opts || {};
+  var step = options.step || (total >= 120 ? 20 : (total >= 40 ? 10 : 5));
+  var currentNum = Math.max(1, Math.min(Math.max(1, total), parseInt(options.currentAyahNum, 10) || 1));
+
+  var bookmarkSet = {};
+  if (Array.isArray(options.bookmarks) && item && item.id) {
+    options.bookmarks.forEach(function (bm) {
+      if (bm && bm.quranId === item.id && typeof bm.ayahIdx === 'number') {
+        bookmarkSet[bm.ayahIdx + 1] = true;
+      }
+    });
+  }
+
+  var ranges = [];
+  for (var start = 1; start <= total; start += step) {
+    var end = Math.min(total, start + step - 1);
+    ranges.push({
+      start: start,
+      end: end,
+      label: start === end ? String(start) : (start + '–' + end)
+    });
+  }
+
+  var tafsirCheck = typeof options.hasTafsir === 'function' ? options.hasTafsir : null;
+  var entries = list.map(function (a, idx) {
+    var num = idx + 1;
+    var displayNum = a && a.num ? String(a.num) : String(num);
+    var arRaw = (a && a.ar) ? a.ar : '';
+    var trnRaw = (a && a.trn) ? a.trn : '';
+    var trRaw = (a && a.tr) ? a.tr : '';
+    return {
+      idx: idx,
+      num: num,
+      displayNum: displayNum,
+      arSnippet: _tocArabicSnippet(arRaw, 6),
+      trnSnippet: _tocTextSnippet(trnRaw || trRaw, 92),
+      searchText: (num + ' ' + displayNum + ' ' + trnRaw + ' ' + trRaw + ' ' + arRaw).toLowerCase(),
+      isCurrent: num === currentNum,
+      bookmarked: !!bookmarkSet[num],
+      hasTafsir: !!(tafsirCheck && tafsirCheck(num))
+    };
+  });
+
+  return {
+    id: item ? item.id : '',
+    title: item ? item.title : 'Сура',
+    total: total,
+    step: step,
+    currentNum: currentNum,
+    ranges: ranges,
+    entries: entries
+  };
+}
+
+function generateSurahTocModalHtml(tocData) {
+  var rangesHtml = tocData.ranges.map(function (r, idx) {
+    var activeRange = tocData.currentNum >= r.start && tocData.currentNum <= r.end;
+    return '<button type="button" class="stoc-range-chip' + (activeRange || (idx === 0 && !tocData.currentNum) ? ' active' : '') + '" ' +
+      'data-range-start="' + r.start + '" onclick="scrollSurahTocSection(' + r.start + ')">' + esc(r.label) + '</button>';
+  }).join('');
+
+  var rowsHtml = tocData.entries.map(function (e) {
+    var badges = '';
+    if (e.isCurrent) badges += '<span class="stoc-badge is-current">Читаете</span>';
+    if (e.bookmarked) badges += '<span class="stoc-badge is-bm">Метка</span>';
+    if (e.hasTafsir) badges += '<span class="stoc-badge is-tf">Тафсир</span>';
+    return '<button type="button" class="stoc-row' + (e.isCurrent ? ' is-current' : '') + '" ' +
+      'id="stoc-ayah-' + e.num + '" data-ayah-num="' + e.num + '" data-search="' + escAttr(e.searchText) + '" ' +
+      'onclick="selectSurahTocAyah(' + e.num + ')">' +
+        '<div class="stoc-row-top">' +
+          '<span class="stoc-num">' + esc(e.displayNum) + '</span>' +
+          (badges ? '<span class="stoc-badges">' + badges + '</span>' : '') +
+          (e.arSnippet ? '<span class="stoc-ar ar-font" dir="rtl" lang="ar">' + esc(e.arSnippet) + '</span>' : '') +
+        '</div>' +
+        (e.trnSnippet ? '<div class="stoc-trn">' + _readerFormatSacred(esc(e.trnSnippet)) + '</div>' : '') +
+      '</button>';
+  }).join('');
+
+  return '<div class="tm-head">' +
+      '<h2 class="tm-title"><svg class="ico ico-sm"><use href="#i-scroll"/></svg>Оглавление · ' + esc(tocData.title) + '</h2>' +
+      '<button type="button" class="tm-close" aria-label="Закрыть" onclick="closeModal()"><svg class="ico ico-sm"><use href="#i-x"/></svg></button>' +
+    '</div>' +
+    '<div class="stoc-controls">' +
+      '<div class="stoc-meta-row">' +
+        '<span class="stoc-count">Всего аятов: ' + tocData.total + '</span>' +
+        '<span class="stoc-hint">Нажмите на аят для быстрого перехода</span>' +
+      '</div>' +
+      '<div class="stoc-search-wrap">' +
+        '<svg class="ico ico-sm stoc-search-ico"><use href="#i-search"/></svg>' +
+        '<input type="search" id="surah-toc-search" class="stoc-search-input" placeholder="Номер аята или слово из перевода…" ' +
+          'aria-label="Поиск по аятам суры" oninput="filterSurahToc(this.value)">' +
+      '</div>' +
+      (tocData.ranges.length > 1 ? '<div class="stoc-ranges" id="stoc-ranges">' + rangesHtml + '</div>' : '') +
+    '</div>' +
+    '<div class="tg-body stoc-body" id="stoc-body">' +
+      '<div class="stoc-list" id="stoc-list">' + rowsHtml + '</div>' +
+      '<div class="stoc-empty" id="stoc-empty" hidden>Ничего не найдено. Попробуйте другой номер или слово.</div>' +
+    '</div>' +
+    '<button type="button" class="btn secondary tg-close-btn" onclick="closeModal()">Закрыть</button>';
+}
+
+function openSurahToc(initialSectionStart) {
+  var st = _readRenderState;
+  if (!st || !st.item || !Array.isArray(st.ayahs) || !st.ayahs.length) return;
+  if (typeof document === 'undefined') return;
+  var modal = document.getElementById('modal-content');
+  var bg = document.getElementById('modal-bg');
+  if (!modal || !bg) return;
+
+  var currentNum = (typeof currentAyahIdx === 'function' ? currentAyahIdx() : 0) + 1;
+  var bookmarks = (typeof state !== 'undefined' && state && Array.isArray(state.bookmarks)) ? state.bookmarks : [];
+  var surahNum = st.item.type === 'surah' ? st.item.number : null;
+  var tafsirsList = (typeof state !== 'undefined' && state && Array.isArray(state.tafsirs)) ? state.tafsirs : null;
+
+  var hasTafsirFn = null;
+  if (surahNum && tafsirsList && typeof IqraGraph !== 'undefined' && typeof IqraGraph.resolveTafsirForAyah === 'function') {
+    hasTafsirFn = function (n) {
+      return !!IqraGraph.resolveTafsirForAyah(tafsirsList, surahNum, n);
+    };
+  }
+
+  var tocData = buildSurahTocData(st.item, st.ayahs, {
+    currentAyahNum: currentNum,
+    bookmarks: bookmarks,
+    hasTafsir: hasTafsirFn
+  });
+
+  modal.className = 'modal tajweed-guide-modal surah-toc-modal';
+  modal.innerHTML = generateSurahTocModalHtml(tocData);
+
+  bg.style.backgroundColor = '';
+  bg.style.backdropFilter = '';
+  bg.style.webkitBackdropFilter = '';
+  bg.classList.add('active');
+
+  var scrollTargetNum = parseInt(initialSectionStart, 10) || tocData.currentNum;
+  if (scrollTargetNum > 1 && typeof requestAnimationFrame === 'function') {
+    requestAnimationFrame(function () {
+      var targetRow = document.getElementById('stoc-ayah-' + scrollTargetNum);
+      if (targetRow && typeof targetRow.scrollIntoView === 'function') {
+        targetRow.scrollIntoView({ block: 'center' });
+      }
+    });
+  }
+}
+
+function filterSurahToc(query) {
+  if (typeof document === 'undefined') return;
+  var listEl = document.getElementById('stoc-list');
+  var emptyEl = document.getElementById('stoc-empty');
+  if (!listEl) return;
+
+  var q = String(query || '').trim().toLowerCase();
+  var isExactNum = /^\d+$/.test(q);
+  var rows = listEl.querySelectorAll('.stoc-row');
+  var visible = 0;
+
+  rows.forEach(function (row) {
+    var numStr = row.getAttribute('data-ayah-num') || '';
+    var hay = row.getAttribute('data-search') || '';
+    var match = !q || (isExactNum ? (numStr === q || numStr.indexOf(q) === 0) : hay.indexOf(q) !== -1);
+    row.hidden = !match;
+    if (match) visible++;
+  });
+
+  if (emptyEl) emptyEl.hidden = visible > 0;
+}
+
+function scrollSurahTocSection(startNum) {
+  if (typeof document === 'undefined') return;
+  var num = parseInt(startNum, 10) || 1;
+  var searchEl = document.getElementById('surah-toc-search');
+  if (searchEl && searchEl.value) {
+    searchEl.value = '';
+    filterSurahToc('');
+  }
+  var rangesWrap = document.getElementById('stoc-ranges');
+  if (rangesWrap) {
+    rangesWrap.querySelectorAll('.stoc-range-chip').forEach(function (btn) {
+      btn.classList.toggle('active', parseInt(btn.getAttribute('data-range-start'), 10) === num);
+    });
+  }
+  var row = document.getElementById('stoc-ayah-' + num);
+  if (row && typeof row.scrollIntoView === 'function') {
+    row.scrollIntoView({ block: 'start', behavior: 'smooth' });
+  }
+}
+
+function selectSurahTocAyah(ayahNum) {
+  if (typeof closeModal === 'function') closeModal();
+  return jumpToReadAyah(ayahNum);
 }
 
 async function openRead(id, targetAyahIdx, dir) {
   var item = getQuranById(id); if (!item) return;
+  var seq = ++_readOpenSeq;
+  _disconnectReaderAsync();
+  if (typeof AbortController === 'function') _readAbortCtrl = new AbortController();
+
   activeReadId = id;
   trackEvent('read/' + id, 'Чтение: ' + item.title);
   saveLastRead('quran', id);
@@ -369,6 +659,7 @@ async function openRead(id, targetAyahIdx, dir) {
       '<label for="rm-ayah-jump" class="aj-label">Аят (1–' + ayahs.length + '):</label>' +
       '<input id="rm-ayah-jump" class="aj-input" type="number" min="1" max="' + ayahs.length + '" inputmode="numeric" placeholder="№" onkeydown="if(event.key===\'Enter\'){event.preventDefault();jumpToReadAyah(this.value);}">' +
       '<button type="button" class="btn secondary btn-inline aj-btn" onclick="jumpToReadAyah(document.getElementById(\'rm-ayah-jump\').value)">Перейти</button>' +
+      '<button type="button" class="btn secondary btn-inline aj-toc-btn" id="aj-toc-btn" onclick="openSurahToc()"><svg class="ico ico-sm"><use href="#i-scroll"/></svg>Оглавление</button>' +
     '</div>';
   }
 
@@ -393,6 +684,12 @@ async function openRead(id, targetAyahIdx, dir) {
   var curScale = _getReaderArSize();
   var curIdx = _READER_AR_SIZES.indexOf(curScale);
   var scaleLabel = _READER_AR_LABELS[String(curScale)] || 'M';
+  var audioToolbarBtn = item.type === 'surah'
+    ? '<button type="button" class="rt-btn rt-audio" id="read-audio-btn" onclick="playSurahAudio(\'' + escAttr(item.id) + '\')" aria-label="Слушать суру" aria-pressed="false"><svg class="ico ico-sm"><use href="#i-volume"/></svg>Аудио</button>'
+    : '';
+  var tocToolbarBtn = ayahs.length >= 15
+    ? '<button type="button" class="rt-btn rt-toc" id="read-toc-btn" onclick="openSurahToc()" aria-label="Оглавление суры"><svg class="ico ico-sm"><use href="#i-scroll"/></svg>Оглавление</button>'
+    : '';
   var toolbarHtml =
     '<div class="read-toolbar" id="read-toolbar" role="toolbar" aria-label="Настройки чтения">' +
       '<div class="rt-size-group" aria-label="Размер арабского шрифта">' +
@@ -402,6 +699,8 @@ async function openRead(id, targetAyahIdx, dir) {
       '</div>' +
       '<button type="button" class="rt-btn rt-toggle' + (showTr ? ' active' : '') + '" id="read-tr-btn" aria-pressed="' + (showTr ? 'true' : 'false') + '" onclick="toggleReaderTranscription()">Транскр.</button>' +
       '<button type="button" class="rt-btn rt-guide" onclick="openTajweedGuide()"><svg class="ico ico-sm"><use href="#i-book"/></svg>Таджвид</button>' +
+      tocToolbarBtn +
+      audioToolbarBtn +
     '</div>';
 
   container.classList.toggle('is-hide-transcription', !showTr);
@@ -417,20 +716,34 @@ async function openRead(id, targetAyahIdx, dir) {
     bismillahHtml +
     '<div class="spacer-sm"></div>' +
     '<div id="read-ayahs-host">' + initialAyahsHtml + '</div>' +
-    (initialCount < ayahs.length ? '<button type="button" id="read-more-ayahs-btn" class="show-all-btn" onclick="appendReadAyahBatch()">Показать следующие аяты (' + initialCount + ' из ' + ayahs.length + ')</button>' : '') +
+    (initialCount < ayahs.length
+      ? '<div id="read-more-sentinel" class="read-more-sentinel" aria-hidden="true"></div>' +
+        '<button type="button" id="read-more-ayahs-btn" class="show-all-btn" onclick="appendReadAyahBatch()">Показать следующие аяты (' + initialCount + ' из ' + ayahs.length + ')</button>'
+      : '') +
     (item.source ? '<div class="dh-section detail-source-block"><div class="dh-label">Источник</div><div class="dh-text muted detail-source-text">' + linkifyFn(esc(item.source)) + '</div></div>' : '') +
     (typeof renderEcosystemSection === 'function' ? renderEcosystemSection('quran:' + item.id, { title: 'Связи в Умной книге', inReader: true }) : '') +
     transcriptionNote();
 
   if (typeof renderScreenGuideSlot === 'function') renderScreenGuideSlot('read-mode');
+  _bindReadScrollSentinel(container);
 
   var readMode = document.getElementById('read-mode');
-  readMode.classList.remove('read-slide-next', 'read-slide-prev');
-  void readMode.offsetWidth;
-  if (dir === 'next') readMode.classList.add('read-slide-next');
-  if (dir === 'prev') readMode.classList.add('read-slide-prev');
-  readMode.classList.add('active');
+  if (readMode) {
+    var fsHead = readMode.querySelector('.fs-header');
+    var fsNav = readMode.querySelector('.fs-bottom-nav');
+    if (fsHead) fsHead.classList.remove('fs-header-hidden');
+    if (fsNav) fsNav.classList.remove('fs-nav-hidden');
+    readMode.classList.remove('read-slide-next', 'read-slide-prev');
+    void readMode.offsetWidth;
+    if (dir === 'next') readMode.classList.add('read-slide-next');
+    if (dir === 'prev') readMode.classList.add('read-slide-prev');
+    readMode.classList.add('active');
+  }
   document.getElementById('btn-scroll-top').classList.remove('visible');
+
+  if (typeof IqraAudio !== 'undefined' && typeof IqraAudio.syncReaderBar === 'function') {
+    IqraAudio.syncReaderBar();
+  }
 
   var idx = state.quran.findIndex(function (q) { return q.id === id; });
   var prevBtn = document.getElementById('btn-prev-surah');
@@ -440,16 +753,21 @@ async function openRead(id, targetAyahIdx, dir) {
 
   try {
     await applyTajweedToContainer(container, item);
+    if (seq !== _readOpenSeq) return;
     if (item.type === 'surah' && typeof fetchTajweedSurah === 'function') {
       _readRenderState.surahMap = await fetchTajweedSurah(item.number);
+      if (seq !== _readOpenSeq) return;
     }
   } catch (e) {}
+  if (seq !== _readOpenSeq) return;
+
   try {
     _refreshTajweedButtons(container);
   } catch (e) {}
 
   if (typeof targetAyahIdx === 'number' && targetAyahIdx >= 0) {
     requestAnimationFrame(function () {
+      if (seq !== _readOpenSeq) return;
       var targetEl = document.getElementById('ayah-' + targetAyahIdx);
       if (targetEl) {
         targetEl.classList.add('is-target-ayah');
@@ -458,29 +776,62 @@ async function openRead(id, targetAyahIdx, dir) {
     });
   } else if (state.settings.readScrolls && state.settings.readScrolls[id]) {
     var targetScroll = state.settings.readScrolls[id];
-    requestAnimationFrame(function () { container.scrollTop = targetScroll; });
+    requestAnimationFrame(function () {
+      if (seq !== _readOpenSeq) return;
+      container.scrollTop = targetScroll;
+    });
   } else {
     container.scrollTop = 0;
   }
+
+  var nextItem = (idx > -1 && idx + 1 < state.quran.length) ? state.quran[idx + 1] : null;
+  if (nextItem && nextItem.type === 'surah' && typeof fetchTajweedSurah === 'function') {
+    var runPrefetch = function () {
+      if (seq !== _readOpenSeq) return;
+      try { fetchTajweedSurah(nextItem.number).catch(function () {}); } catch (e) {}
+    };
+    if (typeof IqraPlatform !== 'undefined' && typeof IqraPlatform.safeIdleCallback === 'function') {
+      _readPrefetchIdleId = IqraPlatform.safeIdleCallback(runPrefetch, { timeout: 1200 });
+    } else {
+      _readPrefetchIdleId = setTimeout(runPrefetch, 250);
+    }
+  }
+
   saveNavContext();
 }
 
 function closeRead() {
+  ++_readOpenSeq;
+  _disconnectReaderAsync();
   if (activeReadId) {
     var b = document.getElementById('read-body');
     if (b && state.settings.readScrolls) state.settings.readScrolls[activeReadId] = b.scrollTop || 0;
     if (state.settings.readAyah && b) state.settings.readAyah[activeReadId] = currentAyahIdx();
     save();
   }
-  document.getElementById('read-mode').classList.remove('active');
+  var readMode = document.getElementById('read-mode');
+  if (readMode) {
+    readMode.classList.remove('active');
+    var fsHead = readMode.querySelector('.fs-header');
+    var fsNav = readMode.querySelector('.fs-bottom-nav');
+    if (fsHead) fsHead.classList.remove('fs-header-hidden');
+    if (fsNav) fsNav.classList.remove('fs-nav-hidden');
+  }
   document.getElementById('btn-scroll-top').classList.remove('visible');
-  activeReadId = null; saveNavContext();
+  activeReadId = null;
+  if (typeof stopAudioPlayer === 'function') stopAudioPlayer();
+  saveNavContext();
 }
 
 function toggleScrollTop() {
   var body = document.getElementById('read-body'); var btn = document.getElementById('btn-scroll-top');
   if (!body || !btn) return;
   if (body.scrollTop > 300) btn.classList.add('visible'); else btn.classList.remove('visible');
+  if (_readRenderState && _readRenderState.renderedCount < _readRenderState.ayahs.length) {
+    if (body.scrollTop + body.clientHeight >= body.scrollHeight - 700) {
+      appendReadAyahBatch();
+    }
+  }
 }
 function scrollToTopRead() { var body = document.getElementById('read-body'); if (body) body.scrollTo({ top: 0, behavior: 'smooth' }); }
 
@@ -504,7 +855,11 @@ function addBookmarkFromRead() {
   if (label.length > 60) label = label.slice(0, 57) + '…';
   state.bookmarks.push({ id: 'bm_' + Date.now(), quranId: activeReadId, ayahIdx: ayahIdx, label: label, ts: Date.now() });
   save(); showMarkToast('Метка добавлена (аят ' + (ayahIdx + 1) + ')');
-  if (state.settings.vibrate && navigator.vibrate) navigator.vibrate(15);
+  if (typeof IqraPlatform !== 'undefined' && typeof IqraPlatform.safeVibrate === 'function') {
+    IqraPlatform.safeVibrate(15);
+  } else if (state.settings.vibrate && typeof navigator !== 'undefined' && navigator.vibrate) {
+    navigator.vibrate(15);
+  }
 }
 
 function removeBookmark(bmId) {
@@ -526,3 +881,10 @@ window.toggleReaderTranscription = toggleReaderTranscription;
 window.stepReaderArSize = stepReaderArSize;
 window.openTajweedGuide = openTajweedGuide;
 window.openTajweedInfo = openTajweedInfo;
+window.buildSurahTocData = buildSurahTocData;
+window.generateSurahTocModalHtml = generateSurahTocModalHtml;
+window.openSurahToc = openSurahToc;
+window.filterSurahToc = filterSurahToc;
+window.scrollSurahTocSection = scrollSurahTocSection;
+window.selectSurahTocAyah = selectSurahTocAyah;
+window.jumpToReadAyah = jumpToReadAyah;

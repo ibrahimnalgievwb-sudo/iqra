@@ -106,21 +106,38 @@ function renderDashSmartReminder() {
 
 function getDailyQuote() {
   var key = 'iqra_quote_' + todayKey();
+  var store = (typeof IqraPlatform !== 'undefined' && IqraPlatform.safeStorage) ? IqraPlatform.safeStorage : null;
   try {
-    var cached = localStorage.getItem(key);
+    var cached = store ? store.getItem(key) : localStorage.getItem(key);
     if (cached && cached !== 'null' && cached !== 'undefined') {
       return JSON.parse(cached);
     }
   } catch(e) {}
   /* чистим цитаты прошлых дней, чтобы ключи не копились */
-  try { Object.keys(localStorage).forEach(function (k) { if (k.indexOf('iqra_quote_') === 0 && k !== key) localStorage.removeItem(k); }); } catch (e) {}
+  try {
+    var keys = store && typeof store.keys === 'function' ? store.keys() : Object.keys(localStorage);
+    keys.forEach(function (k) {
+      if (k.indexOf('iqra_quote_') === 0 && k !== key) {
+        if (store) store.removeItem(k);
+        else localStorage.removeItem(k);
+      }
+    });
+  } catch (e) {}
   var q = getRandomQuote();
-  try { localStorage.setItem(key, JSON.stringify(q)); } catch(e) {}
+  try {
+    var serialized = JSON.stringify(q);
+    if (store) store.setItem(key, serialized);
+    else localStorage.setItem(key, serialized);
+  } catch(e) {}
   return q;
 }
 
 function refreshQuote() {
-  try { localStorage.removeItem('iqra_quote_' + todayKey()); } catch(e) {}
+  var key = 'iqra_quote_' + todayKey();
+  try {
+    if (typeof IqraPlatform !== 'undefined' && IqraPlatform.safeStorage) IqraPlatform.safeStorage.removeItem(key);
+    else localStorage.removeItem(key);
+  } catch(e) {}
   renderDashboard();
 }
 

@@ -115,7 +115,15 @@ function openHadith(id) {
   showScreen('screen-hadith-detail');
 }
 
-function toggleHadithLearned(id) { const h=getHadithById(id); if (!h) return; h.learned=!h.learned; save(); if (h.learned) { if (navigator.vibrate) navigator.vibrate([20,40,20]); } openHadith(id); }
+function toggleHadithLearned(id) {
+  const h = getHadithById(id); if (!h) return;
+  h.learned = !h.learned; save();
+  if (h.learned) {
+    if (typeof IqraPlatform !== 'undefined' && typeof IqraPlatform.safeVibrate === 'function') IqraPlatform.safeVibrate([20, 40, 20]);
+    else if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate([20, 40, 20]);
+  }
+  openHadith(id);
+}
 function goHadithList() { activeHadithId=null; switchTab('library'); setLibraryTab('hadith'); }
 
 window.setHadithFilter = setHadithFilter;

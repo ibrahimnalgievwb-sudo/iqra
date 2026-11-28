@@ -127,14 +127,18 @@ function _buildQuranDetailAyahHtml(item, a, idx) {
   else if (/^\d+:\d+$/.test(String(a.num || ''))) verseKey = String(a.num);
   else if (item.number && String(item.number).indexOf('-') === -1) verseKey = String(item.number);
 
+  var playBtnHtml = item.type === 'surah'
+    ? '<button type="button" class="ayah-play-btn" onclick="openRead(\'' + escAttr(item.id) + '\',' + idx + ');if(typeof playAyahAudio===\'function\')playAyahAudio(\'' + escAttr(item.id) + '\',' + idx + ')" aria-label="Слушать аят ' + escAttr(a.num) + '"><svg class="ico ico-sm"><use href="#i-play"/></svg>Слушать</button>'
+    : '';
   return '<div class="read-ayah ' + (item.type === 'ayat' ? 'ayat-mode' : '') + '" id="q-detail-ayah-' + idx + '" data-verse-key="' + escAttr(verseKey) + '">' +
     '<div class="read-ayah-num">' + esc(a.num) + '</div>' +
-    '<div class="read-ayah-ar ar-font" data-raw="' + escAttr(a.ar) + '">' + esc(a.ar) + (item.type === 'surah' ? ' <span class="read-ayah-marker">' + ayahMarker(a.num) + '</span>' : '') + '</div>' +
+    '<div class="read-ayah-ar ar-font" data-raw="' + escAttr(a.ar) + '">' + esc(a.ar) + (item.type === 'surah' ? '\u00A0<span class="read-ayah-marker">' + ayahMarker(a.num) + '</span>' : '') + '</div>' +
     (a.tr ? '<div class="read-ayah-tr">' + esc(a.tr) + '</div>' : '') +
     '<div class="read-ayah-trn">' + _quranFormatSacred(esc(a.trn)) + '</div>' +
     getSmartTafsirHtml(item, idx + 1) +
     (typeof renderAyahEcosystemDetails === 'function' ? renderAyahEcosystemDetails('ayah:' + item.id + '#' + (idx + 1), { inReader: false }) : '') +
     '<div class="ayah-actions-row">' +
+      playBtnHtml +
       '<button type="button" class="ayah-copy-btn" onclick="copyAyah(\'' + escAttr(item.id) + '\',' + idx + ')" aria-label="Скопировать аят ' + escAttr(a.num) + '"><svg class="ico ico-sm"><use href="#i-copy"/></svg>Скопировать</button>' +
       '<button type="button" class="ayah-share-btn" onclick="shareAyah(\'' + escAttr(item.id) + '\',' + idx + ')"><svg class="ico ico-sm"><use href="#i-upload"/></svg>Поделиться аятом</button>' +
     '</div>' +
@@ -262,7 +266,14 @@ function openQuran(id, targetAyahIdx, keepLimit) {
 function toggleQuranLearned(id) {
   var item = getQuranById(id); if (!item) return;
   item.learned = !item.learned; item.learnedAt = item.learned ? todayKey() : '';
-  save(); if (item.learned) { if (navigator.vibrate) navigator.vibrate([20, 40, 20]); }
+  save();
+  if (item.learned) {
+    if (typeof IqraPlatform !== 'undefined' && typeof IqraPlatform.safeVibrate === 'function') {
+      IqraPlatform.safeVibrate([20, 40, 20]);
+    } else if (typeof navigator !== 'undefined' && navigator.vibrate) {
+      navigator.vibrate([20, 40, 20]);
+    }
+  }
   openQuran(id, null, true);
 }
 function goQuranList() { activeQuranId = null; if (typeof activeQuranAyahIdx !== 'undefined') activeQuranAyahIdx = null; renderQuranList(); showScreen('screen-quran'); }

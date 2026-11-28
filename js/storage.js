@@ -144,14 +144,34 @@ function _stripProtoKeys(val, depth) {
   return out;
 }
 
+function _safeStore() {
+  if (typeof IqraPlatform !== 'undefined' && IqraPlatform && IqraPlatform.safeStorage) return IqraPlatform.safeStorage;
+  return {
+    getItem: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+    setItem: function (k, v) { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } },
+    removeItem: function (k) { try { localStorage.removeItem(k); } catch (e) {} },
+    keys: function () {
+      var out = [];
+      try {
+        for (var i = 0; i < localStorage.length; i++) {
+          var k = localStorage.key(i);
+          if (k !== null && k !== undefined) out.push(k);
+        }
+      } catch (e) {}
+      return out;
+    }
+  };
+}
+
 function load() {
   let s = null;
-  try { const raw = localStorage.getItem(STORAGE_KEY); if (raw) s = _stripProtoKeys(JSON.parse(raw), 0); } catch (e) { s = null; }
+  var store = _safeStore();
+  try { const raw = store.getItem(STORAGE_KEY); if (raw) s = _stripProtoKeys(JSON.parse(raw), 0); } catch (e) { s = null; }
   if (!s) {
     const legacyKeys = ['tasbih_app_v13', 'tasbih_app_v12', 'tasbih_app_v11', 'tasbih_app_v10', 'tasbih_app_v9'];
     for (const k of legacyKeys) {
       try {
-        const raw = localStorage.getItem(k);
+        const raw = store.getItem(k);
         if (raw) {
           const parsed = _stripProtoKeys(JSON.parse(raw), 0);
           if (parsed && typeof parsed === 'object') {
@@ -255,12 +275,8 @@ function load() {
   // Удаление устаревших кэшей таджвида из localStorage (теперь используются офлайн-чанки в RAM)
   if (!s.migrations.tajweedOfflineChunks_v1) {
     try {
-      var staleKeys = [];
-      for (var li = 0; li < localStorage.length; li++) {
-        var lk = localStorage.key(li);
-        if (lk && lk.indexOf('iqra_tajweed') === 0) staleKeys.push(lk);
-      }
-      staleKeys.forEach(function (k) { localStorage.removeItem(k); });
+      var staleKeys = store.keys().filter(function (lk) { return lk && lk.indexOf('iqra_tajweed') === 0; });
+      staleKeys.forEach(function (k) { store.removeItem(k); });
     } catch (e) {}
     s.migrations.tajweedCacheFix_v3 = true;
     s.migrations.tajweedCacheFix_v4 = true;
@@ -303,9 +319,9 @@ function load() {
 
   // Перезаписываем в компактном виде, если старый ключ ещё держал полный текст 25/114 сур
   try {
-    var existingRaw = localStorage.getItem(STORAGE_KEY);
+    var existingRaw = store.getItem(STORAGE_KEY);
     if (existingRaw && existingRaw.indexOf('"quran":[') !== -1) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(serializeCompactState(s)));
+      store.setItem(STORAGE_KEY, JSON.stringify(serializeCompactState(s)));
     }
   } catch (e) {}
 
@@ -317,8 +333,14 @@ function saveNow() {
   if (_saveTimer) { clearTimeout(_saveTimer); _saveTimer = null; }
   pruneHistory();
   if (state) state.quranProgress = buildQuranProgressMap(state.quran);
+  var store = _safeStore();
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(serializeCompactState(state)));
+    var payload = JSON.stringify(serializeCompactState(state));
+    if (typeof IqraPlatform !== 'undefined' && IqraPlatform && IqraPlatform.safeStorage) {
+      store.setItem(STORAGE_KEY, payload);
+    } else {
+      localStorage.setItem(STORAGE_KEY, payload);
+    }
   } catch (e) {
     if (e && (e.name === 'QuotaExceededError' || e.code === 22)) {
       if (typeof showMarkToast === 'function') {
@@ -366,14 +388,10 @@ function pruneHistory() {
     toRemove.forEach(k => { delete state.history[k]; });
   }
   try {
-    var quoteKeys = [];
-    for (var qi = 0; qi < localStorage.length; qi++) {
-      var qk = localStorage.key(qi);
-      if (qk && qk.indexOf('iqra_quote_') === 0) quoteKeys.push(qk);
-    }
+    var quoteKeys = _safeStore().keys().filter(function (qk) { return qk && qk.indexOf('iqra_quote_') === 0; });
     if (quoteKeys.length > 7) {
       quoteKeys.sort();
-      quoteKeys.slice(0, quoteKeys.length - 7).forEach(function (k) { localStorage.removeItem(k); });
+      quoteKeys.slice(0, quoteKeys.length - 7).forEach(function (k) { _safeStore().removeItem(k); });
     }
   } catch (e) {}
 }
@@ -415,7 +433,8 @@ function toggleFavorite(id) {
     trackEvent('fav_on/' + id, 'В избранное: ' + id);
     if (typeof showMarkToast === 'function') showMarkToast('Сохранено в избранное');
   }
-  if (state.settings.vibrate && navigator.vibrate) navigator.vibrate(15);
+  if (typeof IqraPlatform !== 'undefined' && IqraPlatform && IqraPlatform.safeVibrate) IqraPlatform.safeVibrate(15);
+  else if (state.settings.vibrate && typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(15);
   save();
 }
 

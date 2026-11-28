@@ -276,7 +276,7 @@ function renderTajweedForElement(el, ayahBlock, surahMap) {
   var markerHtml = existingMarker
     ? existingMarker.outerHTML
     : (el.dataset.marker ? '<span class="read-ayah-marker">' + esc(el.dataset.marker) + '</span>' : '');
-  var markerSuffix = markerHtml ? ' ' + markerHtml : '';
+  var markerSuffix = markerHtml ? '\u00A0' + markerHtml : '';
 
   if (tajweedText && _isValidTajweedText(tajweedText)) {
     var result = renderTajweedHtml(tajweedText);

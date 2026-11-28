@@ -113,7 +113,15 @@ function openDua(id) {
   showScreen('screen-dua-detail');
 }
 
-function toggleDuaLearned(id) { const d=getDuaById(id); if (!d) return; d.learned=!d.learned; save(); if (d.learned) { if (navigator.vibrate) navigator.vibrate([20,40,20]); } openDua(id); }
+function toggleDuaLearned(id) {
+  const d = getDuaById(id); if (!d) return;
+  d.learned = !d.learned; save();
+  if (d.learned) {
+    if (typeof IqraPlatform !== 'undefined' && typeof IqraPlatform.safeVibrate === 'function') IqraPlatform.safeVibrate([20, 40, 20]);
+    else if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate([20, 40, 20]);
+  }
+  openDua(id);
+}
 function goDuaList() { activeDuaId=null; switchTab('library'); setLibraryTab('dua'); }
 
 window.setDuaFilter = setDuaFilter;

@@ -176,7 +176,8 @@ function cardPointerDown(e) {
     dragHoldTimer = setTimeout(() => { 
       dragEl = card; 
       card.classList.add('dragging'); 
-      if (navigator.vibrate) navigator.vibrate(15); 
+      if (typeof IqraPlatform !== 'undefined' && typeof IqraPlatform.safeVibrate === 'function') IqraPlatform.safeVibrate(15, { ignoreSetting: true });
+      else if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(15); 
     }, 450);
   }
 }
@@ -239,7 +240,8 @@ function openCounter(id) {
   activeId = id;
   const t = getById(id);
   if (!t) return;
-  try { localStorage.setItem('iqra_last_tasbih', id); } catch(e) {}
+  if (typeof IqraPlatform !== 'undefined' && IqraPlatform.safeStorage) IqraPlatform.safeStorage.setItem('iqra_last_tasbih', id);
+  else try { localStorage.setItem('iqra_last_tasbih', id); } catch(e) {}
   var safeTrackId = t.custom ? 'custom' : id;
   trackEvent('tasbih/' + safeTrackId, 'Тасбих: ' + safeTrackId);
   document.getElementById('c-ar').textContent = t.arabic;
@@ -306,13 +308,17 @@ function tap(e) {
   addToHistory(t.id, 1); updateCounterUI(); save();
   const newTotal = (state.history[_k] && state.history[_k].total) || 0;
   const goal = state.settings.dailyGoal || 0;
+  var _vib = function (pat) {
+    if (typeof IqraPlatform !== 'undefined' && typeof IqraPlatform.safeVibrate === 'function') IqraPlatform.safeVibrate(pat);
+    else if (state.settings.vibrate && typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(pat);
+  };
   if (state.settings.goalNotify && goal > 0 && prevTotal < goal && newTotal >= goal) {
     showMarkToast('Дневная цель достигнута — ' + newTotal);
-    if (state.settings.vibrate && navigator.vibrate) navigator.vibrate([40,60,40]);
+    _vib([40,60,40]);
   }
   const numEl=document.getElementById('c-num'); numEl.classList.remove('pulse'); void numEl.offsetWidth; numEl.classList.add('pulse');
-  if (completed) { trackEvent('complete/' + t.id, 'Цель достигнута: ' + t.id); if (state.settings.vibrate && navigator.vibrate) navigator.vibrate([30,40,30]); if (state.settings.autoNext) setTimeout(showNextToast, 800); }
-  else { if (state.settings.vibrate && navigator.vibrate) navigator.vibrate(8); }
+  if (completed) { trackEvent('complete/' + t.id, 'Цель достигнута: ' + t.id); _vib([30,40,30]); if (state.settings.autoNext) setTimeout(showNextToast, 800); }
+  else { _vib(8); }
 }
 function showNextToast() { const idx=state.tasbihs.findIndex(x=>x.id===activeId); const next=state.tasbihs[idx+1]; if (!next) return; const toast=document.getElementById('next-toast'); document.getElementById('nt-name').textContent=next.transcription||next.translation||'—'; document.getElementById('nt-ar').textContent=next.arabic||''; toast.classList.add('show'); clearTimeout(nextToastTimer); nextToastTimer=setTimeout(()=>toast.classList.remove('show'),5000); }
 function goNext() { const idx=state.tasbihs.findIndex(x=>x.id===activeId); const next=state.tasbihs[idx+1]; document.getElementById('next-toast').classList.remove('show'); if (next) openCounter(next.id); }
@@ -347,7 +353,7 @@ function setTargetPreset(n) {
 }
 function saveForm() { const arabic=document.getElementById('f-ar').value.trim().slice(0,LIMITS.textLen); const transcription=document.getElementById('f-tr').value.trim().slice(0,LIMITS.textLen); const translation=document.getElementById('f-trn').value.trim().slice(0,LIMITS.textLen); const target=Math.max(1,Math.min(LIMITS.targetMax,parseInt(document.getElementById('f-target').value)||33)); if (!arabic && !transcription && !translation) { showMarkToast('Заполните хотя бы одно поле', 3200); return; } if (editingId) { const t=getById(editingId); t.arabic=arabic; t.transcription=transcription; t.translation=translation; t.target=target; if (t.current>target) { t.current=0; t.cycles=0; } } else {
     if (state.tasbihs.length >= LIMITS.tasbihs) { showMarkToast('Максимум ' + LIMITS.tasbihs + ' тасбихов. Удалите старые.', 3200); return; }
-    state.tasbihs.push({id:'u'+Date.now(),arabic,transcription,translation,target,current:0,cycles:0,custom:true}); } state.draft=null; save(); if (state.settings.vibrate && navigator.vibrate) navigator.vibrate(15); showMarkToast('Сохранено'); if (activeId) openCounter(activeId); else { renderTasbih(); showScreen('screen-tasbih'); } }
+    state.tasbihs.push({id:'u'+Date.now(),arabic,transcription,translation,target,current:0,cycles:0,custom:true}); } state.draft=null; save(); if (typeof IqraPlatform !== 'undefined' && typeof IqraPlatform.safeVibrate === 'function') IqraPlatform.safeVibrate(15); else if (state.settings.vibrate && typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(15); showMarkToast('Сохранено'); if (activeId) openCounter(activeId); else { renderTasbih(); showScreen('screen-tasbih'); } }
 async function deleteCurrent() {   if (!editingId) return;   if (!await confirmAsync('Удалить тасбих?', 'Это действие нельзя отменить.', 'Удалить', 'Отмена')) return;   state.tasbihs = state.tasbihs.filter(t => t.id !== editingId);   save(); activeId = null; editingId = null; renderTasbih(); showScreen('screen-tasbih'); }
 
 (function _bindTasbihSpaceShortcut() {

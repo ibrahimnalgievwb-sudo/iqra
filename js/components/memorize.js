@@ -161,7 +161,11 @@ function memNext() {
     else {
       var doneItem = memorizeItem;
       closeMemorize();
-      if (navigator.vibrate) navigator.vibrate([30,40,30]);
+      if (typeof IqraPlatform !== 'undefined' && typeof IqraPlatform.safeVibrate === 'function') {
+        IqraPlatform.safeVibrate([30, 40, 30], { ignoreSetting: true });
+      } else if (typeof navigator !== 'undefined' && navigator.vibrate) {
+        navigator.vibrate([30, 40, 30]);
+      }
       var markedNew = false;
       if (doneItem && doneItem.id) {
         const q = getQuranById(doneItem.id);

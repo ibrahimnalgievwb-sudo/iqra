@@ -16,7 +16,7 @@ span[class^="tajweed-"] {
   display: inline;
   white-space: normal;
   font-weight: 500;
-  line-height: 2;
+  line-height: 2.1;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -47,7 +47,7 @@ span[class^="tajweed-"] {
   display: inline;
   white-space: normal;
   font-weight: 500;
-  line-height: 2;
+  line-height: 2.1;
 }
 
 /* Блок правил под аятом */

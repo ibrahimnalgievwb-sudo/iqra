@@ -50,6 +50,61 @@ function renderSettingsArchitecture() {
         return '<li class="plan-cap-item"><div class="pci-title">' + esc(c.title) + '</div><div class="pci-sub">' + esc(c.summary) + '</div></li>';
       }).join('') + '</ul>';
     };
+    var modules = (typeof IqraAccess !== 'undefined' && typeof IqraAccess.listModules === 'function')
+      ? IqraAccess.listModules()
+      : [
+          {
+            id: 'ACADEMY',
+            title: 'Академия Икра',
+            status: 'В разработке',
+            summary: 'Пошаговый курс арабского алфавита, махраджа букв и практики чтения с нуля.',
+            capabilityIds: ['arabic_tajweed_course']
+          },
+          {
+            id: 'HIFZ_PLANNER',
+            title: 'Тренажёр Хифза и Планировщик',
+            status: 'В разработке',
+            summary: 'Интервальное повторение аятов, личный ритм чтения и памятные даты Сунны.',
+            capabilityIds: ['hifz', 'planner', 'sunnah_fasts']
+          },
+          {
+            id: 'TAFSIR_JOURNAL',
+            title: 'Справочник аятов и Дневник',
+            status: 'В разработке',
+            summary: 'Тематический обзор историй пророков, личный дневник размышлений и расширенная аналитика.',
+            capabilityIds: ['prophets_encyclopedia', 'diary', 'extended_progress']
+          },
+          {
+            id: 'QADA_CLOUD',
+            title: 'Трекер Када и Облачный бэкап',
+            status: 'В разработке',
+            summary: 'Бережный календарь восполнения пропусков и резервное копирование между устройствами.',
+            capabilityIds: ['qada_tracker', 'cloud_sync']
+          }
+        ];
+    var capById = {};
+    plusCaps.forEach(function (c) { capById[c.id] = c; });
+    var renderedCapIds = {};
+    var moduleCardsHtml = modules.map(function (mod) {
+      var modCaps = (mod.capabilityIds || []).map(function (id) {
+        if (capById[id]) renderedCapIds[id] = true;
+        return capById[id];
+      }).filter(Boolean);
+      return '<div class="ipm-card" data-module="' + escAttr(mod.id) + '">' +
+        '<div class="ipm-head">' +
+          '<div class="ipm-title">' + esc(mod.title) + '</div>' +
+          '<span class="ipm-badge">' + esc(mod.status || 'В разработке') + '</span>' +
+        '</div>' +
+        '<div class="ipm-desc">' + esc(mod.summary) + '</div>' +
+        (modCaps.length
+          ? '<ul class="ipm-caps">' + modCaps.map(function (c) {
+              return '<li class="ipm-cap"><div class="ipm-cap-title">' + esc(c.title) + '</div><div class="ipm-cap-sub">' + esc(c.summary) + '</div></li>';
+            }).join('') + '</ul>'
+          : '') +
+      '</div>';
+    }).join('');
+    var extraPlusCaps = plusCaps.filter(function (c) { return !renderedCapIds[c.id]; });
+
     plansSlot.innerHTML =
       '<div class="plan-block">' +
         '<div class="plan-head"><div class="plan-name">Бесплатно навсегда</div><span class="plan-status plan-status--active">Активно</span></div>' +
@@ -58,8 +113,9 @@ function renderSettingsArchitecture() {
       '</div>' +
       '<div class="plan-block plan-block--future">' +
         '<div class="plan-head"><div class="plan-name">Икра+ (готовится)</div><span class="plan-status">В разработке</span></div>' +
-        '<div class="plan-desc">Опциональные инструменты обучения с нуля, планирования, трекера Када, постов Сунны, энциклопедии, дневника и облачного бэкапа. Тексты Корана и Сунны и подсветка таджвида при чтении навсегда остаются бесплатными.</div>' +
-        renderCapList(plusCaps) +
+        '<div class="plan-desc">4 опциональных модуля обучения, хифза, дневника, трекера Када и облачного бэкапа. Базовое ядро и чтение Корана с таджвидом навсегда остаются бесплатными.</div>' +
+        '<div class="ipm-grid">' + moduleCardsHtml + '</div>' +
+        (extraPlusCaps.length ? renderCapList(extraPlusCaps) : '') +
       '</div>';
   }
 }
@@ -244,7 +300,7 @@ function renderReminders() {
     return;
   }
   el.innerHTML = state.reminders.map((r, i) =>
-    `<div class="reminder-row"><div class="rr-top"><input type="time" value="${esc(r.time)}" onchange="updateReminderField(${i},'time',this.value)"><label class="toggle"><input type="checkbox" ${r.on ? 'checked' : ''} onchange="toggleReminder(${i}, this.checked)"><span class="slider"></span></label><button class="del" onclick="deleteReminder(${i})" aria-label="Удалить"><svg class="ico ico-sm"><use href="#i-x"/></svg></button></div><input type="text" value="${esc(r.message || '')}" placeholder="Сообщение (необязательно)" maxlength="200" onchange="updateReminderField(${i},'message',this.value)"></div>`
+    `<div class="reminder-row"><div class="rr-top"><input type="time" value="${escAttr(r.time)}" onchange="updateReminderField(${i},'time',this.value)"><label class="toggle"><input type="checkbox" ${r.on ? 'checked' : ''} onchange="toggleReminder(${i}, this.checked)"><span class="slider"></span></label><button class="del" onclick="deleteReminder(${i})" aria-label="Удалить"><svg class="ico ico-sm"><use href="#i-x"/></svg></button></div><input type="text" value="${escAttr(r.message || '')}" placeholder="Сообщение (необязательно)" maxlength="200" onchange="updateReminderField(${i},'message',this.value)"></div>`
   ).join('');
 }
 function addReminder() {
@@ -403,15 +459,24 @@ function exportCSV() {
   a.click();
   setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
   showMarkToast('Статистика сохранена');
-  if (state.settings.vibrate && navigator.vibrate) navigator.vibrate(15);
+  if (typeof IqraPlatform !== 'undefined' && typeof IqraPlatform.safeVibrate === 'function') {
+    IqraPlatform.safeVibrate(15);
+  } else if (state.settings.vibrate && typeof navigator !== 'undefined' && navigator.vibrate) {
+    navigator.vibrate(15);
+  }
 }
 
 function exportData() {
-  var base = (typeof serializeCompactState === 'function') ? serializeCompactState(state) : Object.assign({}, state);
-  const payload = Object.assign({}, base, {
-    __schema: BACKUP_SCHEMA,
-    __exportedAt: new Date().toISOString()
-  });
+  let payload;
+  if (typeof IqraSnapshot !== 'undefined' && typeof IqraSnapshot.exportUserSnapshot === 'function') {
+    payload = IqraSnapshot.exportUserSnapshot(state, { legacySchema: BACKUP_SCHEMA });
+  } else {
+    var base = (typeof serializeCompactState === 'function') ? serializeCompactState(state) : Object.assign({}, state);
+    payload = Object.assign({}, base, {
+      __schema: BACKUP_SCHEMA,
+      __exportedAt: new Date().toISOString()
+    });
+  }
   const data = JSON.stringify(payload, null, 2);
   const blob = new Blob([data], { type:'application/json' });
   const a = document.createElement('a');
@@ -420,7 +485,11 @@ function exportData() {
   a.click();
   setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
   showMarkToast('Бэкап сохранён');
-  if (state.settings.vibrate && navigator.vibrate) navigator.vibrate(15);
+  if (typeof IqraPlatform !== 'undefined' && typeof IqraPlatform.safeVibrate === 'function') {
+    IqraPlatform.safeVibrate(15);
+  } else if (state.settings.vibrate && typeof navigator !== 'undefined' && navigator.vibrate) {
+    navigator.vibrate(15);
+  }
 }
 
 /* ---------- IMPORT: ОЧИСТКА ВХОДНЫХ ДАННЫХ (v450) ----------
@@ -558,7 +627,15 @@ function _impCleanTags(raw) {
 }
 
 function validateImport(rawInput) {
-  const d = _stripUnsafeImportKeys(rawInput, 0);
+  let unwrapped = rawInput;
+  if (typeof IqraSnapshot !== 'undefined' && typeof IqraSnapshot.unwrapEnvelope === 'function') {
+    unwrapped = IqraSnapshot.unwrapEnvelope(rawInput);
+    if (!unwrapped) return null;
+  } else if (rawInput && typeof rawInput === 'object' && !Array.isArray(rawInput) && typeof rawInput.schemaVersion === 'number') {
+    if (rawInput.schemaVersion !== 1 || !rawInput.payload || typeof rawInput.payload !== 'object' || Array.isArray(rawInput.payload)) return null;
+    unwrapped = rawInput.payload;
+  }
+  const d = _stripUnsafeImportKeys(unwrapped, 0);
   if (!d || typeof d !== 'object' || Array.isArray(d)) return null;
   if (!Array.isArray(d.tasbihs)) return null;
   const safeId = (id) => (typeof id === 'string' && /^[a-zA-Z0-9_-]{1,100}$/.test(id)) ? id : null;
@@ -651,7 +728,8 @@ function validateImport(rawInput) {
 
 function importData(e) {
   const f = e.target.files[0]; if (!f) return;
-  if (f.size > 8 * 1024 * 1024) { showMarkToast('Файл слишком большой', 3200); e.target.value = ''; return; }
+  const maxBytes = (typeof IqraSnapshot !== 'undefined' && IqraSnapshot.MAX_SNAPSHOT_BYTES) ? IqraSnapshot.MAX_SNAPSHOT_BYTES : (5 * 1024 * 1024);
+  if (f.size > maxBytes) { showMarkToast('Файл слишком большой (лимит 5 МБ)', 3200); e.target.value = ''; return; }
   const r = new FileReader();
   r.onload = async () => {
     let parsed;
@@ -708,17 +786,24 @@ function importData(e) {
 async function resetAll() {
   if (!await confirmAsync('Удалить все данные?', 'Это необратимо. Резервную копию можно сохранить в Настройках перед сбросом.', 'Удалить всё', 'Отмена')) return;
   try {
-    localStorage.removeItem(STORAGE_KEY);
-    localStorage.removeItem('iqra_last_tasbih');
-    localStorage.removeItem('iqra_install_dismissed');
-    localStorage.removeItem('iqra_tajweed_cache');
-    localStorage.removeItem('iqra_sync_remote_stub');
-    var _qk = [];
-    for (var _ri = 0; _ri < localStorage.length; _ri++) {
-      var _rk = localStorage.key(_ri);
-      if (_rk && (_rk.indexOf('iqra_quote_') === 0 || _rk.indexOf('iqra_tajweed') === 0)) _qk.push(_rk);
+    var store = (typeof IqraPlatform !== 'undefined' && IqraPlatform.safeStorage) ? IqraPlatform.safeStorage : localStorage;
+    store.removeItem(STORAGE_KEY);
+    store.removeItem('iqra_last_tasbih');
+    store.removeItem('iqra_install_dismissed');
+    store.removeItem('iqra_tajweed_cache');
+    store.removeItem('iqra_sync_remote_stub');
+    var allKeys = (typeof store.keys === 'function') ? store.keys() : [];
+    if (!allKeys.length && typeof localStorage !== 'undefined') {
+      for (var _ri = 0; _ri < localStorage.length; _ri++) {
+        var _rk = localStorage.key(_ri);
+        if (_rk) allKeys.push(_rk);
+      }
     }
-    _qk.forEach(function(k){ localStorage.removeItem(k); });
+    allKeys.forEach(function (k) {
+      if (k && (k.indexOf('iqra_quote_') === 0 || k.indexOf('iqra_tajweed') === 0)) {
+        store.removeItem(k);
+      }
+    });
   } catch(e) {}
   location.reload();
 }

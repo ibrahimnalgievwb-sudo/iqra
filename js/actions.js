@@ -33,7 +33,10 @@
     'copyCurrent', 'setTargetPreset', 'debouncedRenderLibrary', 'clearLibrarySearch',
     'setDuaFilter', 'setHadithFilter', 'toggleReaderTranscription', 'stepReaderArSize',
     'setMemorizePhase', 'resetMemorizeHints', 'resetNightChecklistToday',
-    'clearProgFilter', 'copyAyah', 'copyLibraryItem', 'setAnalyticsPref'
+    'clearProgFilter', 'copyAyah', 'copyLibraryItem', 'setAnalyticsPref',
+    'playSurahAudio', 'playAyahAudio', 'toggleAudioPlayPause', 'stopAudioPlayer',
+    'cycleAudioLoop', 'prevAudioAyah', 'nextAudioAyah',
+    'openSurahToc', 'selectSurahTocAyah', 'jumpToReadAyah'
   ]);
 
   var ALLOWED_CLICK_TARGETS = {

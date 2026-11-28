@@ -71,9 +71,11 @@ function _widgetTapMiniTasbih(tasbihId) {
     t.current = 0;
     t.cycles = (t.cycles || 0) + 1;
     if (typeof showMarkToast === 'function') showMarkToast('Цикл завершён');
-    if (state.settings.vibrate && navigator.vibrate) navigator.vibrate([20, 40, 20]);
-  } else if (state.settings.vibrate && navigator.vibrate) {
-    navigator.vibrate(10);
+    if (typeof IqraPlatform !== 'undefined' && typeof IqraPlatform.safeVibrate === 'function') IqraPlatform.safeVibrate([20, 40, 20]);
+    else if (state.settings.vibrate && typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate([20, 40, 20]);
+  } else {
+    if (typeof IqraPlatform !== 'undefined' && typeof IqraPlatform.safeVibrate === 'function') IqraPlatform.safeVibrate(10);
+    else if (state.settings.vibrate && typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(10);
   }
   if (typeof addToHistory === 'function') addToHistory(t.id, 1);
   if (typeof save === 'function') save();

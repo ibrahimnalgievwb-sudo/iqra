@@ -1,6 +1,7 @@
 const SW_VERSION   = 'iqra-v469'; /* МЕНЯЙ ВЕРСИЮ ТОЛЬКО ЗДЕСЬ */
 const SW_VER_SHORT = SW_VERSION.replace(/^iqra-/, '');
 const CACHE_STATIC = 'iqra-static-' + SW_VER_SHORT;
+const CACHE_CORE   = CACHE_STATIC;
 const CACHE_DATA   = 'iqra-data-'   + SW_VER_SHORT;
 const CACHE_FONTS  = 'iqra-fonts-'  + SW_VER_SHORT;
 
@@ -20,6 +21,9 @@ const PRECACHE_STATIC = [
   './css/layout.css',
   './css/tajweed.css',
   './css/polish.css',
+  './js/core/platform.js',
+  './js/core/feature-flags.js',
+  './js/core/storage-snapshot.js',
   './js/architecture.js',
   './js/smart-reminders.js',
   './js/scholars.js',
@@ -32,6 +36,7 @@ const PRECACHE_STATIC = [
   './js/graph-engine.js',
   './js/components/guide.js',
   './js/components/tafsir.js',
+  './js/components/audio.js',
   './js/components/quran.js',
   './js/components/reader.js',
   './js/components/tasbih.js',
@@ -164,12 +169,43 @@ self.addEventListener('fetch', (event) => {
   }
 });
 
+const DATA_CACHE_MAX_ENTRIES = 150;
+const NETWORK_TIMEOUT_MS = 8000;
+
+async function fetchWithTimeout(req, timeoutMs) {
+  var limit = typeof timeoutMs === 'number' ? timeoutMs : NETWORK_TIMEOUT_MS;
+  if (typeof AbortController !== 'function') {
+    return fetch(req);
+  }
+  var ctrl = new AbortController();
+  var timer = setTimeout(function () {
+    try { ctrl.abort(); } catch (e) {}
+  }, limit);
+  try {
+    return await fetch(req, { signal: ctrl.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function trimCacheLRU(cache, maxItems) {
+  try {
+    var limit = typeof maxItems === 'number' ? maxItems : DATA_CACHE_MAX_ENTRIES;
+    var keys = await cache.keys();
+    if (keys.length <= limit) return;
+    var overflow = keys.length - limit;
+    for (var i = 0; i < overflow; i++) {
+      await cache.delete(keys[i]);
+    }
+  } catch (e) {}
+}
+
 async function cacheFirst(req, cacheName) {
   const cache = await caches.open(cacheName);
   const cached = await cache.match(req, { ignoreSearch: false });
   if (cached) return cached;
   try {
-    const res = await fetch(req);
+    const res = await fetchWithTimeout(req, NETWORK_TIMEOUT_MS);
     if (res && res.ok && res.status === 200) {
       try { await cache.put(req, res.clone()); } catch (e) {}
     }
@@ -182,9 +218,9 @@ async function cacheFirst(req, cacheName) {
 }
 
 async function networkFirst(req) {
-  const cache = await caches.open(CACHE_STATIC);
+  const cache = await caches.open(CACHE_CORE);
   try {
-    const res = await fetch(req);
+    const res = await fetchWithTimeout(req, NETWORK_TIMEOUT_MS);
     if (res && res.ok) {
       try { await cache.put(req, res.clone()); } catch (e) {}
     }
@@ -198,11 +234,11 @@ async function networkFirst(req) {
 
 async function networkFirstNavigation(req) {
   try {
-    const res = await fetch(req);
+    const res = await fetchWithTimeout(req, NETWORK_TIMEOUT_MS);
     if (res && (res.ok || res.type === 'opaqueredirect' || (res.status >= 300 && res.status < 400))) return res;
     throw new Error('non-ok');
   } catch (e) {
-    const cache = await caches.open(CACHE_STATIC);
+    const cache = await caches.open(CACHE_CORE);
     const cached =
       (await cache.match(req)) ||
       (await cache.match(new URL('./index.html', self.location.href).href)) ||
@@ -218,10 +254,13 @@ async function networkFirstNavigation(req) {
 async function staleWhileRevalidate(req, cacheName) {
   const cache = await caches.open(cacheName);
   const cached = await cache.match(req);
-  const networkPromise = fetch(req)
-    .then((res) => {
+  const networkPromise = fetchWithTimeout(req, NETWORK_TIMEOUT_MS)
+    .then(async (res) => {
       if (res && res.ok) {
-        try { cache.put(req, res.clone()); } catch (e) {}
+        try {
+          await cache.put(req, res.clone());
+          if (cacheName === CACHE_DATA) await trimCacheLRU(cache, DATA_CACHE_MAX_ENTRIES);
+        } catch (e) {}
       }
       return res;
     })
